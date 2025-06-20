@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "akarahnet-engine",
+  "version": "${version}",
+  "name": "akarahnet-engine",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "dev.akarah.cdata.Main"
+    ]
+  },
+  "mixins": [
+    "akarahnet-engine.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
