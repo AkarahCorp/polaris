@@ -1,16 +1,10 @@
 package dev.akarah.cdata.registry.citem;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.resources.ResourceLocation;
+import dev.akarah.cdata.property.PropertyMap;
 
 public record CustomItem(
-        ResourceLocation baseItem,
-        DataComponentMap map
+        PropertyMap properties
 ) {
-    public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("base_item").forGetter(CustomItem::baseItem),
-            DataComponentMap.CODEC.fieldOf("components").forGetter(CustomItem::map)
-    ).apply(instance, CustomItem::new));
+    public static Codec<CustomItem> CODEC = PropertyMap.CODEC.xmap(CustomItem::new, CustomItem::properties);
 }

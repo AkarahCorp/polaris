@@ -15,6 +15,10 @@ repositories {
     // Use only when depending on other mods.
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/akarahnet-engine.accesswidener")
+}
+
 dependencies {
     val minecraftVersion = project.property("minecraft_version")!!
     val loaderVersion = project.property("loader_version")!!
