@@ -15,7 +15,13 @@ import java.util.function.BiConsumer;
 
 public sealed interface Property<T> permits Property.Impl {
     Codec<T> codec();
+
     void applyToItem(ItemStack item, T value);
+
+    @SuppressWarnings("unchecked")
+    default void applyToItemUnchecked(ItemStack item, Object value) {
+        applyToItem(item, (T) value);
+    }
 
     Codec<Property<?>> CODEC = Codec.lazyInitialized(() -> ExtBuiltInRegistries.PROPERTIES.byNameCodec());
     Codec<Map<Property<?>, Object>> VALUE_MAP_CODEC = Codec.dispatchedMap(CODEC, Property::codec);

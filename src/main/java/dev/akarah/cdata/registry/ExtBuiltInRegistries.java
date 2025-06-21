@@ -15,6 +15,4 @@ public class ExtBuiltInRegistries {
     public static List<RegistryDataLoader.RegistryData<?>> DYNAMIC_REGISTRIES = List.of(
             new RegistryDataLoader.RegistryData<>(ExtRegistries.CUSTOM_ITEM, CustomItem.CODEC, false)
     );
-
-
 }
