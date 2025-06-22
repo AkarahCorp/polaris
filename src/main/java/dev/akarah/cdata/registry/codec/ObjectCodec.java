@@ -1,4 +1,4 @@
-package dev.akarah.cdata.codec;
+package dev.akarah.cdata.registry.codec;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
