@@ -1,9 +1,10 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.values;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.env.ScriptContext;
+import dev.akarah.cdata.script.value.ValueProvider;
 
 public record TextLineValue(ParsedText line) implements ValueProvider {
     public static MapCodec<TextLineValue> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

@@ -13,6 +13,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static MinecraftServerAudiences AUDIENCES;
@@ -71,9 +74,18 @@ public class Main implements ModInitializer {
             context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().forEach(element -> {
                 root.then(Commands.literal("script").then(
                         Commands.literal(element.key().location().toString()).executes(ctx -> {
+                            ctx.getSource().sendSystemMessage(Component.literal("Starting!"));
                             var scriptSelection = Selection.of(ctx.getSource().getEntity());
                             var scriptContext = ScriptContext.of(scriptSelection);
+
+                            var start = Instant.now();
                             element.value().execute(scriptContext);
+                            var end = Instant.now();
+
+                            var nanos = Duration.between(start, end).toNanos();
+                            var milliseconds = ((double) nanos) / 1000000.0;
+                            ctx.getSource().sendSystemMessage(Component.literal("Took " + milliseconds + "ms"));
+
                             return 0;
                         })
                 ));
