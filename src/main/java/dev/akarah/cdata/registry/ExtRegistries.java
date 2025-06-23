@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.citem.CustomItem;
 import dev.akarah.cdata.property.Property;
+import dev.akarah.cdata.registry.text.TextElement;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,4 +18,6 @@ public class ExtRegistries {
             ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("meta_codec_type"));
     public static ResourceKey<Registry<MetaCodec<?>>> META_CODEC =
             ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("meta_codec"));
+    public static ResourceKey<Registry<TextElement>> TEXT_ELEMENT =
+            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("text_element"));
 }

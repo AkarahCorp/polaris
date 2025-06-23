@@ -3,9 +3,9 @@ package dev.akarah.cdata;
 import dev.akarah.cdata.registry.ExtRegistries;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
+    public static MinecraftServerAudiences AUDIENCES;
 
     @Override
     public void onInitialize() {

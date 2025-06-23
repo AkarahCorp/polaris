@@ -5,6 +5,7 @@ import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.property.Properties;
 import dev.akarah.cdata.registry.citem.CustomItem;
 import dev.akarah.cdata.property.Property;
+import dev.akarah.cdata.registry.text.TextElement;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.RegistryDataLoader;
@@ -22,6 +23,7 @@ public class ExtBuiltInRegistries {
 
     public static List<RegistryDataLoader.RegistryData<?>> DYNAMIC_REGISTRIES = List.of(
             new RegistryDataLoader.RegistryData<>(ExtRegistries.CUSTOM_ITEM, CustomItem.CODEC, false),
-            new RegistryDataLoader.RegistryData<>(ExtRegistries.META_CODEC, MetaCodec.DIRECT_CODEC, false)
+            new RegistryDataLoader.RegistryData<>(ExtRegistries.META_CODEC, MetaCodec.DIRECT_CODEC, false),
+            new RegistryDataLoader.RegistryData<>(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC, false)
     );
 }

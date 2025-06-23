@@ -11,8 +11,11 @@ base {
 }
 
 repositories {
-    // Add repositories to retrieve artifacts from here.
-    // Use only when depending on other mods.
+    maven {
+        name = "sonatype-oss-snapshots1"
+        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        mavenContent { snapshotsOnly() }
+    }
 }
 
 loom {
@@ -28,6 +31,7 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+    modImplementation("net.kyori:adventure-platform-fabric:6.5.0-SNAPSHOT")
 }
 
 tasks.processResources {

@@ -12,13 +12,14 @@ import java.util.Set;
 
 public interface PropertyMap {
     <T> Optional<T> get(Property<T> property);
+
     Set<Property<?>> keySet();
 
     default int size() {
         return this.keySet().size();
     }
 
-    public static PropertyMap EMPTY = new PropertyMap() {
+    PropertyMap EMPTY = new PropertyMap() {
         @Override
         public <T> Optional<T> get(Property<T> property) {
             return Optional.empty();

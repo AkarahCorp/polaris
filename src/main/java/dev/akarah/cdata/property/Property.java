@@ -7,6 +7,7 @@ import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -16,11 +17,11 @@ import java.util.function.BiConsumer;
 public sealed interface Property<T> permits Property.Impl {
     Codec<T> codec();
 
-    void applyToItem(ItemStack item, T value);
+    void applyToItem(ItemStack item, T value, PropertyMap map);
 
     @SuppressWarnings("unchecked")
-    default void applyToItemUnchecked(ItemStack item, Object value) {
-        applyToItem(item, (T) value);
+    default void applyToItemUnchecked(ItemStack item, Object value, PropertyMap map) {
+        applyToItem(item, (T) value, map);
     }
 
     Codec<Property<?>> CODEC = Codec.lazyInitialized(() -> ExtBuiltInRegistries.PROPERTIES.byNameCodec());
@@ -31,12 +32,12 @@ public sealed interface Property<T> permits Property.Impl {
     }
 
     class Builder<T> {
-        private static final BiConsumer<ItemStack, Object> ITEM_APP_NOOP = (item, value) -> {};
+        private static final TriConsumer<ItemStack, Object, PropertyMap> ITEM_APP_NOOP = (item, value, map) -> {};
 
         private Codec<T> codec;
 
         @SuppressWarnings("unchecked")
-        private BiConsumer<ItemStack, T> itemApplication = (BiConsumer<ItemStack, T>) ITEM_APP_NOOP;
+        private TriConsumer<ItemStack, T, PropertyMap> itemApplication = (TriConsumer<ItemStack, T, PropertyMap>) ITEM_APP_NOOP;
 
         private ResourceLocation id;
 
@@ -46,6 +47,11 @@ public sealed interface Property<T> permits Property.Impl {
         }
 
         public Builder<T> itemApplication(BiConsumer<ItemStack, T> consumer) {
+            this.itemApplication = (item, value, map) -> consumer.accept(item, value);
+            return this;
+        }
+
+        public Builder<T> itemApplication(TriConsumer<ItemStack, T, PropertyMap> consumer) {
             this.itemApplication = consumer;
             return this;
         }
@@ -56,10 +62,10 @@ public sealed interface Property<T> permits Property.Impl {
         }
     }
 
-    record Impl<T>(Codec<T> codec, BiConsumer<ItemStack, T> itemApplication) implements Property<T> {
+    record Impl<T>(Codec<T> codec, TriConsumer<ItemStack, T, PropertyMap> itemApplication) implements Property<T> {
         @Override
-        public void applyToItem(ItemStack item, T value) {
-            itemApplication.accept(item, value);
+        public void applyToItem(ItemStack item, T value, PropertyMap map) {
+            itemApplication.accept(item, value, map);
         }
 
         @Override

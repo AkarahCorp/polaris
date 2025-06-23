@@ -21,7 +21,7 @@ public record CustomItem(
         is.setCount(1);
 
         for(var property : this.properties().keySet()) {
-            property.applyToItemUnchecked(is, this.properties.get(property).orElseThrow());
+            property.applyToItemUnchecked(is, this.properties.get(property).orElseThrow(), this.properties);
         }
 
         return is;
