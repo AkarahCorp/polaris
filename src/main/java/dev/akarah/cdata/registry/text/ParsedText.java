@@ -6,7 +6,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.minecraft.commands.SharedSuggestionProvider;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +19,8 @@ public record ParsedText(
             x -> { throw new RuntimeException("ummm no sorry"); }
     );
 
-    public Optional<Component> output(Parser.Environment environment) {
+    public Optional<Component> output(ParseContext environment) {
         var mm = MiniMessage.miniMessage();
-        System.out.println(string);
         var component = mm.deserialize(this.string, tagResolver(environment));
 
         var plainText = PlainTextComponentSerializer.plainText().serialize(component);
@@ -34,7 +32,7 @@ public record ParsedText(
         return Optional.of(component);
     }
 
-    public TagResolver tagResolver(Parser.Environment environment) {
+    public TagResolver tagResolver(ParseContext environment) {
         return TagResolver.resolver(
                 "interpolate",
                 (args, ctx) -> {

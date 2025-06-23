@@ -25,7 +25,7 @@ public sealed interface FunctionArgument {
             String name,
             List<FunctionArgument> arguments
     ) implements FunctionArgument {
-        public FunctionArgument evaluate(Parser.Environment environment) {
+        public FunctionArgument evaluate(ParseContext environment) {
             try {
                 return switch (name) {
                     case "property" -> new FunctionArgument.StringArgument(environment.defaultProperties().get(

@@ -83,15 +83,4 @@ public class Parser {
     public ParsedText output() {
         return new ParsedText(this.outputString.toString(), this.interpolations);
     }
-
-    public record Environment(
-            Optional<PropertyMap> entityProperties,
-            Optional<PropertyMap> itemProperties
-    ) {
-        public PropertyMap defaultProperties() {
-            return this.entityProperties
-                    .or(() -> this.itemProperties)
-                    .orElse(PropertyMap.EMPTY);
-        }
-    }
 }

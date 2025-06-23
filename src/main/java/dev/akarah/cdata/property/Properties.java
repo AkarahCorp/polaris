@@ -5,7 +5,7 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.property.value.CustomData;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtRegistries;
-import dev.akarah.cdata.registry.text.Parser;
+import dev.akarah.cdata.registry.text.ParseContext;
 import dev.akarah.cdata.registry.text.TextElement;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -40,7 +40,7 @@ public class Properties {
             builder -> builder
                     .codec(RegistryFileCodec.create(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC))
                     .itemApplication((item, value, map) -> {
-                        var environment = new Parser.Environment(
+                        var environment = new ParseContext(
                                 Optional.empty(),
                                 Optional.of(map)
                         );

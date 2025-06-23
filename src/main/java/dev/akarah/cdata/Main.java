@@ -1,6 +1,8 @@
 package dev.akarah.cdata;
 
 import dev.akarah.cdata.registry.ExtRegistries;
+import dev.akarah.cdata.script.env.ScriptContext;
+import dev.akarah.cdata.script.env.Selection;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
@@ -66,9 +68,18 @@ public class Main implements ModInitializer {
                 ));
             });
 
+            context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().forEach(element -> {
+                root.then(Commands.literal("script").then(
+                        Commands.literal(element.key().location().toString()).executes(ctx -> {
+                            var scriptSelection = Selection.of(ctx.getSource().getEntity());
+                            var scriptContext = ScriptContext.of(scriptSelection);
+                            element.value().execute(scriptContext);
+                            return 0;
+                        })
+                ));
+            });
+
             dispatcher.register(root);
         });
-
-        System.out.println("Hello world!");
     }
 }
