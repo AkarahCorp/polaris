@@ -28,7 +28,7 @@ public interface MetaCodec<T> {
         );
         Registry.register(
                 registry,
-                "map",
+                "object",
                 ObjectCodec.GENERATOR_CODEC
         );
 
