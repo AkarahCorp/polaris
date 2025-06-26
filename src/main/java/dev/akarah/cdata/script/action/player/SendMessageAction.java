@@ -22,7 +22,7 @@ public record SendMessageAction(
             var parseContext = ParseContext.entity(PropertyMap.EMPTY);
             message.evaluate(ctx, ParsedText.class)
                     .output(parseContext)
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(player::sendSystemMessage);
         });
     }
 

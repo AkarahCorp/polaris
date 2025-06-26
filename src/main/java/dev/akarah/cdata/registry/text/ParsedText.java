@@ -1,11 +1,12 @@
 package dev.akarah.cdata.registry.text;
 
 import com.mojang.serialization.Codec;
-import net.kyori.adventure.text.Component;
+import dev.akarah.cdata.Main;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,17 +30,19 @@ public record ParsedText(
         if(plainText.contains("<interpolate:")) {
             return Optional.empty();
         }
-        return Optional.of(component);
+        return Optional.of(Main.AUDIENCES.asNative(component));
     }
 
     public TagResolver tagResolver(ParseContext environment) {
         return TagResolver.resolver(
                 "interpolate",
                 (args, ctx) -> {
-                    var stringContent = this.interpolations.get(args.pop().asInt().orElse(0))
-                            .evaluate(environment)
-                            .toString();
-                    return Tag.inserting(ctx.deserialize(stringContent));
+                    var value = this.interpolations.get(args.pop().asInt().orElse(0))
+                            .evaluate(environment);
+                    while(value instanceof FunctionArgument.FunctionCall call) {
+                        value = call.evaluate(environment);
+                    }
+                    return Tag.inserting(ctx.deserialize(value.toString()));
                 }
         );
     }

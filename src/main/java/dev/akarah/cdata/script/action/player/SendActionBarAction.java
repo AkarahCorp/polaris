@@ -22,7 +22,7 @@ public record SendActionBarAction(
             var parseContext = ParseContext.entity(PropertyMap.EMPTY);
             message.evaluate(ctx, ParsedText.class)
                     .output(parseContext)
-                    .ifPresent(player::sendActionBar);
+                    .ifPresent(component -> player.sendSystemMessage(component, true));
         });
     }
 

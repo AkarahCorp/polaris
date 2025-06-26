@@ -1,6 +1,7 @@
 package dev.akarah.cdata;
 
 import dev.akarah.cdata.registry.ExtRegistries;
+import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.script.env.ScriptContext;
 import dev.akarah.cdata.script.env.Selection;
 import net.fabricmc.api.ModInitializer;
@@ -11,6 +12,7 @@ import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.time.Duration;
@@ -19,9 +21,11 @@ import java.time.Instant;
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static MinecraftServerAudiences AUDIENCES;
+    static StatManager STAT_MANAGER;
 
     @Override
     public void onInitialize() {
+        Main.STAT_MANAGER = new StatManager();
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
             dispatcher.register(Commands.literal("test").executes(ctx -> {
                 ctx.getSource().sendSystemMessage(Component.literal(
@@ -91,7 +95,23 @@ public class Main implements ModInitializer {
                 ));
             });
 
+            root.then(Commands.literal("my_stats").executes(ctx -> {
+                if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                    var stats = Main.statManager().lookup(serverPlayer);
+                    ctx.getSource().sendSuccess(() -> Component.literal(stats.toString()), false);
+                }
+                return 0;
+            }));
+
             dispatcher.register(root);
         });
+    }
+
+    public static MinecraftServer server() {
+        return SERVER;
+    }
+
+    public static StatManager statManager() {
+        return STAT_MANAGER;
     }
 }
