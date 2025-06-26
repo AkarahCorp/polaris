@@ -1,5 +1,7 @@
 package dev.akarah.cdata;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.script.env.ScriptContext;
@@ -15,6 +17,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -22,9 +26,16 @@ public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static MinecraftServerAudiences AUDIENCES;
     static StatManager STAT_MANAGER;
+    static EngineConfig CONFIG;
 
     @Override
     public void onInitialize() {
+        var engineConfigPath = Paths.get("./engine.json");
+        if(Files.exists(engineConfigPath)) {
+            var json = JsonParser.parseString(Util.sneakyThrows(() -> Files.readString(engineConfigPath)));
+            CONFIG = EngineConfig.CODEC.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
+        }
+
         Main.STAT_MANAGER = new StatManager();
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
             dispatcher.register(Commands.literal("test").executes(ctx -> {
@@ -113,5 +124,9 @@ public class Main implements ModInitializer {
 
     public static StatManager statManager() {
         return STAT_MANAGER;
+    }
+
+    public static EngineConfig config() {
+        return CONFIG;
     }
 }

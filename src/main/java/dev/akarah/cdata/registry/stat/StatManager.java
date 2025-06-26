@@ -56,4 +56,22 @@ public class StatManager {
             this.set(player, stats.performFinalCalculations());
         }
     }
+
+    public void refreshPlayerInventories() {
+        for(var player : Main.server().getPlayerList().getPlayers()) {
+            for(int slot = 0; slot < 40; slot++) {
+                var item = player.getInventory().getItem(slot);
+
+                int finalSlot = slot;
+                CustomItem.itemOf(item).ifPresent(customItem -> {
+                    var amount = item.getCount();
+
+                    var newItem = customItem.toItemStack();
+                    newItem.setCount(amount);
+
+                    player.getInventory().setItem(finalSlot, newItem);
+                });
+            }
+        }
+    }
 }

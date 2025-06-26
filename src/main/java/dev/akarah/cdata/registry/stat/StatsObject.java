@@ -2,6 +2,8 @@ package dev.akarah.cdata.registry.stat;
 
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
+import dev.akarah.cdata.EngineConfig;
+import dev.akarah.cdata.Main;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,12 +48,11 @@ public class StatsObject {
         return this.values.keySet();
     }
 
-    public StatsObject add(StatsObject other) {
+    public void add(StatsObject other) {
         var keys = Sets.union(this.keySet(), other.keySet());
         for(var key : keys) {
             this.set(key, this.get(key) + other.get(key));
         }
-        return this;
     }
 
     public StatsObject copy() {
@@ -63,7 +64,7 @@ public class StatsObject {
     }
 
     public StatsObject performFinalCalculations() {
-        var so = new StatsObject();
+        var so = Main.config().baseStats().copy();
         for(var key : this.keySet()) {
             so.set(key, this.get(key));
         }

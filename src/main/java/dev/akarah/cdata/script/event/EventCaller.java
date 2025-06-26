@@ -8,7 +8,6 @@ import net.minecraft.tags.TagKey;
 
 public class EventCaller {
     public static void callEvent(ResourceLocation eventName, ScriptContext ctx) {
-        System.out.println(eventName);
         var registry = Main.server().registryAccess().lookupOrThrow(ExtRegistries.SCRIPT);
         var tag = registry.getTagOrEmpty(TagKey.create(ExtRegistries.SCRIPT, eventName));
         tag.forEach(holder -> holder.value().execute(ctx));

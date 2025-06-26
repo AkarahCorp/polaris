@@ -11,6 +11,7 @@ import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,6 +21,8 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
+    @Shadow private int tickCount;
+
     @Inject(at = @At("TAIL"), method = "<init>")
     private void getInstance(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
         Main.SERVER = (MinecraftServer) (Object) this;
@@ -29,5 +32,8 @@ public class MinecraftServerMixin {
     @Inject(at = @At("HEAD"), method = "tickChildren")
     public void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
         Main.statManager().loopPlayers();
+        if(this.tickCount % 200 == 0) {
+            Main.statManager().refreshPlayerInventories();
+        }
     }
 }
