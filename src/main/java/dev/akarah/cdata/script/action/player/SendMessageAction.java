@@ -20,7 +20,7 @@ public record SendMessageAction(
     public void execute(ScriptContext ctx) {
         ctx.defaultSelection().forEachPlayer(player -> {
             var parseContext = ParseContext.entity(PropertyMap.EMPTY);
-            message.evaluate(ctx, ParsedText.class)
+            message.asText(ctx)
                     .output(parseContext)
                     .ifPresent(player::sendSystemMessage);
         });

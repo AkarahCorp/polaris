@@ -46,7 +46,6 @@ public class Parser {
 
     public FunctionArgument.FunctionCall readFunction() throws CommandSyntaxException {
         var name = string.readStringUntil('(');
-        System.out.println(string.getString() + ", " + string.getCursor());
         var args = new ArrayList<FunctionArgument>();
         try {
             if(string.peek() == '(') {
@@ -90,7 +89,6 @@ public class Parser {
     public String readArgString() {
         var sb = new StringBuilder();
         while(string.canRead()) {
-            System.out.println(sb);
             var ch = string.read();
             if(!isAllowedInArgString(ch)) {
                 break;
