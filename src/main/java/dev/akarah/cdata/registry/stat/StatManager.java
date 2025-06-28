@@ -1,8 +1,6 @@
 package dev.akarah.cdata.registry.stat;
 
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.property.Properties;
-import dev.akarah.cdata.property.Property;
 import dev.akarah.cdata.registry.citem.CustomItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -46,9 +44,9 @@ public class StatManager {
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
                 CustomItem.itemOf(item).ifPresent(customItem -> {
-                    customItem.properties().get(Properties.EQUIPPABLE).ifPresent(equippableData -> {
+                    customItem.equippable().ifPresent(equippableData -> {
                         if(slot.equals(equippableData.slot())) {
-                            stats.add(customItem.properties().get(Properties.STATS).orElse(StatsObject.EMPTY));
+                            stats.add(customItem.stats().orElse(StatsObject.EMPTY));
                         }
                     });
                 });

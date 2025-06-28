@@ -1,4 +1,4 @@
-package dev.akarah.cdata.property.value;
+package dev.akarah.cdata.registry.citem.value;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

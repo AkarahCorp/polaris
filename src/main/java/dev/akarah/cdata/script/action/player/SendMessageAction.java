@@ -2,9 +2,7 @@ package dev.akarah.cdata.script.action.player;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.property.PropertyMap;
 import dev.akarah.cdata.registry.text.ParseContext;
-import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.action.ActionProvider;
 import dev.akarah.cdata.script.env.ScriptContext;
 import dev.akarah.cdata.script.value.ValueProvider;
@@ -19,7 +17,7 @@ public record SendMessageAction(
     @Override
     public void execute(ScriptContext ctx) {
         ctx.defaultSelection().forEachPlayer(player -> {
-            var parseContext = ParseContext.entity(PropertyMap.EMPTY);
+            var parseContext = ParseContext.empty();
             message.asText(ctx)
                     .output(parseContext)
                     .ifPresent(player::sendSystemMessage);
