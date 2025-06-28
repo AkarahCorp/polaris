@@ -30,7 +30,6 @@ public record FunctionCall(
 
     public FunctionArgument resolveItemProperty(ParseContext environment, List<String> paths) {
         var propertyName = paths.removeFirst();
-        System.out.println(propertyName);
         return switch (propertyName) {
             case "name" -> new StringArgument(
                     environment.itemProperties()

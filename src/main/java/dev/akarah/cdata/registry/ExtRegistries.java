@@ -13,20 +13,20 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ExtRegistries {
     public static ResourceKey<Registry<CustomItem>> CUSTOM_ITEM =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("citem"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "item"));
     public static ResourceKey<Registry<CustomEntity>> CUSTOM_ENTITY =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("entity"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "entity"));
     public static ResourceKey<Registry<MapCodec<? extends MetaCodec<?>>>> META_CODEC_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("meta_codec_type"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec/type"));
     public static ResourceKey<Registry<MetaCodec<?>>> META_CODEC =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("meta_codec"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec"));
     public static ResourceKey<Registry<TextElement>> TEXT_ELEMENT =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("text_element"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "text"));
 
     public static ResourceKey<Registry<MapCodec<? extends ValueProvider>>> VALUE_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("action/value_type"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "action/value_type"));
     public static ResourceKey<Registry<MapCodec<? extends ActionProvider>>> ACTION_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("action/action_type"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "action/action_type"));
     public static ResourceKey<Registry<ActionProvider>> SCRIPT =
-            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("action"));
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "action"));
 }
