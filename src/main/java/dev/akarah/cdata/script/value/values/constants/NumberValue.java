@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.value.values;
+package dev.akarah.cdata.script.value.values.constants;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -8,7 +8,7 @@ import dev.akarah.cdata.script.value.ValueProvider;
 
 public record NumberValue(double value) implements ValueProvider {
     public static MapCodec<NumberValue> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("value").forGetter(NumberValue::value)
+            Codec.DOUBLE.fieldOf("item").forGetter(NumberValue::value)
     ).apply(instance, NumberValue::new));
 
     @Override

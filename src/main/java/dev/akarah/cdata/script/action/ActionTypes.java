@@ -1,10 +1,7 @@
 package dev.akarah.cdata.script.action;
 
 import com.mojang.serialization.MapCodec;
-import dev.akarah.cdata.script.action.player.AllOfAction;
-import dev.akarah.cdata.script.action.player.RepeatTimesAction;
-import dev.akarah.cdata.script.action.player.SendActionBarAction;
-import dev.akarah.cdata.script.action.player.SendMessageAction;
+import dev.akarah.cdata.script.action.player.*;
 import net.minecraft.core.Registry;
 
 public class ActionTypes {
@@ -19,6 +16,18 @@ public class ActionTypes {
                 registry,
                 "player/send_actionbar",
                 SendActionBarAction.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "player/give_item",
+                GiveItemAction.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "player/teleport",
+                TeleportAction.GENERATOR_CODEC
         );
 
         Registry.register(

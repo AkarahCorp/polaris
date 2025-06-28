@@ -13,6 +13,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,6 +40,8 @@ public record CustomItem(
             TextElement.HOLDER_CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
+
+    public static Codec<Holder<CustomItem>> HOLDER_CODEC = RegistryFileCodec.create(ExtRegistries.CUSTOM_ITEM, CustomItem.CODEC);
 
     public ResourceLocation id() {
         return Main.server()

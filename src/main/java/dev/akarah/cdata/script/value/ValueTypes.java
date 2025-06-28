@@ -1,9 +1,11 @@
 package dev.akarah.cdata.script.value;
 
 import com.mojang.serialization.MapCodec;
-import dev.akarah.cdata.script.value.values.NumberValue;
-import dev.akarah.cdata.script.value.values.StringValue;
-import dev.akarah.cdata.script.value.values.TextLineValue;
+import dev.akarah.cdata.script.value.values.constants.CustomItemValue;
+import dev.akarah.cdata.script.value.values.constants.NumberValue;
+import dev.akarah.cdata.script.value.values.constants.StringValue;
+import dev.akarah.cdata.script.value.values.constants.TextLineValue;
+import dev.akarah.cdata.script.value.values.vec3.*;
 import net.minecraft.core.Registry;
 
 public class ValueTypes {
@@ -24,6 +26,42 @@ public class ValueTypes {
                 registry,
                 "number",
                 NumberValue.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "item",
+                CustomItemValue.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "vec3",
+                Vec3Value.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "entity/location",
+                EntityVec3Value.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "entity/direction",
+                EntityDirectionVec3Value.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "vec3/offset",
+                OffsetVec3Value.GENERATOR_CODEC
+        );
+
+        Registry.register(
+                registry,
+                "vec3/multiply",
+                MultiplyVec3Value.GENERATOR_CODEC
         );
 
         return TextLineValue.GENERATOR_CODEC;

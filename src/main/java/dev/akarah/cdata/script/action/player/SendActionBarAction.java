@@ -11,7 +11,7 @@ public record SendActionBarAction(
         ValueProvider message
 ) implements ActionProvider {
     public static MapCodec<SendActionBarAction> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ValueProvider.TEXT_VALUE.fieldOf("message").forGetter(SendActionBarAction::message)
+            ValueProvider.TEXT_VALUE.fieldOf("messagewd").forGetter(SendActionBarAction::message)
     ).apply(instance, SendActionBarAction::new));
 
     @Override

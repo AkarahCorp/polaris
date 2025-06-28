@@ -80,9 +80,9 @@ public class Main implements ModInitializer {
             context.lookupOrThrow(ExtRegistries.META_CODEC).listElements().forEach(element -> {
                 root.then(Commands.literal("checkwithcodec").then(
                         Commands.literal(element.key().location().toString()).then(
-                                Commands.argument("value", NbtTagArgument.nbtTag()).executes(ctx -> {
+                                Commands.argument("item", NbtTagArgument.nbtTag()).executes(ctx -> {
                                     try {
-                                        var value = NbtTagArgument.getNbtTag(ctx, "value");
+                                        var value = NbtTagArgument.getNbtTag(ctx, "item");
                                         var result = element.value().codec().decode(NbtOps.INSTANCE, value);
                                         if(result.isError()) {
                                             ctx.getSource().sendFailure(
