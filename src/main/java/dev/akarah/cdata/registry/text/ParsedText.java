@@ -2,6 +2,7 @@ package dev.akarah.cdata.registry.text;
 
 import com.mojang.serialization.Codec;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.text.arguments.FunctionCall;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 public record ParsedText(
         String string,
-        List<FunctionArgument.FunctionCall> interpolations
+        List<FunctionCall> interpolations
 ) {
     public static Codec<ParsedText> CODEC = Codec.STRING.xmap(
             Parser::parseTextLine,
@@ -39,7 +40,7 @@ public record ParsedText(
                 (args, ctx) -> {
                     var value = this.interpolations.get(args.pop().asInt().orElse(0))
                             .evaluate(environment);
-                    while(value instanceof FunctionArgument.FunctionCall call) {
+                    while(value instanceof FunctionCall call) {
                         value = call.evaluate(environment);
                     }
                     return Tag.inserting(ctx.deserialize(value.toString()));

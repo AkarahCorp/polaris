@@ -20,11 +20,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public record CustomItem(
         ResourceLocation model,
-        Optional<ParsedText> name,
+        Optional<String> name,
         Optional<StatsObject> stats,
         Optional<EquippableData> equippable,
         Optional<Holder<TextElement>> itemTemplate,
@@ -32,7 +33,7 @@ public record CustomItem(
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
-            ParsedText.CODEC.optionalFieldOf("name").forGetter(CustomItem::name),
+            Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
             TextElement.HOLDER_CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
@@ -64,13 +65,16 @@ public record CustomItem(
         });
         this.itemTemplate().ifPresent(itemTemplate -> {
             var environment = ParseContext.item(this);
-            is.set(DataComponents.LORE, new ItemLore(
+
+            var lines = new ArrayList<>(
                     itemTemplate.value().lines()
                             .stream()
                             .map(x -> x.output(environment))
                             .flatMap(Optional::stream)
                             .toList()
-            ));
+            );
+            is.set(DataComponents.ITEM_NAME, lines.removeFirst());
+            is.set(DataComponents.LORE, new ItemLore(lines));
         });
 
         return is;

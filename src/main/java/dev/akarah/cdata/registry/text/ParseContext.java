@@ -7,12 +7,10 @@ import java.util.Optional;
 
 public record ParseContext(
         Optional<CustomItem> itemProperties,
-        Optional<StatsObject> entityStats,
-        Optional<StatsObject> itemStats
+        Optional<StatsObject> stats
 ) {
     public static ParseContext empty() {
         return new ParseContext(
-                Optional.empty(),
                 Optional.empty(),
                 Optional.empty()
         );
@@ -21,7 +19,6 @@ public record ParseContext(
     public static ParseContext item(CustomItem customItem) {
         return new ParseContext(
                 Optional.of(customItem),
-                Optional.empty(),
                 Optional.of(customItem.stats().orElse(StatsObject.EMPTY))
         );
     }

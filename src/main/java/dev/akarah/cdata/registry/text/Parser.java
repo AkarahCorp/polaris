@@ -2,13 +2,16 @@ package dev.akarah.cdata.registry.text;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.akarah.cdata.registry.text.arguments.FunctionCall;
+import dev.akarah.cdata.registry.text.arguments.NumberArgument;
+import dev.akarah.cdata.registry.text.arguments.StringArgument;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
     StringReader string;
-    List<FunctionArgument.FunctionCall> interpolations = new ArrayList<>();
+    List<FunctionCall> interpolations = new ArrayList<>();
     StringBuilder outputString = new StringBuilder();
 
     // syntax: %function(arg1,arg2)
@@ -44,7 +47,7 @@ public class Parser {
         }
     }
 
-    public FunctionArgument.FunctionCall readFunction() throws CommandSyntaxException {
+    public FunctionCall readFunction() throws CommandSyntaxException {
         var name = string.readStringUntil('(');
         var args = new ArrayList<FunctionArgument>();
         try {
@@ -55,18 +58,18 @@ public class Parser {
                 string.skipWhitespace();
                 if(string.peek() == ')') {
                     string.expect(')');
-                    return new FunctionArgument.FunctionCall(name, args);
+                    return new FunctionCall(name, args);
                 }
                 if(string.peek() >= '0' && string.peek() <= '9'
                         || string.peek() == '-') {
-                    args.add(new FunctionArgument.NumberArgument(string.readDouble()));
+                    args.add(new NumberArgument(string.readDouble()));
                 } else if(string.peek() == '%') {
                     args.add(readFunction());
                 } else if(string.peek() == '\'') {
-                    args.add(new FunctionArgument.StringArgument(string.readStringUntil('\'')));
+                    args.add(new StringArgument(string.readStringUntil('\'')));
                     string.skip();
                 } else {
-                    args.add(new FunctionArgument.StringArgument(string.readUnquotedString()));
+                    args.add(new StringArgument(string.readUnquotedString()));
                 }
                 if(string.peek() == ',') {
                     string.expect(',');
@@ -75,7 +78,7 @@ public class Parser {
         } catch (StringIndexOutOfBoundsException ignored) {
 
         }
-        return new FunctionArgument.FunctionCall(name, List.of());
+        return new FunctionCall(name, List.of());
     }
 
     public ParsedText output() {
