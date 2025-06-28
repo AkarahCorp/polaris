@@ -2,6 +2,7 @@ package dev.akarah.cdata.registry;
 
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
+import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.text.TextElement;
 import dev.akarah.cdata.script.action.ActionProvider;
@@ -13,6 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 public class ExtRegistries {
     public static ResourceKey<Registry<CustomItem>> CUSTOM_ITEM =
             ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("citem"));
+    public static ResourceKey<Registry<CustomEntity>> CUSTOM_ENTITY =
+            ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("entity"));
     public static ResourceKey<Registry<MapCodec<? extends MetaCodec<?>>>> META_CODEC_TYPE =
             ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("meta_codec_type"));
     public static ResourceKey<Registry<MetaCodec<?>>> META_CODEC =

@@ -3,6 +3,7 @@ package dev.akarah.cdata;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtRegistries;
+import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.script.env.ScriptContext;
 import dev.akarah.cdata.script.env.Selection;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 import java.nio.file.Files;
@@ -54,6 +56,19 @@ public class Main implements ModInitializer {
                     try {
                         if(ctx.getSource().getEntity() instanceof Player p) {
                             p.addItem(element.value().toItemStack());
+                        }
+                    } catch (RuntimeException exception) {
+                        exception.printStackTrace();
+                    }
+                    return 0;
+                })));
+            });
+
+            context.lookupOrThrow(ExtRegistries.CUSTOM_ENTITY).listElements().forEach(element -> {
+                root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
+                    try {
+                        if(ctx.getSource().getEntity() instanceof Player p) {
+                            element.value().spawn(p.level(), p.getPosition(0.0f));
                         }
                     } catch (RuntimeException exception) {
                         exception.printStackTrace();
