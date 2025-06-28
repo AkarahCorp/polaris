@@ -1,13 +1,12 @@
-package dev.akarah.cdata.registry.citem;
+package dev.akarah.cdata.registry.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.citem.value.EquippableData;
+import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.registry.text.ParseContext;
-import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.registry.text.TextElement;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

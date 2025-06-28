@@ -1,6 +1,6 @@
 package dev.akarah.cdata.registry.text.arguments;
 
-import dev.akarah.cdata.registry.citem.CustomItem;
+import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.registry.text.*;
 import net.minecraft.resources.ResourceLocation;

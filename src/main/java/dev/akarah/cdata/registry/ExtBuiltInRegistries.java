@@ -2,7 +2,7 @@ package dev.akarah.cdata.registry;
 
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
-import dev.akarah.cdata.registry.citem.CustomItem;
+import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.text.TextElement;
 import dev.akarah.cdata.script.action.ActionProvider;
 import dev.akarah.cdata.script.action.ActionTypes;

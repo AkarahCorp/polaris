@@ -1,7 +1,7 @@
 package dev.akarah.cdata.registry.stat;
 
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.citem.CustomItem;
+import dev.akarah.cdata.registry.item.CustomItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 
