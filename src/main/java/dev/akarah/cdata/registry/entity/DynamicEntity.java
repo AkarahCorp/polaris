@@ -1,7 +1,5 @@
 package dev.akarah.cdata.registry.entity;
 
-import dev.akarah.cdata.script.env.ScriptContext;
-import dev.akarah.cdata.script.env.Selection;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,7 +32,5 @@ public class DynamicEntity extends LivingEntity {
     @Override
     public void tick() {
         super.tick();
-        var ctx = ScriptContext.of(Selection.of(this));
-        this.base.onTick().ifPresent(x -> x.execute(ctx));
     }
 }

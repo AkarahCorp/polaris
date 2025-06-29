@@ -3,10 +3,7 @@ package dev.akarah.cdata;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtRegistries;
-import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.stat.StatManager;
-import dev.akarah.cdata.script.env.ScriptContext;
-import dev.akarah.cdata.script.env.Selection;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
@@ -16,13 +13,10 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.Instant;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
@@ -98,26 +92,6 @@ public class Main implements ModInitializer {
                                     return 0;
                                 })
                         )
-                ));
-            });
-
-            context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().forEach(element -> {
-                root.then(Commands.literal("script").then(
-                        Commands.literal(element.key().location().toString()).executes(ctx -> {
-                            ctx.getSource().sendSystemMessage(Component.literal("Starting!"));
-                            var scriptSelection = Selection.of(ctx.getSource().getEntity());
-                            var scriptContext = ScriptContext.of(scriptSelection);
-
-                            var start = Instant.now();
-                            element.value().execute(scriptContext);
-                            var end = Instant.now();
-
-                            var nanos = Duration.between(start, end).toNanos();
-                            var milliseconds = ((double) nanos) / 1000000.0;
-                            ctx.getSource().sendSystemMessage(Component.literal("Took " + milliseconds + "ms"));
-
-                            return 0;
-                        })
                 ));
             });
 
