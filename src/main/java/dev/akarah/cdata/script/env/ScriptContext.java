@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.env;
 
 public class ScriptContext {
     Selection defaultSelection = Selection.empty();
+    VariableContainer localVariables = VariableContainer.empty();
 
     private ScriptContext() {
 
@@ -17,6 +18,10 @@ public class ScriptContext {
 
     public static ScriptContext of(Selection defaultSelection) {
         return new ScriptContext(defaultSelection);
+    }
+
+    public VariableContainer localVariables() {
+        return this.localVariables;
     }
 
     public Selection defaultSelection() {
