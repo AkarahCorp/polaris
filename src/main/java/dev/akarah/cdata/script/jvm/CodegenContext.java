@@ -1,19 +1,14 @@
 package dev.akarah.cdata.script.jvm;
 
-import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.ExtRegistries;
-import dev.akarah.cdata.script.action.CompilableAction;
+import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.env.RuntimeContext;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 import java.lang.classfile.*;
-import java.lang.constant.ClassDesc;
-import java.lang.constant.ConstantDescs;
-import java.lang.constant.MethodTypeDesc;
-import java.lang.ref.Reference;
+import java.lang.constant.*;
 import java.lang.reflect.AccessFlag;
 import java.util.List;
 import java.util.function.Function;
@@ -29,7 +24,7 @@ public class CodegenContext {
     MethodBuilder methodBuilder;
     CodeBuilder codeBuilder;
 
-    public static Class<?> initializeCompilation(List<Holder.Reference<CompilableAction>> refs) {
+    public static Class<?> initializeCompilation(List<Holder.Reference<Expression>> refs) {
         var bytes = CodegenContext.compileClassBytecode(refs);
         var classLoader = new ByteClassLoader(Thread.currentThread().getContextClassLoader());
         classLoader.registerClass(RAW_CLASS_NAME, bytes);
@@ -44,7 +39,7 @@ public class CodegenContext {
         return name.toString().replace(":", "__");
     }
 
-    private static byte[] compileClassBytecode(List<Holder.Reference<CompilableAction>> refs) {
+    private static byte[] compileClassBytecode(List<Holder.Reference<Expression>> refs) {
         var classFile = ClassFile.of();
 
         return classFile.build(
@@ -62,7 +57,7 @@ public class CodegenContext {
         );
     }
 
-    private ClassBuilder compileAction(ResourceLocation name, CompilableAction action) {
+    private ClassBuilder compileAction(ResourceLocation name, Expression action) {
         return this.classBuilder.withMethod(
                 resourceLocationToMethodName(name),
                 MethodTypeDesc.of(JIT.ofVoid(), List.of(JIT.ofClass(RuntimeContext.class))),
@@ -81,6 +76,65 @@ public class CodegenContext {
 
     public CodegenContext bytecode(Function<CodeBuilder, CodeBuilder> function) {
         this.codeBuilder = function.apply(this.codeBuilder);
+        return this;
+    }
+
+    public CodegenContext pushSelectedEntity() {
+        this.codeBuilder.aload(0);
+        this.codeBuilder.invokevirtual(
+            JIT.ofClass(RuntimeContext.class),
+            "primaryEntity",
+            MethodTypeDesc.of(JIT.ofClass(Entity.class), List.of())
+        );
+        return this;
+    }
+
+    public CodegenContext pushSelectedEntityAs(ClassDesc classDesc) {
+        this.codeBuilder.aload(0);
+        this.codeBuilder.invokevirtual(
+                JIT.ofClass(RuntimeContext.class),
+                "primaryEntity",
+                MethodTypeDesc.of(JIT.ofClass(Entity.class), List.of())
+        );
+        this.codeBuilder.checkcast(classDesc);
+        return this;
+    }
+
+    public CodegenContext pushValue(Expression expression) {
+        expression.compile(this);
+        return this;
+    }
+
+    public CodegenContext ifSelectionIsType(
+            ClassDesc target,
+            Function<CodegenContext, CodegenContext> function
+    ) {
+        this.pushSelectedEntity();
+        codeBuilder.instanceOf(target);
+        codeBuilder.ifThen(
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.apply(this);
+
+                    this.codeBuilder = oldBuilder;
+                }
+        );
+        return this;
+    }
+
+    public CodegenContext invokeFromSelection(
+            ClassDesc target,
+            String methodName,
+            ClassDesc outputType,
+            List<ClassDesc> parameterTypes
+    ) {
+        this.codeBuilder.invokevirtual(
+                target,
+                methodName,
+                MethodTypeDesc.of(outputType, parameterTypes)
+        );
         return this;
     }
 }

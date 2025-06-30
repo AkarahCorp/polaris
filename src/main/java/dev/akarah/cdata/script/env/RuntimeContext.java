@@ -17,4 +17,8 @@ public class RuntimeContext {
     public static RuntimeContext of(Entity entity) {
         return new RuntimeContext(entity, Maps.newHashMap());
     }
+
+    public Entity primaryEntity() {
+        return this.primaryEntity;
+    }
 }
