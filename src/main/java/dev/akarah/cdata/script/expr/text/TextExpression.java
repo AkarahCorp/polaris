@@ -1,10 +1,11 @@
-package dev.akarah.cdata.script.expr.test;
+package dev.akarah.cdata.script.expr.text;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -29,6 +30,11 @@ public record TextExpression(String value) implements Expression {
                                 true
                         )
         );
+    }
+
+    @Override
+    public Type<?> type() {
+        return Type.text();
     }
 
     @Override

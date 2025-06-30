@@ -1,15 +1,10 @@
-package dev.akarah.cdata.script.expr.test;
+package dev.akarah.cdata.script.expr.string;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.script.expr.Expression;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.jvm.CodegenContext;
-
-import java.io.PrintStream;
-import java.lang.classfile.Opcode;
-import java.lang.constant.MethodTypeDesc;
-import java.util.List;
+import dev.akarah.cdata.script.type.Type;
 
 public record StringExpression(String value) implements Expression {
     public static MapCodec<StringExpression> GENERATOR_CODEC = Codec.STRING.fieldOf("value").xmap(StringExpression::new, StringExpression::value);
@@ -17,6 +12,11 @@ public record StringExpression(String value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx.bytecode(cb -> cb.loadConstant(this.value));
+    }
+
+    @Override
+    public Type<?> type() {
+        return Type.string();
     }
 
     @Override

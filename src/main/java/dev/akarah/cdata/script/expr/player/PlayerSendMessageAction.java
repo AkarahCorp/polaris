@@ -1,9 +1,10 @@
-package dev.akarah.cdata.script.expr.test;
+package dev.akarah.cdata.script.expr.player;
 
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public record PlayerSendMessageAction(
         Expression message
 ) implements Expression {
-    public static MapCodec<PlayerSendMessageAction> GENERATOR_CODEC = Expression.CODEC
+    public static MapCodec<PlayerSendMessageAction> GENERATOR_CODEC = Expression.codecByType(Type.text())
             .fieldOf("message")
             .xmap(PlayerSendMessageAction::new, PlayerSendMessageAction::message);
 
@@ -29,6 +30,11 @@ public record PlayerSendMessageAction(
                                 List.of(JIT.ofClass(Component.class))
                         )
         );
+    }
+
+    @Override
+    public Type<?> type() {
+        return Type.void_();
     }
 
     @Override
