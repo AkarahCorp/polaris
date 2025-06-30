@@ -54,7 +54,7 @@ tasks.processResources {
     }
 }
 
-val targetJavaVersion = 21
+val targetJavaVersion = 24
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"

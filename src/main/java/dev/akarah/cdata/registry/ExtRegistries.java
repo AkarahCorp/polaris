@@ -5,6 +5,7 @@ import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.text.TextElement;
+import dev.akarah.cdata.script.action.CompilableAction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -20,4 +21,8 @@ public class ExtRegistries {
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec"));
     public static ResourceKey<Registry<TextElement>> TEXT_ELEMENT =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "text"));
+    public static ResourceKey<Registry<MapCodec<? extends CompilableAction>>> ACTION_TYPE =
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script/action/type"));
+    public static ResourceKey<Registry<CompilableAction>> SCRIPT =
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script"));
 }

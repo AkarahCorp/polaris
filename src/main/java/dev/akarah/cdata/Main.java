@@ -4,19 +4,30 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatManager;
+import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistrySetupCallback;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
+import net.fabricmc.fabric.api.event.registry.RegistryIdRemapCallback;
+import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
@@ -33,7 +44,13 @@ public class Main implements ModInitializer {
         }
 
         Main.STAT_MANAGER = new StatManager();
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            Main.SERVER = server;
+        });
+
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
+
             dispatcher.register(Commands.literal("test").executes(ctx -> {
                 ctx.getSource().sendSystemMessage(Component.literal(
                         Main.SERVER.registryAccess()
@@ -93,6 +110,39 @@ public class Main implements ModInitializer {
                                 })
                         )
                 ));
+            });
+
+            var elements = context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().toList();
+            var codeClazz = CodegenContext.initializeCompilation(elements);
+            System.out.println(codeClazz.getName());
+            System.out.println(
+                    Arrays.stream(codeClazz.getDeclaredMethods())
+                            .map(Method::getName)
+                            .toList()
+            );
+            elements.forEach(element -> {
+                try {
+                    var method = codeClazz.getDeclaredMethod(
+                            CodegenContext.resourceLocationToMethodName(
+                                    element.key().location()
+                            ),
+                            RuntimeContext.class
+                    );
+                    root.then(Commands.literal("run").then(
+                            Commands.literal(element.key().location().toString()).executes(ctx -> {
+                                if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                    try {
+                                        method.invoke(null, RuntimeContext.of(serverPlayer));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                return 0;
+                            })
+                    ));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
 
             root.then(Commands.literal("my_stats").executes(ctx -> {
