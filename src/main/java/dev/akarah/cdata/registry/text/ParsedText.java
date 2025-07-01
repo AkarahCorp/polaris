@@ -34,6 +34,10 @@ public record ParsedText(
         return Optional.of(Main.AUDIENCES.asNative(component));
     }
 
+    public Component outputOrNull(ParseContext environment) {
+        return this.output(environment).orElse(null);
+    }
+
     public TagResolver tagResolver(ParseContext environment) {
         return TagResolver.resolver(
                 "interpolate",

@@ -1,15 +1,15 @@
 package dev.akarah.cdata.script.type;
 
-import net.minecraft.network.chat.Component;
+import dev.akarah.cdata.registry.text.ParsedText;
 
-public record TextType() implements Type<Component> {
+public record TextType() implements Type<ParsedText> {
     @Override
     public String typeName() {
         return "text";
     }
 
     @Override
-    public Class<Component> typeClass() {
-        return Component.class;
+    public Class<ParsedText> typeClass() {
+        return ParsedText.class;
     }
 }

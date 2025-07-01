@@ -23,10 +23,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
 
 public class Main implements ModInitializer {
@@ -120,6 +122,19 @@ public class Main implements ModInitializer {
                             .map(Method::getName)
                             .toList()
             );
+            System.out.println(
+                    Arrays.stream(codeClazz.getDeclaredFields())
+                            .map(Field::getName)
+                            .toList()
+            );
+
+            try {
+                var method = codeClazz.getDeclaredMethod("$static_init");
+                method.invoke(null);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+
             elements.forEach(element -> {
                 try {
                     var method = codeClazz.getDeclaredMethod(
@@ -132,7 +147,10 @@ public class Main implements ModInitializer {
                             Commands.literal(element.key().location().toString()).executes(ctx -> {
                                 if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                     try {
+                                        var start = System.nanoTime()/1000000.0;
                                         method.invoke(null, RuntimeContext.of(serverPlayer));
+                                        var end = System.nanoTime()/1000000.0;
+                                        ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }

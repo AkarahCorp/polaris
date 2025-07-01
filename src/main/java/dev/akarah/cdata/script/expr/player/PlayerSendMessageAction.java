@@ -22,7 +22,7 @@ public record PlayerSendMessageAction(
         ctx.ifSelectionIsType(
                 JIT.ofClass(ServerPlayer.class),
                 ctx2 -> ctx2.pushSelectedEntityAs(JIT.ofClass(ServerPlayer.class))
-                        .pushValue(this.message)
+                        .evaluateParsedTextOrReturn(this.message)
                         .invokeFromSelection(
                                 JIT.ofClass(ServerPlayer.class),
                                 "sendSystemMessage",

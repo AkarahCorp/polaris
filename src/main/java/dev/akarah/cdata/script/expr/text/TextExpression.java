@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr.text;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -12,24 +13,17 @@ import net.minecraft.network.chat.MutableComponent;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record TextExpression(String value) implements Expression {
-    public static MapCodec<TextExpression> GENERATOR_CODEC = Codec.STRING.fieldOf("value")
+public record TextExpression(ParsedText value) implements Expression {
+    public static MapCodec<TextExpression> GENERATOR_CODEC = ParsedText.CODEC.fieldOf("value")
             .xmap(TextExpression::new, TextExpression::value);
 
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb ->
-                cb.loadConstant(this.value)
-                        .invokestatic(
-                                JIT.ofClass(Component.class),
-                                "literal",
-                                MethodTypeDesc.of(
-                                        JIT.ofClass(MutableComponent.class),
-                                        List.of(JIT.ofClass(String.class))
-                                ),
-                                true
-                        )
-        );
+        var fieldName = ctx.randomName("player_send_message");
+        ctx
+                .createStatic(fieldName, ParsedText.class, this.value())
+                .loadStatic(fieldName, ParsedText.class)
+                .bytecode(cb -> cb);
     }
 
     @Override
