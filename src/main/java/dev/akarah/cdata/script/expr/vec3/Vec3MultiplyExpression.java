@@ -16,7 +16,7 @@ public record Vec3MultiplyExpression(
         Expression rhs
 ) implements Expression {
     public static MapCodec<Vec3MultiplyExpression> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Expression.codecByType(Type.vec3()).fieldOf("value").forGetter(Vec3MultiplyExpression::lhs),
+            Expression.codecByType(Type.vec3()).fieldOf("lhs").forGetter(Vec3MultiplyExpression::lhs),
             Expression.codecByType(Type.vec3()).fieldOf("rhs").forGetter(Vec3MultiplyExpression::rhs)
     ).apply(instance, Vec3MultiplyExpression::new));
 

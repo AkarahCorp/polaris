@@ -16,7 +16,7 @@ public record Vec3AddExpression(
         Expression rhs
 ) implements Expression {
     public static MapCodec<Vec3AddExpression> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Expression.codecByType(Type.vec3()).fieldOf("value").forGetter(Vec3AddExpression::lhs),
+            Expression.codecByType(Type.vec3()).fieldOf("lhs").forGetter(Vec3AddExpression::lhs),
             Expression.codecByType(Type.vec3()).fieldOf("rhs").forGetter(Vec3AddExpression::rhs)
     ).apply(instance, Vec3AddExpression::new));
 
