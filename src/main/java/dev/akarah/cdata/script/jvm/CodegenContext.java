@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -77,9 +78,7 @@ public class CodegenContext {
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
 
-                    System.out.println(refs.stream().map(Holder.Reference::key).toList());
                     refs.forEach(entry -> {
-                        System.out.println("Compiling " + entry);
                         cc.classBuilder = cc.compileAction(entry.key().location(), entry.value());
                     });
 
@@ -98,7 +97,6 @@ public class CodegenContext {
                             methodBuilder -> {
                                 methodBuilder.withCode(codeBuilder -> {
                                     for(var entry : cc.staticClasses.keySet()) {
-                                        System.out.println("Compiling static of ID `" + entry + "`...");
                                         codeBuilder.getstatic(
                                                 JIT.ofClass(System.class),
                                                 "out",
@@ -134,7 +132,6 @@ public class CodegenContext {
                                         );
 
                                         var reqClass = cc.staticClasses.get(entry);
-                                        System.out.println("rq: " + reqClass);
                                         codeBuilder.checkcast(JIT.ofClass(reqClass));
                                         codeBuilder.putstatic(
                                                 ACTION_CLASS_DESC,
@@ -156,7 +153,6 @@ public class CodegenContext {
                 MethodTypeDesc.of(JIT.ofVoid(), List.of(JIT.ofClass(RuntimeContext.class))),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
-                    System.out.println("IM BUILDING THE METHOD AHHH");
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
                         this.codeBuilder = codeBuilder;
@@ -178,6 +174,24 @@ public class CodegenContext {
             JIT.ofClass(RuntimeContext.class),
             "primaryEntity",
             MethodTypeDesc.of(JIT.ofClass(Entity.class), List.of())
+        );
+        return this;
+    }
+
+    public CodegenContext log(String message) {
+        this.codeBuilder.getstatic(
+                JIT.ofClass(System.class),
+                "out",
+                JIT.ofClass(PrintStream.class)
+        );
+        this.codeBuilder.loadConstant(message);
+        this.codeBuilder.invokevirtual(
+                JIT.ofClass(PrintStream.class),
+                "println",
+                MethodTypeDesc.of(
+                        JIT.ofVoid(),
+                        JIT.ofClass(String.class)
+                )
         );
         return this;
     }
@@ -278,6 +292,39 @@ public class CodegenContext {
                 CodegenContext.ACTION_CLASS_DESC,
                 name,
                 JIT.ofClass(type)
+        );
+        return this;
+    }
+
+    public CodegenContext boxNumber() {
+        this.codeBuilder.invokestatic(
+                JIT.ofClass(Double.class),
+                "valueOf",
+                MethodTypeDesc.of(
+                        JIT.ofClass(Double.class),
+                        List.of(JIT.ofDouble())
+                )
+        );
+        return this;
+    }
+
+    public CodegenContext unboxNumber() {
+        this.codeBuilder.invokevirtual(
+                JIT.ofClass(Double.class),
+                "doubleValue",
+                MethodTypeDesc.of(
+                        JIT.ofDouble(),
+                        List.of()
+                )
+        );
+        return this;
+    }
+
+    public CodegenContext getVectorComponent(String component) {
+        this.codeBuilder.getfield(
+                JIT.ofClass(Vec3.class),
+                component,
+                JIT.ofDouble()
         );
         return this;
     }

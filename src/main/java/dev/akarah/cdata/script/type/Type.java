@@ -20,6 +20,10 @@ public interface Type<T> {
         return new VoidType();
     }
 
+    static Vec3Type vec3() {
+        return new Vec3Type();
+    }
+
     default ListType<T> listOf() {
         return new ListType<>(this);
     }

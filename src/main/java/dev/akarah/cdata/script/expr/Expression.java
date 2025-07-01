@@ -4,15 +4,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
+import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
+import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
+import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
+import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
+import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
+import dev.akarah.cdata.script.expr.vec3.*;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public interface Expression {
     void compile(CodegenContext ctx);
@@ -48,7 +55,22 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("string"), StringExpression.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text"), TextExpression.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("number"), NumberExpression.GENERATOR_CODEC);
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3"), Vec3Expression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/add"), Vec3AddExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/multiply"), Vec3MultiplyExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/x"), Vec3XExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/y"), Vec3YExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/z"), Vec3ZExpression.GENERATOR_CODEC);
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/position"), EntityPositionExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/direction"), EntityDirectionExpression.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.GENERATOR_CODEC);
+
         Registry.register(actions, ResourceLocation.withDefaultNamespace("player/send_message"), PlayerSendMessageAction.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("player/send_actionbar"), PlayerSendActionbarAction.GENERATOR_CODEC);
+
         return StringExpression.GENERATOR_CODEC;
     }
 }

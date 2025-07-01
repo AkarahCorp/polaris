@@ -116,17 +116,6 @@ public class Main implements ModInitializer {
 
             var elements = context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().toList();
             var codeClazz = CodegenContext.initializeCompilation(elements);
-            System.out.println(codeClazz.getName());
-            System.out.println(
-                    Arrays.stream(codeClazz.getDeclaredMethods())
-                            .map(Method::getName)
-                            .toList()
-            );
-            System.out.println(
-                    Arrays.stream(codeClazz.getDeclaredFields())
-                            .map(Field::getName)
-                            .toList()
-            );
 
             try {
                 var method = codeClazz.getDeclaredMethod("$static_init");

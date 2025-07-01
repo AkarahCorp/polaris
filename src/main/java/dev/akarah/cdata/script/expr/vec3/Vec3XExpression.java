@@ -1,0 +1,37 @@
+package dev.akarah.cdata.script.expr.vec3;
+
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.Type;
+import net.minecraft.world.phys.Vec3;
+
+import java.lang.constant.MethodTypeDesc;
+import java.util.List;
+
+public record Vec3XExpression(
+        Expression value
+) implements Expression {
+    public static MapCodec<Vec3XExpression> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Expression.codecByType(Type.vec3()).fieldOf("value").forGetter(Vec3XExpression::value)
+    ).apply(instance, Vec3XExpression::new));
+
+    @Override
+    public void compile(CodegenContext ctx) {
+        ctx
+                .pushValue(this.value)
+                .getVectorComponent("x");
+    }
+
+    @Override
+    public Type<?> type() {
+        return Type.number();
+    }
+
+    @Override
+    public MapCodec<? extends Expression> generatorCodec() {
+        return GENERATOR_CODEC;
+    }
+}
