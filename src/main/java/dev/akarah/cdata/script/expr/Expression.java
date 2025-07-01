@@ -17,16 +17,14 @@ import dev.akarah.cdata.script.expr.vec3.*;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 
 public interface Expression {
     void compile(CodegenContext ctx);
     Type<?> type();
     MapCodec<? extends Expression> generatorCodec();
 
-    Codec<Expression> NUMBER_CODEC = Codec.DOUBLE.xmap(NumberExpression::new,  x -> ((NumberExpression) x).value());
+    Codec<Expression> NUMBER_CODEC = Codec.DOUBLE.xmap(NumberExpression::new, x -> ((NumberExpression) x).value());
     Codec<Expression> STRING_CODEC = Codec.STRING.xmap(StringExpression::new, x -> ((StringExpression) x).value());
 
     Codec<Expression> BASE_CODEC = Codec.lazyInitialized(() -> ExtBuiltInRegistries.ACTION_TYPE

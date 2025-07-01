@@ -7,9 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 
-import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package dev.akarah.cdata.script.expr.entity;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;

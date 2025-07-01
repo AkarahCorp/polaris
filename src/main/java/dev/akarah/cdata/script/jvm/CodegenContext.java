@@ -10,7 +10,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
@@ -23,11 +22,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
+/**
+ * CodegenContext is the main class responsible for turning Actions into valid JVM bytecode.
+ */
 public class CodegenContext {
     public static ClassDesc ACTION_CLASS_DESC = ClassDesc.of(
             "dev.akarah.cdata.script.compiled",
@@ -43,6 +43,11 @@ public class CodegenContext {
 
     public static CodegenContext INSTANCE;
 
+    /**
+     * Begin compiling expressions into a valid class. This method should only be called once.
+     * @param refs The list of expressions to compile.
+     * @return The created class.
+     */
     public static Class<?> initializeCompilation(List<Holder.Reference<Expression>> refs) {
         var bytes = CodegenContext.compileClassBytecode(refs);
         try {
@@ -64,10 +69,20 @@ public class CodegenContext {
         }
     }
 
+    /**
+     * Converts a resource location to a valid method name.
+     * @param name The resource location to convert.
+     * @return The converted method name.
+     */
     public static String resourceLocationToMethodName(ResourceLocation name) {
         return name.toString().replace(":", "__");
     }
 
+    /**
+     * Handles the overarching transformations of actions into a class file.
+     * @param refs The references to include in the transformation.
+     * @return The raw bytes of the new class created.
+     */
     private static byte[] compileClassBytecode(List<Holder.Reference<Expression>> refs) {
         var classFile = ClassFile.of();
 
@@ -147,6 +162,12 @@ public class CodegenContext {
         );
     }
 
+    /**
+     * Compiles an individual entry in the action registry into the class.
+     * @param name The name of the entry.
+     * @param action The action code of the entry.
+     * @return This.
+     */
     private ClassBuilder compileAction(ResourceLocation name, Expression action) {
         return this.classBuilder.withMethod(
                 resourceLocationToMethodName(name),
@@ -163,11 +184,21 @@ public class CodegenContext {
         );
     }
 
+    /**
+     * Exposes the underlying CodeBuilder for use by {@link Expression}.
+     * @param function The function to apply.
+     * @return This.
+     */
     public CodegenContext bytecode(Function<CodeBuilder, CodeBuilder> function) {
         this.codeBuilder = function.apply(this.codeBuilder);
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Pushes the selected entity onto the stack.
+     * @return This.
+     */
     public CodegenContext pushSelectedEntity() {
         this.codeBuilder.aload(0);
         this.codeBuilder.invokevirtual(
@@ -178,6 +209,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Prints out a debug message at runtime.
+     * @return This.
+     */
     public CodegenContext log(String message) {
         this.codeBuilder.getstatic(
                 JIT.ofClass(System.class),
@@ -196,6 +232,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Pushes the selected entity onto the stack as a specific class, throwing an exception at runtime if it fails.
+     * @return This.
+     */
     public CodegenContext pushSelectedEntityAs(ClassDesc classDesc) {
         this.codeBuilder.aload(0);
         this.codeBuilder.invokevirtual(
@@ -207,11 +248,21 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Pushes an Expression onto the stack.
+     * @return This.
+     */
     public CodegenContext pushValue(Expression expression) {
         expression.compile(this);
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Evaluates the {@link ParsedText} on top of the stack. Returns from this function if it is a skipped line.
+     * @return This.
+     */
     public CodegenContext evaluateParsedTextOrReturn(Expression expression) {
         expression.compile(this);
         this.codeBuilder.aload(0);
@@ -240,6 +291,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * At runtime, evaluates the provided block if the entity selection is of the given type.
+     * @return This.
+     */
     public CodegenContext ifSelectionIsType(
             ClassDesc target,
             Function<CodegenContext, CodegenContext> function
@@ -259,6 +315,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * At runtime, invokes a method on the selected entity.
+     * @return This.
+     */
     public CodegenContext invokeFromSelection(
             ClassDesc target,
             String methodName,
@@ -273,20 +334,40 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Generates a random name for a static variable.
+     * @return This.
+     */
     public String randomName() {
         return "static_" + UUID.randomUUID().toString().replace("-", "_");
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Generates a random name for a static variable, with a specified prefix.
+     * @return This.
+     */
     public String randomName(String base) {
         return base + "_" + randomName();
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Generates a new static field, useful for holding compile-time-known constants.
+     * @return This.
+     */
     public CodegenContext createStatic(String name, Class<?> type, Object value) {
         this.staticClasses.put(name, type);
         this.staticValues.put(name, value);
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Loads a static of a name and type onto the stack.
+     * @return This.
+     */
     public CodegenContext loadStatic(String name, Class<?> type) {
         this.codeBuilder.getstatic(
                 CodegenContext.ACTION_CLASS_DESC,
@@ -296,6 +377,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Turns a `double` into a `Double` at runtime.
+     * @return This.
+     */
     public CodegenContext boxNumber() {
         this.codeBuilder.invokestatic(
                 JIT.ofClass(Double.class),
@@ -308,6 +394,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Turns a `Double` into a `double` at runtime.
+     * @return This.
+     */
     public CodegenContext unboxNumber() {
         this.codeBuilder.invokevirtual(
                 JIT.ofClass(Double.class),
@@ -320,6 +411,11 @@ public class CodegenContext {
         return this;
     }
 
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Gets the component of a Vec3. Accepts "x", "y", or "z".
+     * @return This.
+     */
     public CodegenContext getVectorComponent(String component) {
         this.codeBuilder.getfield(
                 JIT.ofClass(Vec3.class),

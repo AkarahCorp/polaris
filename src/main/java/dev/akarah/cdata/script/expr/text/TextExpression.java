@@ -1,17 +1,10 @@
 package dev.akarah.cdata.script.expr.text;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.text.ParsedText;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-
-import java.lang.constant.MethodTypeDesc;
-import java.util.List;
 
 public record TextExpression(ParsedText value) implements Expression {
     public static MapCodec<TextExpression> GENERATOR_CODEC = ParsedText.CODEC.fieldOf("value")

@@ -2,14 +2,9 @@ package dev.akarah.cdata.script.expr.vec3;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.world.phys.Vec3;
-
-import java.lang.constant.MethodTypeDesc;
-import java.util.List;
 
 public record Vec3XExpression(
         Expression value
