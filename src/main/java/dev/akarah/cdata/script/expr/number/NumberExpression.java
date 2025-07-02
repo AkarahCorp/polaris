@@ -11,12 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public record NumberExpression(double value) implements Expression {
-    public static MapCodec<NumberExpression> GENERATOR_CODEC = Codec.DOUBLE.fieldOf("value").xmap(NumberExpression::new, NumberExpression::value);
-
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(this.value))
-                .boxNumber();
+        ctx.bytecode(cb -> cb.loadConstant(this.value));
     }
 
     @Override

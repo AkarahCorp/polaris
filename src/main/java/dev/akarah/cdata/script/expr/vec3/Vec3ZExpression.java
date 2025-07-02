@@ -17,8 +17,8 @@ public record Vec3ZExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.value)
-                .unboxNumber()
-                .getVectorComponent("z");
+                .getVectorComponent("z")
+                .unboxNumber();
     }
 
     @Override

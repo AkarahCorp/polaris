@@ -5,8 +5,8 @@ import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.text.Parser;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.flow.AllOfAction;
-import dev.akarah.cdata.script.expr.flow.EndAction;
 import dev.akarah.cdata.script.expr.flow.GetLocalAction;
+import dev.akarah.cdata.script.expr.flow.RepeatTimesAction;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
@@ -31,20 +31,37 @@ public class DslParser {
             if(parser.peek() instanceof DslToken.EOF) {
                 return new AllOfAction(expressions);
             }
-            var expr = parser.parseAnyExpression();
+            var expr = parser.parseStatement();
             expressions.add(expr);
         }
     }
 
-    public Expression parseAnyExpression() {
+    public Expression parseStatement() {
+        if(this.peek() instanceof DslToken.RepeatKeyword) {
+            return parseRepeat();
+        }
+        return parseValue();
+    }
+
+    public Expression parseValue() {
         return this.parseInvocation();
     }
 
-    public Expression parseBlock() {
+    public RepeatTimesAction parseRepeat() {
+        expect(DslToken.RepeatKeyword.class);
+        expect(DslToken.OpenParen.class);
+        var times = parseValue();
+        expect(DslToken.CloseParen.class);
+        var block = parseBlock();
+
+        return new RepeatTimesAction(times, block);
+    }
+
+    public AllOfAction parseBlock() {
         var statements = new ArrayList<Expression>();
         expect(DslToken.OpenBrace.class);
         while(!(peek() instanceof DslToken.CloseBrace)) {
-            statements.add(parseAnyExpression());
+            statements.add(parseValue());
         }
         expect(DslToken.CloseBrace.class);
         return new AllOfAction(statements);
@@ -74,7 +91,11 @@ public class DslParser {
 
             var parameters = new ArrayList<Expression>();
             while(!(peek() instanceof DslToken.CloseParen)) {
-                parameters.add(parseAnyExpression());
+                parameters.add(parseValue());
+
+                if(!(peek() instanceof DslToken.CloseParen)) {
+                    expect(DslToken.Comma.class);
+                }
             }
             expect(DslToken.CloseParen.class);
 

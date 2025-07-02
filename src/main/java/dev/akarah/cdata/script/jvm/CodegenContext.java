@@ -203,6 +203,15 @@ public class CodegenContext {
     }
 
     /**
+     * Exposes the underlying CodeBuilder for use by {@link Expression}.
+     * @param function The function to apply.
+     * @return This.
+     */
+    public CodeBuilder bytecode() {
+        return this.codeBuilder;
+    }
+
+    /**
      * Used by {@link Expression#compile(CodegenContext)}.
      * Pushes the selected entity onto the stack.
      * @return This.
@@ -415,6 +424,40 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
+     * Turns a `int` into a `Integer` at runtime.
+     * @return This.
+     */
+    public CodegenContext boxInteger() {
+        this.codeBuilder.invokestatic(
+                JIT.ofClass(Integer.class),
+                "valueOf",
+                MethodTypeDesc.of(
+                        JIT.ofClass(Integer.class),
+                        List.of(JIT.ofInt())
+                )
+        );
+        return this;
+    }
+
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Turns a `Integer` into a `int` at runtime.
+     * @return This.
+     */
+    public CodegenContext unboxInteger() {
+        this.codeBuilder.invokevirtual(
+                JIT.ofClass(Integer.class),
+                "intValue",
+                MethodTypeDesc.of(
+                        JIT.ofInt(),
+                        List.of()
+                )
+        );
+        return this;
+    }
+
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
      * Gets the component of a Vec3. Accepts "x", "y", or "z".
      * @return This.
      */
@@ -473,6 +516,35 @@ public class CodegenContext {
         return this;
     }
 
+    public CodegenContext ifThen(Opcode opcode, Supplier<CodegenContext> function) {
+        codeBuilder.ifThen(
+                opcode,
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.get();
+
+                    this.codeBuilder = oldBuilder;
+                }
+        );
+        return this;
+    }
+
+    public CodegenContext ifThen(Supplier<CodegenContext> function) {
+        codeBuilder.ifThen(
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.get();
+
+                    this.codeBuilder = oldBuilder;
+                }
+        );
+        return this;
+    }
+
     public CodegenContext ifThenElse(Supplier<CodegenContext> function, Supplier<CodegenContext> orElse) {
         codeBuilder.ifThenElse(
                 blockCodeBuilder -> {
@@ -499,9 +571,9 @@ public class CodegenContext {
         if(this.methodLocals.containsKey(variable)) {
             return this.bytecode(cb -> cb.astore(this.methodLocals.get(variable)));
         } else {
-            this.methodLocals.put(variable, this.localIndex);
-            localIndex++;
-            return this.bytecode(cb -> cb.astore(localIndex - 1));
+            var index = this.codeBuilder.allocateLocal(TypeKind.REFERENCE);
+            this.methodLocals.put(variable, index);
+            return this.bytecode(cb -> cb.astore(index));
         }
     }
 

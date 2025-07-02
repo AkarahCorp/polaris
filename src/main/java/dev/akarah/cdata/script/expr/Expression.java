@@ -38,16 +38,6 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("all_of"), AllOfAction.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("if"), IfAction.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("local/set"), SetLocalAction.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("local/get"), GetLocalAction.class);
-
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("string"), StringExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("text"), TextExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("number"), NumberExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("boolean"), BooleanExpression.class);
-
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3"), Vec3Expression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/add"), Vec3AddExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/multiply"), Vec3MultiplyExpression.class);

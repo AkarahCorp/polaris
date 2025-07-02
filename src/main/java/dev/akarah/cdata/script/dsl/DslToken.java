@@ -21,6 +21,10 @@ public interface DslToken {
 
     }
 
+    record Semicolon() implements DslToken {
+
+    }
+
     record OpenParen() implements DslToken {
 
     }
@@ -46,6 +50,10 @@ public interface DslToken {
     }
 
     record LocalKeyword() implements DslToken {
+
+    }
+
+    record RepeatKeyword() implements DslToken {
 
     }
 

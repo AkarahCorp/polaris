@@ -9,6 +9,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
 
+import java.lang.classfile.TypeKind;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 import java.util.Optional;
@@ -19,15 +20,16 @@ public record EntityTeleportAction(
 
     @Override
     public void compile(CodegenContext ctx) {
+        var local = ctx.bytecode().allocateLocal(TypeKind.REFERENCE);
         ctx
                 .pushSelectedEntity()
                 .pushValue(this.position)
-                .bytecode(cb -> cb.astore(1))
-                .bytecode(cb -> cb.aload(1))
+                .bytecode(cb -> cb.astore(local))
+                .bytecode(cb -> cb.aload(local))
                 .getVectorComponent("x")
-                .bytecode(cb -> cb.aload(1))
+                .bytecode(cb -> cb.aload(local))
                 .getVectorComponent("y")
-                .bytecode(cb -> cb.aload(1))
+                .bytecode(cb -> cb.aload(local))
                 .getVectorComponent("z")
                 .bytecode(cb -> cb.invokevirtual(
                         JIT.ofClass(Entity.class),

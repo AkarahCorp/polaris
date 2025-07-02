@@ -61,7 +61,18 @@ public class DslTokenizer {
                      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
                      'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                      '_', '.' -> {
-                    return DataResult.success(new DslToken.Identifier(this.stringReader.readUnquotedString()));
+                    var string = this.stringReader.readUnquotedString();
+                    return DataResult.success(switch (string) {
+                        case "if" -> new DslToken.IfKeyword();
+                        case "else" -> new DslToken.ElseKeyword();
+                        case "local" -> new DslToken.LocalKeyword();
+                        case "repeat" -> new DslToken.RepeatKeyword();
+                        default -> new DslToken.Identifier(string);
+                    });
+                }
+                case ';' -> {
+                    stringReader.expect(';');
+                    return DataResult.success(new DslToken.Semicolon());
                 }
                 case '(' -> {
                     stringReader.expect('(');
@@ -70,6 +81,18 @@ public class DslTokenizer {
                 case ')' -> {
                     stringReader.expect(')');
                     return DataResult.success(new DslToken.CloseParen());
+                }
+                case '{' -> {
+                    stringReader.expect('{');
+                    return DataResult.success(new DslToken.OpenBrace());
+                }
+                case '}' -> {
+                    stringReader.expect('}');
+                    return DataResult.success(new DslToken.CloseBrace());
+                }
+                case ',' -> {
+                    stringReader.expect(',');
+                    return DataResult.success(new DslToken.Comma());
                 }
                 default -> throw new SimpleCommandExceptionType(() -> "Invalid character type: '" + stringReader.peek() + "'")
                         .createWithContext(this.stringReader);

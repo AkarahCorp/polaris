@@ -17,8 +17,8 @@ public record Vec3YExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.value)
-                .unboxNumber()
-                .getVectorComponent("y");
+                .getVectorComponent("y")
+                .unboxNumber();
     }
 
     @Override
