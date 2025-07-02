@@ -49,4 +49,9 @@ public record EntityTeleportAction(
     public MapCodec<? extends Expression> generatorCodec() {
         return GENERATOR_CODEC;
     }
+
+    @Override
+    public int localsRequiredForCompile() {
+        return 1;
+    }
 }

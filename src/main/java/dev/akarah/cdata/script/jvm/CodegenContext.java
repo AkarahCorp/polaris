@@ -42,6 +42,10 @@ public class CodegenContext {
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
 
+    Map<String, Integer> methodLocals = Maps.newHashMap();
+
+    int localIndex = 0;
+
     public static CodegenContext INSTANCE;
 
     /**
@@ -175,6 +179,8 @@ public class CodegenContext {
                 MethodTypeDesc.of(JIT.ofVoid(), List.of(JIT.ofClass(RuntimeContext.class))),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
+                    this.methodLocals.clear();
+                    this.localIndex = action.localsRequiredForCompile() + 1;
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
                         this.codeBuilder = codeBuilder;
@@ -486,5 +492,22 @@ public class CodegenContext {
                 }
         );
         return this;
+    }
+
+    public CodegenContext storeLocal(String variable) {
+        if(this.methodLocals.containsKey(variable)) {
+            return this.bytecode(cb -> cb.astore(this.methodLocals.get(variable)));
+        } else {
+            this.methodLocals.put(variable, this.localIndex);
+            localIndex++;
+            return this.bytecode(cb -> cb.astore(localIndex - 1));
+        }
+    }
+
+    public CodegenContext pushLocal(String variable) {
+        if(!this.methodLocals.containsKey(variable)) {
+            throw new RuntimeException("Variable `" + variable + "` in method doesn't exist yet!");
+        }
+        return this.bytecode(cb -> cb.aload(this.methodLocals.get(variable)));
     }
 }

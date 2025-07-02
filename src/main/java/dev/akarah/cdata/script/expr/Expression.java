@@ -11,7 +11,9 @@ import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
 import dev.akarah.cdata.script.expr.flow.AllOfAction;
+import dev.akarah.cdata.script.expr.flow.GetLocalAction;
 import dev.akarah.cdata.script.expr.flow.IfAction;
+import dev.akarah.cdata.script.expr.flow.SetLocalAction;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
@@ -19,7 +21,6 @@ import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
 import dev.akarah.cdata.script.expr.vec3.*;
 import dev.akarah.cdata.script.jvm.CodegenContext;
-import dev.akarah.cdata.script.type.TextType;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,9 @@ public interface Expression {
     void compile(CodegenContext ctx);
     Type<?> type();
     MapCodec<? extends Expression> generatorCodec();
+    default int localsRequiredForCompile() {
+        return 0;
+    }
 
     Codec<Expression> NUMBER_CODEC = Codec.DOUBLE.xmap(NumberExpression::new, x -> ((NumberExpression) x).value());
     Codec<Expression> STRING_CODEC = Codec.STRING.xmap(StringExpression::new, x -> ((StringExpression) x).value());
@@ -74,6 +78,8 @@ public interface Expression {
     static Object bootStrap(Registry<MapCodec<? extends Expression>> actions) {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("all_of"), AllOfAction.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("if"), IfAction.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("local/set"), SetLocalAction.GENERATOR_CODEC);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("local/get"), GetLocalAction.GENERATOR_CODEC);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("string"), StringExpression.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text"), TextExpression.GENERATOR_CODEC);

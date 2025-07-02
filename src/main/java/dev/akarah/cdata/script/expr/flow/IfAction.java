@@ -37,4 +37,11 @@ public record IfAction(
     public MapCodec<? extends Expression> generatorCodec() {
         return GENERATOR_CODEC;
     }
+
+    @Override
+    public int localsRequiredForCompile() {
+        int a1 = this.then.localsRequiredForCompile();
+        int a2 = this.orElse.map(Expression::localsRequiredForCompile).orElse(0);
+        return Math.max(a1, a2);
+    }
 }

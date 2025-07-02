@@ -2,13 +2,10 @@ package dev.akarah.cdata.script.expr.flow;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.world.entity.Entity;
 
-import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record AllOfAction(
@@ -33,5 +30,17 @@ public record AllOfAction(
     @Override
     public MapCodec<? extends Expression> generatorCodec() {
         return GENERATOR_CODEC;
+    }
+
+    @Override
+    public int localsRequiredForCompile() {
+        int h = 0;
+        for(var action : this.actions) {
+            var h2 = action.localsRequiredForCompile();
+            if(h2 >= h) {
+                h = h2;
+            }
+        }
+        return h;
     }
 }

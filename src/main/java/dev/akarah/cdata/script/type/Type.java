@@ -28,6 +28,10 @@ public interface Type<T> {
         return new Vec3Type();
     }
 
+    static AnyType any() {
+        return new AnyType();
+    }
+
     default ListType<T> listOf() {
         return new ListType<>(this);
     }

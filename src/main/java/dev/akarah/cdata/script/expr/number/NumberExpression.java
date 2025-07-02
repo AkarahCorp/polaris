@@ -11,7 +11,8 @@ public record NumberExpression(double value) implements Expression {
 
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(this.value));
+        ctx.bytecode(cb -> cb.loadConstant(this.value))
+                .boxNumber();
     }
 
     @Override
