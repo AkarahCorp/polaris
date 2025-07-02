@@ -37,11 +37,7 @@ public class DslParser {
     }
 
     public Expression parseAnyExpression() {
-        return getFirst(
-                Pair.of("invocation", this::parseInvocation),
-                Pair.of("block", this::parseBlock),
-                Pair.of("base", this::parseBaseExpression)
-        );
+        return this.parseInvocation();
     }
 
     public Expression parseBlock() {
@@ -70,41 +66,36 @@ public class DslParser {
     }
 
     public Expression parseInvocation() {
-        var base = expect(DslToken.Identifier.class);
-        expect(DslToken.OpenParen.class);
-        var exprs = new ArrayList<Expression>();
-        while(!(peek() instanceof DslToken.CloseParen)) {
-            exprs.add(parseAnyExpression());
-        }
-        expect(DslToken.CloseParen.class);
+        var baseExpression = parseBaseExpression();
 
-        var exprClass = ExtBuiltInRegistries.ACTION_TYPE
-                .get(ResourceLocation.withDefaultNamespace(base.identifier().replace(".", "/")))
-                .orElseThrow()
-                .value();
+        if(peek() instanceof DslToken.OpenParen
+        && baseExpression instanceof GetLocalAction(String functionName)) {
+            expect(DslToken.OpenParen.class);
 
-        var ctorArguments = switch (exprs.size()) {
-            case 0 -> new Class[]{};
-            case 1 -> new Class[]{Expression.class};
-            case 2 -> new Class[]{Expression.class, Expression.class};
-            case 3 -> new Class[]{Expression.class, Expression.class, Expression.class};
-            default -> throw new RuntimeException("too many args sorry :(");
-        };
-        var emptyArguments = switch (exprs.size()) {
-            case 0 -> new Expression[]{};
-            case 1 -> new Expression[]{exprs.getFirst()};
-            case 2 -> new Expression[]{exprs.getFirst(), exprs.get(1)};
-            case 3 -> new Expression[]{exprs.getFirst(), exprs.get(1), exprs.get(2)};
-            default -> throw new RuntimeException("too many args sorry :(");
-        };
-        try {
-            var ctor = exprClass.getConstructor(ctorArguments);
-            var invocation = ctor.newInstance((Object[]) emptyArguments);
-            return invocation;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                 IllegalAccessException e) {
-            throw new RuntimeException(e);
+            var parameters = new ArrayList<Expression>();
+            while(!(peek() instanceof DslToken.CloseParen)) {
+                parameters.add(parseAnyExpression());
+            }
+            expect(DslToken.CloseParen.class);
+
+            var exprClass = ExtBuiltInRegistries.ACTION_TYPE
+                    .get(ResourceLocation.withDefaultNamespace(functionName.replace(".", "/")))
+                    .orElseThrow()
+                    .value();
+
+            var constructorArguments = repeatInArray(parameters.size());
+            var emptyArguments = toArray(parameters);
+
+            try {
+                var constructor = exprClass.getConstructor(constructorArguments);
+                baseExpression = constructor.newInstance((Object[]) emptyArguments);
+            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                     IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+
         }
+        return baseExpression;
     }
 
     public Expression parseBaseExpression() {
@@ -133,5 +124,21 @@ public class DslParser {
         } else {
             throw new RuntimeException("expected " + clazz.getSimpleName() + ", found " + token.getClass().getSimpleName());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Expression[] toArray(List<Expression> list) {
+        var array = new Expression[list.size()];
+        for(int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Class<Expression>[] repeatInArray(int size) {
+        var array = new Class[size];
+        Arrays.fill(array, Expression.class);
+        return array;
     }
 }
