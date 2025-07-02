@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
+import dev.akarah.cdata.script.expr.flow.AllOfAction;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
@@ -50,6 +51,9 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<MapCodec<? extends Expression>> actions) {
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("all_of"), AllOfAction.GENERATOR_CODEC);
+
         Registry.register(actions, ResourceLocation.withDefaultNamespace("string"), StringExpression.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text"), TextExpression.GENERATOR_CODEC);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("number"), NumberExpression.GENERATOR_CODEC);

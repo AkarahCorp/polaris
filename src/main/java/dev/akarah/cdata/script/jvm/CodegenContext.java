@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * CodegenContext is the main class responsible for turning Actions into valid JVM bytecode.
@@ -260,10 +261,10 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Evaluates the {@link ParsedText} on top of the stack. Returns from this function if it is a skipped line.
+     * Evaluates the {@link ParsedText} on top of the stack.
      * @return This.
      */
-    public CodegenContext evaluateParsedTextOrReturn(Expression expression) {
+    public CodegenContext evaluateParsedTextOrNull(Expression expression) {
         expression.compile(this);
         this.codeBuilder.aload(0);
         this.codeBuilder.invokevirtual(
@@ -282,12 +283,6 @@ public class CodegenContext {
                         List.of(JIT.ofClass(ParseContext.class))
                 )
         );
-        this.codeBuilder.dup();
-        this.codeBuilder.aconst_null();
-        this.codeBuilder.ifThen(
-                Opcode.IF_ACMPEQ,
-                CodeBuilder::return_
-        );
         return this;
     }
 
@@ -298,7 +293,7 @@ public class CodegenContext {
      */
     public CodegenContext ifSelectionIsType(
             ClassDesc target,
-            Function<CodegenContext, CodegenContext> function
+            Supplier<CodegenContext> function
     ) {
         this.pushSelectedEntity();
         codeBuilder.instanceOf(target);
@@ -307,7 +302,7 @@ public class CodegenContext {
                     var oldBuilder = this.codeBuilder;
                     this.codeBuilder = blockCodeBuilder;
 
-                    function.apply(this);
+                    function.get();
 
                     this.codeBuilder = oldBuilder;
                 }
@@ -421,6 +416,52 @@ public class CodegenContext {
                 JIT.ofClass(Vec3.class),
                 component,
                 JIT.ofDouble()
+        );
+        return this;
+    }
+
+    public CodegenContext runIfNonNull(Supplier<CodegenContext> function) {
+        codeBuilder.dup();
+        codeBuilder.aconst_null();
+
+        codeBuilder.ifThenElse(
+                Opcode.IF_ACMPEQ,
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.get();
+
+                    this.codeBuilder = oldBuilder;
+                },
+                CodeBuilder::pop
+        );
+        return this;
+    }
+
+    public CodegenContext runIfNonNull(Supplier<CodegenContext> function, Supplier<CodegenContext> orElse) {
+        codeBuilder.dup();
+        codeBuilder.aconst_null();
+
+        codeBuilder.ifThenElse(
+                Opcode.IF_ACMPNE,
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.get();
+
+                    this.codeBuilder = oldBuilder;
+                },
+                blockCodeBuilder -> {
+                    blockCodeBuilder.pop();
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    orElse.get();
+
+                    this.codeBuilder = oldBuilder;
+                }
         );
         return this;
     }

@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.lang.classfile.CodeBuilder;
 import java.util.List;
 
 public record PlayerSendActionbarAction(
@@ -21,15 +22,18 @@ public record PlayerSendActionbarAction(
     public void compile(CodegenContext ctx) {
         ctx.ifSelectionIsType(
                 JIT.ofClass(ServerPlayer.class),
-                ctx2 -> ctx2
+                () -> ctx
                         .pushSelectedEntityAs(JIT.ofClass(ServerPlayer.class))
-                        .evaluateParsedTextOrReturn(this.message)
+                        .evaluateParsedTextOrNull(this.message)
                         .bytecode(cb -> cb.loadConstant(1))
-                        .invokeFromSelection(
-                                JIT.ofClass(ServerPlayer.class),
-                                "sendSystemMessage",
-                                JIT.ofVoid(),
-                                List.of(JIT.ofClass(Component.class), JIT.ofBoolean())
+                        .runIfNonNull(
+                                () -> ctx.invokeFromSelection(
+                                    JIT.ofClass(ServerPlayer.class),
+                                    "sendSystemMessage",
+                                    JIT.ofVoid(),
+                                    List.of(JIT.ofClass(Component.class), JIT.ofBoolean())
+                                ),
+                                () -> ctx.bytecode(CodeBuilder::pop)
                         )
         );
     }
