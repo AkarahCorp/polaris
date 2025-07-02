@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.entity;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.script.env.JIT;
@@ -10,14 +11,11 @@ import net.minecraft.world.entity.Entity;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
+import java.util.Optional;
 
 public record EntityTeleportRelativeAction(
         Expression position
 ) implements Expression {
-    public static MapCodec<EntityTeleportRelativeAction> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Expression.codecByType(Type.vec3()).fieldOf("position").forGetter(EntityTeleportRelativeAction::position)
-    ).apply(instance, EntityTeleportRelativeAction::new));
-
     @Override
     public void compile(CodegenContext ctx) {
         ctx
@@ -45,8 +43,9 @@ public record EntityTeleportRelativeAction(
         return Type.void_();
     }
 
-    @Override
-    public MapCodec<? extends Expression> generatorCodec() {
-        return GENERATOR_CODEC;
+    public static Optional<List<Pair<String, Type<?>>>> fields() {
+        return Optional.of(List.of(
+                Pair.of("position", Type.vec3())
+        ));
     }
 }

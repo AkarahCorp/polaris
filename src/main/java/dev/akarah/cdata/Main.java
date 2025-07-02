@@ -1,26 +1,25 @@
 package dev.akarah.cdata;
 
 import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatManager;
+import dev.akarah.cdata.script.dsl.DslActionManager;
 import dev.akarah.cdata.script.env.RuntimeContext;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistrySetupCallback;
-import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.fabricmc.fabric.api.event.registry.RegistryIdRemapCallback;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,6 +31,7 @@ public class Main implements ModInitializer {
     public static MinecraftServerAudiences AUDIENCES;
     static StatManager STAT_MANAGER;
     static EngineConfig CONFIG;
+    static DslActionManager ACTION_MANAGER;
 
     @Override
     public void onInitialize() {
@@ -42,6 +42,9 @@ public class Main implements ModInitializer {
         }
 
         Main.STAT_MANAGER = new StatManager();
+
+        ACTION_MANAGER = new DslActionManager();
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(ACTION_MANAGER);
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             Main.SERVER = server;
@@ -110,7 +113,11 @@ public class Main implements ModInitializer {
                 ));
             });
 
-            var elements = context.lookupOrThrow(ExtRegistries.SCRIPT).listElements().toList();
+            var elements = Main.actionManager().expressions()
+                    .entrySet()
+                    .stream()
+                    .map(x -> Pair.of(x.getKey(), x.getValue()))
+                    .toList();
             var codeClazz = CodegenContext.initializeCompilation(elements);
 
             try {
@@ -123,13 +130,11 @@ public class Main implements ModInitializer {
             elements.forEach(element -> {
                 try {
                     var method = codeClazz.getDeclaredMethod(
-                            CodegenContext.resourceLocationToMethodName(
-                                    element.key().location()
-                            ),
+                            CodegenContext.resourceLocationToMethodName(element.getFirst()),
                             RuntimeContext.class
                     );
                     root.then(Commands.literal("run").then(
-                            Commands.literal(element.key().location().toString()).executes(ctx -> {
+                            Commands.literal(element.getFirst().toString()).executes(ctx -> {
                                 if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                     try {
                                         var start = System.nanoTime()/1000000.0;
@@ -166,6 +171,10 @@ public class Main implements ModInitializer {
 
     public static StatManager statManager() {
         return STAT_MANAGER;
+    }
+
+    public static DslActionManager actionManager() {
+        return ACTION_MANAGER;
     }
 
     public static EngineConfig config() {

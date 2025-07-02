@@ -1,11 +1,13 @@
 package dev.akarah.cdata.script.expr.flow;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
+import java.util.List;
 import java.util.Optional;
 
 public record IfAction(
@@ -13,11 +15,6 @@ public record IfAction(
         Expression then,
         Optional<Expression> orElse
 ) implements Expression {
-    public static MapCodec<IfAction> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Expression.codecByType(Type.bool()).fieldOf("if").forGetter(IfAction::condition),
-            Expression.codecByType(Type.void_()).fieldOf("then").forGetter(IfAction::then),
-            Expression.codecByType(Type.void_()).optionalFieldOf("else").forGetter(IfAction::orElse)
-    ).apply(instance, IfAction::new));
 
     @Override
     public void compile(CodegenContext ctx) {
@@ -31,11 +28,6 @@ public record IfAction(
     @Override
     public Type<?> type() {
         return Type.void_();
-    }
-
-    @Override
-    public MapCodec<? extends Expression> generatorCodec() {
-        return GENERATOR_CODEC;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.jvm;
 
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.text.ParseContext;
 import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
@@ -53,7 +54,7 @@ public class CodegenContext {
      * @param refs The list of expressions to compile.
      * @return The created class.
      */
-    public static Class<?> initializeCompilation(List<Holder.Reference<Expression>> refs) {
+    public static Class<?> initializeCompilation(List<Pair<ResourceLocation, Expression>> refs) {
         var bytes = CodegenContext.compileClassBytecode(refs);
         try {
             Files.createDirectories(Path.of("./build/"));
@@ -88,7 +89,7 @@ public class CodegenContext {
      * @param refs The references to include in the transformation.
      * @return The raw bytes of the new class created.
      */
-    private static byte[] compileClassBytecode(List<Holder.Reference<Expression>> refs) {
+    private static byte[] compileClassBytecode(List<Pair<ResourceLocation, Expression>> refs) {
         var classFile = ClassFile.of();
 
         return classFile.build(
@@ -99,7 +100,7 @@ public class CodegenContext {
                     cc.classBuilder = classBuilder;
 
                     refs.forEach(entry -> {
-                        cc.classBuilder = cc.compileAction(entry.key().location(), entry.value());
+                        cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond());
                     });
 
                     for(var field : cc.staticClasses.entrySet()) {

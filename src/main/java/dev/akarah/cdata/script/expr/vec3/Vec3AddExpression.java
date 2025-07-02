@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.vec3;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.script.env.JIT;
@@ -10,16 +11,12 @@ import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
+import java.util.Optional;
 
 public record Vec3AddExpression(
         Expression lhs,
         Expression rhs
 ) implements Expression {
-    public static MapCodec<Vec3AddExpression> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Expression.codecByType(Type.vec3()).fieldOf("lhs").forGetter(Vec3AddExpression::lhs),
-            Expression.codecByType(Type.vec3()).fieldOf("rhs").forGetter(Vec3AddExpression::rhs)
-    ).apply(instance, Vec3AddExpression::new));
-
     @Override
     public void compile(CodegenContext ctx) {
         ctx
@@ -38,10 +35,5 @@ public record Vec3AddExpression(
     @Override
     public Type<?> type() {
         return Type.vec3();
-    }
-
-    @Override
-    public MapCodec<? extends Expression> generatorCodec() {
-        return GENERATOR_CODEC;
     }
 }

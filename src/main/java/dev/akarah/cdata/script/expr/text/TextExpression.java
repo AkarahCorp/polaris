@@ -1,10 +1,14 @@
 package dev.akarah.cdata.script.expr.text;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
+
+import java.util.List;
+import java.util.Optional;
 
 public record TextExpression(ParsedText value) implements Expression {
     public static MapCodec<TextExpression> GENERATOR_CODEC = ParsedText.CODEC.fieldOf("value")
@@ -22,10 +26,5 @@ public record TextExpression(ParsedText value) implements Expression {
     @Override
     public Type<?> type() {
         return Type.text();
-    }
-
-    @Override
-    public MapCodec<? extends Expression> generatorCodec() {
-        return GENERATOR_CODEC;
     }
 }

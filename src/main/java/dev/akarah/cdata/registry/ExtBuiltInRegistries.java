@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ExtBuiltInRegistries {
     public static Registry<MapCodec<? extends MetaCodec<?>>> META_CODEC_TYPE;
-    public static Registry<MapCodec<? extends Expression>> ACTION_TYPE;
+    public static Registry<Class<? extends Expression>> ACTION_TYPE;
     public static Registry<MapCodec<? extends Behavior>> BEHAVIOR_TYPE;
 
     public static void bootStrap() {
@@ -28,7 +28,6 @@ public class ExtBuiltInRegistries {
             new RegistryDataLoader.RegistryData<>(ExtRegistries.CUSTOM_ITEM, CustomItem.CODEC, false),
             new RegistryDataLoader.RegistryData<>(ExtRegistries.CUSTOM_ENTITY, CustomEntity.CODEC, false),
             new RegistryDataLoader.RegistryData<>(ExtRegistries.META_CODEC, MetaCodec.DIRECT_CODEC, false),
-            new RegistryDataLoader.RegistryData<>(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC, false),
-            new RegistryDataLoader.RegistryData<>(ExtRegistries.SCRIPT, Expression.CODEC, false)
+            new RegistryDataLoader.RegistryData<>(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC, false)
     );
 }

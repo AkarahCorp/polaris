@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.player;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
@@ -10,14 +11,11 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.lang.classfile.CodeBuilder;
 import java.util.List;
+import java.util.Optional;
 
 public record PlayerSendActionbarAction(
         Expression message
 ) implements Expression {
-    public static MapCodec<PlayerSendActionbarAction> GENERATOR_CODEC = Expression.codecByType(Type.text())
-            .fieldOf("message")
-            .xmap(PlayerSendActionbarAction::new, PlayerSendActionbarAction::message);
-
     @Override
     public void compile(CodegenContext ctx) {
         ctx.ifSelectionIsType(
@@ -41,10 +39,5 @@ public record PlayerSendActionbarAction(
     @Override
     public Type<?> type() {
         return Type.void_();
-    }
-
-    @Override
-    public MapCodec<? extends Expression> generatorCodec() {
-        return GENERATOR_CODEC;
     }
 }

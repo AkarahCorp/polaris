@@ -4,14 +4,9 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
-public record SetLocalAction(
-        String variable,
-        Expression value
-) implements Expression {
+public record EndAction()implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.pushValue(this.value)
-                .storeLocal(this.variable);
 
     }
 

@@ -22,10 +22,8 @@ public class ExtRegistries {
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec"));
     public static ResourceKey<Registry<TextElement>> TEXT_ELEMENT =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "text"));
-    public static ResourceKey<Registry<MapCodec<? extends Expression>>> ACTION_TYPE =
+    public static ResourceKey<Registry<Class<? extends Expression>>> ACTION_TYPE =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script/action/type"));
-    public static ResourceKey<Registry<Expression>> SCRIPT =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script"));
     public static ResourceKey<Registry<MapCodec<? extends Behavior>>> BEHAVIOR_TYPE =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "behavior/type"));
 }
