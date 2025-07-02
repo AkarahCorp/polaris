@@ -12,6 +12,10 @@ public interface Type<T> {
         return new StringType();
     }
 
+    static BooleanType bool() {
+        return new BooleanType();
+    }
+
     static TextType text() {
         return new TextType();
     }
