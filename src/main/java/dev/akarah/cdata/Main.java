@@ -1,76 +1,50 @@
 package dev.akarah.cdata;
 
-import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
 import dev.akarah.cdata.registry.ExtRegistries;
-import dev.akarah.cdata.registry.stat.StatManager;
-import dev.akarah.cdata.script.dsl.DslActionManager;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.env.RuntimeContext;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistrySetupCallback;
+import net.fabricmc.fabric.impl.event.lifecycle.LifecycleEventsImpl;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static MinecraftServerAudiences AUDIENCES;
-    static StatManager STAT_MANAGER;
-    static EngineConfig CONFIG;
-    static DslActionManager ACTION_MANAGER;
+    public static ReloadableResourceManager CURRENT_RESOURCE_MANAGER;
 
     @Override
     public void onInitialize() {
-        var engineConfigPath = Paths.get("./engine.json");
-        if(Files.exists(engineConfigPath)) {
-            var json = JsonParser.parseString(Util.sneakyThrows(() -> Files.readString(engineConfigPath)));
-            CONFIG = EngineConfig.CODEC.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
-        }
-
-        Main.STAT_MANAGER = new StatManager();
-
-        ACTION_MANAGER = new DslActionManager();
-        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(ACTION_MANAGER);
-
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             Main.SERVER = server;
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
-
-            dispatcher.register(Commands.literal("test").executes(ctx -> {
-                ctx.getSource().sendSystemMessage(Component.literal(
-                        Main.SERVER.registryAccess()
-                                .lookupOrThrow(ExtRegistries.CUSTOM_ITEM)
-                                .entrySet()
-                                .toString()
-                ));
-                return 0;
-            }));
             var root = Commands.literal("engine");
 
-            context.lookupOrThrow(ExtRegistries.CUSTOM_ITEM).listElements().forEach(element -> {
+            root.then(Commands.literal("give"));
+
+            ExtReloadableResources.customItem().registry().listElements().forEach(element -> {
                 root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
-                    try {
-                        if(ctx.getSource().getEntity() instanceof Player p) {
-                            p.addItem(element.value().toItemStack());
-                        }
-                    } catch (RuntimeException exception) {
-                        exception.printStackTrace();
+                    if(ctx.getSource().getEntity() instanceof Player p) {
+                        p.addItem(element.value().toItemStack());
                     }
                     return 0;
                 })));
@@ -113,7 +87,7 @@ public class Main implements ModInitializer {
                 ));
             });
 
-            var elements = Main.actionManager().expressions()
+            var elements = ExtReloadableResources.actionManager().expressions()
                     .entrySet()
                     .stream()
                     .map(x -> Pair.of(x.getKey(), x.getValue()))
@@ -155,7 +129,7 @@ public class Main implements ModInitializer {
 
             root.then(Commands.literal("my_stats").executes(ctx -> {
                 if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
-                    var stats = Main.statManager().lookup(serverPlayer);
+                    var stats = ExtReloadableResources.statManager().lookup(serverPlayer);
                     ctx.getSource().sendSuccess(() -> Component.literal(stats.toString()), false);
                 }
                 return 0;
@@ -169,15 +143,4 @@ public class Main implements ModInitializer {
         return SERVER;
     }
 
-    public static StatManager statManager() {
-        return STAT_MANAGER;
-    }
-
-    public static DslActionManager actionManager() {
-        return ACTION_MANAGER;
-    }
-
-    public static EngineConfig config() {
-        return CONFIG;
-    }
 }

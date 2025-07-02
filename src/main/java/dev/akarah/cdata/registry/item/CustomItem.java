@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatsObject;
@@ -29,7 +30,7 @@ public record CustomItem(
         Optional<String> name,
         Optional<StatsObject> stats,
         Optional<EquippableData> equippable,
-        Optional<Holder<TextElement>> itemTemplate,
+        Optional<TextElement> itemTemplate,
         Optional<CustomData> customData
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -37,16 +38,17 @@ public record CustomItem(
             Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
-            TextElement.HOLDER_CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
+            TextElement.CODEC_BY_ID.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
 
-    public static Codec<Holder<CustomItem>> HOLDER_CODEC = RegistryFileCodec.create(ExtRegistries.CUSTOM_ITEM, CustomItem.CODEC);
+    public static Codec<CustomItem> CODEC_BY_ID =
+            Codec.lazyInitialized(() -> ExtReloadableResources.customItem().registry().byNameCodec());
 
     public ResourceLocation id() {
-        return Main.server()
-                .registryAccess()
-                .lookupOrThrow(ExtRegistries.CUSTOM_ITEM)
+        return ExtReloadableResources
+                .customItem()
+                .registry()
                 .getKey(this);
     }
 
@@ -70,7 +72,7 @@ public record CustomItem(
             var environment = ParseContext.item(this);
 
             var lines = new ArrayList<>(
-                    itemTemplate.value().lines()
+                    itemTemplate.lines()
                             .stream()
                             .map(x -> x.output(environment))
                             .flatMap(Optional::stream)
@@ -93,7 +95,7 @@ public record CustomItem(
 
     public static Optional<CustomItem> itemOf(ItemStack itemStack) {
         return itemIdOf(itemStack)
-                .flatMap(x -> Main.server().registryAccess().lookupOrThrow(ExtRegistries.CUSTOM_ITEM).get(x))
+                .flatMap(x -> ExtReloadableResources.customItem().registry().get(x))
                 .map(Holder.Reference::value);
     }
 }

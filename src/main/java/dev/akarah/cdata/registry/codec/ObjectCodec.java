@@ -13,7 +13,7 @@ import java.util.Map;
 
 public record ObjectCodec(Map<String, MetaCodec<?>> map) implements MetaCodec<Map<String, Object>> {
     public static MapCodec<ObjectCodec> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.unboundedMap(Codec.STRING, MetaCodec.DIRECT_CODEC).fieldOf("fields").forGetter(ObjectCodec::map)
+            Codec.unboundedMap(Codec.STRING, MetaCodec.CODEC).fieldOf("fields").forGetter(ObjectCodec::map)
     ).apply(instance, ObjectCodec::new));
 
     @Override

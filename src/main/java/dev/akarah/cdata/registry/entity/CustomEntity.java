@@ -16,15 +16,15 @@ import java.util.Optional;
 
 public record CustomEntity(
         EntityType<?> entityType,
-        Optional<Holder<TextElement>> nameTemplate,
-        Optional<Holder<TextElement>> infoTemplate,
+        Optional<TextElement> nameTemplate,
+        Optional<TextElement> infoTemplate,
         Optional<StatsObject> stats,
         List<PrioritizableBehavior> behaviors
 ) {
     public static Codec<CustomEntity> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
             EntityType.CODEC.fieldOf("type").forGetter(CustomEntity::entityType),
-            TextElement.HOLDER_CODEC.optionalFieldOf("name_template").forGetter(CustomEntity::nameTemplate),
-            TextElement.HOLDER_CODEC.optionalFieldOf("info_template").forGetter(CustomEntity::infoTemplate),
+            TextElement.CODEC_BY_ID.optionalFieldOf("name_template").forGetter(CustomEntity::nameTemplate),
+            TextElement.CODEC_BY_ID.optionalFieldOf("info_template").forGetter(CustomEntity::infoTemplate),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomEntity::stats),
             PrioritizableBehavior.CODEC.listOf().fieldOf("behaviors").forGetter(CustomEntity::behaviors)
     ).apply(instance, CustomEntity::new)));

@@ -1,0 +1,107 @@
+package dev.akarah.cdata.registry;
+
+import com.google.gson.JsonParser;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+public class ReloadableJsonManager<T> implements IdentifiableResourceReloadListener {
+    Registry<T> registry;
+    String registryName;
+    Codec<T> codec;
+
+    private ReloadableJsonManager() {}
+
+    public static <T> ReloadableJsonManager<T> of(String registryName, Codec<T> codec) {
+        var rjm = new ReloadableJsonManager<T>();
+        rjm.registryName = registryName;
+        rjm.codec = codec;
+        return rjm;
+    }
+
+    public Registry<T> registry() {
+        return this.registry;
+    }
+
+    public Codec<T> codec() {
+        return this.codec;
+    }
+
+    @Override
+    public ResourceLocation getFabricId() {
+        return ResourceLocation.withDefaultNamespace(registryName);
+    }
+
+    public CompletableFuture<Void> reloadWithManager(ResourceManager resourceManager, Executor executor) {
+        return CompletableFuture
+                .runAsync(
+                        () -> {
+                            this.registry = new MappedRegistry<>(ResourceKey.createRegistryKey(this.getFabricId()), Lifecycle.stable());
+                            for(var resourceEntry : resourceManager.listResources("engine/" + registryName, rl -> rl.getPath().endsWith(".json")).entrySet()) {
+                                try(var inputStream = resourceEntry.getValue().open()) {
+                                    var bytes = inputStream.readAllBytes();
+                                    var string = new String(bytes);
+                                    var json = JsonParser.parseString(string);
+                                    var value = codec.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
+                                    Registry.register(
+                                            this.registry,
+                                            resourceEntry.getKey().withPath(s ->
+                                                    s.replace(".json", "")
+                                                            .replace("engine/" + registryName + "/", "")),
+                                            value
+                                    );
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        },
+                        executor
+                );
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, Executor prepareExecutor, Executor applyExecutor) {
+        return CompletableFuture
+                .runAsync(
+                        () -> {
+                            this.registry = new MappedRegistry<>(ResourceKey.createRegistryKey(this.getFabricId()), Lifecycle.stable());
+                            for(var resourceEntry : resourceManager.listResources("engine/" + registryName, rl -> rl.getPath().endsWith(".json")).entrySet()) {
+                                try(var inputStream = resourceEntry.getValue().open()) {
+                                    var bytes = inputStream.readAllBytes();
+                                    var string = new String(bytes);
+                                    var json = JsonParser.parseString(string);
+                                    var value = codec.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
+                                    Registry.register(
+                                            this.registry,
+                                            resourceEntry.getKey().withPath(s ->
+                                                    s.replace(".json", "")
+                                                            .replace("engine/" + registryName + "/", "")),
+                                            value
+                                    );
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        },
+                        prepareExecutor
+                )
+                .thenCompose(preparationBarrier::wait)
+                .thenRunAsync(
+                        () -> {
+
+                        },
+                        applyExecutor
+                );
+    }
+}

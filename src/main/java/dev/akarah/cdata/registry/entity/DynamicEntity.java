@@ -69,7 +69,6 @@ public class DynamicEntity extends PathfinderMob {
     @SuppressWarnings("unchecked")
     protected @NotNull Brain<DynamicEntity> makeBrain(Dynamic<?> dynamic) {
         var entries = new ArrayList<Pair<Integer, ? extends BehaviorControl<? super DynamicEntity>>>();
-        System.out.println(TEMPORARY_BASE.behaviors());
         for(var entry : TEMPORARY_BASE.behaviors()) {
             entries.add(
                     Pair.of(
@@ -159,7 +158,6 @@ public class DynamicEntity extends PathfinderMob {
     @Override
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {
         var packet = super.getAddEntityPacket(serverEntity);
-        System.out.println(packet);
         if(packet instanceof ClientboundAddEntityPacket addEntityPacket) {
             addEntityPacket.type = FAKED_TYPES.get(this.getId());
         }

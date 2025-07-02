@@ -6,7 +6,7 @@ import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import net.minecraft.core.Registry;
 
 public interface MetaCodec<T> {
-    Codec<MetaCodec<?>> DIRECT_CODEC =
+    Codec<MetaCodec<?>> CODEC =
             Codec.lazyInitialized(() -> ExtBuiltInRegistries
                     .META_CODEC_TYPE
                     .byNameCodec()

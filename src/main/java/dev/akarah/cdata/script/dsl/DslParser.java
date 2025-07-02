@@ -33,7 +33,6 @@ public class DslParser {
             }
             var expr = parser.parseAnyExpression();
             expressions.add(expr);
-            System.out.println(expr);
         }
     }
 

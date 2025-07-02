@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry.text;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.ExtRegistries;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.RegistryFileCodec;
 
@@ -15,5 +16,6 @@ public record TextElement(
             ParsedText.CODEC.listOf().fieldOf("lines").forGetter(TextElement::lines)
     ).apply(instance, TextElement::new));
 
-    public static Codec<Holder<TextElement>> HOLDER_CODEC = RegistryFileCodec.create(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC);
+    public static Codec<TextElement> CODEC_BY_ID =
+            Codec.lazyInitialized(() -> ExtReloadableResources.textElement().registry().byNameCodec());
 }

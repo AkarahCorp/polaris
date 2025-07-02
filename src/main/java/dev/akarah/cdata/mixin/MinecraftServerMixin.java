@@ -2,7 +2,7 @@ package dev.akarah.cdata.mixin;
 
 import com.mojang.datafixers.DataFixer;
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.stat.StatManager;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
@@ -23,17 +23,17 @@ import java.util.function.BooleanSupplier;
 public class MinecraftServerMixin {
     @Shadow private int tickCount;
 
-    @Inject(at = @At("TAIL"), method = "<init>")
-    private void getInstance(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
+    @Inject(at = @At("CTOR_HEAD"), method = "<init>")
+    private void getInstanceAndStartWork(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
         Main.SERVER = (MinecraftServer) (Object) this;
         Main.AUDIENCES = MinecraftServerAudiences.builder(Main.SERVER).build();
     }
 
     @Inject(at = @At("HEAD"), method = "tickChildren")
     public void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
-        Main.statManager().loopPlayers();
+        ExtReloadableResources.statManager().loopPlayers();
         if(this.tickCount % 200 == 0) {
-            Main.statManager().refreshPlayerInventories();
+            ExtReloadableResources.statManager().refreshPlayerInventories();
         }
     }
 }

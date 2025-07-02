@@ -6,7 +6,8 @@
   "mixins": [
     "BuiltInRegistriesMixin",
     "MinecraftServerMixin",
-    "RegistryDataLoaderMixin"
+    "RegistryDataLoaderMixin",
+    "ReloadableResourceManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -2,8 +2,7 @@ package dev.akarah.cdata.registry.stat;
 
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
-import dev.akarah.cdata.EngineConfig;
-import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +63,7 @@ public class StatsObject {
     }
 
     public StatsObject performFinalCalculations() {
-        var so = Main.config().baseStats().copy();
+        var so = ExtReloadableResources.config().baseStats().copy();
         for(var key : this.keySet()) {
             so.set(key, this.get(key));
         }
