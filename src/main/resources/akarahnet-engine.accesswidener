@@ -1,3 +1,7 @@
 accessWidener v2 named
+accessible field net/minecraft/world/entity/ai/behavior/Behavior entryCondition Ljava/util/Map;
 accessible class net/minecraft/core/registries/BuiltInRegistries$RegistryBootstrap
 accessible method net/minecraft/core/registries/BuiltInRegistries registerSimple (Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/registries/BuiltInRegistries$RegistryBootstrap;)Lnet/minecraft/core/Registry;
+accessible method net/minecraft/world/entity/ai/behavior/RandomStroll strollFlyOrSwim (FLjava/util/function/Function;Ljava/util/function/Predicate;)Lnet/minecraft/world/entity/ai/behavior/OneShot;
+accessible field net/minecraft/network/protocol/game/ClientboundAddEntityPacket type Lnet/minecraft/world/entity/EntityType;
+mutable field net/minecraft/network/protocol/game/ClientboundAddEntityPacket type Lnet/minecraft/world/entity/EntityType;

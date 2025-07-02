@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.registry.entity.behavior.Behavior;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.text.TextElement;
 import dev.akarah.cdata.script.expr.Expression;
@@ -15,10 +16,12 @@ import java.util.List;
 public class ExtBuiltInRegistries {
     public static Registry<MapCodec<? extends MetaCodec<?>>> META_CODEC_TYPE;
     public static Registry<MapCodec<? extends Expression>> ACTION_TYPE;
+    public static Registry<MapCodec<? extends Behavior>> BEHAVIOR_TYPE;
 
     public static void bootStrap() {
         ExtBuiltInRegistries.META_CODEC_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.META_CODEC_TYPE, MetaCodec::bootStrapTypes);
         ExtBuiltInRegistries.ACTION_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.ACTION_TYPE, Expression::bootStrap);
+        ExtBuiltInRegistries.BEHAVIOR_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.BEHAVIOR_TYPE, Behavior::bootStrap);
     }
 
     public static List<RegistryDataLoader.RegistryData<?>> DYNAMIC_REGISTRIES = List.of(

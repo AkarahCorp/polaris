@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.registry.entity.behavior.Behavior;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.text.TextElement;
 import dev.akarah.cdata.script.expr.Expression;
@@ -25,4 +26,6 @@ public class ExtRegistries {
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script/action/type"));
     public static ResourceKey<Registry<Expression>> SCRIPT =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script"));
+    public static ResourceKey<Registry<MapCodec<? extends Behavior>>> BEHAVIOR_TYPE =
+            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "behavior/type"));
 }
