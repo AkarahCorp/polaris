@@ -92,40 +92,46 @@ public class Main implements ModInitializer {
                     .stream()
                     .map(x -> Pair.of(x.getKey(), x.getValue()))
                     .toList();
-            var codeClazz = CodegenContext.initializeCompilation(elements);
-
             try {
-                var method = codeClazz.getDeclaredMethod("$static_init");
-                method.invoke(null);
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                var codeClazz = CodegenContext.initializeCompilation(elements);
+
+                try {
+                    var method = codeClazz.getDeclaredMethod("$static_init");
+                    method.invoke(null);
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
+                elements.forEach(element -> {
+                    try {
+                        var method = codeClazz.getDeclaredMethod(
+                                CodegenContext.resourceLocationToMethodName(element.getFirst()),
+                                RuntimeContext.class
+                        );
+                        root.then(Commands.literal("run").then(
+                                Commands.literal(element.getFirst().toString()).executes(ctx -> {
+                                    if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                        try {
+                                            var start = System.nanoTime()/1000000.0;
+                                            method.invoke(null, RuntimeContext.of(serverPlayer));
+                                            var end = System.nanoTime()/1000000.0;
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    return 0;
+                                })
+                        ));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            elements.forEach(element -> {
-                try {
-                    var method = codeClazz.getDeclaredMethod(
-                            CodegenContext.resourceLocationToMethodName(element.getFirst()),
-                            RuntimeContext.class
-                    );
-                    root.then(Commands.literal("run").then(
-                            Commands.literal(element.getFirst().toString()).executes(ctx -> {
-                                if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
-                                    try {
-                                        var start = System.nanoTime()/1000000.0;
-                                        method.invoke(null, RuntimeContext.of(serverPlayer));
-                                        var end = System.nanoTime()/1000000.0;
-                                        ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                return 0;
-                            })
-                    ));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+
 
             root.then(Commands.literal("my_stats").executes(ctx -> {
                 if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
@@ -136,6 +142,14 @@ public class Main implements ModInitializer {
             }));
 
             dispatcher.register(root);
+        });
+
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
+            if(success) {
+                for(var player : server.getPlayerList().getPlayers()) {
+                    server.getCommands().sendCommands(player);
+                }
+            }
         });
     }
 

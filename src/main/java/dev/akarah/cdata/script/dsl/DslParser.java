@@ -4,10 +4,7 @@ import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.text.Parser;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
-import dev.akarah.cdata.script.expr.flow.AllOfAction;
-import dev.akarah.cdata.script.expr.flow.GetLocalAction;
-import dev.akarah.cdata.script.expr.flow.IfAction;
-import dev.akarah.cdata.script.expr.flow.RepeatTimesAction;
+import dev.akarah.cdata.script.expr.flow.*;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
@@ -48,7 +45,7 @@ public class DslParser {
     }
 
     public Expression parseValue() {
-        return this.parseArrowExpression();
+        return this.parseStorage();
     }
 
     public RepeatTimesAction parseRepeat() {
@@ -87,6 +84,16 @@ public class DslParser {
         return new AllOfAction(statements);
     }
 
+    public Expression parseStorage() {
+        var baseExpression = parseArrowExpression();
+        while(peek() instanceof DslToken.EqualSymbol
+        && baseExpression instanceof GetLocalAction(String variable)) {
+            expect(DslToken.EqualSymbol.class);
+            baseExpression = new SetLocalAction(variable, parseValue());
+        }
+        return baseExpression;
+    }
+
     public Expression parseArrowExpression() {
         var baseExpression = parseInvocation();
         while(peek() instanceof DslToken.ArrowSymbol) {
@@ -94,7 +101,7 @@ public class DslParser {
             var name = expect(DslToken.Identifier.class).identifier();
             var parameters = parseTuple();
             parameters.addFirst(baseExpression);
-            baseExpression = calculateFrom(name, parameters);
+            baseExpression = new LateResolvedFunctionCall(name, parameters);
         }
         return baseExpression;
     }
@@ -104,7 +111,7 @@ public class DslParser {
 
         if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName)) {
             var tuple = parseTuple();
-            baseExpression = calculateFrom(functionName, tuple);
+            baseExpression = new LateResolvedFunctionCall(functionName, tuple);
         }
         return baseExpression;
     }
@@ -121,24 +128,6 @@ public class DslParser {
         }
         expect(DslToken.CloseParen.class);
         return parameters;
-    }
-
-    public Expression calculateFrom(String functionName, List<Expression> parameters) {
-        var exprClass = ExtBuiltInRegistries.ACTION_TYPE
-                .get(ResourceLocation.withDefaultNamespace(functionName.replace(".", "/")))
-                .orElseThrow()
-                .value();
-
-        var constructorArguments = repeatInArray(parameters.size());
-        var emptyArguments = toArray(parameters);
-
-        try {
-            var constructor = exprClass.getConstructor(constructorArguments);
-            return constructor.newInstance((Object[]) emptyArguments);
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                 IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public Expression parseBaseExpression() {
@@ -169,21 +158,5 @@ public class DslParser {
         } else {
             throw new RuntimeException("expected " + clazz.getSimpleName() + ", found " + token.getClass().getSimpleName());
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Expression[] toArray(List<Expression> list) {
-        var array = new Expression[list.size()];
-        for(int i = 0; i < list.size(); i++) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Class<Expression>[] repeatInArray(int size) {
-        var array = new Class[size];
-        Arrays.fill(array, Expression.class);
-        return array;
     }
 }

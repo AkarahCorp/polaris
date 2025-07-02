@@ -7,6 +7,7 @@ import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,6 +45,7 @@ public class CodegenContext {
     public Map<String, Object> staticValues = Maps.newHashMap();
 
     Map<String, Integer> methodLocals = Maps.newHashMap();
+    Map<String, Type<?>> methodLocalTypes = Maps.newHashMap();
 
     int localIndex = 0;
 
@@ -100,6 +102,7 @@ public class CodegenContext {
                     cc.classBuilder = classBuilder;
 
                     refs.forEach(entry -> {
+                        System.out.println("Compiling entry: " + entry.getSecond());
                         cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond());
                     });
 
@@ -424,40 +427,6 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Turns a `int` into a `Integer` at runtime.
-     * @return This.
-     */
-    public CodegenContext boxInteger() {
-        this.codeBuilder.invokestatic(
-                JIT.ofClass(Integer.class),
-                "valueOf",
-                MethodTypeDesc.of(
-                        JIT.ofClass(Integer.class),
-                        List.of(JIT.ofInt())
-                )
-        );
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * Turns a `Integer` into a `int` at runtime.
-     * @return This.
-     */
-    public CodegenContext unboxInteger() {
-        this.codeBuilder.invokevirtual(
-                JIT.ofClass(Integer.class),
-                "intValue",
-                MethodTypeDesc.of(
-                        JIT.ofInt(),
-                        List.of()
-                )
-        );
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
      * Gets the component of a Vec3. Accepts "x", "y", or "z".
      * @return This.
      */
@@ -567,13 +536,19 @@ public class CodegenContext {
         return this;
     }
 
-    public CodegenContext storeLocal(String variable) {
+    public Type<?> getTypeOf(Expression expression) {
+        return expression.type(this);
+    }
+
+    public CodegenContext storeLocal(String variable, Type<?> type) {
         if(this.methodLocals.containsKey(variable)) {
+            this.methodLocalTypes.put(variable, type);
             return this.bytecode(cb -> cb.astore(this.methodLocals.get(variable)));
         } else {
-            var index = this.codeBuilder.allocateLocal(TypeKind.REFERENCE);
+            var index = this.codeBuilder.allocateLocal(type.classFileType());
             this.methodLocals.put(variable, index);
-            return this.bytecode(cb -> cb.astore(index));
+            this.methodLocalTypes.put(variable, type);
+            return this.bytecode(cb -> cb.storeLocal(type.classFileType(), index));
         }
     }
 
@@ -581,6 +556,16 @@ public class CodegenContext {
         if(!this.methodLocals.containsKey(variable)) {
             throw new RuntimeException("Variable `" + variable + "` in method doesn't exist yet!");
         }
-        return this.bytecode(cb -> cb.aload(this.methodLocals.get(variable)));
+        if(!this.methodLocalTypes.containsKey(variable)) {
+            throw new RuntimeException("Variable `" + variable + "` somehow doesn't have a type!");
+        }
+        return this.bytecode(cb -> cb.loadLocal(this.methodLocalTypes.get(variable).classFileType(), this.methodLocals.get(variable)));
+    }
+
+    public Type<?> typeOfLocal(String variable) {
+        if(!this.methodLocalTypes.containsKey(variable)) {
+            throw new RuntimeException("uh idk type of " + variable);
+        }
+        return this.methodLocalTypes.get(variable);
     }
 }

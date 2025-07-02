@@ -41,7 +41,7 @@ public record RepeatTimesAction(
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
 

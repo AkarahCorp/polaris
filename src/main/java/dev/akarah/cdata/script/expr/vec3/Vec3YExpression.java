@@ -17,12 +17,11 @@ public record Vec3YExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.value)
-                .getVectorComponent("y")
-                .unboxNumber();
+                .getVectorComponent("y");
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.number();
     }
 }

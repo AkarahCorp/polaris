@@ -33,7 +33,7 @@ public record Vec3MultiplyExpression(
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.vec3();
     }
 }

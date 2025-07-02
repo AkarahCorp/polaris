@@ -20,7 +20,7 @@ public record GetLocalAction(
     }
 
     @Override
-    public Type<?> type() {
-        return Type.any();
+    public Type<?> type(CodegenContext ctx) {
+        return ctx.typeOfLocal(this.variable());
     }
 }

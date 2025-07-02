@@ -31,7 +31,7 @@ import java.util.Optional;
 
 public interface Expression {
     void compile(CodegenContext ctx);
-    Type<?> type();
+    Type<?> type(CodegenContext ctx);
 
     default int localsRequiredForCompile() {
         return 0;

@@ -2,15 +2,15 @@ package dev.akarah.cdata.script.type;
 
 import java.util.List;
 
-public record ListType<T>(Type<T> subtype) implements Type<List<T>> {
+public record ListType() implements Type<List<Object>> {
     @Override
     public String typeName() {
-        return "list[" + subtype.typeName() + "]";
+        return "list";
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class<List<T>> typeClass() {
-        return (Class<List<T>>) (Class<?>) List.class;
+    public Class<List<Object>> typeClass() {
+        return (Class<List<Object>>) (Class<?>) List.class;
     }
 }

@@ -42,7 +42,7 @@ public record EntityTeleportAction(
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
 

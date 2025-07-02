@@ -82,6 +82,10 @@ public class DslTokenizer {
                     stringReader.expect(';');
                     return DataResult.success(new DslToken.Semicolon());
                 }
+                case '=' -> {
+                    stringReader.expect('=');
+                    return DataResult.success(new DslToken.EqualSymbol());
+                }
                 case '(' -> {
                     stringReader.expect('(');
                     return DataResult.success(new DslToken.OpenParen());

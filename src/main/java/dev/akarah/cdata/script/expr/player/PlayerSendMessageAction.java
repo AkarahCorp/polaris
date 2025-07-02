@@ -33,7 +33,7 @@ public record PlayerSendMessageAction(
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
 }

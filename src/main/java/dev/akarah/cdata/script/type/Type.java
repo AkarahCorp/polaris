@@ -1,8 +1,14 @@
 package dev.akarah.cdata.script.type;
 
+import java.lang.classfile.TypeKind;
+
 public interface Type<T> {
     String typeName();
     Class<T> typeClass();
+
+    default TypeKind classFileType() {
+        return TypeKind.REFERENCE;
+    }
 
     static NumberType number() {
         return new NumberType();
@@ -32,8 +38,8 @@ public interface Type<T> {
         return new AnyType();
     }
 
-    default ListType<T> listOf() {
-        return new ListType<>(this);
+    static ListType list() {
+        return new ListType();
     }
 
     default boolean typeEquals(Type<?> other) {

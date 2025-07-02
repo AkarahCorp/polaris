@@ -24,7 +24,7 @@ public record TextExpression(ParsedText value) implements Expression {
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.text();
     }
 }

@@ -11,12 +11,11 @@ public record SetLocalAction(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.value)
-                .storeLocal(this.variable);
-
+                .storeLocal(this.variable, ctx.getTypeOf(this.value));
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
 }

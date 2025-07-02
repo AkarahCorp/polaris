@@ -29,7 +29,7 @@ public record EntityPositionExpression() implements Expression {
     }
 
     @Override
-    public Type<?> type() {
+    public Type<?> type(CodegenContext ctx) {
         return Type.vec3();
     }
 
