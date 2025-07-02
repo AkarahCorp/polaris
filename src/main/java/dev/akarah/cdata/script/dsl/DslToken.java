@@ -61,6 +61,14 @@ public interface DslToken {
 
     }
 
+    record ArrowSymbol() implements DslToken {
+
+    }
+
+    record MinusSymbol() implements DslToken {
+
+    }
+
     record EOF() implements DslToken {
 
     }

@@ -1,11 +1,12 @@
 package dev.akarah.cdata.script.dsl;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.text.Parser;
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.AllOfAction;
 import dev.akarah.cdata.script.expr.flow.GetLocalAction;
+import dev.akarah.cdata.script.expr.flow.IfAction;
 import dev.akarah.cdata.script.expr.flow.RepeatTimesAction;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.string.StringExpression;
@@ -16,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.Optional;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -40,11 +41,14 @@ public class DslParser {
         if(this.peek() instanceof DslToken.RepeatKeyword) {
             return parseRepeat();
         }
+        if(this.peek() instanceof DslToken.IfKeyword) {
+            return parseIf();
+        }
         return parseValue();
     }
 
     public Expression parseValue() {
-        return this.parseInvocation();
+        return this.parseArrowExpression();
     }
 
     public RepeatTimesAction parseRepeat() {
@@ -57,6 +61,22 @@ public class DslParser {
         return new RepeatTimesAction(times, block);
     }
 
+    public IfAction parseIf() {
+        expect(DslToken.IfKeyword.class);
+        expect(DslToken.OpenParen.class);
+        var times = parseValue();
+        expect(DslToken.CloseParen.class);
+        var block = parseBlock();
+
+        var orElse = Optional.<Expression>empty();
+        if(peek() instanceof DslToken.ElseKeyword) {
+            expect(DslToken.ElseKeyword.class);
+            orElse = Optional.of(parseBlock());
+        }
+
+        return new IfAction(times, block, orElse);
+    }
+
     public AllOfAction parseBlock() {
         var statements = new ArrayList<Expression>();
         expect(DslToken.OpenBrace.class);
@@ -67,56 +87,58 @@ public class DslParser {
         return new AllOfAction(statements);
     }
 
-    public Expression getFirst(Pair<String, Supplier<Expression>>... expressions) {
-        var oldIdx = this.index;
-        var exceptions = new ArrayList<>();
-        for(var expr : expressions) {
-            this.index = oldIdx;
-            try {
-                return expr.getSecond().get();
-            } catch (Exception ignored) {
-                exceptions.add(ignored);
-            }
+    public Expression parseArrowExpression() {
+        var baseExpression = parseInvocation();
+        while(peek() instanceof DslToken.ArrowSymbol) {
+            expect(DslToken.ArrowSymbol.class);
+            var name = expect(DslToken.Identifier.class).identifier();
+            var parameters = parseTuple();
+            parameters.addFirst(baseExpression);
+            baseExpression = calculateFrom(name, parameters);
         }
-        this.index = oldIdx;
-        throw new RuntimeException("unable to parse :( " + exceptions.stream().map(x -> "\n- " + x.toString()).toList() + "\n at cursor " + this.index + "\nin " + this.tokens + "\n");
+        return baseExpression;
     }
 
     public Expression parseInvocation() {
         var baseExpression = parseBaseExpression();
 
-        if(peek() instanceof DslToken.OpenParen
-        && baseExpression instanceof GetLocalAction(String functionName)) {
-            expect(DslToken.OpenParen.class);
-
-            var parameters = new ArrayList<Expression>();
-            while(!(peek() instanceof DslToken.CloseParen)) {
-                parameters.add(parseValue());
-
-                if(!(peek() instanceof DslToken.CloseParen)) {
-                    expect(DslToken.Comma.class);
-                }
-            }
-            expect(DslToken.CloseParen.class);
-
-            var exprClass = ExtBuiltInRegistries.ACTION_TYPE
-                    .get(ResourceLocation.withDefaultNamespace(functionName.replace(".", "/")))
-                    .orElseThrow()
-                    .value();
-
-            var constructorArguments = repeatInArray(parameters.size());
-            var emptyArguments = toArray(parameters);
-
-            try {
-                var constructor = exprClass.getConstructor(constructorArguments);
-                baseExpression = constructor.newInstance((Object[]) emptyArguments);
-            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                     IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-
+        if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName)) {
+            var tuple = parseTuple();
+            baseExpression = calculateFrom(functionName, tuple);
         }
         return baseExpression;
+    }
+
+    public ArrayList<Expression> parseTuple() {
+        expect(DslToken.OpenParen.class);
+        var parameters = new ArrayList<Expression>();
+        while(!(peek() instanceof DslToken.CloseParen)) {
+            parameters.add(parseValue());
+
+            if(!(peek() instanceof DslToken.CloseParen)) {
+                expect(DslToken.Comma.class);
+            }
+        }
+        expect(DslToken.CloseParen.class);
+        return parameters;
+    }
+
+    public Expression calculateFrom(String functionName, List<Expression> parameters) {
+        var exprClass = ExtBuiltInRegistries.ACTION_TYPE
+                .get(ResourceLocation.withDefaultNamespace(functionName.replace(".", "/")))
+                .orElseThrow()
+                .value();
+
+        var constructorArguments = repeatInArray(parameters.size());
+        var emptyArguments = toArray(parameters);
+
+        try {
+            var constructor = exprClass.getConstructor(constructorArguments);
+            return constructor.newInstance((Object[]) emptyArguments);
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Expression parseBaseExpression() {
@@ -125,6 +147,8 @@ public class DslParser {
             case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value());
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
             case DslToken.TextExpr textExpr -> new TextExpression(Parser.parseTextLine(textExpr.value()));
+            case DslToken.Identifier(String id) when id.equals("true") -> new BooleanExpression(true);
+            case DslToken.Identifier(String id) when id.equals("false") -> new BooleanExpression(false);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
             default -> throw new IllegalStateException("Unexpected value: " + tok);
         };
