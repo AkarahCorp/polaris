@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.MethodTypeDesc;
@@ -24,6 +25,7 @@ public record EntityTeleportAction(
         ctx
                 .pushSelectedEntity()
                 .pushValue(this.position)
+                .typecheck(Vec3.class)
                 .bytecode(cb -> cb.astore(local))
                 .bytecode(cb -> cb.aload(local))
                 .getVectorComponent("x")

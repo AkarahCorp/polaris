@@ -440,6 +440,11 @@ public class CodegenContext {
         return this;
     }
 
+    public CodegenContext typecheck(Class<?> expected) {
+        this.codeBuilder.checkcast(JIT.ofClass(expected));
+        return this;
+    }
+
     public CodegenContext runIfNonNull(Supplier<CodegenContext> function) {
         codeBuilder.dup();
         codeBuilder.aconst_null();
@@ -544,7 +549,7 @@ public class CodegenContext {
     public CodegenContext storeLocal(String variable, Type<?> type) {
         if(this.methodLocals.containsKey(variable)) {
             this.methodLocalTypes.put(variable, type);
-            return this.bytecode(cb -> cb.astore(this.methodLocals.get(variable)));
+            return this.bytecode(cb -> cb.storeLocal(type.classFileType(), this.methodLocals.get(variable)));
         } else {
             var index = this.codeBuilder.allocateLocal(type.classFileType());
             this.methodLocals.put(variable, index);

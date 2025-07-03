@@ -3,23 +3,23 @@ package dev.akarah.cdata.script.type;
 import dev.akarah.cdata.script.env.JIT;
 
 import java.lang.constant.ClassDesc;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public record ListType() implements Type<ArrayList<Object>> {
+public record DictionaryType() implements Type<Map<Object, Object>> {
     @Override
     public String typeName() {
-        return "list";
+        return "dict";
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class<ArrayList<Object>> typeClass() {
-        return (Class<ArrayList<Object>>) (Class<?>) List.class;
+    public Class<Map<Object, Object>> typeClass() {
+        return (Class<Map<Object, Object>>) (Class<?>) Map.class;
     }
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(ArrayList.class);
+        return JIT.ofClass(Map.class);
     }
 }

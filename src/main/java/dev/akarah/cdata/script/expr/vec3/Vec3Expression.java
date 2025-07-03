@@ -23,8 +23,14 @@ public record Vec3Expression(
         ctx
                 .bytecode(cb -> cb.new_(JIT.ofClass(Vec3.class)).dup())
                 .pushValue(this.x)
+                .typecheck(Double.class)
+                .unboxNumber()
                 .pushValue(this.y)
+                .typecheck(Double.class)
+                .unboxNumber()
                 .pushValue(this.z)
+                .typecheck(Double.class)
+                .unboxNumber()
                 .bytecode(cb -> cb.invokespecial(
                         JIT.ofClass(Vec3.class),
                         "<init>",

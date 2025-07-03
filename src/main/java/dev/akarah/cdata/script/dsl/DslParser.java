@@ -8,7 +8,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.*;
-import dev.akarah.cdata.script.expr.number.NumberExpression;
+import dev.akarah.cdata.script.expr.number.*;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
 import dev.akarah.cdata.script.type.SpannedType;
@@ -130,7 +130,7 @@ public class DslParser {
     }
 
     public Expression parseArrowExpression() {
-        var baseExpression = parseInvocation();
+        var baseExpression = parseTerm();
         while(peek() instanceof DslToken.ArrowSymbol) {
             expect(DslToken.ArrowSymbol.class);
             var name = expect(DslToken.Identifier.class);
@@ -139,6 +139,32 @@ public class DslParser {
             baseExpression = new SpannedExpression<>(new LateResolvedFunctionCall(name.identifier(), parameters), name.span());
         }
         return baseExpression;
+    }
+
+    public Expression parseTerm() {
+        var base = parseFactor();
+        while(peek() instanceof DslToken.PlusSymbol) {
+            expect(DslToken.PlusSymbol.class);
+            base = new AddExpression(base, parseFactor());
+        }
+        while(peek() instanceof DslToken.StarSymbol) {
+            expect(DslToken.StarSymbol.class);
+            base = new MultiplyExpression(base, parseFactor());
+        }
+        return base;
+    }
+
+    public Expression parseFactor() {
+        var base = parseInvocation();
+        while(peek() instanceof DslToken.MinusSymbol) {
+            expect(DslToken.MinusSymbol.class);
+            base = new SubtractExpression(base, parseInvocation());
+        }
+        while(peek() instanceof DslToken.SlashSymbol) {
+            expect(DslToken.SlashSymbol.class);
+            base = new DivideExpression(base, parseInvocation());
+        }
+        return base;
     }
 
     public Expression parseInvocation() {

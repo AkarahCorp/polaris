@@ -2,10 +2,7 @@ package dev.akarah.cdata.registry.text;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.RegistryFileCodec;
 
 import java.util.List;
 

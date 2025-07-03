@@ -45,6 +45,10 @@ public interface Type<T> {
         return new ListType();
     }
 
+    static DictionaryType dict() {
+        return new DictionaryType();
+    }
+
     default boolean typeEquals(Type<?> other) {
         return this.typeName().equals((other.typeName()))
                 || this.typeName().equals("any")

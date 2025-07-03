@@ -73,7 +73,19 @@ public interface DslToken {
 
     }
 
+    record PlusSymbol(SpanData span) implements DslToken {
+
+    }
+
     record MinusSymbol(SpanData span) implements DslToken {
+
+    }
+
+    record StarSymbol(SpanData span) implements DslToken {
+
+    }
+
+    record SlashSymbol(SpanData span) implements DslToken {
 
     }
 

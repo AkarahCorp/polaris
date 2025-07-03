@@ -1,0 +1,45 @@
+package dev.akarah.cdata.script.expr.dict;
+
+import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.Type;
+
+import java.lang.constant.MethodTypeDesc;
+import java.util.HashMap;
+import java.util.List;
+
+public record DictGetExpression(
+        Expression dict,
+        Expression key
+) implements Expression {
+    @Override
+    public void compile(CodegenContext ctx) {
+        ctx
+                .pushValue(dict)
+                .typecheck(HashMap.class)
+                .pushValue(key)
+                .bytecode(cb -> cb.invokevirtual(
+                        JIT.ofClass(HashMap.class),
+                        "get",
+                        MethodTypeDesc.of(
+                                JIT.ofClass(Object.class),
+                                List.of(JIT.ofClass(Object.class))
+                        )
+                ));
+    }
+
+    @Override
+    public Type<?> type(CodegenContext ctx) {
+        return Type.any();
+    }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("map", Type.dict()),
+                Pair.of("key", Type.any())
+        );
+    }
+}

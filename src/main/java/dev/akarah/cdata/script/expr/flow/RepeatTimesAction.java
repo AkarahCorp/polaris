@@ -15,9 +15,9 @@ public record RepeatTimesAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.pushValue(times);
+        ctx.pushValue(times).typecheck(Double.class);
         var local = ctx.bytecode().allocateLocal(TypeKind.INT);
-        ctx.bytecode(CodeBuilder::d2i).bytecode(cb -> cb.istore(local));
+        ctx.unboxNumber().bytecode(CodeBuilder::d2i).bytecode(cb -> cb.istore(local));
 
         var loopCheck = ctx.bytecode().newLabel();
 

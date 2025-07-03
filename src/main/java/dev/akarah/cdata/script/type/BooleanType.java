@@ -1,5 +1,7 @@
 package dev.akarah.cdata.script.type;
 
+import dev.akarah.cdata.script.env.JIT;
+
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 
@@ -16,11 +18,6 @@ public record BooleanType() implements Type<Boolean> {
 
     @Override
     public ClassDesc classDescType() {
-        return ClassDesc.ofDescriptor("Z");
-    }
-
-    @Override
-    public TypeKind classFileType() {
-        return TypeKind.BOOLEAN;
+        return JIT.ofClass(Boolean.class);
     }
 }

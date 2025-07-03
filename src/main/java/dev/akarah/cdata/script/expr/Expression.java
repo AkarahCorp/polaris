@@ -1,10 +1,16 @@
 package dev.akarah.cdata.script.expr;
 
 import dev.akarah.cdata.script.exception.SpanData;
+import dev.akarah.cdata.script.expr.dict.CreateDictExpression;
+import dev.akarah.cdata.script.expr.dict.DictGetExpression;
+import dev.akarah.cdata.script.expr.dict.DictPutExpression;
 import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
+import dev.akarah.cdata.script.expr.list.AddListExpression;
+import dev.akarah.cdata.script.expr.list.CreateListExpression;
+import dev.akarah.cdata.script.expr.list.GetListExpression;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
 import dev.akarah.cdata.script.expr.string.StringExpression;
@@ -27,6 +33,16 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add"), AddListExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/get"), GetListExpression.class);
+
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/create"), CreateDictExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/put"), DictPutExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/get"), DictGetExpression.class);
+
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3"), Vec3Expression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/add"), Vec3AddExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/multiply"), Vec3MultiplyExpression.class);

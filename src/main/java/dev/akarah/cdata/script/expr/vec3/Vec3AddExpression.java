@@ -21,7 +21,9 @@ public record Vec3AddExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.lhs)
+                .typecheck(Vec3.class)
                 .pushValue(this.rhs)
+                .typecheck(Vec3.class)
                 .bytecode(cb -> cb.invokevirtual(
                         JIT.ofClass(Vec3.class),
                         "add",

@@ -18,11 +18,6 @@ public record NumberType() implements Type<Double> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofDouble();
-    }
-
-    @Override
-    public TypeKind classFileType() {
-        return TypeKind.DOUBLE;
+        return JIT.ofClass(Double.class);
     }
 }

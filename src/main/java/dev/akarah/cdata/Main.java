@@ -5,6 +5,7 @@ import com.mojang.serialization.Lifecycle;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.exception.SpannedException;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -121,17 +122,18 @@ public class Main implements ModInitializer {
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Exception e) {
-                                            handleError(e);
+                                            e.printStackTrace();
                                         }
                                     }
                                     return 0;
                                 })
                         ));
                     } catch (Exception e) {
-                        handleError(e);
+                        // if we got here, the method has parameters.
+                        // just don't make it runnable in commands
                     }
                 });
-            } catch (Exception e) {
+            } catch (SpannedException e) {
                 handleError(e);
             }
 

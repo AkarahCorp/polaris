@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,9 @@ public record Vec3ZExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.value)
-                .getVectorComponent("z");
+                .typecheck(Vec3.class)
+                .getVectorComponent("z")
+                .boxNumber();
     }
 
     @Override
