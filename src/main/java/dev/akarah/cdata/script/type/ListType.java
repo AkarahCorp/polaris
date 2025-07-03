@@ -1,5 +1,8 @@
 package dev.akarah.cdata.script.type;
 
+import dev.akarah.cdata.script.env.JIT;
+
+import java.lang.constant.ClassDesc;
 import java.util.List;
 
 public record ListType() implements Type<List<Object>> {
@@ -12,5 +15,10 @@ public record ListType() implements Type<List<Object>> {
     @SuppressWarnings("unchecked")
     public Class<List<Object>> typeClass() {
         return (Class<List<Object>>) (Class<?>) List.class;
+    }
+
+    @Override
+    public ClassDesc classDescType() {
+        return JIT.ofClass(List.class);
     }
 }

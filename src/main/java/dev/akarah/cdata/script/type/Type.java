@@ -1,14 +1,17 @@
 package dev.akarah.cdata.script.type;
 
 import java.lang.classfile.TypeKind;
+import java.lang.constant.ClassDesc;
 
 public interface Type<T> {
     String typeName();
     Class<T> typeClass();
+    ClassDesc classDescType();
 
     default TypeKind classFileType() {
         return TypeKind.REFERENCE;
     }
+
 
     static NumberType number() {
         return new NumberType();

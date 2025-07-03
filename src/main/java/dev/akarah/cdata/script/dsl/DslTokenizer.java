@@ -75,6 +75,7 @@ public class DslTokenizer {
                         case "else" -> new DslToken.ElseKeyword();
                         case "local" -> new DslToken.LocalKeyword();
                         case "repeat" -> new DslToken.RepeatKeyword();
+                        case "schema" -> new DslToken.SchemaKeyword();
                         default -> new DslToken.Identifier(string);
                     });
                 }

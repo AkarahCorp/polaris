@@ -57,6 +57,10 @@ public interface DslToken {
 
     }
 
+    record SchemaKeyword() implements DslToken {
+
+    }
+
     record EqualSymbol() implements DslToken {
 
     }

@@ -7,6 +7,7 @@ import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,7 @@ import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +58,7 @@ public class CodegenContext {
      * @param refs The list of expressions to compile.
      * @return The created class.
      */
-    public static Class<?> initializeCompilation(List<Pair<ResourceLocation, Expression>> refs) {
+    public static Class<?> initializeCompilation(List<Pair<String, SchemaExpression>> refs) {
         var bytes = CodegenContext.compileClassBytecode(refs);
         try {
             Files.createDirectories(Path.of("./build/"));
@@ -83,7 +85,7 @@ public class CodegenContext {
      * @return The converted method name.
      */
     public static String resourceLocationToMethodName(ResourceLocation name) {
-        return name.toString().replace(":", "__");
+        return name.toString().replace("minecraft:", "").replace(":", "_").replace("/", "_");
     }
 
     /**
@@ -91,7 +93,7 @@ public class CodegenContext {
      * @param refs The references to include in the transformation.
      * @return The raw bytes of the new class created.
      */
-    private static byte[] compileClassBytecode(List<Pair<ResourceLocation, Expression>> refs) {
+    private static byte[] compileClassBytecode(List<Pair<String, SchemaExpression>> refs) {
         var classFile = ClassFile.of();
 
         return classFile.build(
@@ -121,20 +123,20 @@ public class CodegenContext {
                             methodBuilder -> {
                                 methodBuilder.withCode(codeBuilder -> {
                                     for(var entry : cc.staticClasses.keySet()) {
-                                        codeBuilder.getstatic(
-                                                JIT.ofClass(System.class),
-                                                "out",
-                                                JIT.ofClass(PrintStream.class)
-                                        );
-                                        codeBuilder.loadConstant("Putting static of ID `" + entry + "`...");
-                                        codeBuilder.invokevirtual(
-                                                JIT.ofClass(PrintStream.class),
-                                                "println",
-                                                MethodTypeDesc.of(
-                                                        JIT.ofVoid(),
-                                                        List.of(JIT.ofClass(String.class))
-                                                )
-                                        );
+//                                        codeBuilder.getstatic(
+//                                                JIT.ofClass(System.class),
+//                                                "out",
+//                                                JIT.ofClass(PrintStream.class)
+//                                        );
+//                                        codeBuilder.loadConstant("Putting static of ID `" + entry + "`...");
+//                                        codeBuilder.invokevirtual(
+//                                                JIT.ofClass(PrintStream.class),
+//                                                "println",
+//                                                MethodTypeDesc.of(
+//                                                        JIT.ofVoid(),
+//                                                        List.of(JIT.ofClass(String.class))
+//                                                )
+//                                        );
                                         codeBuilder.getstatic(
                                                 JIT.ofClass(CodegenContext.class),
                                                 "INSTANCE",
@@ -171,20 +173,38 @@ public class CodegenContext {
         );
     }
 
+    public static ResourceLocation idName(String name) {
+        return ResourceLocation.withDefaultNamespace(name.replace(".", "/"));
+    }
+
     /**
      * Compiles an individual entry in the action registry into the class.
      * @param name The name of the entry.
      * @param action The action code of the entry.
      * @return This.
      */
-    private ClassBuilder compileAction(ResourceLocation name, Expression action) {
+    private ClassBuilder compileAction(String name, SchemaExpression action) {
+        var returnType = action.returnType().classDescType();
+        var parameters = new ArrayList<ClassDesc>();
+        parameters.add(JIT.ofClass(RuntimeContext.class));
+        for(var parameter : action.parameters()) {
+            parameters.add(parameter.getSecond().classDescType());
+        }
+
         return this.classBuilder.withMethod(
-                resourceLocationToMethodName(name),
-                MethodTypeDesc.of(JIT.ofVoid(), List.of(JIT.ofClass(RuntimeContext.class))),
+                name,
+                MethodTypeDesc.of(returnType, parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
+                    this.methodLocalTypes.clear();
                     this.methodLocals.clear();
-                    this.localIndex = action.localsRequiredForCompile() + 1;
+
+                    int idx = 1;
+                    for(var parameter : action.parameters()) {
+                        this.methodLocals.put(parameter.getFirst(), idx++);
+                        this.methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
+                    }
+
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
                         this.codeBuilder = codeBuilder;
@@ -207,7 +227,6 @@ public class CodegenContext {
 
     /**
      * Exposes the underlying CodeBuilder for use by {@link Expression}.
-     * @param function The function to apply.
      * @return This.
      */
     public CodeBuilder bytecode() {

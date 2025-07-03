@@ -104,12 +104,13 @@ public class Main implements ModInitializer {
 
                 elements.forEach(element -> {
                     try {
+                        var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getFirst());
                         var method = codeClazz.getDeclaredMethod(
-                                CodegenContext.resourceLocationToMethodName(element.getFirst()),
+                                element.getFirst(),
                                 RuntimeContext.class
                         );
                         root.then(Commands.literal("run").then(
-                                Commands.literal(element.getFirst().toString()).executes(ctx -> {
+                                Commands.literal(resourceName.toString()).executes(ctx -> {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
@@ -124,7 +125,7 @@ public class Main implements ModInitializer {
                                 })
                         ));
                     } catch (Exception e) {
-                        e.printStackTrace();
+
                     }
                 });
             } catch (Exception e) {
