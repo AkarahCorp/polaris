@@ -54,7 +54,7 @@ public class Main implements ModInitializer {
                 })));
             });
 
-            context.lookupOrThrow(ExtRegistries.CUSTOM_ENTITY).listElements().forEach(element -> {
+            ExtReloadableResources.customEntity().registry().listElements().forEach(element -> {
                 root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
                     try {
                         if(ctx.getSource().getEntity() instanceof Player p) {
