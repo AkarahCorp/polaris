@@ -1,5 +1,7 @@
 package dev.akarah.cdata.script.dsl;
 
+import dev.akarah.cdata.script.exception.SpanData;
+
 public interface DslToken {
     SpanData span();
 

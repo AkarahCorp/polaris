@@ -3,12 +3,15 @@ package dev.akarah.cdata.script.dsl;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.text.Parser;
 import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.*;
 import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextExpression;
+import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.util.ArrayList;
@@ -32,9 +35,9 @@ public class DslParser {
 
         var parameters = new ArrayList<Pair<String, Type<?>>>();
         while(!(peek() instanceof DslToken.CloseParen)) {
-            var name = expect(DslToken.Identifier.class).identifier();
+            var name = expect(DslToken.Identifier.class);
             var type = parseType();
-            parameters.add(Pair.of(name, type));
+            parameters.add(Pair.of(name.identifier(), type));
             if(!(peek() instanceof DslToken.CloseParen)) {
                 expect(DslToken.Comma.class);
             }
@@ -52,17 +55,17 @@ public class DslParser {
     }
 
     public Type<?> parseType() {
-        var identifier = expect(DslToken.Identifier.class).identifier();
-        return switch (identifier) {
-            case "any" -> Type.any();
-            case "void" -> Type.void_();
-            case "number" -> Type.number();
-            case "bool" -> Type.bool();
-            case "string" -> Type.string();
-            case "vec3" -> Type.vec3();
-            case "text" -> Type.text();
-            case "list" -> Type.list();
-            default -> throw new ParsingException("Type `" + identifier + "` is unknown.", this.index);
+        var identifier = expect(DslToken.Identifier.class);
+        return switch (identifier.identifier()) {
+            case "any" -> new SpannedType<>(Type.any(), identifier.span());
+            case "void" -> new SpannedType<>(Type.void_(), identifier.span());
+            case "number" -> new SpannedType<>(Type.number(), identifier.span());
+            case "bool" -> new SpannedType<>(Type.bool(), identifier.span());
+            case "string" -> new SpannedType<>(Type.string(), identifier.span());
+            case "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
+            case "text" -> new SpannedType<>(Type.text(), identifier.span());
+            case "list" -> new SpannedType<>(Type.list(), identifier.span());
+            default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }
 
@@ -108,7 +111,7 @@ public class DslParser {
 
     public AllOfAction parseBlock() {
         var statements = new ArrayList<Expression>();
-        expect(DslToken.OpenBrace.class);
+        var openBrace = expect(DslToken.OpenBrace.class);
         while(!(peek() instanceof DslToken.CloseBrace)) {
             statements.add(parseStatement());
         }
@@ -130,10 +133,10 @@ public class DslParser {
         var baseExpression = parseInvocation();
         while(peek() instanceof DslToken.ArrowSymbol) {
             expect(DslToken.ArrowSymbol.class);
-            var name = expect(DslToken.Identifier.class).identifier();
+            var name = expect(DslToken.Identifier.class);
             var parameters = parseTuple();
             parameters.addFirst(baseExpression);
-            baseExpression = new LateResolvedFunctionCall(name, parameters);
+            baseExpression = new SpannedExpression<>(new LateResolvedFunctionCall(name.identifier(), parameters), name.span());
         }
         return baseExpression;
     }
@@ -143,7 +146,7 @@ public class DslParser {
 
         if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName)) {
             var tuple = parseTuple();
-            baseExpression = new LateResolvedFunctionCall(functionName, tuple);
+            baseExpression = new SpannedExpression<>(new LateResolvedFunctionCall(functionName, tuple), baseExpression.span());
         }
         return baseExpression;
     }
@@ -171,7 +174,7 @@ public class DslParser {
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
-            default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", this.index);
+            default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };
     }
 
@@ -188,7 +191,7 @@ public class DslParser {
         if(clazz.isInstance(token)) {
             return clazz.cast(token);
         } else {
-            throw new ParsingException("Expected " + clazz.getSimpleName() + ", but instead found " + token.getClass().getSimpleName(), this.index);
+            throw new ParsingException("Expected " + clazz.getSimpleName() + ", but instead found " + token.getClass().getSimpleName(), token.span());
         }
     }
 }

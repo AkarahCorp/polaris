@@ -1,37 +1,26 @@
 package dev.akarah.cdata.script.expr;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
-import dev.akarah.cdata.registry.ExtBuiltInRegistries;
-import dev.akarah.cdata.registry.text.ParsedText;
-import dev.akarah.cdata.script.expr.bool.BooleanExpression;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
-import dev.akarah.cdata.script.expr.flow.AllOfAction;
-import dev.akarah.cdata.script.expr.flow.GetLocalAction;
-import dev.akarah.cdata.script.expr.flow.IfAction;
-import dev.akarah.cdata.script.expr.flow.SetLocalAction;
-import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
 import dev.akarah.cdata.script.expr.string.StringExpression;
-import dev.akarah.cdata.script.expr.text.TextExpression;
 import dev.akarah.cdata.script.expr.vec3.*;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface Expression {
     void compile(CodegenContext ctx);
     Type<?> type(CodegenContext ctx);
+
+    default SpanData span() {
+        return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
+    }
 
     default int localsRequiredForCompile() {
         return 0;

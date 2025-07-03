@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.EngineConfig;
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Util;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
@@ -66,7 +67,7 @@ public class ExtReloadableResources {
                     ExtReloadableResources.customEntity().reloadWithManager(resourceManager, executor)
             ).get();
         } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+            Main.handleError(e);
         }
     }
 

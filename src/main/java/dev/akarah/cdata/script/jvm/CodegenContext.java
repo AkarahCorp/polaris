@@ -9,7 +9,6 @@ import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.env.RuntimeContext;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -48,8 +47,6 @@ public class CodegenContext {
 
     Map<String, Integer> methodLocals = Maps.newHashMap();
     Map<String, Type<?>> methodLocalTypes = Maps.newHashMap();
-
-    int localIndex = 0;
 
     public static CodegenContext INSTANCE;
 
@@ -104,7 +101,6 @@ public class CodegenContext {
                     cc.classBuilder = classBuilder;
 
                     refs.forEach(entry -> {
-                        System.out.println("Compiling entry: " + entry.getSecond());
                         cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond());
                     });
 
@@ -123,20 +119,6 @@ public class CodegenContext {
                             methodBuilder -> {
                                 methodBuilder.withCode(codeBuilder -> {
                                     for(var entry : cc.staticClasses.keySet()) {
-//                                        codeBuilder.getstatic(
-//                                                JIT.ofClass(System.class),
-//                                                "out",
-//                                                JIT.ofClass(PrintStream.class)
-//                                        );
-//                                        codeBuilder.loadConstant("Putting static of ID `" + entry + "`...");
-//                                        codeBuilder.invokevirtual(
-//                                                JIT.ofClass(PrintStream.class),
-//                                                "println",
-//                                                MethodTypeDesc.of(
-//                                                        JIT.ofVoid(),
-//                                                        List.of(JIT.ofClass(String.class))
-//                                                )
-//                                        );
                                         codeBuilder.getstatic(
                                                 JIT.ofClass(CodegenContext.class),
                                                 "INSTANCE",

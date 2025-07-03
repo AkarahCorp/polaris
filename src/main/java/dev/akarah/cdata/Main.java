@@ -22,6 +22,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -29,6 +31,7 @@ public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static MinecraftServerAudiences AUDIENCES;
     public static ReloadableResourceManager CURRENT_RESOURCE_MANAGER;
+    public static Logger LOGGER = LoggerFactory.getLogger("akarahnet-engine");
 
     @Override
     public void onInitialize() {
@@ -118,18 +121,18 @@ public class Main implements ModInitializer {
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Exception e) {
-                                            e.printStackTrace();
+                                            handleError(e);
                                         }
                                     }
                                     return 0;
                                 })
                         ));
                     } catch (Exception e) {
-
+                        handleError(e);
                     }
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                handleError(e);
             }
 
 
@@ -158,4 +161,16 @@ public class Main implements ModInitializer {
         return SERVER;
     }
 
+    public static void handleError(Exception e) {
+        String sb = "\n"
+                + "A fatal error occurred while generating code! Server may fail to start."
+                + "\n" + e.getMessage()
+                + "\n";
+
+        LOGGER.error(sb);
+
+        if(SERVER == null) {
+            System.exit(1);
+        }
+    }
 }

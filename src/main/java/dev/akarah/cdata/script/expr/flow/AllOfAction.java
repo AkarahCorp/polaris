@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr.flow;
 
 import com.google.common.collect.Lists;
 import dev.akarah.cdata.script.exception.MultiException;
+import dev.akarah.cdata.script.exception.SpannedException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -13,11 +14,11 @@ public record AllOfAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        List<Exception> exceptions = Lists.newArrayList();
+        List<SpannedException> exceptions = Lists.newArrayList();
         for(var action : this.actions) {
             try {
                 ctx.pushValue(action);
-            } catch (Exception e) {
+            } catch (SpannedException e) {
                 exceptions.add(e);
             }
         }

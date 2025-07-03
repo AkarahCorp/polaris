@@ -1,11 +1,11 @@
 package dev.akarah.cdata.script.dsl;
 
-import com.mojang.brigadier.ImmutableStringReader;
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.DataResult;
+import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -111,8 +111,7 @@ public class DslTokenizer {
                     stringReader.expect(',');
                     return DataResult.success(new DslToken.Comma(this.createSpan(start)));
                 }
-                default -> throw new SimpleCommandExceptionType(() -> "Invalid character type: '" + stringReader.peek() + "' at " + this.createSpan())
-                        .createWithContext(this.stringReader);
+                default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             }
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception::getMessage);

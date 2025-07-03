@@ -115,10 +115,6 @@ public class LateResolvedFunctionCall implements Expression {
     }
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
-        System.out.println("trying " + this.functionName + " or " + this.alternateName(ctx));
-
-
-        System.out.println(ExtReloadableResources.actionManager().expressions().keySet());
         var functionName = filterNameToMethodName(this.functionName);
         var functionSchema = ExtReloadableResources.actionManager().expressions().get(functionName);
         if(functionSchema == null) {
