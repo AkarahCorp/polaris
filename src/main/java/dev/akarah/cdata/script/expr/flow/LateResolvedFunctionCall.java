@@ -1,15 +1,16 @@
 package dev.akarah.cdata.script.expr.flow;
 
+import com.google.common.collect.Streams;
+import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Cod;
 
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class LateResolvedFunctionCall implements Expression {
     String functionName;
@@ -62,10 +62,40 @@ public class LateResolvedFunctionCall implements Expression {
 
         if(exprClassOpt.isPresent()) {
             var exprClass = exprClassOpt.orElseThrow();
+
             var constructorArguments = repeatInArray(parameters.size());
             var emptyArguments = toArray(parameters);
 
             try {
+                var fieldConstructor = exprClass.getDeclaredMethod("fields");
+
+                @SuppressWarnings("unchecked")
+                var fields = (List<Pair<String, Type<?>>>) fieldConstructor.invoke(null);
+
+                if(this.parameters.size() < fields.size()) {
+                    throw new TypeCheckException("Function call to " + this.functionName + " has too little parameters ("
+                            + this.parameters.size() + "/" + fields.size() + ")", this);
+                }
+                if(this.parameters.size() > fields.size()) {
+                    throw new TypeCheckException("Function call to " + this.functionName + " has too many parameters ("
+                            + this.parameters.size() + "/" + fields.size() + ")", this);
+                }
+                Streams.zip(this.parameters.stream(), fields.stream(), Pair::of)
+                        .forEach(set -> {
+                            var parameter = set.getFirst();
+                            var parameterName = set.getSecond().getFirst();
+                            var typeKind = set.getSecond().getSecond();
+                            var valueType = parameter.type(ctx);
+                            if(!typeKind.typeEquals(valueType)) {
+                                throw new TypeCheckException(
+                                        "Type " + valueType.typeName()
+                                                + " is not applicable for " + typeKind.typeName()
+                                                + " in field " + parameterName
+                                                + " of method " + this.functionName,
+                                        this);
+                            }
+                        });
+
                 var constructor = exprClass.getConstructor(constructorArguments);
                 return Optional.of(constructor.newInstance((Object[]) emptyArguments));
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |

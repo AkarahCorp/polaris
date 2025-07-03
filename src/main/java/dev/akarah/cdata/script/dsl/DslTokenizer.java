@@ -6,24 +6,27 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.DataResult;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DslTokenizer {
+    ResourceLocation fileName;
     StringReader stringReader;
 
-    public static DataResult<List<DslToken>> tokenize(String input) {
+    public static DataResult<List<DslToken>> tokenize(ResourceLocation fileName, String input) {
         var tk = new DslTokenizer();
+        tk.fileName = fileName;
         tk.stringReader = new StringReader(input);
 
         var list = tk.tokenizeLoop();
         list.ifSuccess(inner -> {
-            inner.add(new DslToken.EOF());
-            inner.add(new DslToken.EOF());
-            inner.add(new DslToken.EOF());
-            inner.add(new DslToken.EOF());
-            inner.add(new DslToken.EOF());
+            inner.add(new DslToken.EOF(tk.createSpan()));
+            inner.add(new DslToken.EOF(tk.createSpan()));
+            inner.add(new DslToken.EOF(tk.createSpan()));
+            inner.add(new DslToken.EOF(tk.createSpan()));
+            inner.add(new DslToken.EOF(tk.createSpan()));
         });
         return list;
     }
@@ -45,24 +48,25 @@ public class DslTokenizer {
     public DataResult<DslToken> tokenizeOnce() {
         try {
             stringReader.skipWhitespace();
+            var start = this.stringReader.getCursor();
             switch (stringReader.peek()) {
                 case '"' -> {
-                    return DataResult.success(new DslToken.StringExpr(this.stringReader.readQuotedString()));
+                    return DataResult.success(new DslToken.StringExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
                 }
                 case '$' -> {
                     this.stringReader.expect('$');
-                    return DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString()));
+                    return DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
                 }
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                    return DataResult.success(new DslToken.NumberExpr(this.stringReader.readDouble()));
+                    return DataResult.success(new DslToken.NumberExpr(this.stringReader.readDouble(), this.createSpan(start)));
                 }
                 case '-' -> {
                     stringReader.expect('-');
                     if(stringReader.peek() == '>') {
                         stringReader.expect('>');
-                        return DataResult.success(new DslToken.ArrowSymbol());
+                        return DataResult.success(new DslToken.ArrowSymbol(this.createSpan(start)));
                     }
-                    return DataResult.success(new DslToken.MinusSymbol());
+                    return DataResult.success(new DslToken.MinusSymbol(this.createSpan(start)));
                 }
                 case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -71,49 +75,61 @@ public class DslTokenizer {
                      '_', '.' -> {
                     var string = this.stringReader.readUnquotedString();
                     return DataResult.success(switch (string) {
-                        case "if" -> new DslToken.IfKeyword();
-                        case "else" -> new DslToken.ElseKeyword();
-                        case "local" -> new DslToken.LocalKeyword();
-                        case "repeat" -> new DslToken.RepeatKeyword();
-                        case "schema" -> new DslToken.SchemaKeyword();
-                        default -> new DslToken.Identifier(string);
+                        case "if" -> new DslToken.IfKeyword(this.createSpan(start));
+                        case "else" -> new DslToken.ElseKeyword(this.createSpan(start));
+                        case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
+                        case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
+                        case "schema" -> new DslToken.SchemaKeyword(this.createSpan(start));
+                        default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }
                 case ';' -> {
                     stringReader.expect(';');
-                    return DataResult.success(new DslToken.Semicolon());
+                    return DataResult.success(new DslToken.Semicolon(this.createSpan(start)));
                 }
                 case '=' -> {
                     stringReader.expect('=');
-                    return DataResult.success(new DslToken.EqualSymbol());
+                    return DataResult.success(new DslToken.EqualSymbol(this.createSpan(start)));
                 }
                 case '(' -> {
                     stringReader.expect('(');
-                    return DataResult.success(new DslToken.OpenParen());
+                    return DataResult.success(new DslToken.OpenParen(this.createSpan(start)));
                 }
                 case ')' -> {
                     stringReader.expect(')');
-                    return DataResult.success(new DslToken.CloseParen());
+                    return DataResult.success(new DslToken.CloseParen(this.createSpan(start)));
                 }
                 case '{' -> {
                     stringReader.expect('{');
-                    return DataResult.success(new DslToken.OpenBrace());
+                    return DataResult.success(new DslToken.OpenBrace(this.createSpan(start)));
                 }
                 case '}' -> {
                     stringReader.expect('}');
-                    return DataResult.success(new DslToken.CloseBrace());
+                    return DataResult.success(new DslToken.CloseBrace(this.createSpan(start)));
                 }
                 case ',' -> {
                     stringReader.expect(',');
-                    return DataResult.success(new DslToken.Comma());
+                    return DataResult.success(new DslToken.Comma(this.createSpan(start)));
                 }
-                default -> throw new SimpleCommandExceptionType(() -> "Invalid character type: '" + stringReader.peek() + "'")
+                default -> throw new SimpleCommandExceptionType(() -> "Invalid character type: '" + stringReader.peek() + "' at " + this.createSpan())
                         .createWithContext(this.stringReader);
             }
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception::getMessage);
         } catch (StringIndexOutOfBoundsException exception) {
-            return DataResult.success(new DslToken.EOF());
+            return DataResult.success(new DslToken.EOF(this.createSpan()));
         }
+    }
+
+    public SpanData createSpan() {
+        return new SpanData(this.stringReader.getCursor(), this.stringReader.getCursor(), this.stringReader.getString(), fileName);
+    }
+
+    public SpanData createSpan(int start) {
+        return new SpanData(start, this.stringReader.getCursor(), this.stringReader.getString(), fileName);
+    }
+
+    public SpanData createSpan(int start, int end) {
+        return new SpanData(start, end, this.stringReader.getString(), fileName);
     }
 }

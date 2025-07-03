@@ -20,8 +20,4 @@ public record BooleanExpression(boolean value) implements Expression {
     public Type<?> type(CodegenContext ctx) {
         return Type.bool();
     }
-
-    public static Optional<List<Pair<String, Type<?>>>> fields() {
-        return Optional.empty();
-    }
 }

@@ -39,4 +39,12 @@ public record Vec3Expression(
     public Type<?> type(CodegenContext ctx) {
         return Type.vec3();
     }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("x", Type.number()),
+                Pair.of("y", Type.number()),
+                Pair.of("z", Type.number())
+        );
+    }
 }

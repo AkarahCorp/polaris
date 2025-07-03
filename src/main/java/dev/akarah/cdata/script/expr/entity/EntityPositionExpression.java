@@ -33,7 +33,7 @@ public record EntityPositionExpression() implements Expression {
         return Type.vec3();
     }
 
-    public static Optional<List<Pair<String, Type<?>>>> fields() {
-        return Optional.of(List.of());
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of();
     }
 }

@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.player;
 
+import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -35,5 +36,11 @@ public record PlayerSendMessageAction(
     @Override
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
+    }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("message", Type.string())
+        );
     }
 }

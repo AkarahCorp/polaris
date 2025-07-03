@@ -36,4 +36,11 @@ public record Vec3MultiplyExpression(
     public Type<?> type(CodegenContext ctx) {
         return Type.vec3();
     }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("lhs", Type.vec3()),
+                Pair.of("rhs", Type.vec3())
+        );
+    }
 }

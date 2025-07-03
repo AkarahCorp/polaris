@@ -24,4 +24,10 @@ public record Vec3ZExpression(
     public Type<?> type(CodegenContext ctx) {
         return Type.number();
     }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("value", Type.vec3())
+        );
+    }
 }

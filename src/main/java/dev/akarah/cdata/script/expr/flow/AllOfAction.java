@@ -1,22 +1,28 @@
 package dev.akarah.cdata.script.expr.flow;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.common.collect.Lists;
+import dev.akarah.cdata.script.exception.MultiException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
 import java.util.List;
-import java.util.Optional;
 
 public record AllOfAction(
         List<Expression> actions
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
+        List<Exception> exceptions = Lists.newArrayList();
         for(var action : this.actions) {
-            ctx.pushValue(action);
+            try {
+                ctx.pushValue(action);
+            } catch (Exception e) {
+                exceptions.add(e);
+            }
+        }
+        if(!exceptions.isEmpty()) {
+            throw new MultiException(exceptions);
         }
     }
 

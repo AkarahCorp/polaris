@@ -43,9 +43,9 @@ public record EntityTeleportRelativeAction(
         return Type.void_();
     }
 
-    public static Optional<List<Pair<String, Type<?>>>> fields() {
-        return Optional.of(List.of(
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
                 Pair.of("position", Type.vec3())
-        ));
+        );
     }
 }

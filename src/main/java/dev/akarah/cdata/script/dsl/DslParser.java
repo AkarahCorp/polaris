@@ -1,8 +1,8 @@
 package dev.akarah.cdata.script.dsl;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.text.Parser;
+import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.*;
@@ -62,7 +62,7 @@ public class DslParser {
             case "vec3" -> Type.vec3();
             case "text" -> Type.text();
             case "list" -> Type.list();
-            default -> throw new RuntimeException("Type `" + identifier + "` is unknown.");
+            default -> throw new ParsingException("Type `" + identifier + "` is unknown.", this.index);
         };
     }
 
@@ -168,10 +168,10 @@ public class DslParser {
             case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value());
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
             case DslToken.TextExpr textExpr -> new TextExpression(Parser.parseTextLine(textExpr.value()));
-            case DslToken.Identifier(String id) when id.equals("true") -> new BooleanExpression(true);
-            case DslToken.Identifier(String id) when id.equals("false") -> new BooleanExpression(false);
+            case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
+            case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
-            default -> throw new IllegalStateException("Unexpected value: " + tok);
+            default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", this.index);
         };
     }
 
@@ -188,7 +188,7 @@ public class DslParser {
         if(clazz.isInstance(token)) {
             return clazz.cast(token);
         } else {
-            throw new RuntimeException("expected " + clazz.getSimpleName() + ", found " + token.getClass().getSimpleName());
+            throw new ParsingException("Expected " + clazz.getSimpleName() + ", but instead found " + token.getClass().getSimpleName(), this.index);
         }
     }
 }

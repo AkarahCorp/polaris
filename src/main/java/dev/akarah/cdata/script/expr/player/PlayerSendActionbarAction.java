@@ -40,4 +40,10 @@ public record PlayerSendActionbarAction(
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
+
+    public static List<Pair<String, Type<?>>> fields() {
+        return List.of(
+                Pair.of("message", Type.string())
+        );
+    }
 }

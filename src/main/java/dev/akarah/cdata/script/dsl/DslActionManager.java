@@ -48,7 +48,7 @@ public class DslActionManager {
                     }
 
                     for(var entry : this.rawDslPrograms.entrySet()) {
-                        var tokens = DslTokenizer.tokenize(entry.getValue()).getOrThrow();
+                        var tokens = DslTokenizer.tokenize(this.resourceNames.get(entry.getKey()), entry.getValue()).getOrThrow();
                         var expression = DslParser.parseTopLevelExpression(tokens);
                         ExtReloadableResources.actionManager().dslExpressions.put(entry.getKey(), expression);
                     }
