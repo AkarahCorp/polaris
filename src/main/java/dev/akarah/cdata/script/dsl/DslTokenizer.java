@@ -79,6 +79,8 @@ public class DslTokenizer {
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
                         case "schema" -> new DslToken.SchemaKeyword(this.createSpan(start));
+                        case "foreach" -> new DslToken.ForeachKeyword(this.createSpan(start));
+                        case "in" -> new DslToken.InKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

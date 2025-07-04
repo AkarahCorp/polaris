@@ -76,6 +76,9 @@ public class DslParser {
         if(this.peek() instanceof DslToken.IfKeyword) {
             return parseIf();
         }
+        if(this.peek() instanceof DslToken.ForeachKeyword) {
+            return parseForEach();
+        }
         return parseValue();
     }
 
@@ -83,11 +86,18 @@ public class DslParser {
         return this.parseStorage();
     }
 
+    public ForEachAction parseForEach() {
+        expect(DslToken.ForeachKeyword.class);
+        var variableName = expect(DslToken.Identifier.class);
+        expect(DslToken.InKeyword.class);
+        var listExpr = parseBaseExpression();
+        var block = parseBlock();
+        return new ForEachAction(listExpr, variableName.identifier(), block);
+    }
+
     public RepeatTimesAction parseRepeat() {
         expect(DslToken.RepeatKeyword.class);
-        expect(DslToken.OpenParen.class);
         var times = parseValue();
-        expect(DslToken.CloseParen.class);
         var block = parseBlock();
 
         return new RepeatTimesAction(times, block);
@@ -95,9 +105,7 @@ public class DslParser {
 
     public IfAction parseIf() {
         expect(DslToken.IfKeyword.class);
-        expect(DslToken.OpenParen.class);
         var times = parseValue();
-        expect(DslToken.CloseParen.class);
         var block = parseBlock();
 
         var orElse = Optional.<Expression>empty();
@@ -111,7 +119,7 @@ public class DslParser {
 
     public AllOfAction parseBlock() {
         var statements = new ArrayList<Expression>();
-        var openBrace = expect(DslToken.OpenBrace.class);
+        expect(DslToken.OpenBrace.class);
         while(!(peek() instanceof DslToken.CloseBrace)) {
             statements.add(parseStatement());
         }

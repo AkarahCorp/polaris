@@ -65,6 +65,14 @@ public interface DslToken {
 
     }
 
+    record ForeachKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record InKeyword(SpanData span) implements DslToken {
+
+    }
+
     record EqualSymbol(SpanData span) implements DslToken {
 
     }
