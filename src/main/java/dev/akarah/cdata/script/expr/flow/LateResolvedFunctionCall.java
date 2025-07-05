@@ -4,7 +4,6 @@ import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;

@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.type;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 
 import java.lang.constant.ClassDesc;
 import java.util.ArrayList;
@@ -20,6 +20,6 @@ public record ListType() implements Type<ArrayList<Object>> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(ArrayList.class);
+        return CodegenUtil.ofClass(ArrayList.class);
     }
 }

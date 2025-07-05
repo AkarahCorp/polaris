@@ -1,7 +1,7 @@
 package dev.akarah.cdata.script.expr.player;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -18,16 +18,16 @@ public record PlayerSendMessageAction(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.entityExpression)
-                .bytecode(cb -> cb.dup().instanceOf(JIT.ofClass(ServerPlayer.class)))
+                .bytecode(cb -> cb.dup().instanceOf(CodegenUtil.ofClass(ServerPlayer.class)))
                 .ifThen(() -> ctx
-                        .bytecode(cb -> cb.checkcast(JIT.ofClass(ServerPlayer.class)))
+                        .bytecode(cb -> cb.checkcast(CodegenUtil.ofClass(ServerPlayer.class)))
                         .evaluateParsedTextOrNull(this.message)
                         .runIfNonNull(
                                 () -> ctx.invokeFromSelection(
-                                        JIT.ofClass(ServerPlayer.class),
+                                        CodegenUtil.ofClass(ServerPlayer.class),
                                         "sendSystemMessage",
-                                        JIT.ofVoid(),
-                                        List.of(JIT.ofClass(Component.class))
+                                        CodegenUtil.ofVoid(),
+                                        List.of(CodegenUtil.ofClass(Component.class))
                                 ),
                                 () -> ctx.bytecode(CodeBuilder::pop)
                         )

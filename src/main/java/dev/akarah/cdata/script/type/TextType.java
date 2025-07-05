@@ -1,7 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.registry.text.ParsedText;
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 
 import java.lang.constant.ClassDesc;
 
@@ -18,6 +18,6 @@ public record TextType() implements Type<ParsedText> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(ParsedText.class);
+        return CodegenUtil.ofClass(ParsedText.class);
     }
 }

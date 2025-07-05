@@ -1,8 +1,7 @@
 package dev.akarah.cdata.script.type;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 
-import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 
 public record NumberType() implements Type<Double> {
@@ -18,6 +17,6 @@ public record NumberType() implements Type<Double> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(Double.class);
+        return CodegenUtil.ofClass(Double.class);
     }
 }

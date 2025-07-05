@@ -1,10 +1,9 @@
 package dev.akarah.cdata.script.type;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import net.minecraft.world.entity.Entity;
 
 import java.lang.constant.ClassDesc;
-import java.util.Map;
 
 public record EntityType() implements Type<Entity> {
     @Override
@@ -19,6 +18,6 @@ public record EntityType() implements Type<Entity> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(Entity.class);
+        return CodegenUtil.ofClass(Entity.class);
     }
 }

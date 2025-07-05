@@ -1,9 +1,8 @@
 package dev.akarah.cdata.script.type;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 
 import java.lang.constant.ClassDesc;
-import java.util.List;
 import java.util.Map;
 
 public record DictionaryType() implements Type<Map<Object, Object>> {
@@ -20,6 +19,6 @@ public record DictionaryType() implements Type<Map<Object, Object>> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(Map.class);
+        return CodegenUtil.ofClass(Map.class);
     }
 }

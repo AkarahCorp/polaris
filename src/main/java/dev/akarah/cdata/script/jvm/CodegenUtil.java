@@ -1,8 +1,8 @@
-package dev.akarah.cdata.script.env;
+package dev.akarah.cdata.script.jvm;
 
 import java.lang.constant.ClassDesc;
 
-public class JIT {
+public class CodegenUtil {
     public static ClassDesc ofClass(Class<?> clazz) {
         return ClassDesc.ofDescriptor(clazz.descriptorString());
     }

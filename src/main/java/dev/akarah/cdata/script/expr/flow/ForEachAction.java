@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.expr.flow;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -10,7 +10,6 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 public record ForEachAction(
         Expression list,
@@ -23,10 +22,10 @@ public record ForEachAction(
         ctx.pushValue(list)
                 .typecheck(ArrayList.class)
                 .bytecode(cb -> cb.invokevirtual(
-                    JIT.ofClass(ArrayList.class),
+                    CodegenUtil.ofClass(ArrayList.class),
                     "iterator",
                     MethodTypeDesc.of(
-                            JIT.ofClass(Iterator.class),
+                            CodegenUtil.ofClass(Iterator.class),
                             List.of()
                     )
                 ))
@@ -38,17 +37,17 @@ public record ForEachAction(
                 .bytecode(cb -> cb.aload(local))
                 .typecheck(Iterator.class)
                 .bytecode(cb -> cb.invokeinterface(
-                        JIT.ofClass(Iterator.class),
+                        CodegenUtil.ofClass(Iterator.class),
                         "hasNext",
-                        MethodTypeDesc.of(JIT.ofBoolean(), List.of())
+                        MethodTypeDesc.of(CodegenUtil.ofBoolean(), List.of())
                 ))
                 .ifThen(
                         () -> ctx.bytecode(cb -> cb.aload(local))
                                 .bytecode(cb -> cb.invokeinterface(
-                                        JIT.ofClass(Iterator.class),
+                                        CodegenUtil.ofClass(Iterator.class),
                                         "next",
                                         MethodTypeDesc.of(
-                                                JIT.ofClass(Object.class),
+                                                CodegenUtil.ofClass(Object.class),
                                                 List.of()
                                         )
                                 ))

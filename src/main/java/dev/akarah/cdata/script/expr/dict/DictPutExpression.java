@@ -1,7 +1,7 @@
 package dev.akarah.cdata.script.expr.dict;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -24,11 +24,11 @@ public record DictPutExpression(
                 .pushValue(key)
                 .pushValue(value)
                 .bytecode(cb -> cb.invokevirtual(
-                        JIT.ofClass(HashMap.class),
+                        CodegenUtil.ofClass(HashMap.class),
                         "put",
                         MethodTypeDesc.of(
-                                JIT.ofClass(Object.class),
-                                List.of(JIT.ofClass(Object.class), JIT.ofClass(Object.class))
+                                CodegenUtil.ofClass(Object.class),
+                                List.of(CodegenUtil.ofClass(Object.class), CodegenUtil.ofClass(Object.class))
                         )
                 ))
                 .bytecode(CodeBuilder::pop);

@@ -5,20 +5,16 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.text.ParseContext;
 import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
-import dev.akarah.cdata.script.env.JIT;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.classfile.*;
 import java.lang.constant.*;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -108,44 +104,44 @@ public class CodegenContext {
                     for(var field : cc.staticClasses.entrySet()) {
                         cc.classBuilder = cc.classBuilder.withField(
                                 field.getKey(),
-                                JIT.ofClass(field.getValue()),
+                                CodegenUtil.ofClass(field.getValue()),
                                 fb -> fb.withFlags(AccessFlag.PUBLIC, AccessFlag.STATIC)
                         );
                     }
 
                     cc.classBuilder = cc.classBuilder.withMethod(
                             "$static_init",
-                            MethodTypeDesc.of(JIT.ofVoid()),
+                            MethodTypeDesc.of(CodegenUtil.ofVoid()),
                             AccessFlag.PUBLIC.mask() | AccessFlag.STATIC.mask(),
                             methodBuilder -> {
                                 methodBuilder.withCode(codeBuilder -> {
                                     for(var entry : cc.staticClasses.keySet()) {
                                         codeBuilder.getstatic(
-                                                JIT.ofClass(CodegenContext.class),
+                                                CodegenUtil.ofClass(CodegenContext.class),
                                                 "INSTANCE",
-                                                JIT.ofClass(CodegenContext.class)
+                                                CodegenUtil.ofClass(CodegenContext.class)
                                         );
                                         codeBuilder.getfield(
-                                                JIT.ofClass(CodegenContext.class),
+                                                CodegenUtil.ofClass(CodegenContext.class),
                                                 "staticValues",
-                                                JIT.ofClass(Map.class)
+                                                CodegenUtil.ofClass(Map.class)
                                         );
                                         codeBuilder.loadConstant(entry);
                                         codeBuilder.invokeinterface(
-                                                JIT.ofClass(Map.class),
+                                                CodegenUtil.ofClass(Map.class),
                                                 "get",
                                                 MethodTypeDesc.of(
-                                                        JIT.ofClass(Object.class),
-                                                        List.of(JIT.ofClass(Object.class))
+                                                        CodegenUtil.ofClass(Object.class),
+                                                        List.of(CodegenUtil.ofClass(Object.class))
                                                 )
                                         );
 
                                         var reqClass = cc.staticClasses.get(entry);
-                                        codeBuilder.checkcast(JIT.ofClass(reqClass));
+                                        codeBuilder.checkcast(CodegenUtil.ofClass(reqClass));
                                         codeBuilder.putstatic(
                                                 ACTION_CLASS_DESC,
                                                 entry,
-                                                JIT.ofClass(reqClass)
+                                                CodegenUtil.ofClass(reqClass)
                                         );
                                     }
                                     codeBuilder.return_();
@@ -222,17 +218,17 @@ public class CodegenContext {
      */
     public CodegenContext log(String message) {
         this.codeBuilder.getstatic(
-                JIT.ofClass(System.class),
+                CodegenUtil.ofClass(System.class),
                 "out",
-                JIT.ofClass(PrintStream.class)
+                CodegenUtil.ofClass(PrintStream.class)
         );
         this.codeBuilder.loadConstant(message);
         this.codeBuilder.invokevirtual(
-                JIT.ofClass(PrintStream.class),
+                CodegenUtil.ofClass(PrintStream.class),
                 "println",
                 MethodTypeDesc.of(
-                        JIT.ofVoid(),
-                        JIT.ofClass(String.class)
+                        CodegenUtil.ofVoid(),
+                        CodegenUtil.ofClass(String.class)
                 )
         );
         return this;
@@ -257,19 +253,19 @@ public class CodegenContext {
         expression.compile(this);
         this.codeBuilder.aload(0);
         this.codeBuilder.invokestatic(
-                JIT.ofClass(ParseContext.class),
+                CodegenUtil.ofClass(ParseContext.class),
                 "empty",
                 MethodTypeDesc.of(
-                        JIT.ofClass(ParseContext.class),
+                        CodegenUtil.ofClass(ParseContext.class),
                         List.of()
                 )
         );
         this.codeBuilder.invokevirtual(
-                JIT.ofClass(ParsedText.class),
+                CodegenUtil.ofClass(ParsedText.class),
                 "outputOrNull",
                 MethodTypeDesc.of(
-                        JIT.ofClass(Component.class),
-                        List.of(JIT.ofClass(ParseContext.class))
+                        CodegenUtil.ofClass(Component.class),
+                        List.of(CodegenUtil.ofClass(ParseContext.class))
                 )
         );
         return this;
@@ -332,7 +328,7 @@ public class CodegenContext {
         this.codeBuilder.getstatic(
                 CodegenContext.ACTION_CLASS_DESC,
                 name,
-                JIT.ofClass(type)
+                CodegenUtil.ofClass(type)
         );
         return this;
     }
@@ -344,11 +340,11 @@ public class CodegenContext {
      */
     public CodegenContext boxNumber() {
         this.codeBuilder.invokestatic(
-                JIT.ofClass(Double.class),
+                CodegenUtil.ofClass(Double.class),
                 "valueOf",
                 MethodTypeDesc.of(
-                        JIT.ofClass(Double.class),
-                        List.of(JIT.ofDouble())
+                        CodegenUtil.ofClass(Double.class),
+                        List.of(CodegenUtil.ofDouble())
                 )
         );
         return this;
@@ -361,10 +357,10 @@ public class CodegenContext {
      */
     public CodegenContext unboxNumber() {
         this.codeBuilder.invokevirtual(
-                JIT.ofClass(Double.class),
+                CodegenUtil.ofClass(Double.class),
                 "doubleValue",
                 MethodTypeDesc.of(
-                        JIT.ofDouble(),
+                        CodegenUtil.ofDouble(),
                         List.of()
                 )
         );
@@ -378,15 +374,15 @@ public class CodegenContext {
      */
     public CodegenContext getVectorComponent(String component) {
         this.codeBuilder.getfield(
-                JIT.ofClass(Vec3.class),
+                CodegenUtil.ofClass(Vec3.class),
                 component,
-                JIT.ofDouble()
+                CodegenUtil.ofDouble()
         );
         return this;
     }
 
     public CodegenContext typecheck(Class<?> expected) {
-        this.codeBuilder.checkcast(JIT.ofClass(expected));
+        this.codeBuilder.checkcast(CodegenUtil.ofClass(expected));
         return this;
     }
 

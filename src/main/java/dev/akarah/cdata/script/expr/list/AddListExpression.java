@@ -1,7 +1,7 @@
 package dev.akarah.cdata.script.expr.list;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -21,11 +21,11 @@ public record AddListExpression(
                 .typecheck(ArrayList.class)
                 .pushValue(valueToPush)
                 .bytecode(cb -> cb.invokevirtual(
-                        JIT.ofClass(ArrayList.class),
+                        CodegenUtil.ofClass(ArrayList.class),
                         "add",
                         MethodTypeDesc.of(
-                                JIT.ofBoolean(),
-                                List.of(JIT.ofClass(Object.class))
+                                CodegenUtil.ofBoolean(),
+                                List.of(CodegenUtil.ofClass(Object.class))
                         )
                 ))
                 .bytecode(CodeBuilder::pop);

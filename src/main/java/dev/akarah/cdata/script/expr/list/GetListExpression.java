@@ -1,7 +1,7 @@
 package dev.akarah.cdata.script.expr.list;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -24,11 +24,11 @@ public record GetListExpression(
                 .unboxNumber()
                 .bytecode(CodeBuilder::d2i)
                 .bytecode(cb -> cb.invokevirtual(
-                        JIT.ofClass(ArrayList.class),
+                        CodegenUtil.ofClass(ArrayList.class),
                         "get",
                         MethodTypeDesc.of(
-                                JIT.ofClass(Object.class),
-                                List.of(JIT.ofInt())
+                                CodegenUtil.ofClass(Object.class),
+                                List.of(CodegenUtil.ofInt())
                         )
                 ));
     }

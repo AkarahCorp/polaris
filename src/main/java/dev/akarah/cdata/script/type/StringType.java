@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.type;
 
-import dev.akarah.cdata.script.env.JIT;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 
 import java.lang.constant.ClassDesc;
 
@@ -17,6 +17,6 @@ public record StringType() implements Type<String> {
 
     @Override
     public ClassDesc classDescType() {
-        return JIT.ofClass(String.class);
+        return CodegenUtil.ofClass(String.class);
     }
 }
