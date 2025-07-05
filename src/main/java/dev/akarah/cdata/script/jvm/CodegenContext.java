@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.classfile.*;
 import java.lang.constant.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
 import java.nio.file.Path;

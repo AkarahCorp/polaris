@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.resources.ResourceLocation;
 
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -24,5 +25,15 @@ public record SchemaExpression(
     @Override
     public Type<?> type(CodegenContext ctx) {
         return this.returnType;
+    }
+
+    public MethodType methodType() {
+        return MethodType.methodType(
+                this.returnType.typeClass(),
+                this.parameters.stream()
+                        .map(Pair::getSecond)
+                        .map(Type::typeClass)
+                        .toArray(Class[]::new)
+        );
     }
 }

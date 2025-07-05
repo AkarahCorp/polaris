@@ -13,7 +13,7 @@ public record VoidType() implements Type<Void> {
 
     @Override
     public Class<Void> typeClass() {
-        return Void.class;
+        return void.class;
     }
 
     @Override

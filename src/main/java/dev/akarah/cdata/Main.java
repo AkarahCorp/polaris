@@ -21,7 +21,11 @@ import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
@@ -92,32 +96,33 @@ public class Main implements ModInitializer {
                     .map(x -> Pair.of(x.getKey(), x.getValue()))
                     .toList();
             try {
-                var codeClazz = CodegenContext.initializeCompilation(elements);
-
                 try {
-                    var method = codeClazz.getDeclaredMethod("$static_init");
-                    method.invoke(null);
-                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                    var methodHandle = ExtReloadableResources.actionManager().functionByRawName("$static_init");
+                    methodHandle.invoke();
+                } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
 
                 elements.forEach(element -> {
                     try {
                         var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getFirst());
-                        var method = codeClazz.getDeclaredMethod(
-                                element.getFirst(),
-                                Entity.class
-                        );
+                        var method = ExtReloadableResources.actionManager().functionByLocation(resourceName);
+                        if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(Entity.class)) {
+                            return;
+                        }
                         root.then(Commands.literal("run").then(
                                 Commands.literal(resourceName.toString()).executes(ctx -> {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
-                                            method.invoke(null, serverPlayer);
+                                            method.invoke(serverPlayer);
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
+                                        } catch (Throwable e) {
+                                            if(!(e instanceof WrongMethodTypeException)) {
+                                                ctx.getSource().sendFailure(Component.literal("Script execution failed, check console for details!"));
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
                                     return 0;
