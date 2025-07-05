@@ -65,6 +65,7 @@ public class DslParser {
             case "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
             case "text" -> new SpannedType<>(Type.text(), identifier.span());
             case "list" -> new SpannedType<>(Type.list(), identifier.span());
+            case "entity" -> new SpannedType<>(Type.entity(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }
@@ -132,7 +133,7 @@ public class DslParser {
         while(peek() instanceof DslToken.EqualSymbol
         && baseExpression instanceof GetLocalAction(String variable)) {
             expect(DslToken.EqualSymbol.class);
-            baseExpression = new SetLocalAction(variable, parseValue());
+            baseExpression = new SpannedExpression<>(new SetLocalAction(variable, parseValue()), baseExpression.span());
         }
         return baseExpression;
     }

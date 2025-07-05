@@ -13,11 +13,14 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 import java.util.Optional;
 
-public record EntityDirectionExpression() implements Expression {
+public record EntityDirectionExpression(
+        Expression entityExpression
+) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx
-                .pushSelectedEntity()
+                .pushValue(this)
+                .typecheck(Entity.class)
                 .bytecode(cb -> cb.invokevirtual(
                         JIT.ofClass(Entity.class),
                         "getLookAngle",
@@ -34,6 +37,8 @@ public record EntityDirectionExpression() implements Expression {
     }
 
     public static List<Pair<String, Type<?>>> fields() {
-        return List.of();
+        return List.of(
+                Pair.of("entity", Type.entity())
+        );
     }
 }

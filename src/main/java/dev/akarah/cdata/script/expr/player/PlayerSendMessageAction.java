@@ -12,13 +12,15 @@ import java.lang.classfile.CodeBuilder;
 import java.util.List;
 
 public record PlayerSendMessageAction(
+        Expression entityExpression,
         Expression message
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.ifSelectionIsType(
-                JIT.ofClass(ServerPlayer.class),
-                () -> ctx.pushSelectedEntityAs(JIT.ofClass(ServerPlayer.class))
+        ctx.pushValue(this.entityExpression)
+                .bytecode(cb -> cb.dup().instanceOf(JIT.ofClass(ServerPlayer.class)))
+                .ifThen(() -> ctx
+                        .bytecode(cb -> cb.checkcast(JIT.ofClass(ServerPlayer.class)))
                         .evaluateParsedTextOrNull(this.message)
                         .runIfNonNull(
                                 () -> ctx.invokeFromSelection(
@@ -29,8 +31,7 @@ public record PlayerSendMessageAction(
                                 ),
                                 () -> ctx.bytecode(CodeBuilder::pop)
                         )
-
-        );
+                );
     }
 
     @Override
@@ -40,6 +41,7 @@ public record PlayerSendMessageAction(
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
+                Pair.of("entity", Type.entity()),
                 Pair.of("message", Type.string())
         );
     }

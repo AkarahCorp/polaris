@@ -13,11 +13,14 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 import java.util.Optional;
 
-public record EntityPositionExpression() implements Expression {
+public record EntityPositionExpression(
+        Expression entityExpression
+) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx
-                .pushSelectedEntity()
+                .pushValue(this.entityExpression)
+                .typecheck(Entity.class)
                 .bytecode(cb -> cb.invokevirtual(
                         JIT.ofClass(Entity.class),
                         "position",
@@ -34,6 +37,8 @@ public record EntityPositionExpression() implements Expression {
     }
 
     public static List<Pair<String, Type<?>>> fields() {
-        return List.of();
+        return List.of(
+                Pair.of("entity", Type.entity())
+        );
     }
 }

@@ -5,9 +5,10 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.env.JIT;
-import dev.akarah.cdata.script.env.RuntimeContext;
+import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Holder;
@@ -97,7 +98,10 @@ public class LateResolvedFunctionCall implements Expression {
                         });
 
                 var constructor = exprClass.getConstructor(constructorArguments);
-                return Optional.of(constructor.newInstance((Object[]) emptyArguments));
+                return Optional.of(new SpannedExpression<>(
+                        constructor.newInstance((Object[]) emptyArguments),
+                        this.span()
+                ));
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                      IllegalAccessException e) {
                 throw new RuntimeException(e);
@@ -125,7 +129,6 @@ public class LateResolvedFunctionCall implements Expression {
         if(functionSchema != null) {
             var returnType = functionSchema.returnType().classDescType();
             var typeParameters = new ArrayList<ClassDesc>();
-            typeParameters.add(JIT.ofClass(RuntimeContext.class));
             for(var parameter : functionSchema.parameters()) {
                 typeParameters.add(parameter.getSecond().classDescType());
             }
@@ -146,10 +149,9 @@ public class LateResolvedFunctionCall implements Expression {
         return this.resolveFromCache()
                 .or(() -> this.resolveStandardAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
-                .orElseThrow(() -> new RuntimeException("no clue how to resolve " + this.functionName + "(" + filterNameToMethodName(this.functionName) + ")" + " sorry"));
+                .orElseThrow(() -> new ParsingException("no clue how to resolve " + this.functionName + "(" + filterNameToMethodName(this.functionName) + ")" + " sorry", this.span()));
     }
 
-    @SuppressWarnings("unchecked")
     private static Expression[] toArray(List<Expression> list) {
         var array = new Expression[list.size()];
         for(int i = 0; i < list.size(); i++) {

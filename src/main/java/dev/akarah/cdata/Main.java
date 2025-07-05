@@ -1,27 +1,22 @@
 package dev.akarah.cdata;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Lifecycle;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
-import dev.akarah.cdata.script.env.RuntimeContext;
 import dev.akarah.cdata.script.exception.SpannedException;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistrySetupCallback;
-import net.fabricmc.fabric.impl.event.lifecycle.LifecycleEventsImpl;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,14 +106,14 @@ public class Main implements ModInitializer {
                         var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getFirst());
                         var method = codeClazz.getDeclaredMethod(
                                 element.getFirst(),
-                                RuntimeContext.class
+                                Entity.class
                         );
                         root.then(Commands.literal("run").then(
                                 Commands.literal(resourceName.toString()).executes(ctx -> {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
-                                            method.invoke(null, RuntimeContext.of(serverPlayer));
+                                            method.invoke(null, serverPlayer);
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Exception e) {

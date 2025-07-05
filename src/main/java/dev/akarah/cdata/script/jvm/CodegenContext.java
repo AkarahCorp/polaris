@@ -6,7 +6,6 @@ import dev.akarah.cdata.registry.text.ParseContext;
 import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.env.JIT;
-import dev.akarah.cdata.script.env.RuntimeContext;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
@@ -168,7 +167,6 @@ public class CodegenContext {
     private ClassBuilder compileAction(String name, SchemaExpression action) {
         var returnType = action.returnType().classDescType();
         var parameters = new ArrayList<ClassDesc>();
-        parameters.add(JIT.ofClass(RuntimeContext.class));
         for(var parameter : action.parameters()) {
             parameters.add(parameter.getSecond().classDescType());
         }
@@ -181,7 +179,7 @@ public class CodegenContext {
                     this.methodLocalTypes.clear();
                     this.methodLocals.clear();
 
-                    int idx = 1;
+                    int idx = 0;
                     for(var parameter : action.parameters()) {
                         this.methodLocals.put(parameter.getFirst(), idx++);
                         this.methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
@@ -217,21 +215,6 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Pushes the selected entity onto the stack.
-     * @return This.
-     */
-    public CodegenContext pushSelectedEntity() {
-        this.codeBuilder.aload(0);
-        this.codeBuilder.invokevirtual(
-            JIT.ofClass(RuntimeContext.class),
-            "primaryEntity",
-            MethodTypeDesc.of(JIT.ofClass(Entity.class), List.of())
-        );
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
      * Prints out a debug message at runtime.
      * @return This.
      */
@@ -255,22 +238,6 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Pushes the selected entity onto the stack as a specific class, throwing an exception at runtime if it fails.
-     * @return This.
-     */
-    public CodegenContext pushSelectedEntityAs(ClassDesc classDesc) {
-        this.codeBuilder.aload(0);
-        this.codeBuilder.invokevirtual(
-                JIT.ofClass(RuntimeContext.class),
-                "primaryEntity",
-                MethodTypeDesc.of(JIT.ofClass(Entity.class), List.of())
-        );
-        this.codeBuilder.checkcast(classDesc);
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
      * Pushes an Expression onto the stack.
      * @return This.
      */
@@ -287,9 +254,9 @@ public class CodegenContext {
     public CodegenContext evaluateParsedTextOrNull(Expression expression) {
         expression.compile(this);
         this.codeBuilder.aload(0);
-        this.codeBuilder.invokevirtual(
-                JIT.ofClass(RuntimeContext.class),
-                "parseContext",
+        this.codeBuilder.invokestatic(
+                JIT.ofClass(ParseContext.class),
+                "empty",
                 MethodTypeDesc.of(
                         JIT.ofClass(ParseContext.class),
                         List.of()
@@ -302,30 +269,6 @@ public class CodegenContext {
                         JIT.ofClass(Component.class),
                         List.of(JIT.ofClass(ParseContext.class))
                 )
-        );
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * At runtime, evaluates the provided block if the entity selection is of the given type.
-     * @return This.
-     */
-    public CodegenContext ifSelectionIsType(
-            ClassDesc target,
-            Supplier<CodegenContext> function
-    ) {
-        this.pushSelectedEntity();
-        codeBuilder.instanceOf(target);
-        codeBuilder.ifThen(
-                blockCodeBuilder -> {
-                    var oldBuilder = this.codeBuilder;
-                    this.codeBuilder = blockCodeBuilder;
-
-                    function.get();
-
-                    this.codeBuilder = oldBuilder;
-                }
         );
         return this;
     }

@@ -49,6 +49,10 @@ public interface Type<T> {
         return new DictionaryType();
     }
 
+    static EntityType entity() {
+        return new EntityType();
+    }
+
     default boolean typeEquals(Type<?> other) {
         return this.typeName().equals((other.typeName()))
                 || this.typeName().equals("any")

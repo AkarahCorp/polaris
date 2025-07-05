@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Optional;
 
 public record EntityTeleportRelativeAction(
+        Expression entityExpression,
         Expression position
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx
-                .pushSelectedEntity()
+                .pushValue(this.entityExpression)
+                .typecheck(Entity.class)
                 .pushValue(this.position)
                 .typecheck(Vec3.class)
                 .bytecode(cb -> cb.astore(1))
@@ -47,6 +49,7 @@ public record EntityTeleportRelativeAction(
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
+                Pair.of("entity", Type.entity()),
                 Pair.of("position", Type.vec3())
         );
     }

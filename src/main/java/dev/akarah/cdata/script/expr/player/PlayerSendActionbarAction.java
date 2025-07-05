@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.Optional;
 
 public record PlayerSendActionbarAction(
+        Expression entityExpression,
         Expression message
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.ifSelectionIsType(
-                JIT.ofClass(ServerPlayer.class),
-                () -> ctx
-                        .pushSelectedEntityAs(JIT.ofClass(ServerPlayer.class))
+        ctx.pushValue(this.entityExpression)
+                .bytecode(cb -> cb.dup().instanceOf(JIT.ofClass(ServerPlayer.class)))
+                .ifThen(() -> ctx
+                        .bytecode(cb -> cb.checkcast(JIT.ofClass(ServerPlayer.class)))
                         .evaluateParsedTextOrNull(this.message)
-                        .bytecode(cb -> cb.loadConstant(1))
                         .runIfNonNull(
                                 () -> ctx.invokeFromSelection(
                                     JIT.ofClass(ServerPlayer.class),
@@ -33,7 +33,7 @@ public record PlayerSendActionbarAction(
                                 ),
                                 () -> ctx.bytecode(CodeBuilder::pop)
                         )
-        );
+                );
     }
 
     @Override
@@ -43,6 +43,7 @@ public record PlayerSendActionbarAction(
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
+                Pair.of("entity", Type.entity()),
                 Pair.of("message", Type.string())
         );
     }
