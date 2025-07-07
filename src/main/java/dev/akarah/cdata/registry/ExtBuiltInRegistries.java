@@ -2,9 +2,7 @@ package dev.akarah.cdata.registry;
 
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.codec.MetaCodec;
-import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.entity.behavior.TaskType;
-import dev.akarah.cdata.registry.text.TextElement;
 import dev.akarah.cdata.script.expr.Expression;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,7 +22,6 @@ public class ExtBuiltInRegistries {
     }
 
     public static List<RegistryDataLoader.RegistryData<?>> DYNAMIC_REGISTRIES = List.of(
-            new RegistryDataLoader.RegistryData<>(ExtRegistries.META_CODEC, MetaCodec.CODEC, false),
-            new RegistryDataLoader.RegistryData<>(ExtRegistries.TEXT_ELEMENT, TextElement.CODEC, false)
+            new RegistryDataLoader.RegistryData<>(ExtRegistries.META_CODEC, MetaCodec.CODEC, false)
     );
 }

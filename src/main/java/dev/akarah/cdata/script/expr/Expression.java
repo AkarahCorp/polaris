@@ -14,6 +14,8 @@ import dev.akarah.cdata.script.expr.list.GetListExpression;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
 import dev.akarah.cdata.script.expr.string.StringExpression;
+import dev.akarah.cdata.script.expr.text.ComponentColorExpression;
+import dev.akarah.cdata.script.expr.text.ComponentLiteralFuncExpression;
 import dev.akarah.cdata.script.expr.vec3.*;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -29,6 +31,9 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("text/create"), ComponentLiteralFuncExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("text/color"), ComponentColorExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add"), AddListExpression.class);
@@ -51,8 +56,8 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("player/send_message"), PlayerSendMessageAction.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("player/send_actionbar"), PlayerSendActionbarAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_message"), PlayerSendMessageAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_actionbar"), PlayerSendActionbarAction.class);
 
         return StringExpression.class;
     }

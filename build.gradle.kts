@@ -36,7 +36,6 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
-    modImplementation("net.kyori:adventure-platform-fabric:6.5.0-SNAPSHOT")
     modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${project.property("minecraft_version")}:${project.property("sbl_version")}")
 }
 

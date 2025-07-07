@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
@@ -24,10 +25,12 @@ public class LateResolvedFunctionCall implements Expression {
     String functionName;
     List<Expression> parameters;
     Expression fullyResolved;
+    SpanData spanData;
 
-    public LateResolvedFunctionCall(String functionName, List<Expression> parameters) {
+    public LateResolvedFunctionCall(String functionName, List<Expression> parameters, SpanData spanData) {
         this.functionName = functionName;
         this.parameters = parameters;
+        this.spanData = spanData;
     }
 
     @Override
@@ -148,7 +151,7 @@ public class LateResolvedFunctionCall implements Expression {
         return this.resolveFromCache()
                 .or(() -> this.resolveStandardAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
-                .orElseThrow(() -> new ParsingException("no clue how to resolve " + this.functionName + "(" + filterNameToMethodName(this.functionName) + ")" + " sorry", this.span()));
+                .orElseThrow(() -> new ParsingException("no clue how to resolve " + this.functionName + " (" + filterNameToMethodName(this.functionName) + ")(" + this.parameters + ") sorry", this.span()));
     }
 
     private static Expression[] toArray(List<Expression> list) {
@@ -164,5 +167,15 @@ public class LateResolvedFunctionCall implements Expression {
         var array = new Class[size];
         Arrays.fill(array, Expression.class);
         return array;
+    }
+
+    @Override
+    public SpanData span() {
+        return this.spanData;
+    }
+
+    @Override
+    public String toString() {
+        return "LRFC[name=" + this.functionName + ",parameters=" + this.parameters + "]";
     }
 }

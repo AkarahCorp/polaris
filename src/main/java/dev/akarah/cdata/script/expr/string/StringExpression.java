@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public record StringExpression(String value) implements Expression {
-    public static MapCodec<StringExpression> GENERATOR_CODEC = Codec.STRING.fieldOf("value").xmap(StringExpression::new, StringExpression::value);
-
     @Override
     public void compile(CodegenContext ctx) {
         ctx.bytecode(cb -> cb.loadConstant(this.value));

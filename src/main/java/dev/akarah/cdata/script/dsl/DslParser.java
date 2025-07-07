@@ -1,7 +1,6 @@
 package dev.akarah.cdata.script.dsl;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.registry.text.Parser;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
@@ -10,7 +9,7 @@ import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.*;
 import dev.akarah.cdata.script.expr.number.*;
 import dev.akarah.cdata.script.expr.string.StringExpression;
-import dev.akarah.cdata.script.expr.text.TextExpression;
+import dev.akarah.cdata.script.expr.text.ComponentLiteralExpression;
 import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 
@@ -145,7 +144,7 @@ public class DslParser {
             var name = expect(DslToken.Identifier.class);
             var parameters = parseTuple();
             parameters.addFirst(baseExpression);
-            baseExpression = new SpannedExpression<>(new LateResolvedFunctionCall(name.identifier(), parameters), name.span());
+            baseExpression = new LateResolvedFunctionCall(name.identifier(), parameters, name.span());
         }
         return baseExpression;
     }
@@ -181,7 +180,7 @@ public class DslParser {
 
         if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName)) {
             var tuple = parseTuple();
-            baseExpression = new SpannedExpression<>(new LateResolvedFunctionCall(functionName, tuple), baseExpression.span());
+            baseExpression = new LateResolvedFunctionCall(functionName, tuple, baseExpression.span());
         }
         return baseExpression;
     }
@@ -205,10 +204,10 @@ public class DslParser {
         return switch (tok) {
             case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value());
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
-            case DslToken.TextExpr textExpr -> new TextExpression(Parser.parseTextLine(textExpr.value()));
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
-            case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
+            case DslToken.Identifier identifier -> new SpannedExpression<>(new GetLocalAction(identifier.identifier()), identifier.span());
+            case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };
     }

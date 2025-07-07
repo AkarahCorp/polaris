@@ -19,6 +19,7 @@ import java.util.concurrent.Executor;
 public class DslActionManager {
     Map<String, String> rawDslPrograms = Maps.newHashMap();
     Map<String, SchemaExpression> dslExpressions = Maps.newHashMap();
+    Map<SchemaExpression, String> dslReverseExpressions = Maps.newHashMap();
     Map<String, ResourceLocation> resourceNames = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
@@ -26,6 +27,10 @@ public class DslActionManager {
 
     public Map<String, SchemaExpression> expressions() {
         return this.dslExpressions;
+    }
+
+    public Map<SchemaExpression, String> reverseExpressions() {
+        return this.dslReverseExpressions;
     }
 
     public Map<String, ResourceLocation> resourceNames() {
@@ -70,6 +75,7 @@ public class DslActionManager {
                         var tokens = DslTokenizer.tokenize(this.resourceNames.get(entry.getKey()), entry.getValue()).getOrThrow();
                         var expression = DslParser.parseTopLevelExpression(tokens);
                         this.dslExpressions.put(entry.getKey(), expression);
+                        this.dslReverseExpressions.put(expression, entry.getKey());
                     }
 
                     this.codeClass = CodegenContext.initializeCompilation(

@@ -2,8 +2,6 @@ package dev.akarah.cdata.script.jvm;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.registry.text.ParseContext;
-import dev.akarah.cdata.registry.text.ParsedText;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
@@ -241,33 +239,6 @@ public class CodegenContext {
      */
     public CodegenContext pushValue(Expression expression) {
         expression.compile(this);
-        return this;
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * Evaluates the {@link ParsedText} on top of the stack.
-     * @return This.
-     */
-    public CodegenContext evaluateParsedTextOrNull(Expression expression) {
-        expression.compile(this);
-        this.codeBuilder.aload(0);
-        this.codeBuilder.invokestatic(
-                CodegenUtil.ofClass(ParseContext.class),
-                "empty",
-                MethodTypeDesc.of(
-                        CodegenUtil.ofClass(ParseContext.class),
-                        List.of()
-                )
-        );
-        this.codeBuilder.invokevirtual(
-                CodegenUtil.ofClass(ParsedText.class),
-                "outputOrNull",
-                MethodTypeDesc.of(
-                        CodegenUtil.ofClass(Component.class),
-                        List.of(CodegenUtil.ofClass(ParseContext.class))
-                )
-        );
         return this;
     }
 

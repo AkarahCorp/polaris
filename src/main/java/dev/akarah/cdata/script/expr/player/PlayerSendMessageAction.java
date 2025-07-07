@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.lang.classfile.CodeBuilder;
@@ -19,18 +20,17 @@ public record PlayerSendMessageAction(
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.entityExpression)
                 .bytecode(cb -> cb.dup().instanceOf(CodegenUtil.ofClass(ServerPlayer.class)))
-                .ifThen(() -> ctx
-                        .bytecode(cb -> cb.checkcast(CodegenUtil.ofClass(ServerPlayer.class)))
-                        .evaluateParsedTextOrNull(this.message)
-                        .runIfNonNull(
-                                () -> ctx.invokeFromSelection(
-                                        CodegenUtil.ofClass(ServerPlayer.class),
-                                        "sendSystemMessage",
-                                        CodegenUtil.ofVoid(),
-                                        List.of(CodegenUtil.ofClass(Component.class))
-                                ),
-                                () -> ctx.bytecode(CodeBuilder::pop)
-                        )
+                .ifThenElse(
+                        () -> ctx
+                            .bytecode(cb -> cb.checkcast(CodegenUtil.ofClass(ServerPlayer.class)))
+                            .pushValue(this.message)
+                            .invokeFromSelection(
+                                    CodegenUtil.ofClass(ServerPlayer.class),
+                                    "sendSystemMessage",
+                                    CodegenUtil.ofVoid(),
+                                    List.of(CodegenUtil.ofClass(Component.class))
+                            ),
+                        () -> ctx.bytecode(CodeBuilder::pop)
                 );
     }
 
@@ -42,7 +42,7 @@ public record PlayerSendMessageAction(
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
                 Pair.of("entity", Type.entity()),
-                Pair.of("message", Type.string())
+                Pair.of("message", Type.text())
         );
     }
 }

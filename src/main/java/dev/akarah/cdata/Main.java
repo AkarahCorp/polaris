@@ -8,7 +8,6 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
@@ -29,7 +28,6 @@ import java.util.List;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
-    public static MinecraftServerAudiences AUDIENCES;
     public static ReloadableResourceManager CURRENT_RESOURCE_MANAGER;
     public static Logger LOGGER = LoggerFactory.getLogger("akarahnet-engine");
 

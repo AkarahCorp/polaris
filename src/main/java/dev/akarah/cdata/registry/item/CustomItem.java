@@ -2,20 +2,14 @@ package dev.akarah.cdata.registry.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
-import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.stat.StatsObject;
-import dev.akarah.cdata.registry.text.ParseContext;
-import dev.akarah.cdata.registry.text.TextElement;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryFileCodec;
-import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,7 +24,7 @@ public record CustomItem(
         Optional<String> name,
         Optional<StatsObject> stats,
         Optional<EquippableData> equippable,
-        Optional<TextElement> itemTemplate,
+        Optional<ResourceLocation> itemTemplate,
         Optional<CustomData> customData
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -38,7 +32,7 @@ public record CustomItem(
             Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
-            TextElement.CODEC_BY_ID.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
+            ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
 
@@ -69,17 +63,7 @@ public record CustomItem(
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });
         this.itemTemplate().ifPresent(itemTemplate -> {
-            var environment = ParseContext.item(this);
 
-            var lines = new ArrayList<>(
-                    itemTemplate.lines()
-                            .stream()
-                            .map(x -> x.output(environment))
-                            .flatMap(Optional::stream)
-                            .toList()
-            );
-            is.set(DataComponents.ITEM_NAME, lines.removeFirst());
-            is.set(DataComponents.LORE, new ItemLore(lines));
         });
 
         return is;

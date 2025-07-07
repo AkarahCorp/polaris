@@ -21,9 +21,8 @@ public record PlayerSendActionbarAction(
                 .bytecode(cb -> cb.dup().instanceOf(CodegenUtil.ofClass(ServerPlayer.class)))
                 .ifThen(() -> ctx
                         .bytecode(cb -> cb.checkcast(CodegenUtil.ofClass(ServerPlayer.class)))
-                        .evaluateParsedTextOrNull(this.message)
                         .runIfNonNull(
-                                () -> ctx.invokeFromSelection(
+                                () -> ctx.pushValue(this.message).invokeFromSelection(
                                     CodegenUtil.ofClass(ServerPlayer.class),
                                     "sendSystemMessage",
                                     CodegenUtil.ofVoid(),
@@ -42,7 +41,7 @@ public record PlayerSendActionbarAction(
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
                 Pair.of("entity", Type.entity()),
-                Pair.of("message", Type.string())
+                Pair.of("message", Type.text())
         );
     }
 }
