@@ -61,9 +61,4 @@ public record ForEachAction(
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
-
-    @Override
-    public int localsRequiredForCompile() {
-        return this.block.localsRequiredForCompile();
-    }
 }

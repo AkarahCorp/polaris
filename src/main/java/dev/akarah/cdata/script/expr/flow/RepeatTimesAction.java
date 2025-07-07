@@ -44,9 +44,4 @@ public record RepeatTimesAction(
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
-
-    @Override
-    public int localsRequiredForCompile() {
-        return this.perform.localsRequiredForCompile() + 1;
-    }
 }

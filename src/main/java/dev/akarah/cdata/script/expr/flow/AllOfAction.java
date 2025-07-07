@@ -31,16 +31,4 @@ public record AllOfAction(
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
-
-    @Override
-    public int localsRequiredForCompile() {
-        int h = 0;
-        for(var action : this.actions) {
-            var h2 = action.localsRequiredForCompile();
-            if(h2 >= h) {
-                h = h2;
-            }
-        }
-        return h;
-    }
 }

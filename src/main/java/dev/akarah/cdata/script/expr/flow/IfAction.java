@@ -29,11 +29,4 @@ public record IfAction(
     public Type<?> type(CodegenContext ctx) {
         return Type.void_();
     }
-
-    @Override
-    public int localsRequiredForCompile() {
-        int a1 = this.then.localsRequiredForCompile();
-        int a2 = this.orElse.map(Expression::localsRequiredForCompile).orElse(0);
-        return Math.max(a1, a2);
-    }
 }

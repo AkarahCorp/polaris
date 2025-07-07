@@ -28,10 +28,6 @@ public interface Expression {
         return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
     }
 
-    default int localsRequiredForCompile() {
-        return 0;
-    }
-
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);

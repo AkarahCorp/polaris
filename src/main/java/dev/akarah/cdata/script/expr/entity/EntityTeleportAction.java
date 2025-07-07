@@ -53,9 +53,4 @@ public record EntityTeleportAction(
                 Pair.of("position", Type.vec3())
         );
     }
-
-    @Override
-    public int localsRequiredForCompile() {
-        return 1;
-    }
 }
