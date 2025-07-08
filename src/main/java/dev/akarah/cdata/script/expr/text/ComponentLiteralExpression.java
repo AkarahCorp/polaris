@@ -12,14 +12,14 @@ import java.util.List;
 public record ComponentLiteralExpression(String value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(this.value).invokestatic(
+        ctx.constant(this.value).invokeStatic(
                 CodegenUtil.ofClass(TextUtil.class),
                 "loreFriendlyLiteral",
                 MethodTypeDesc.of(
                         CodegenUtil.ofClass(MutableComponent.class),
                         List.of(CodegenUtil.ofClass(String.class))
                 )
-        ));
+        );
     }
 
     @Override

@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.MethodTypeDesc;
@@ -19,14 +20,14 @@ public record EntityDirectionExpression(
         ctx
                 .pushValue(this)
                 .typecheck(Entity.class)
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(Entity.class),
-                        "getLookAngle",
+                .invokeStatic(
+                        CodegenUtil.ofClass(EntityUtil.class),
+                        "entityDirection",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Vec3.class),
-                                List.of()
+                                List.of(CodegenUtil.ofClass(Entity.class))
                         )
-                ));
+                );
     }
 
     @Override

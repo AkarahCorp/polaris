@@ -7,8 +7,10 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 import java.lang.classfile.CodeBuilder;
+import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record PlayerSendActionbarAction(
@@ -18,17 +20,14 @@ public record PlayerSendActionbarAction(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.entityExpression)
-                .bytecode(cb -> cb.dup().instanceOf(CodegenUtil.ofClass(ServerPlayer.class)))
-                .ifThen(() -> ctx
-                        .bytecode(cb -> cb.checkcast(CodegenUtil.ofClass(ServerPlayer.class)))
-                        .runIfNonNull(
-                                () -> ctx.pushValue(this.message).invokeFromSelection(
-                                    CodegenUtil.ofClass(ServerPlayer.class),
-                                    "sendSystemMessage",
-                                    CodegenUtil.ofVoid(),
-                                    List.of(CodegenUtil.ofClass(Component.class), CodegenUtil.ofBoolean())
-                                ),
-                                () -> ctx.bytecode(CodeBuilder::pop)
+                .pushValue(this.message)
+                .constant(1)
+                .invokeStatic(
+                        CodegenUtil.ofClass(PlayerUtil.class),
+                        "sendSystemMessage",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofVoid(),
+                                List.of(CodegenUtil.ofClass(Entity.class), CodegenUtil.ofClass(Component.class), CodegenUtil.ofBoolean())
                         )
                 );
     }

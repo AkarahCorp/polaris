@@ -13,7 +13,7 @@ import java.util.Optional;
 public record BooleanExpression(boolean value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(value ? 1 : 0));
+        ctx.constant(value ? 1 : 0);
     }
 
     @Override

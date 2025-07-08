@@ -9,9 +9,12 @@ import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatManager;
+import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.dsl.DslActionManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
@@ -67,6 +70,14 @@ public class ExtReloadableResources {
         if(Files.exists(engineConfigPath)) {
             var json = JsonParser.parseString(Util.sneakyThrows(() -> Files.readString(engineConfigPath)));
             ExtReloadableResources.CONFIG = EngineConfig.CODEC.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
+        } else {
+            Util.sneakyThrows(() -> {
+                Files.createFile(engineConfigPath);
+                ExtReloadableResources.CONFIG = new EngineConfig(StatsObject.of());
+                var json = EngineConfig.CODEC.encodeStart(JsonOps.INSTANCE, ExtReloadableResources.CONFIG).getOrThrow();
+                Files.writeString(engineConfigPath, json.toString());
+                return null;
+            });
         }
 
         ExtReloadableResources.STAT_MANAGER = new StatManager();

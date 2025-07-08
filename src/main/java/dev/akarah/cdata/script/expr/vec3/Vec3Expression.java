@@ -18,24 +18,20 @@ public record Vec3Expression(
     @Override
     public void compile(CodegenContext ctx) {
         ctx
-                .bytecode(cb -> cb.new_(CodegenUtil.ofClass(Vec3.class)).dup())
                 .pushValue(this.x)
                 .typecheck(Double.class)
-                .unboxNumber()
                 .pushValue(this.y)
                 .typecheck(Double.class)
-                .unboxNumber()
                 .pushValue(this.z)
                 .typecheck(Double.class)
-                .unboxNumber()
-                .bytecode(cb -> cb.invokespecial(
-                        CodegenUtil.ofClass(Vec3.class),
-                        "<init>",
+                .invokeStatic(
+                        CodegenUtil.ofClass(Vec3Util.class),
+                        "create",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofVoid(),
-                                List.of(CodegenUtil.ofDouble(), CodegenUtil.ofDouble(), CodegenUtil.ofDouble()
+                                CodegenUtil.ofClass(Vec3.class),
+                                List.of(CodegenUtil.ofClass(Double.class), CodegenUtil.ofClass(Double.class), CodegenUtil.ofClass(Double.class))
                         )
-                )));
+                );
     }
 
     @Override

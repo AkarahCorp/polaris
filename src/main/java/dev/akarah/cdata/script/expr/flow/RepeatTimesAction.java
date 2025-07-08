@@ -15,16 +15,19 @@ public record RepeatTimesAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        var local = ctx.bytecode().allocateLocal(TypeKind.INT);
-        ctx.pushValue(times).typecheck(Double.class);
-        ctx.unboxNumber().bytecode(CodeBuilder::d2i).bytecode(cb -> cb.istore(local));
+        var local = ctx.bytecodeUnsafe().allocateLocal(TypeKind.INT);
+        ctx.pushValue(times)
+                .typecheck(Double.class)
+                .unboxNumber()
+                .d2i()
+                .istore(local);
 
-        var loopCheck = ctx.bytecode().newLabel();
+        var loopCheck = ctx.bytecodeUnsafe().newLabel();
 
-        var loopStart = ctx.bytecode().newLabel();
-        var loopExit = ctx.bytecode().newLabel();
+        var loopStart = ctx.bytecodeUnsafe().newLabel();
+        var loopExit = ctx.bytecodeUnsafe().newLabel();
 
-        ctx.bytecode(
+        ctx.bytecodeUnsafe(
                 cb -> cb.labelBinding(loopCheck)
                         .iload(local)
                         .loadConstant(0)
@@ -32,7 +35,7 @@ public record RepeatTimesAction(
                         .goto_(loopExit)
                         .labelBinding(loopStart))
                 .pushValue(perform)
-                .bytecode(cb -> cb.iload(local)
+                .bytecodeUnsafe(cb -> cb.iload(local)
                         .loadConstant(1)
                         .isub()
                         .istore(local)

@@ -20,15 +20,15 @@ public record AddListExpression(
         ctx.pushValue(listValue)
                 .typecheck(ArrayList.class)
                 .pushValue(valueToPush)
-                .bytecode(cb -> cb.invokevirtual(
+                .invokeVirtual(
                         CodegenUtil.ofClass(ArrayList.class),
                         "add",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofBoolean(),
                                 List.of(CodegenUtil.ofClass(Object.class))
                         )
-                ))
-                .bytecode(CodeBuilder::pop);
+                )
+                .pop();
     }
 
     @Override

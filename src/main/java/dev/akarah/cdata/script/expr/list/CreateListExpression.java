@@ -14,14 +14,14 @@ import java.util.List;
 public record CreateListExpression() implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.invokestatic(
+        ctx.invokeStatic(
                 CodegenUtil.ofClass(Lists.class),
                 "newArrayList",
                 MethodTypeDesc.of(
                         CodegenUtil.ofClass(ArrayList.class),
                         List.of()
                 )
-        ));
+        );
     }
 
     @Override

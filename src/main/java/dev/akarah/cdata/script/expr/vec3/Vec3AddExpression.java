@@ -21,14 +21,14 @@ public record Vec3AddExpression(
                 .typecheck(Vec3.class)
                 .pushValue(this.rhs)
                 .typecheck(Vec3.class)
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(Vec3.class),
+                .invokeStatic(
+                        CodegenUtil.ofClass(Vec3Util.class),
                         "add",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Vec3.class),
-                                List.of(CodegenUtil.ofClass(Vec3.class))
+                                List.of(CodegenUtil.ofClass(Vec3.class), CodegenUtil.ofClass(Vec3.class))
                         )
-                ));
+                );
     }
 
     @Override

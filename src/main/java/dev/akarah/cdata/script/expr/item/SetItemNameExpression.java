@@ -22,14 +22,14 @@ public record SetItemNameExpression(
                 .typecheck(ItemStack.class)
                 .pushValue(itemName)
                 .typecheck(Component.class)
-                .bytecode(cb -> cb.invokestatic(
+                .invokeStatic(
                         CodegenUtil.ofClass(ItemUtil.class),
                         "setItemName",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofVoid(),
                                 List.of(CodegenUtil.ofClass(ItemStack.class), CodegenUtil.ofClass(Component.class))
                         )
-                ));
+                );
     }
 
     @Override

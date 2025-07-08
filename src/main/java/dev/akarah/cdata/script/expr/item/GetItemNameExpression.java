@@ -18,14 +18,14 @@ public record GetItemNameExpression(
     public void compile(CodegenContext ctx) {
         ctx.pushValue(itemValue)
                 .typecheck(ItemStack.class)
-                .bytecode(cb -> cb.invokestatic(
+                .invokeStatic(
                         CodegenUtil.ofClass(ItemUtil.class),
                         "getItemName",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(String.class),
                                 List.of(CodegenUtil.ofClass(ItemStack.class))
                         )
-                ));
+                );
     }
 
     @Override

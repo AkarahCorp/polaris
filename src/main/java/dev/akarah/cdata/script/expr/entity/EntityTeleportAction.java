@@ -19,27 +19,19 @@ public record EntityTeleportAction(
 
     @Override
     public void compile(CodegenContext ctx) {
-        var local = ctx.bytecode().allocateLocal(TypeKind.REFERENCE);
         ctx
                 .pushValue(this.entityExpression)
                 .typecheck(Entity.class)
                 .pushValue(this.position)
                 .typecheck(Vec3.class)
-                .bytecode(cb -> cb.astore(local))
-                .bytecode(cb -> cb.aload(local))
-                .getVectorComponent("x")
-                .bytecode(cb -> cb.aload(local))
-                .getVectorComponent("y")
-                .bytecode(cb -> cb.aload(local))
-                .getVectorComponent("z")
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(Entity.class),
+                .invokeStatic(
+                        CodegenUtil.ofClass(EntityUtil.class),
                         "teleportTo",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofVoid(),
-                                List.of(CodegenUtil.ofDouble(), CodegenUtil.ofDouble(), CodegenUtil.ofDouble())
+                                List.of(CodegenUtil.ofClass(Entity.class), CodegenUtil.ofClass(Vec3.class))
                         )
-                ));
+                );
     }
 
     @Override

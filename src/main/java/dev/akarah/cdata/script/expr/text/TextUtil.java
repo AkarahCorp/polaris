@@ -10,4 +10,8 @@ public class TextUtil {
                 .withStyle(Style.EMPTY.withItalic(false))
                 .withColor(0xFFFFFF);
     }
+
+    public static MutableComponent withColor(MutableComponent component, String color) {
+        return component.withColor(Integer.parseInt(color, 16));
+    }
 }

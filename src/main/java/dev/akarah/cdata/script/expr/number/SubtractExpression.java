@@ -17,7 +17,7 @@ public record SubtractExpression(
                 .unboxNumber()
                 .pushValue(rhs)
                 .unboxNumber()
-                .bytecode(CodeBuilder::dsub)
+                .bytecodeUnsafe(CodeBuilder::dsub)
                 .boxNumber();
     }
 

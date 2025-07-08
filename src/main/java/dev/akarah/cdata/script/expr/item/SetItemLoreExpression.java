@@ -24,14 +24,14 @@ public record SetItemLoreExpression(
                 .typecheck(ItemStack.class)
                 .pushValue(loreList)
                 .typecheck(ArrayList.class)
-                .bytecode(cb -> cb.invokestatic(
+                .invokeStatic(
                         CodegenUtil.ofClass(ItemUtil.class),
                         "setItemLore",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofVoid(),
                                 List.of(CodegenUtil.ofClass(ItemStack.class), CodegenUtil.ofClass(ArrayList.class))
                         )
-                ));
+                );
     }
 
     @Override

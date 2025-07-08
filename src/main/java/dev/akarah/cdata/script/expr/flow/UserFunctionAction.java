@@ -17,15 +17,14 @@ public record UserFunctionAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.aload(0));
         for(var expr : parameters) {
             ctx.pushValue(expr);
         }
-        ctx.bytecode(cb -> cb.invokestatic(
+        ctx.invokeStatic(
                 CodegenContext.ACTION_CLASS_DESC,
                 name,
                 methodTypeDesc
-        ));
+        );
     }
 
     @Override

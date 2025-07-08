@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
@@ -20,15 +21,10 @@ import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.invoke.WrongMethodTypeException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
-    public static ReloadableResourceManager CURRENT_RESOURCE_MANAGER;
     public static Logger LOGGER = LoggerFactory.getLogger("akarahnet-engine");
 
     @Override

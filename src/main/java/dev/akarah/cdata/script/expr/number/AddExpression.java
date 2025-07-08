@@ -20,14 +20,14 @@ public record AddExpression(
         ctx
                 .pushValue(lhs)
                 .pushValue(rhs)
-                .bytecode(cb -> cb.invokestatic(
+                .invokeStatic(
                         CodegenUtil.ofClass(OperationUtils.class),
                         "add",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),
                                 List.of(CodegenUtil.ofClass(Object.class), CodegenUtil.ofClass(Object.class))
                         )
-                ));
+                );
     }
 
     @Override

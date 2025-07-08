@@ -24,23 +24,14 @@ public record ComponentColorExpression(
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.component)
                 .pushValue(this.color)
-                .bytecode(cb -> cb.loadConstant(16))
-                .bytecode(cb -> cb.invokestatic(
-                        CodegenUtil.ofClass(Integer.class),
-                        "parseInt",
-                        MethodTypeDesc.of(
-                                CodegenUtil.ofInt(),
-                                List.of(CodegenUtil.ofClass(String.class), CodegenUtil.ofInt())
-                        )
-                ))
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(MutableComponent.class),
+                .invokeStatic(
+                        CodegenUtil.ofClass(TextUtil.class),
                         "withColor",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(MutableComponent.class),
-                                List.of(CodegenUtil.ofInt())
+                                List.of(CodegenUtil.ofClass(MutableComponent.class), CodegenUtil.ofClass(String.class))
                         )
-                ));
+                );
     }
 
     @Override

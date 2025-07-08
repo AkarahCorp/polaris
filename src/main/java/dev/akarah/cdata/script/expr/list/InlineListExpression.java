@@ -17,27 +17,27 @@ public record InlineListExpression(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.invokestatic(
+        ctx.invokeStatic(
             CodegenUtil.ofClass(Lists.class),
             "newArrayList",
             MethodTypeDesc.of(
                     CodegenUtil.ofClass(ArrayList.class),
                     List.of()
             )
-        ));
+        );
         for(var expr : expressions) {
             ctx
-                    .bytecode(CodeBuilder::dup)
+                    .dup()
                     .pushValue(expr)
-                    .bytecode(cb -> cb.invokevirtual(
+                    .invokeVirtual(
                             CodegenUtil.ofClass(ArrayList.class),
                             "add",
                             MethodTypeDesc.of(
                                     CodegenUtil.ofBoolean(),
                                     List.of(CodegenUtil.ofClass(Object.class))
                             )
-                    ))
-                    .bytecode(CodeBuilder::pop);
+                    )
+                    .bytecodeUnsafe(CodeBuilder::pop);
         }
     }
 

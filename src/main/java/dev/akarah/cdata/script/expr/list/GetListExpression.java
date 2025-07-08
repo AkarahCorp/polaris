@@ -22,15 +22,15 @@ public record GetListExpression(
                 .pushValue(index)
                 .typecheck(Double.class)
                 .unboxNumber()
-                .bytecode(CodeBuilder::d2i)
-                .bytecode(cb -> cb.invokevirtual(
+                .d2i()
+                .invokeVirtual(
                         CodegenUtil.ofClass(ArrayList.class),
                         "get",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),
                                 List.of(CodegenUtil.ofInt())
                         )
-                ));
+                );
     }
 
     @Override

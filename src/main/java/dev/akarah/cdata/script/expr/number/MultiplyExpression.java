@@ -17,7 +17,7 @@ public record MultiplyExpression(
                 .unboxNumber()
                 .pushValue(rhs)
                 .unboxNumber()
-                .bytecode(CodeBuilder::dmul)
+                .bytecodeUnsafe(CodeBuilder::dmul)
                 .boxNumber();
     }
 

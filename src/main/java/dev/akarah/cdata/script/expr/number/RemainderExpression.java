@@ -17,7 +17,7 @@ public record RemainderExpression(
                 .unboxNumber()
                 .pushValue(rhs)
                 .unboxNumber()
-                .bytecode(CodeBuilder::drem)
+                .bytecodeUnsafe(CodeBuilder::drem)
                 .boxNumber();
     }
 

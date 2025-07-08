@@ -20,14 +20,14 @@ public record DictGetExpression(
                 .pushValue(dict)
                 .typecheck(HashMap.class)
                 .pushValue(key)
-                .bytecode(cb -> cb.invokevirtual(
+                .invokeVirtual(
                         CodegenUtil.ofClass(HashMap.class),
                         "get",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),
                                 List.of(CodegenUtil.ofClass(Object.class))
                         )
-                ));
+                );
     }
 
     @Override

@@ -20,14 +20,14 @@ public record GetItemStatExpression(
                 .typecheck(ItemStack.class)
                 .pushValue(stat)
                 .typecheck(String.class)
-                .bytecode(cb -> cb.invokestatic(
+                .invokeStatic(
                         CodegenUtil.ofClass(ItemUtil.class),
                         "getItemStat",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofDouble(),
                                 List.of(CodegenUtil.ofClass(ItemStack.class), CodegenUtil.ofClass(String.class))
                         )
-                ))
+                )
                 .boxNumber();
     }
 

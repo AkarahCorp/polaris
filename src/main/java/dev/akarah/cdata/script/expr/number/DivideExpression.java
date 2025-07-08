@@ -17,7 +17,7 @@ public record DivideExpression(
                 .unboxNumber()
                 .pushValue(rhs)
                 .unboxNumber()
-                .bytecode(CodeBuilder::ddiv)
+                .bytecodeUnsafe(CodeBuilder::ddiv)
                 .boxNumber();
     }
 

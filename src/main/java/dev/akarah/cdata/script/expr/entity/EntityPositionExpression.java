@@ -19,14 +19,14 @@ public record EntityPositionExpression(
         ctx
                 .pushValue(this.entityExpression)
                 .typecheck(Entity.class)
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(Entity.class),
-                        "position",
+                .invokeStatic(
+                        CodegenUtil.ofClass(EntityUtil.class),
+                        "entityDirection",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Vec3.class),
-                                List.of()
+                                List.of(CodegenUtil.ofClass(Entity.class))
                         )
-                ));
+                );
     }
 
     @Override

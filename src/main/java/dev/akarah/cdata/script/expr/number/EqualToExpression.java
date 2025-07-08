@@ -20,11 +20,11 @@ public record EqualToExpression(
                 .pushValue(rhs)
                 .typecheck(Double.class)
                 .unboxNumber()
-                .bytecode(CodeBuilder::dcmpg)
+                .bytecodeUnsafe(CodeBuilder::dcmpg)
                 .ifThenElse(
                         Opcode.IFEQ,
-                        () -> ctx.bytecode(cb -> cb.loadConstant(1)),
-                        () -> ctx.bytecode(cb -> cb.loadConstant(0))
+                        () -> ctx.constant(1),
+                        () -> ctx.constant(0)
                 );
     }
 

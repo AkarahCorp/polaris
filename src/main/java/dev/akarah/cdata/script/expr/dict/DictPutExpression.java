@@ -23,15 +23,15 @@ public record DictPutExpression(
                 .typecheck(HashMap.class)
                 .pushValue(key)
                 .pushValue(value)
-                .bytecode(cb -> cb.invokevirtual(
+                .invokeVirtual(
                         CodegenUtil.ofClass(HashMap.class),
                         "put",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),
                                 List.of(CodegenUtil.ofClass(Object.class), CodegenUtil.ofClass(Object.class))
                         )
-                ))
-                .bytecode(CodeBuilder::pop);
+                )
+                .pop();
 
     }
 

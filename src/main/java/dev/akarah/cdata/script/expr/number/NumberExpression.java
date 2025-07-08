@@ -7,7 +7,7 @@ import dev.akarah.cdata.script.type.Type;
 public record NumberExpression(double value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(this.value)).boxNumber();
+        ctx.constant(this.value).boxNumber();
     }
 
     @Override

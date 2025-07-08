@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.classfile.TypeKind;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
@@ -22,21 +23,14 @@ public record EntityTeleportRelativeAction(
                 .typecheck(Entity.class)
                 .pushValue(this.position)
                 .typecheck(Vec3.class)
-                .bytecode(cb -> cb.astore(1))
-                .bytecode(cb -> cb.aload(1))
-                .getVectorComponent("x")
-                .bytecode(cb -> cb.aload(1))
-                .getVectorComponent("y")
-                .bytecode(cb -> cb.aload(1))
-                .getVectorComponent("z")
-                .bytecode(cb -> cb.invokevirtual(
-                        CodegenUtil.ofClass(Entity.class),
+                .invokeStatic(
+                        CodegenUtil.ofClass(EntityUtil.class),
                         "teleportRelative",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofVoid(),
-                                List.of(CodegenUtil.ofDouble(), CodegenUtil.ofDouble(), CodegenUtil.ofDouble())
+                                List.of(CodegenUtil.ofClass(Entity.class), CodegenUtil.ofClass(Vec3.class))
                         )
-                ));
+                );
     }
 
     @Override

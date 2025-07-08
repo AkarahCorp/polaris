@@ -13,7 +13,7 @@ import java.util.Optional;
 public record StringExpression(String value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.loadConstant(this.value));
+        ctx.constant(this.value);
     }
 
     @Override

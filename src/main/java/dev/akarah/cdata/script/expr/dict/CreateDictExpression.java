@@ -14,14 +14,14 @@ import java.util.List;
 public record CreateDictExpression() implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.bytecode(cb -> cb.invokestatic(
+        ctx.invokeStatic(
                 CodegenUtil.ofClass(Maps.class),
                 "newHashMap",
                 MethodTypeDesc.of(
                         CodegenUtil.ofClass(HashMap.class),
                         List.of()
                 )
-        ));
+        );
     }
 
     @Override

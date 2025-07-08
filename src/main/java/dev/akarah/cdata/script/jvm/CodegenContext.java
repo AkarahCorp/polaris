@@ -5,9 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -196,7 +194,7 @@ public class CodegenContext {
      * @param function The function to apply.
      * @return This.
      */
-    public CodegenContext bytecode(Function<CodeBuilder, CodeBuilder> function) {
+    public CodegenContext bytecodeUnsafe(Function<CodeBuilder, CodeBuilder> function) {
         this.codeBuilder = function.apply(this.codeBuilder);
         return this;
     }
@@ -205,7 +203,7 @@ public class CodegenContext {
      * Exposes the underlying CodeBuilder for use by {@link Expression}.
      * @return This.
      */
-    public CodeBuilder bytecode() {
+    public CodeBuilder bytecodeUnsafe() {
         return this.codeBuilder;
     }
 
@@ -244,20 +242,21 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * At runtime, invokes a method on the selected entity.
+     * Pushes an Expression onto the stack.
      * @return This.
      */
-    public CodegenContext invokeFromSelection(
-            ClassDesc target,
-            String methodName,
-            ClassDesc outputType,
-            List<ClassDesc> parameterTypes
-    ) {
-        this.codeBuilder.invokevirtual(
-                target,
-                methodName,
-                MethodTypeDesc.of(outputType, parameterTypes)
-        );
+    public CodegenContext constant(ConstantDesc desc) {
+        this.codeBuilder.loadConstant(desc);
+        return this;
+    }
+
+    /**
+     * Used by {@link Expression#compile(CodegenContext)}.
+     * Pushes an Expression onto the stack.
+     * @return This.
+     */
+    public CodegenContext constant(int desc) {
+        this.codeBuilder.loadConstant(desc);
         return this;
     }
 
@@ -338,68 +337,8 @@ public class CodegenContext {
         return this;
     }
 
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * Gets the component of a Vec3. Accepts "x", "y", or "z".
-     * @return This.
-     */
-    public CodegenContext getVectorComponent(String component) {
-        this.codeBuilder.getfield(
-                CodegenUtil.ofClass(Vec3.class),
-                component,
-                CodegenUtil.ofDouble()
-        );
-        return this;
-    }
-
     public CodegenContext typecheck(Class<?> expected) {
         this.codeBuilder.checkcast(CodegenUtil.ofClass(expected));
-        return this;
-    }
-
-    public CodegenContext runIfNonNull(Supplier<CodegenContext> function) {
-        codeBuilder.dup();
-        codeBuilder.aconst_null();
-
-        codeBuilder.ifThenElse(
-                Opcode.IF_ACMPEQ,
-                blockCodeBuilder -> {
-                    var oldBuilder = this.codeBuilder;
-                    this.codeBuilder = blockCodeBuilder;
-
-                    function.get();
-
-                    this.codeBuilder = oldBuilder;
-                },
-                CodeBuilder::pop
-        );
-        return this;
-    }
-
-    public CodegenContext runIfNonNull(Supplier<CodegenContext> function, Supplier<CodegenContext> orElse) {
-        codeBuilder.dup();
-        codeBuilder.aconst_null();
-
-        codeBuilder.ifThenElse(
-                Opcode.IF_ACMPNE,
-                blockCodeBuilder -> {
-                    var oldBuilder = this.codeBuilder;
-                    this.codeBuilder = blockCodeBuilder;
-
-                    function.get();
-
-                    this.codeBuilder = oldBuilder;
-                },
-                blockCodeBuilder -> {
-                    blockCodeBuilder.pop();
-                    var oldBuilder = this.codeBuilder;
-                    this.codeBuilder = blockCodeBuilder;
-
-                    orElse.get();
-
-                    this.codeBuilder = oldBuilder;
-                }
-        );
         return this;
     }
 
@@ -484,12 +423,12 @@ public class CodegenContext {
     public CodegenContext storeLocal(String variable, Type<?> type) {
         if(this.methodLocals.containsKey(variable)) {
             this.methodLocalTypes.put(variable, type);
-            return this.bytecode(cb -> cb.storeLocal(type.classFileType(), this.methodLocals.get(variable)));
+            return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), this.methodLocals.get(variable)));
         } else {
             var index = this.codeBuilder.allocateLocal(type.classFileType());
             this.methodLocals.put(variable, index);
             this.methodLocalTypes.put(variable, type);
-            return this.bytecode(cb -> cb.storeLocal(type.classFileType(), index));
+            return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
         }
     }
 
@@ -500,7 +439,69 @@ public class CodegenContext {
         if(!this.methodLocalTypes.containsKey(variable)) {
             throw new RuntimeException("Variable `" + variable + "` somehow doesn't have a type!");
         }
-        return this.bytecode(cb -> cb.loadLocal(this.methodLocalTypes.get(variable).classFileType(), this.methodLocals.get(variable)));
+        return this.bytecodeUnsafe(cb -> cb.loadLocal(this.methodLocalTypes.get(variable).classFileType(), this.methodLocals.get(variable)));
+    }
+
+    public CodegenContext invokeVirtual(ClassDesc owner, String functionName, MethodTypeDesc desc) {
+        this.codeBuilder.invokevirtual(
+                owner,
+                functionName,
+                desc
+        );
+        return this;
+    }
+
+    public CodegenContext invokeInterface(ClassDesc owner, String functionName, MethodTypeDesc desc) {
+        this.codeBuilder.invokeinterface(
+                owner,
+                functionName,
+                desc
+        );
+        return this;
+    }
+
+    public CodegenContext invokeStatic(ClassDesc owner, String functionName, MethodTypeDesc desc) {
+        this.codeBuilder.invokestatic(
+                owner,
+                functionName,
+                desc
+        );
+        return this;
+    }
+
+    public CodegenContext aload(int index) {
+        this.codeBuilder.aload(index);
+        return this;
+    }
+
+    public CodegenContext iload(int index) {
+        this.codeBuilder.iload(index);
+        return this;
+    }
+
+    public CodegenContext astore(int index) {
+        this.codeBuilder.astore(index);
+        return this;
+    }
+
+    public CodegenContext istore(int index) {
+        this.codeBuilder.istore(index);
+        return this;
+    }
+
+    public CodegenContext dup() {
+        this.codeBuilder.dup();
+        return this;
+    }
+
+    public CodegenContext pop() {
+        this.codeBuilder.pop();
+        return this;
+    }
+
+    public CodegenContext d2i() {
+        this.codeBuilder.d2i();
+        return this;
     }
 
     public Type<?> typeOfLocal(String variable) {
