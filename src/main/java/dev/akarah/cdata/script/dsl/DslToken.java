@@ -97,6 +97,14 @@ public interface DslToken {
 
     }
 
+    record GreaterThanSymbol(SpanData span) implements DslToken {
+
+    }
+
+    record LessThanSymbol(SpanData span) implements DslToken {
+
+    }
+
     record EOF(SpanData span) implements DslToken {
 
     }

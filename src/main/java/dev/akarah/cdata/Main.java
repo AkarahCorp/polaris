@@ -44,8 +44,12 @@ public class Main implements ModInitializer {
 
             ExtReloadableResources.customItem().registry().listElements().forEach(element -> {
                 root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
-                    if(ctx.getSource().getEntity() instanceof Player p) {
-                        p.addItem(element.value().toItemStack());
+                    try {
+                        if(ctx.getSource().getEntity() instanceof Player p) {
+                            p.addItem(element.value().toItemStack());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                     return 0;
                 })));
@@ -168,6 +172,7 @@ public class Main implements ModInitializer {
                 + "\n";
 
         LOGGER.error(sb);
+        e.printStackTrace();
 
         if(SERVER == null) {
             System.exit(1);

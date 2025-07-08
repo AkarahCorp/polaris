@@ -454,6 +454,29 @@ public class CodegenContext {
         return this;
     }
 
+    public CodegenContext ifThenElse(Opcode opcode, Supplier<CodegenContext> function, Supplier<CodegenContext> orElse) {
+        codeBuilder.ifThenElse(
+                opcode,
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    function.get();
+
+                    this.codeBuilder = oldBuilder;
+                },
+                blockCodeBuilder -> {
+                    var oldBuilder = this.codeBuilder;
+                    this.codeBuilder = blockCodeBuilder;
+
+                    orElse.get();
+
+                    this.codeBuilder = oldBuilder;
+                }
+        );
+        return this;
+    }
+
     public Type<?> getTypeOf(Expression expression) {
         return expression.type(this);
     }

@@ -53,6 +53,10 @@ public interface Type<T> {
         return new EntityType();
     }
 
+    static ItemType itemStack() {
+        return new ItemType();
+    }
+
     default boolean typeEquals(Type<?> other) {
         return this.typeName().equals((other.typeName()))
                 || this.typeName().equals("any")

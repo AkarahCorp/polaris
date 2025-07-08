@@ -65,6 +65,7 @@ public class DslParser {
             case "text" -> new SpannedType<>(Type.text(), identifier.span());
             case "list" -> new SpannedType<>(Type.list(), identifier.span());
             case "entity" -> new SpannedType<>(Type.entity(), identifier.span());
+            case "item_stack" -> new SpannedType<>(Type.itemStack(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }
@@ -128,11 +129,37 @@ public class DslParser {
     }
 
     public Expression parseStorage() {
-        var baseExpression = parseArrowExpression();
+        var baseExpression = parseComparisonExpression();
         while(peek() instanceof DslToken.EqualSymbol
         && baseExpression instanceof GetLocalAction(String variable)) {
-            expect(DslToken.EqualSymbol.class);
-            baseExpression = new SpannedExpression<>(new SetLocalAction(variable, parseValue()), baseExpression.span());
+            var eq = expect(DslToken.EqualSymbol.class);
+            baseExpression = new SpannedExpression<>(new SetLocalAction(variable, parseValue()), eq.span());
+        }
+        return baseExpression;
+    }
+
+    public Expression parseComparisonExpression() {
+        var baseExpression = parseArrowExpression();
+        while(true) {
+            if(peek() instanceof DslToken.GreaterThanSymbol) {
+                expect(DslToken.GreaterThanSymbol.class);
+                if(peek() instanceof DslToken.EqualSymbol) {
+                    expect(DslToken.EqualSymbol.class);
+                    throw new RuntimeException("TODO");
+                } else {
+                    baseExpression = new GreaterThanExpression(baseExpression, parseComparisonExpression());
+                }
+            } else if(peek() instanceof DslToken.LessThanSymbol) {
+                expect(DslToken.LessThanSymbol.class);
+                if(peek() instanceof DslToken.EqualSymbol) {
+                    expect(DslToken.EqualSymbol.class);
+                    throw new RuntimeException("TODO");
+                } else {
+                    baseExpression = new LessThanExpression(baseExpression, parseComparisonExpression());
+                }
+            } else {
+                break;
+            }
         }
         return baseExpression;
     }
@@ -206,7 +233,7 @@ public class DslParser {
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
-            case DslToken.Identifier identifier -> new SpannedExpression<>(new GetLocalAction(identifier.identifier()), identifier.span());
+            case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
             case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };

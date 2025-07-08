@@ -2,6 +2,7 @@ package dev.akarah.cdata.registry.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
@@ -63,7 +64,12 @@ public record CustomItem(
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });
         this.itemTemplate().ifPresent(itemTemplate -> {
-
+            try {
+                ExtReloadableResources.actionManager().functionByLocation(itemTemplate)
+                        .invoke(is);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
         });
 
         return is;

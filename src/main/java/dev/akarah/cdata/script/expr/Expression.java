@@ -8,6 +8,10 @@ import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
+import dev.akarah.cdata.script.expr.item.GetItemNameExpression;
+import dev.akarah.cdata.script.expr.item.GetItemStatExpression;
+import dev.akarah.cdata.script.expr.item.SetItemLoreExpression;
+import dev.akarah.cdata.script.expr.item.SetItemNameExpression;
 import dev.akarah.cdata.script.expr.list.AddListExpression;
 import dev.akarah.cdata.script.expr.list.CreateListExpression;
 import dev.akarah.cdata.script.expr.list.GetListExpression;
@@ -31,6 +35,10 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_lore"), SetItemLoreExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_name"), SetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/name"), GetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/stat"), GetItemStatExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text/create"), ComponentLiteralFuncExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text/color"), ComponentColorExpression.class);
