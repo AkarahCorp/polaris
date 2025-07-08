@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
 import dev.akarah.cdata.script.expr.flow.*;
+import dev.akarah.cdata.script.expr.list.InlineListExpression;
 import dev.akarah.cdata.script.expr.number.*;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.ComponentLiteralExpression;
@@ -244,6 +245,17 @@ public class DslParser {
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
             case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
+            case DslToken.OpenBracket openBracket -> {
+                var list = new ArrayList<Expression>();
+                while(!(peek() instanceof DslToken.CloseBracket)) {
+                    list.add(parseValue());
+                    if(!(peek() instanceof DslToken.CloseBracket)) {
+                        expect(DslToken.Comma.class);
+                    }
+                }
+                expect(DslToken.CloseBracket.class);
+                yield new InlineListExpression(list);
+            }
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };
     }

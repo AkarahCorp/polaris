@@ -45,6 +45,14 @@ public interface DslToken {
 
     }
 
+    record OpenBracket(SpanData span) implements DslToken {
+
+    }
+
+    record CloseBracket(SpanData span) implements DslToken {
+
+    }
+
     record IfKeyword(SpanData span) implements DslToken {
 
     }

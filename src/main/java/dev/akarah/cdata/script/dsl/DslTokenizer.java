@@ -90,6 +90,8 @@ public class DslTokenizer {
                 case ')' -> token(')', () -> new DslToken.CloseParen(this.createSpan(start)));
                 case '{' -> token('{', () -> new DslToken.OpenBrace(this.createSpan(start)));
                 case '}' -> token('}', () -> new DslToken.CloseBrace(this.createSpan(start)));
+                case '[' -> token('[', () -> new DslToken.OpenBracket(this.createSpan(start)));
+                case ']' -> token(']', () -> new DslToken.CloseBracket(this.createSpan(start)));
                 case ',' -> token(',', () -> new DslToken.Comma(this.createSpan(start)));
                 case '+' -> token('+', () -> new DslToken.PlusSymbol(this.createSpan(start)));
                 case '*' -> token('*', () -> new DslToken.StarSymbol(this.createSpan(start)));
