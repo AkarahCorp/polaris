@@ -16,15 +16,24 @@ public record ComponentLiteralFuncExpression(Expression value) implements Expres
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.value)
-                .bytecode(cb -> cb.invokestatic(
-                        CodegenUtil.ofClass(Component.class),
-                        "literal",
-                        MethodTypeDesc.of(
-                                CodegenUtil.ofClass(MutableComponent.class),
-                                List.of(CodegenUtil.ofClass(String.class))
-                        ),
-                        true
-                ));
+                .bytecode(cb -> cb
+                        .invokevirtual(
+                                CodegenUtil.ofClass(Object.class),
+                                "toString",
+                                MethodTypeDesc.of(
+                                        CodegenUtil.ofClass(String.class),
+                                        List.of()
+                                )
+                        )
+                        .invokestatic(
+                            CodegenUtil.ofClass(TextUtil.class),
+                            "loreFriendlyLiteral",
+                            MethodTypeDesc.of(
+                                    CodegenUtil.ofClass(MutableComponent.class),
+                                    List.of(CodegenUtil.ofClass(String.class))
+                            )
+                        )
+                );
     }
 
     @Override
@@ -34,7 +43,7 @@ public record ComponentLiteralFuncExpression(Expression value) implements Expres
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
-                Pair.of("value", Type.string())
+                Pair.of("value", Type.any())
         );
     }
 }

@@ -139,7 +139,7 @@ public class DslParser {
     }
 
     public Expression parseComparisonExpression() {
-        var baseExpression = parseArrowExpression();
+        var baseExpression = parseTerm();
         while(true) {
             if(peek() instanceof DslToken.GreaterThanSymbol) {
                 expect(DslToken.GreaterThanSymbol.class);
@@ -164,8 +164,43 @@ public class DslParser {
         return baseExpression;
     }
 
+    public Expression parseTerm() {
+        var base = parseFactor();
+        while(true) {
+            if(peek() instanceof DslToken.PlusSymbol) {
+                expect(DslToken.PlusSymbol.class);
+                base = new AddExpression(base, parseFactor());
+            } else if(peek() instanceof DslToken.StarSymbol) {
+                expect(DslToken.StarSymbol.class);
+                base = new MultiplyExpression(base, parseFactor());
+            } else {
+                break;
+            }
+        }
+
+        return base;
+    }
+
+    public Expression parseFactor() {
+        var base = parseArrowExpression();
+        while(true) {
+            if(peek() instanceof DslToken.MinusSymbol) {
+                expect(DslToken.MinusSymbol.class);
+                base = new SubtractExpression(base, parseInvocation());
+            } else if(peek() instanceof DslToken.SlashSymbol) {
+                expect(DslToken.SlashSymbol.class);
+                base = new DivideExpression(base, parseInvocation());
+            } else {
+                break;
+            }
+        }
+        return base;
+    }
+
+
+
     public Expression parseArrowExpression() {
-        var baseExpression = parseTerm();
+        var baseExpression = parseInvocation();
         while(peek() instanceof DslToken.ArrowSymbol) {
             expect(DslToken.ArrowSymbol.class);
             var name = expect(DslToken.Identifier.class);
@@ -174,32 +209,6 @@ public class DslParser {
             baseExpression = new LateResolvedFunctionCall(name.identifier(), parameters, name.span());
         }
         return baseExpression;
-    }
-
-    public Expression parseTerm() {
-        var base = parseFactor();
-        while(peek() instanceof DslToken.PlusSymbol) {
-            expect(DslToken.PlusSymbol.class);
-            base = new AddExpression(base, parseFactor());
-        }
-        while(peek() instanceof DslToken.StarSymbol) {
-            expect(DslToken.StarSymbol.class);
-            base = new MultiplyExpression(base, parseFactor());
-        }
-        return base;
-    }
-
-    public Expression parseFactor() {
-        var base = parseInvocation();
-        while(peek() instanceof DslToken.MinusSymbol) {
-            expect(DslToken.MinusSymbol.class);
-            base = new SubtractExpression(base, parseInvocation());
-        }
-        while(peek() instanceof DslToken.SlashSymbol) {
-            expect(DslToken.SlashSymbol.class);
-            base = new DivideExpression(base, parseInvocation());
-        }
-        return base;
     }
 
     public Expression parseInvocation() {

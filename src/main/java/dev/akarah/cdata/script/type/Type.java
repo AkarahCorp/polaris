@@ -62,4 +62,14 @@ public interface Type<T> {
                 || this.typeName().equals("any")
                 || other.typeName().equals("any");
     }
+
+    default Type<?> or(Type<?> right) {
+        if(!this.typeName().equals("any")) {
+            return this;
+        }
+        if(!right.typeName().equals("any")) {
+            return right;
+        }
+        return this;
+    }
 }
