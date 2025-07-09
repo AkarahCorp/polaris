@@ -47,7 +47,7 @@ public class LateResolvedFunctionCall implements Expression {
         return Optional.ofNullable(this.fullyResolved);
     }
 
-    public String alternateName(CodegenContext ctx) {
+    public String alternateWithNormalTypeName(CodegenContext ctx) {
         if(this.parameters.isEmpty()) {
             return this.functionName;
         } else {
@@ -55,12 +55,26 @@ public class LateResolvedFunctionCall implements Expression {
         }
     }
 
-    public Optional<Expression> resolveStandardAction(CodegenContext ctx) {
-        var alternateName = this.alternateName(ctx);
+    public String alternateWithVerboseTypeName(CodegenContext ctx) {
+        if(this.parameters.isEmpty()) {
+            return this.functionName;
+        } else {
+            return (this.parameters.getFirst().type(ctx).verboseTypeName() + "/" + this.functionName)
+                    .replace("[", "-")
+                    .replace("]", "-")
+                    .replace(",", "-");
+        }
+    }
 
+    public Optional<Expression> resolveStandardAction(CodegenContext ctx) {
         var exprClassOpt = ExtBuiltInRegistries.ACTION_TYPE
                 .get(CodegenContext.idName(this.functionName))
-                .or(() -> ExtBuiltInRegistries.ACTION_TYPE.get(CodegenContext.idName(alternateName)))
+                .or(() -> ExtBuiltInRegistries.ACTION_TYPE.get(CodegenContext.idName(
+                        this.alternateWithNormalTypeName(ctx)
+                )))
+                .or(() -> ExtBuiltInRegistries.ACTION_TYPE.get(CodegenContext.idName(
+                        this.alternateWithVerboseTypeName(ctx)
+                )))
                 .map(Holder.Reference::value);
 
         if(exprClassOpt.isPresent()) {
@@ -117,14 +131,15 @@ public class LateResolvedFunctionCall implements Expression {
         return input
                 .replace('/', '_')
                 .replace(':', '_')
-                .replace('.', '_');
+                .replace('.', '_')
+                .replace("-", "_");
     }
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
         var functionSchema = ExtReloadableResources.actionManager().expressions().get(functionName);
         if(functionSchema == null) {
-            functionName = filterNameToMethodName(this.alternateName(ctx));
+            functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));
             functionSchema = ExtReloadableResources.actionManager().expressions().get(functionName);
         }
 
@@ -166,7 +181,7 @@ public class LateResolvedFunctionCall implements Expression {
         return this.resolveFromCache()
                 .or(() -> this.resolveStandardAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
-                .orElseThrow(() -> new ParsingException("no clue how to resolve " + this.functionName + " (" + filterNameToMethodName(this.functionName) + ")(" + this.parameters + ") sorry", this.span()));
+                .orElseThrow(() -> new ParsingException("no clue how to resolve `" + this.functionName + "` sorry", this.span()));
     }
 
     private static Expression[] toArray(List<Expression> list) {

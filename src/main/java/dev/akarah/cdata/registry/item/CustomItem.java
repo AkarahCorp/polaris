@@ -48,6 +48,10 @@ public record CustomItem(
     }
 
     public ItemStack toItemStack() {
+        return this.toItemStack(this.itemTemplate.orElse(null));
+    }
+
+    public ItemStack toItemStack(ResourceLocation itemTemplate) {
         var is = new ItemStack(Holder.direct(Items.MUSIC_DISC_CAT));
         is.remove(DataComponents.JUKEBOX_PLAYABLE);
         is.remove(DataComponents.ITEM_MODEL);
@@ -63,14 +67,14 @@ public record CustomItem(
         this.equippable.ifPresent(equippableData -> {
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });
-        this.itemTemplate().ifPresent(itemTemplate -> {
+        if(itemTemplate != null) {
             try {
                 ExtReloadableResources.actionManager().functionByLocation(itemTemplate)
                         .invoke(is);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
-        });
+        }
 
         return is;
     }
@@ -87,5 +91,9 @@ public record CustomItem(
         return itemIdOf(itemStack)
                 .flatMap(x -> ExtReloadableResources.customItem().registry().get(x))
                 .map(Holder.Reference::value);
+    }
+
+    public static Optional<CustomItem> byId(ResourceLocation id) {
+        return ExtReloadableResources.customItem().registry().get(id).map(Holder.Reference::value);
     }
 }

@@ -2,6 +2,8 @@ package dev.akarah.cdata.script.jvm;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
@@ -504,9 +506,9 @@ public class CodegenContext {
         return this;
     }
 
-    public Type<?> typeOfLocal(String variable) {
+    public Type<?> typeOfLocal(String variable, SpanData span) {
         if(!this.methodLocalTypes.containsKey(variable)) {
-            throw new RuntimeException("uh idk type of " + variable);
+            throw new ParsingException("Could not determine type of local `" + variable + "`, perhaps it was used before it's definition?", span);
         }
         return this.methodLocalTypes.get(variable);
     }

@@ -2,9 +2,12 @@ package dev.akarah.cdata.script.expr.item;
 
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatsObject;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
@@ -39,5 +42,19 @@ public class ItemUtil {
 
     public static double getItemStat(ItemStack itemStack, String stat) {
         return getItemStats(itemStack).get(ResourceLocation.parse(stat));
+    }
+
+    public static ItemStack renderCustomItem(ResourceLocation base) {
+        return CustomItem.byId(base)
+                .map(CustomItem::toItemStack)
+                .or(() -> BuiltInRegistries.ITEM.get(base).map(Holder.Reference::value).map(Item::getDefaultInstance))
+                .orElse(ItemStack.EMPTY);
+    }
+
+    public static ItemStack renderItemTemplate(ResourceLocation base, ResourceLocation itemTemplate) {
+        return CustomItem.byId(base)
+                .map(x -> x.toItemStack(itemTemplate))
+                .or(() -> BuiltInRegistries.ITEM.get(base).map(Holder.Reference::value).map(Item::getDefaultInstance))
+                .orElse(ItemStack.EMPTY);
     }
 }

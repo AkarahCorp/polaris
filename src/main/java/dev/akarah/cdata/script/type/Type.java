@@ -63,6 +63,10 @@ public interface Type<T> {
         return new AnyType();
     }
 
+    static IdentifierType identifier() {
+        return new IdentifierType();
+    }
+
     static ListType list(Type<?> subtype) {
         return new ListType(subtype);
     }

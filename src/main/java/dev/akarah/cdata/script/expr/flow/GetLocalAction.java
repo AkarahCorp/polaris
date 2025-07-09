@@ -23,7 +23,7 @@ public record GetLocalAction(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return ctx.typeOfLocal(this.variable());
+        return ctx.typeOfLocal(this.variable(), this.span);
     }
 
 }

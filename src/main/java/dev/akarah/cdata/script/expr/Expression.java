@@ -8,10 +8,8 @@ import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
 import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
-import dev.akarah.cdata.script.expr.item.GetItemNameExpression;
-import dev.akarah.cdata.script.expr.item.GetItemStatExpression;
-import dev.akarah.cdata.script.expr.item.SetItemLoreExpression;
-import dev.akarah.cdata.script.expr.item.SetItemNameExpression;
+import dev.akarah.cdata.script.expr.id.IdentifierExpression;
+import dev.akarah.cdata.script.expr.item.*;
 import dev.akarah.cdata.script.expr.list.AddListExpression;
 import dev.akarah.cdata.script.expr.list.CreateListExpression;
 import dev.akarah.cdata.script.expr.list.GetListExpression;
@@ -35,6 +33,10 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("identifier/create"), IdentifierExpression.class);
+
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/create"), CreateItemExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/create_templated"), CreateTemplatedItemExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_lore"), SetItemLoreExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_name"), SetItemNameExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/name"), GetItemNameExpression.class);
@@ -46,7 +48,6 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add"), AddListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/get"), GetListExpression.class);
-
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/create"), CreateDictExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/put"), DictPutExpression.class);
