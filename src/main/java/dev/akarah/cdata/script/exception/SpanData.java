@@ -41,9 +41,19 @@ public record SpanData(int cursorStart, int cursorEnd, String originalString, Re
     ) {
         @Override
         public @NotNull String toString() {
+            var startingWs = 0;
+            for(var ch : linePreview.toCharArray()) {
+                if(ch == ' ') {
+                    startingWs += 1;
+                } else if (ch == '\t') {
+                    startingWs += 4;
+                } else {
+                    break;
+                }
+            }
             return linePreview.trim() +
                     "\n" +
-                    " ".repeat(from) +
+                    " ".repeat(from - startingWs) +
                     "^".repeat(to - from)
                     + "\n in " + fileName + ", line " + line;
         }

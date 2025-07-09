@@ -5,21 +5,18 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.dict.CreateDictExpression;
 import dev.akarah.cdata.script.expr.dict.DictGetExpression;
 import dev.akarah.cdata.script.expr.dict.DictPutExpression;
-import dev.akarah.cdata.script.expr.entity.EntityDirectionExpression;
-import dev.akarah.cdata.script.expr.entity.EntityPositionExpression;
-import dev.akarah.cdata.script.expr.entity.EntityTeleportAction;
-import dev.akarah.cdata.script.expr.entity.EntityTeleportRelativeAction;
+import dev.akarah.cdata.script.expr.entity.*;
 import dev.akarah.cdata.script.expr.id.IdentifierExpression;
 import dev.akarah.cdata.script.expr.item.*;
-import dev.akarah.cdata.script.expr.list.AddListExpression;
-import dev.akarah.cdata.script.expr.list.CreateListExpression;
-import dev.akarah.cdata.script.expr.list.GetListExpression;
+import dev.akarah.cdata.script.expr.list.*;
 import dev.akarah.cdata.script.expr.player.PlayerSendActionbarAction;
 import dev.akarah.cdata.script.expr.player.PlayerSendMessageAction;
 import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.ComponentColorExpression;
 import dev.akarah.cdata.script.expr.text.ComponentLiteralFuncExpression;
 import dev.akarah.cdata.script.expr.vec3.*;
+import dev.akarah.cdata.script.expr.world.GetWorldExpression;
+import dev.akarah.cdata.script.expr.world.WorldSetBlockExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
@@ -48,6 +45,9 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/get"), GetWorldExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/set_block"), WorldSetBlockExpression.class);
+
         Registry.register(actions, ResourceLocation.withDefaultNamespace("identifier/create"), IdentifierExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/create"), CreateItemExpression.class);
@@ -60,8 +60,10 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text/create"), ComponentLiteralFuncExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text/color"), ComponentColorExpression.class);
 
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/range"), NumberRangeExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add"), AddListExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add_all"), AddAllListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/get"), GetListExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/create"), CreateDictExpression.class);
@@ -79,6 +81,7 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/direction"), EntityDirectionExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/world"), EntityWorldExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_message"), PlayerSendMessageAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_actionbar"), PlayerSendActionbarAction.class);

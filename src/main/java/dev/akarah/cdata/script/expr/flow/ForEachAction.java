@@ -1,8 +1,12 @@
 package dev.akarah.cdata.script.expr.flow;
 
+import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.ListType;
+import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.classfile.TypeKind;
@@ -14,11 +18,20 @@ import java.util.List;
 public record ForEachAction(
         Expression list,
         String variableName,
-        Expression block
+        Expression block,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         var local = ctx.bytecodeUnsafe().allocateLocal(TypeKind.REFERENCE);
+
+        var listValueType = ctx.getTypeOf(list).despan();
+        Type<?> listSubType;
+        if(listValueType instanceof ListType(Type<?> subtype))  {
+            listSubType = subtype;
+        } else {
+            throw new ParsingException("Expected a list in list position", this.span());
+        }
         ctx.pushValue(list)
                 .typecheck(ArrayList.class)
                 .invokeVirtual(
@@ -51,7 +64,7 @@ public record ForEachAction(
                                                 List.of()
                                         )
                                 )
-                                .storeLocal(this.variableName(), Type.any())
+                                .storeLocal(this.variableName(), listSubType)
                                 .pushValue(this.block)
                                 .bytecodeUnsafe(cb -> cb.goto_(loopJumpLabel))
                 );

@@ -19,7 +19,6 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.api.core.SmartBrain;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
@@ -73,7 +72,7 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel serverLevel) {
+    protected void customServerAiStep(ServerLevel Level) {
         ProfilerFiller profilerFiller = Profiler.get();
         profilerFiller.push("dynamicEntityBrain");
         tickBrain(this);

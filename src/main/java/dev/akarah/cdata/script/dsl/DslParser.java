@@ -65,6 +65,7 @@ public class DslParser {
             case "string", "str" -> new SpannedType<>(Type.string(), identifier.span());
             case "vec3d", "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
             case "component", "text" -> new SpannedType<>(Type.text(), identifier.span());
+            case "world" -> new SpannedType<>(Type.world(), identifier.span());
             case "list", "array" -> {
                 expect(DslToken.OpenBracket.class);
                 var subtype = parseType();
@@ -98,17 +99,17 @@ public class DslParser {
         return parseValue();
     }
 
-    public Expression parseValue() {
-        return this.parseStorage();
-    }
-
     public ForEachAction parseForEach() {
-        expect(DslToken.ForeachKeyword.class);
+        var kw = expect(DslToken.ForeachKeyword.class);
         var variableName = expect(DslToken.Identifier.class);
         expect(DslToken.InKeyword.class);
-        var listExpr = parseBaseExpression();
+        var listExpr = parseValue();
         var block = parseBlock();
-        return new ForEachAction(listExpr, variableName.identifier(), block);
+        return new ForEachAction(listExpr, variableName.identifier(), block, kw.span());
+    }
+
+    public Expression parseValue() {
+        return this.parseStorage();
     }
 
     public RepeatTimesAction parseRepeat() {
@@ -235,7 +236,7 @@ public class DslParser {
     }
 
     public Expression parseInvocation() {
-        var baseExpression = parseBaseExpression();
+        var baseExpression = parseNegation();
 
         if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName, SpanData spanData)) {
             var tuple = parseTuple();
@@ -256,6 +257,19 @@ public class DslParser {
         }
         expect(DslToken.CloseParen.class);
         return parameters;
+    }
+
+    public Expression parseNegation() {
+        boolean negate = false;
+        if(peek() instanceof DslToken.MinusSymbol) {
+            expect(DslToken.MinusSymbol.class);
+            negate = true;
+        }
+        var baseExpr = parseBaseExpression();
+        if(negate) {
+            baseExpr = new MultiplyExpression(baseExpr, new NumberExpression(-1));
+        }
+        return baseExpr;
     }
 
     public Expression parseBaseExpression() {

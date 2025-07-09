@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.params;
 import com.google.common.collect.Maps;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.nodes.OptionalParameter;
 import dev.akarah.cdata.script.params.nodes.RequiredParameter;
 import dev.akarah.cdata.script.type.Type;
 import org.apache.commons.compress.utils.Lists;
@@ -70,6 +71,16 @@ public class ExpressionTypeSet {
 
         public Builder required(String name, Function<ExpressionTypeSet, Type<?>> type) {
             this.parameters.add(e -> new RequiredParameter(name, type.apply(e)));
+            return this;
+        }
+
+        public Builder optional(String name, Type<?> type) {
+            this.parameters.add(_ -> new OptionalParameter(name, type));
+            return this;
+        }
+
+        public Builder optional(String name, Function<ExpressionTypeSet, Type<?>> type) {
+            this.parameters.add(e -> new OptionalParameter(name, type.apply(e)));
             return this;
         }
 

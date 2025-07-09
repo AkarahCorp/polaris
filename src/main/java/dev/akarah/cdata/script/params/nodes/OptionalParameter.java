@@ -11,21 +11,19 @@ import dev.akarah.cdata.script.type.Type;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public record RequiredParameter(
+public record OptionalParameter(
         String name,
         Type<?> typePattern
 ) implements ParameterNode {
+    public static Lock lock = new ReentrantLock();
 
     @Override
     public Expression makeTypeSafeExpression(CodegenContext ctx, ExpressionStream expressionStream, ExpressionTypeSet typeSet) {
         var expression = expressionStream.peek();
         if(expression == null) {
-            throw new ParsingException(
-                    "Missing value of type `" + this.typePattern().verboseTypeName()
-                            + "` for parameter `" + this.name(),
-                    expressionStream.span()
-            );
+            return null;
         }
+
         var exprType = ctx.getTypeOf(expression);
         var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet);
         if(!exprType.typeEquals(newRequiredType)) {

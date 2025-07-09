@@ -82,7 +82,6 @@ public class LateResolvedFunctionCall implements Expression {
         if(exprClassOpt.isPresent()) {
             var exprClass = exprClassOpt.orElseThrow();
 
-            var constructorArguments = repeatInArray(parameters.size());
 
             List<Expression> expressionList;
             try {
@@ -95,6 +94,7 @@ public class LateResolvedFunctionCall implements Expression {
 
 
             var emptyArguments = toArray(expressionList);
+            var constructorArguments = repeatInArray(expressionList.size());
 
             try {
                 var constructor = exprClass.getConstructor(constructorArguments);

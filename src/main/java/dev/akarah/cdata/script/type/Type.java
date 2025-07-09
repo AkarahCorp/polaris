@@ -14,6 +14,13 @@ public interface Type<T> {
     Class<T> typeClass();
     ClassDesc classDescType();
 
+    default Type<?> despan() {
+        if(this instanceof SpannedType<?,?> spannedType) {
+            return spannedType.type();
+        }
+        return this;
+    }
+
     default TypeKind classFileType() {
         return TypeKind.REFERENCE;
     }
@@ -50,33 +57,24 @@ public interface Type<T> {
      * @return The new variant of `incomingMatch`, with type variables sufficiently replaced.
      */
     default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet) {
-        System.out.println("===> Matching type " + this.verboseTypeName() + " against pattern " + incomingMatch.verboseTypeName());
-        if(this instanceof SpannedType<?, ?> spannedType) {
-            return spannedType.type().resolveTypeVariables(incomingMatch, typeSet);
-        }
+        var this2 = this.despan();
         switch (incomingMatch) {
             case VariableType matchingVarType -> {
-                System.out.println("Resolving variable type `" + matchingVarType.variableName() + "` for type `" + this.verboseTypeName() + "`");
-                typeSet.resolveTypeVariable(matchingVarType.variableName(), this);
+                typeSet.resolveTypeVariable(matchingVarType.variableName(), this2);
             }
             case ListType matchListType -> {
                 if(this instanceof ListType(Type<?> subtype)) {
                     subtype.resolveTypeVariables(matchListType.subtype(), typeSet);
-                } else {
-                    System.out.println("==== /!\\ Match provided is a list, but the expression is not (" + this.verboseTypeName() + ")");
                 }
             }
             case DictionaryType matchDictType -> {
                 if(this instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
                     keyType.resolveTypeVariables(matchDictType.keyType(), typeSet);
                     valueType.resolveTypeVariables(matchDictType.valueType(), typeSet);
-                } else {
-                    System.out.println("==== /!\\ Match provided is a dict, but the expression is not (" + this.verboseTypeName() + ")");
                 }
             }
             default -> {}
         }
-        System.out.println("<===");
         return incomingMatch.fixTypeVariables(typeSet);
     }
 
@@ -146,6 +144,10 @@ public interface Type<T> {
 
     static ItemType itemStack() {
         return new ItemType();
+    }
+
+    static WorldType world() {
+        return new WorldType();
     }
 
     static VariableType var(ExpressionTypeSet typeSet, String name) {
