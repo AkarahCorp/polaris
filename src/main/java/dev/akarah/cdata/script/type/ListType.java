@@ -22,4 +22,9 @@ public record ListType(Type<?> subtype) implements Type<ArrayList<Object>> {
     public ClassDesc classDescType() {
         return CodegenUtil.ofClass(ArrayList.class);
     }
+
+    @Override
+    public List<Type<?>> subtypes() {
+        return List.of(subtype);
+    }
 }

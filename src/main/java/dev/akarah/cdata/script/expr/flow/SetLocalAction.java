@@ -1,17 +1,28 @@
 package dev.akarah.cdata.script.expr.flow;
 
+import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
+import java.util.Optional;
+
 public record SetLocalAction(
         String variable,
-        Expression value
+        Optional<Type<?>> typeHint,
+        Expression value,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
+        if(typeHint.isPresent()) {
+            if(!typeHint.orElseThrow().typeEquals(ctx.getTypeOf(value))) {
+                throw new ParsingException("Type hint and value type do not match up", span);
+            }
+        }
         ctx.pushValue(this.value)
-                .storeLocal(this.variable, ctx.getTypeOf(this.value));
+                .storeLocal(this.variable, typeHint.orElseGet(() -> ctx.getTypeOf(this.value)));
     }
 
     @Override

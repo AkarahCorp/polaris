@@ -1,7 +1,11 @@
 package dev.akarah.cdata.script.type;
 
+import com.google.common.collect.Streams;
+import com.mojang.datafixers.util.Pair;
+
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
+import java.util.List;
 
 public interface Type<T> {
     String typeName();
@@ -11,7 +15,25 @@ public interface Type<T> {
     default TypeKind classFileType() {
         return TypeKind.REFERENCE;
     }
+    default List<Type<?>> subtypes() { return List.of(); }
 
+    default String verboseTypeName() {
+        var sb = new StringBuilder();
+        sb.append(this.typeName());
+        if(!this.subtypes().isEmpty()) {
+            sb.append("[");
+            int idx = 0;
+            for(var subtype : this.subtypes()) {
+                sb.append(subtype.verboseTypeName());
+                idx += 1;
+                if(idx != this.subtypes().size()) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        }
+        return sb.toString();
+    }
 
     static NumberType number() {
         return new NumberType();
@@ -58,9 +80,18 @@ public interface Type<T> {
     }
 
     default boolean typeEquals(Type<?> other) {
-        return this.typeName().equals((other.typeName()))
-                || this.typeName().equals("any")
-                || other.typeName().equals("any");
+        if(this.typeName().equals("any") || other.typeName().equals("any")) {
+            return true;
+        }
+
+        var basicTypeCondition = this.typeName().equals(other.typeName());
+
+        var subtypeConditions = this.subtypes().size() == other.subtypes().size()
+                && Streams.zip(this.subtypes().stream(), other.subtypes().stream(), Pair::of)
+                        .filter(x -> x.getFirst().typeEquals(x.getSecond()))
+                        .count() == this.subtypes().size();
+
+        return basicTypeCondition && subtypeConditions;
     }
 
     default Type<?> or(Type<?> right) {

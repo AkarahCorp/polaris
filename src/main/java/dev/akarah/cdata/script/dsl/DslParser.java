@@ -36,6 +36,7 @@ public class DslParser {
         var parameters = new ArrayList<Pair<String, Type<?>>>();
         while(!(peek() instanceof DslToken.CloseParen)) {
             var name = expect(DslToken.Identifier.class);
+            expect(DslToken.Colon.class);
             var type = parseType();
             parameters.add(Pair.of(name.identifier(), type));
             if(!(peek() instanceof DslToken.CloseParen)) {
@@ -144,10 +145,15 @@ public class DslParser {
 
     public Expression parseStorage() {
         var baseExpression = parseComparisonExpression();
+        var typeHint = Optional.<Type<?>>empty();
+        if(peek() instanceof DslToken.Colon) {
+            expect(DslToken.Colon.class);
+            typeHint = Optional.of(parseType());
+        }
         while(peek() instanceof DslToken.EqualSymbol
-        && baseExpression instanceof GetLocalAction(String variable)) {
+        && baseExpression instanceof GetLocalAction(String variable, SpanData spanData)) {
             var eq = expect(DslToken.EqualSymbol.class);
-            baseExpression = new SpannedExpression<>(new SetLocalAction(variable, parseValue()), eq.span());
+            baseExpression = new SetLocalAction(variable, typeHint, parseValue(), eq.span());
         }
         return baseExpression;
     }
@@ -228,7 +234,7 @@ public class DslParser {
     public Expression parseInvocation() {
         var baseExpression = parseBaseExpression();
 
-        if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName)) {
+        if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName, SpanData spanData)) {
             var tuple = parseTuple();
             baseExpression = new LateResolvedFunctionCall(functionName, tuple, baseExpression.span());
         }
@@ -256,7 +262,7 @@ public class DslParser {
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
-            case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier());
+            case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier(), identifier.span());
             case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
             case DslToken.OpenBracket openBracket -> {
                 var list = new ArrayList<Expression>();

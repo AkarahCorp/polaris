@@ -91,10 +91,10 @@ public class LateResolvedFunctionCall implements Expression {
                             var valueType = parameter.type(ctx);
                             if(!typeKind.typeEquals(valueType)) {
                                 throw new TypeCheckException(
-                                        "Type " + valueType.typeName()
-                                                + " is not applicable for " + typeKind.typeName()
-                                                + " in field " + parameterName
-                                                + " of method " + this.functionName,
+                                        "Type `" + valueType.verboseTypeName() + "`"
+                                                + " is not applicable for `" + typeKind.verboseTypeName() + "`"
+                                                + " in field `" + parameterName + "`"
+                                                + " of method `" + this.functionName + "`",
                                         this);
                             }
                         });
@@ -134,6 +134,21 @@ public class LateResolvedFunctionCall implements Expression {
             for(var parameter : functionSchema.parameters()) {
                 typeParameters.add(parameter.getSecond().classDescType());
             }
+
+            Streams.zip(this.parameters.stream(), functionSchema.parameters().stream(), Pair::of)
+                    .forEach(pair -> {
+                        if(!ctx.getTypeOf(pair.getFirst()).typeEquals(pair.getSecond().getSecond())) {
+                            throw new ParsingException(
+                                    "Expected type of "
+                                            + pair.getSecond().getSecond().verboseTypeName()
+                                            + " for parameter "
+                                            + pair.getSecond().getFirst()
+                                            + ", got "
+                                            + ctx.getTypeOf(pair.getFirst()).verboseTypeName(),
+                                    pair.getFirst().span()
+                            );
+                        }
+                    });
 
             return Optional.of(new UserFunctionAction(
                     functionName,

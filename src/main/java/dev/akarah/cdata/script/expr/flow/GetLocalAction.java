@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -12,7 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 public record GetLocalAction(
-        String variable
+        String variable,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
@@ -23,4 +25,5 @@ public record GetLocalAction(
     public Type<?> type(CodegenContext ctx) {
         return ctx.typeOfLocal(this.variable());
     }
+
 }

@@ -29,6 +29,10 @@ public interface DslToken {
 
     }
 
+    record Colon(SpanData span) implements DslToken {
+
+    }
+
     record OpenParen(SpanData span) implements DslToken {
 
     }

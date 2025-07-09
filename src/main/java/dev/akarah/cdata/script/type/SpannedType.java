@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.type;
 import dev.akarah.cdata.script.exception.SpanData;
 
 import java.lang.constant.ClassDesc;
+import java.util.List;
 
 public record SpannedType<U,T extends Type<U>>(
     T type,
@@ -21,5 +22,10 @@ public record SpannedType<U,T extends Type<U>>(
     @Override
     public ClassDesc classDescType() {
         return this.type().classDescType();
+    }
+
+    @Override
+    public List<Type<?>> subtypes() {
+        return this.type.subtypes();
     }
 }
