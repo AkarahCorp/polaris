@@ -1,13 +1,11 @@
 package dev.akarah.cdata.script.expr.entity;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.MethodTypeDesc;
@@ -34,7 +32,7 @@ public record EntityDirectionExpression(
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
                 .required("entity", Type.entity())
-                .returns(Type.vec3())
+                .returns(Type.vector())
                 .build();
     }
 }

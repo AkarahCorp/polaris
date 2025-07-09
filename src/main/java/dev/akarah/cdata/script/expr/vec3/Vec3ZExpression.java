@@ -30,7 +30,7 @@ public record Vec3ZExpression(
 
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
-                .required("vec", Type.vec3())
+                .required("vec", Type.vector())
                 .returns(Type.number())
                 .build();
     }

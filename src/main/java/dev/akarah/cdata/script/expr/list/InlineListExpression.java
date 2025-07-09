@@ -45,7 +45,14 @@ public record InlineListExpression(
     @Override
     public Type<?> type(CodegenContext ctx) {
         try {
-            return Type.list(expressions.getFirst().type(ctx));
+            var baseSubType = expressions.getFirst().type(ctx);
+
+            for(var expr : expressions) {
+                if(!expr.type(ctx).typeEquals(baseSubType)) {
+                    baseSubType = Type.any();
+                }
+            }
+            return Type.list(baseSubType);
         } catch (NoSuchElementException ignored) {
             return Type.list(Type.any());
         }

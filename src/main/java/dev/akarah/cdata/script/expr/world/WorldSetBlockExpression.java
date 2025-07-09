@@ -44,7 +44,7 @@ public record WorldSetBlockExpression(
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
                 .required("world_id", Type.world())
-                .required("pos", Type.vec3())
+                .required("pos", Type.vector())
                 .required("block_id", Type.identifier())
                 .optional("state", Type.dict(Type.string(), Type.string()))
                 .returns(Type.world())

@@ -5,10 +5,10 @@ import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.ClassDesc;
 
-public record Vec3Type() implements Type<Vec3> {
+public record VectorType() implements Type<Vec3> {
     @Override
     public String typeName() {
-        return "vec3";
+        return "vector";
     }
 
     @Override

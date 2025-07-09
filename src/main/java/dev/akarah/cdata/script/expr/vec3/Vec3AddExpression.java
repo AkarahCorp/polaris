@@ -33,9 +33,9 @@ public record Vec3AddExpression(
 
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
-                .required("lhs", Type.vec3())
-                .required("rhs", Type.vec3())
-                .returns(Type.vec3())
+                .required("lhs", Type.vector())
+                .required("rhs", Type.vector())
+                .returns(Type.vector())
                 .build();
     }
 }

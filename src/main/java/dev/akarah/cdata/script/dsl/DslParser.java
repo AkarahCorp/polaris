@@ -1,11 +1,13 @@
 package dev.akarah.cdata.script.dsl;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.bool.BooleanExpression;
+import dev.akarah.cdata.script.expr.dict.InlineDictExpression;
 import dev.akarah.cdata.script.expr.flow.*;
 import dev.akarah.cdata.script.expr.list.InlineListExpression;
 import dev.akarah.cdata.script.expr.number.*;
@@ -58,21 +60,21 @@ public class DslParser {
     public Type<?> parseType() {
         var identifier = expect(DslToken.Identifier.class);
         return switch (identifier.identifier()) {
-            case "object", "any" -> new SpannedType<>(Type.any(), identifier.span());
-            case "none", "void" -> new SpannedType<>(Type.void_(), identifier.span());
-            case "double", "f64", "number" -> new SpannedType<>(Type.number(), identifier.span());
-            case "boolean", "bool" -> new SpannedType<>(Type.bool(), identifier.span());
-            case "string", "str" -> new SpannedType<>(Type.string(), identifier.span());
-            case "vec3d", "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
-            case "component", "text" -> new SpannedType<>(Type.text(), identifier.span());
+            case "any" -> new SpannedType<>(Type.any(), identifier.span());
+            case "void" -> new SpannedType<>(Type.void_(), identifier.span());
+            case "number" -> new SpannedType<>(Type.number(), identifier.span());
+            case "boolean" -> new SpannedType<>(Type.bool(), identifier.span());
+            case "str" -> new SpannedType<>(Type.string(), identifier.span());
+            case "vector" -> new SpannedType<>(Type.vector(), identifier.span());
+            case "text" -> new SpannedType<>(Type.text(), identifier.span());
             case "world" -> new SpannedType<>(Type.world(), identifier.span());
-            case "list", "array" -> {
+            case "list" -> {
                 expect(DslToken.OpenBracket.class);
                 var subtype = parseType();
                 expect(DslToken.CloseBracket.class);
                 yield new SpannedType<>(Type.list(subtype), identifier.span());
             }
-            case "dictionary", "dict" -> {
+            case "dict" -> {
                 expect(DslToken.OpenBracket.class);
                 var keyType = parseType();
                 expect(DslToken.Comma.class);
@@ -81,7 +83,7 @@ public class DslParser {
                 yield new SpannedType<>(Type.dict(keyType, valueType), identifier.span());
             }
             case "entity" -> new SpannedType<>(Type.entity(), identifier.span());
-            case "item_stack" -> new SpannedType<>(Type.itemStack(), identifier.span());
+            case "item" -> new SpannedType<>(Type.itemStack(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }
@@ -96,7 +98,7 @@ public class DslParser {
         if(this.peek() instanceof DslToken.ForeachKeyword) {
             return parseForEach();
         }
-        return parseValue();
+        return parseStorage();
     }
 
     public ForEachAction parseForEach() {
@@ -109,7 +111,7 @@ public class DslParser {
     }
 
     public Expression parseValue() {
-        return this.parseStorage();
+        return this.parseComparisonExpression();
     }
 
     public RepeatTimesAction parseRepeat() {
@@ -293,6 +295,20 @@ public class DslParser {
                 }
                 expect(DslToken.CloseBracket.class);
                 yield new InlineListExpression(list);
+            }
+            case DslToken.OpenBrace openBrace -> {
+                var map = Lists.<Pair<Expression, Expression>>newArrayList();
+                while(!(peek() instanceof DslToken.CloseBrace)) {
+                    var key = parseValue();
+                    expect(DslToken.EqualSymbol.class);
+                    var value = parseValue();
+                    if(!(peek() instanceof DslToken.CloseBrace)) {
+                        expect(DslToken.Comma.class);
+                    }
+                    map.add(Pair.of(key, value));
+                }
+                expect(DslToken.CloseBrace.class);
+                yield new InlineDictExpression(map);
             }
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };

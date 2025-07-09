@@ -1,6 +1,5 @@
 package dev.akarah.cdata.script.expr.entity;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -33,7 +32,7 @@ public record EntityPositionExpression(
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
                 .required("entity", Type.entity())
-                .returns(Type.vec3())
+                .returns(Type.vector())
                 .build();
     }
 }

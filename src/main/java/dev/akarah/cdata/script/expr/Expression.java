@@ -48,41 +48,39 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("world/get"), GetWorldExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("world/set_block"), WorldSetBlockExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("identifier/create"), IdentifierExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("id"), IdentifierExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/create"), CreateItemExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/create_templated"), CreateTemplatedItemExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_lore"), SetItemLoreExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/set_name"), SetItemNameExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/name"), GetItemNameExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("item_stack/stat"), GetItemStatExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/create"), CreateItemExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/create_templated"), CreateTemplatedItemExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/set_lore"), SetItemLoreExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/set_name"), SetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/name"), GetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/stat"), GetItemStatExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("text/create"), ComponentLiteralFuncExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("text"), ComponentLiteralFuncExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("text/color"), ComponentColorExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/range"), NumberRangeExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("list/create"), CreateListExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("range"), NumberRangeExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add"), AddListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/add_all"), AddAllListExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/get"), GetListExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/create"), CreateDictExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("dict"), CreateDictExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/put"), DictPutExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("dict/get"), DictGetExpression.class);
 
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3"), Vec3Expression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/add"), Vec3AddExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/multiply"), Vec3MultiplyExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/x"), Vec3XExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/y"), Vec3YExpression.class);
-        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec3/z"), Vec3ZExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vec"), Vec3Expression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vector/add"), Vec3AddExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vector/multiply"), Vec3MultiplyExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vector/x"), Vec3XExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vector/y"), Vec3YExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("vector/z"), Vec3ZExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/position"), EntityPositionExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/direction"), EntityDirectionExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/world"), EntityWorldExpression.class);
-
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_message"), PlayerSendMessageAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_actionbar"), PlayerSendActionbarAction.class);
 

@@ -39,7 +39,7 @@ public record Vec3Expression(
                 .required("x", Type.number())
                 .required("y", Type.number())
                 .required("z", Type.number())
-                .returns(Type.vec3())
+                .returns(Type.vector())
                 .build();
     }
 }

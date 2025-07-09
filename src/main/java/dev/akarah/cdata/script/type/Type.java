@@ -2,7 +2,6 @@ package dev.akarah.cdata.script.type;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 
 import java.lang.classfile.TypeKind;
@@ -118,8 +117,8 @@ public interface Type<T> {
         return new VoidType();
     }
 
-    static Vec3Type vec3() {
-        return new Vec3Type();
+    static VectorType vector() {
+        return new VectorType();
     }
 
     static AnyType any() {
