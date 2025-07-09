@@ -57,14 +57,27 @@ public class DslParser {
     public Type<?> parseType() {
         var identifier = expect(DslToken.Identifier.class);
         return switch (identifier.identifier()) {
-            case "any" -> new SpannedType<>(Type.any(), identifier.span());
-            case "void" -> new SpannedType<>(Type.void_(), identifier.span());
-            case "number" -> new SpannedType<>(Type.number(), identifier.span());
-            case "bool" -> new SpannedType<>(Type.bool(), identifier.span());
-            case "string" -> new SpannedType<>(Type.string(), identifier.span());
-            case "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
-            case "text" -> new SpannedType<>(Type.text(), identifier.span());
-            case "list" -> new SpannedType<>(Type.list(), identifier.span());
+            case "object", "any" -> new SpannedType<>(Type.any(), identifier.span());
+            case "none", "void" -> new SpannedType<>(Type.void_(), identifier.span());
+            case "double", "f64", "number" -> new SpannedType<>(Type.number(), identifier.span());
+            case "boolean", "bool" -> new SpannedType<>(Type.bool(), identifier.span());
+            case "string", "str" -> new SpannedType<>(Type.string(), identifier.span());
+            case "vec3d", "vec3" -> new SpannedType<>(Type.vec3(), identifier.span());
+            case "component", "text" -> new SpannedType<>(Type.text(), identifier.span());
+            case "list", "array" -> {
+                expect(DslToken.OpenBracket.class);
+                var subtype = parseType();
+                expect(DslToken.CloseBracket.class);
+                yield new SpannedType<>(Type.list(subtype), identifier.span());
+            }
+            case "dictionary", "dict" -> {
+                expect(DslToken.OpenBracket.class);
+                var keyType = parseType();
+                expect(DslToken.Comma.class);
+                var valueType = parseType();
+                expect(DslToken.CloseBracket.class);
+                yield new SpannedType<>(Type.dict(keyType, valueType), identifier.span());
+            }
             case "entity" -> new SpannedType<>(Type.entity(), identifier.span());
             case "item_stack" -> new SpannedType<>(Type.itemStack(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());

@@ -5,7 +5,10 @@ import dev.akarah.cdata.script.jvm.CodegenUtil;
 import java.lang.constant.ClassDesc;
 import java.util.Map;
 
-public record DictionaryType() implements Type<Map<Object, Object>> {
+public record DictionaryType(
+        Type<?> keyType,
+        Type<?> valueType
+) implements Type<Map<Object, Object>> {
     @Override
     public String typeName() {
         return "dict";

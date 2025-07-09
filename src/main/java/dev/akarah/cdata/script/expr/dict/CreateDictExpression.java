@@ -26,7 +26,7 @@ public record CreateDictExpression() implements Expression {
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return Type.dict();
+        return Type.dict(Type.any(), Type.any());
     }
 
     public static List<Pair<String, Type<?>>> fields() {

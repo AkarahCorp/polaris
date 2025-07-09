@@ -42,7 +42,7 @@ public record DictPutExpression(
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
-                Pair.of("map", Type.dict()),
+                Pair.of("map", Type.dict(Type.any(), Type.any())),
                 Pair.of("key", Type.any()),
                 Pair.of("value", Type.any())
         );

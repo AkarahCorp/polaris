@@ -42,7 +42,7 @@ public record SetItemLoreExpression(
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
                 Pair.of("item", Type.itemStack()),
-                Pair.of("lore", Type.list())
+                Pair.of("lore", Type.list(Type.text()))
         );
     }
 }

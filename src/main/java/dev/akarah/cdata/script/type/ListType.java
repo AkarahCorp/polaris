@@ -6,7 +6,7 @@ import java.lang.constant.ClassDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ListType() implements Type<ArrayList<Object>> {
+public record ListType(Type<?> subtype) implements Type<ArrayList<Object>> {
     @Override
     public String typeName() {
         return "list";
@@ -15,7 +15,7 @@ public record ListType() implements Type<ArrayList<Object>> {
     @Override
     @SuppressWarnings("unchecked")
     public Class<ArrayList<Object>> typeClass() {
-        return (Class<ArrayList<Object>>) (Class<?>) List.class;
+        return (Class<ArrayList<Object>>) (Class<?>) ArrayList.class;
     }
 
     @Override

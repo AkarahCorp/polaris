@@ -41,12 +41,12 @@ public interface Type<T> {
         return new AnyType();
     }
 
-    static ListType list() {
-        return new ListType();
+    static ListType list(Type<?> subtype) {
+        return new ListType(subtype);
     }
 
-    static DictionaryType dict() {
-        return new DictionaryType();
+    static DictionaryType dict(Type<?> keyType, Type<?> valueType) {
+        return new DictionaryType(keyType, valueType);
     }
 
     static EntityType entity() {

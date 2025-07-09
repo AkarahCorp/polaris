@@ -11,6 +11,7 @@ import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public record InlineListExpression(
         List<Expression> expressions
@@ -43,6 +44,10 @@ public record InlineListExpression(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return Type.list();
+        try {
+            return Type.list(expressions.getFirst().type(ctx));
+        } catch (NoSuchElementException ignored) {
+            return Type.list(Type.any());
+        }
     }
 }

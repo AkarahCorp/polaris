@@ -40,7 +40,7 @@ public record GetListExpression(
 
     public static List<Pair<String, Type<?>>> fields() {
         return List.of(
-                Pair.of("list", Type.list()),
+                Pair.of("list", Type.list(Type.any())),
                 Pair.of("index", Type.number())
         );
     }

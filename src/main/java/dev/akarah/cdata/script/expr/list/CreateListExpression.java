@@ -26,7 +26,7 @@ public record CreateListExpression() implements Expression {
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return Type.list();
+        return Type.list(Type.any());
     }
 
     public static List<Pair<String, Type<?>>> fields() {
