@@ -10,6 +10,8 @@ import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
+import dev.akarah.cdata.script.params.ExpressionStream;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.core.Holder;
 
@@ -81,38 +83,20 @@ public class LateResolvedFunctionCall implements Expression {
             var exprClass = exprClassOpt.orElseThrow();
 
             var constructorArguments = repeatInArray(parameters.size());
-            var emptyArguments = toArray(parameters);
+
+            List<Expression> expressionList;
+            try {
+                var parameterSetCtor = exprClass.getDeclaredMethod("parameters");
+                var parameterSet = (ExpressionTypeSet) parameterSetCtor.invoke(null);
+                expressionList = parameterSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.span()));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+
+            var emptyArguments = toArray(expressionList);
 
             try {
-                var fieldConstructor = exprClass.getDeclaredMethod("fields");
-
-                @SuppressWarnings("unchecked")
-                var fields = (List<Pair<String, Type<?>>>) fieldConstructor.invoke(null);
-
-                if(this.parameters.size() < fields.size()) {
-                    throw new TypeCheckException("Function call to " + this.functionName + " has too little parameters ("
-                            + this.parameters.size() + "/" + fields.size() + ")", this);
-                }
-                if(this.parameters.size() > fields.size()) {
-                    throw new TypeCheckException("Function call to " + this.functionName + " has too many parameters ("
-                            + this.parameters.size() + "/" + fields.size() + ")", this);
-                }
-                Streams.zip(this.parameters.stream(), fields.stream(), Pair::of)
-                        .forEach(set -> {
-                            var parameter = set.getFirst();
-                            var parameterName = set.getSecond().getFirst();
-                            var typeKind = set.getSecond().getSecond();
-                            var valueType = parameter.type(ctx);
-                            if(!typeKind.typeEquals(valueType)) {
-                                throw new TypeCheckException(
-                                        "Type `" + valueType.verboseTypeName() + "`"
-                                                + " is not applicable for `" + typeKind.verboseTypeName() + "`"
-                                                + " in field `" + parameterName + "`"
-                                                + " of method `" + this.functionName + "`",
-                                        this);
-                            }
-                        });
-
                 var constructor = exprClass.getConstructor(constructorArguments);
                 return Optional.of(new SpannedExpression<>(
                         constructor.newInstance((Object[]) emptyArguments),

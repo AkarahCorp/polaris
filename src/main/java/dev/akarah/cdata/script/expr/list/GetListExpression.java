@@ -1,12 +1,11 @@
 package dev.akarah.cdata.script.expr.list;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 
-import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +32,11 @@ public record GetListExpression(
                 );
     }
 
-    @Override
-    public Type<?> type(CodegenContext ctx) {
-        return Type.any();
-    }
-
-    public static List<Pair<String, Type<?>>> fields() {
-        return List.of(
-                Pair.of("list", Type.list(Type.any())),
-                Pair.of("index", Type.number())
-        );
+    public static ExpressionTypeSet parameters() {
+        return ExpressionTypeSet.builder()
+                .required("list", e -> Type.list(Type.var(e, "T")))
+                .required("index", Type.number())
+                .returns(e -> Type.var(e, "T"))
+                .build();
     }
 }

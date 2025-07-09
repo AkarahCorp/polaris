@@ -1,9 +1,9 @@
 package dev.akarah.cdata.script.expr.vec3;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,16 +34,12 @@ public record Vec3Expression(
                 );
     }
 
-    @Override
-    public Type<?> type(CodegenContext ctx) {
-        return Type.vec3();
-    }
-
-    public static List<Pair<String, Type<?>>> fields() {
-        return List.of(
-                Pair.of("x", Type.number()),
-                Pair.of("y", Type.number()),
-                Pair.of("z", Type.number())
-        );
+    public static ExpressionTypeSet parameters() {
+        return ExpressionTypeSet.builder()
+                .required("x", Type.number())
+                .required("y", Type.number())
+                .required("z", Type.number())
+                .returns(Type.vec3())
+                .build();
     }
 }

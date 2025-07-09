@@ -1,10 +1,10 @@
 package dev.akarah.cdata.script.expr.list;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.constant.MethodTypeDesc;
@@ -24,12 +24,9 @@ public record CreateListExpression() implements Expression {
         );
     }
 
-    @Override
-    public Type<?> type(CodegenContext ctx) {
-        return Type.list(Type.any());
-    }
-
-    public static List<Pair<String, Type<?>>> fields() {
-        return List.of();
+    public static ExpressionTypeSet parameters() {
+        return ExpressionTypeSet.builder()
+                .returns(Type.list(Type.any()))
+                .build();
     }
 }

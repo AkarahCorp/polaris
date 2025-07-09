@@ -2,6 +2,8 @@ package dev.akarah.cdata.script.type;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.SpanData;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
@@ -24,7 +26,11 @@ public interface Type<T> {
             sb.append("[");
             int idx = 0;
             for(var subtype : this.subtypes()) {
-                sb.append(subtype.verboseTypeName());
+                if(subtype == null) {
+                    sb.append("null");
+                } else {
+                    sb.append(subtype.verboseTypeName());
+                }
                 idx += 1;
                 if(idx != this.subtypes().size()) {
                     sb.append(",");
@@ -33,6 +39,65 @@ public interface Type<T> {
             sb.append("]");
         }
         return sb.toString();
+    }
+
+    /**
+     * Resolves type variables, using this type as a basis, and the incoming type to match type variables against.
+     * This = Has no type variables.
+     * Incoming Match = Does have type variables.
+     * @param incomingMatch The incoming type variable to match variables for.
+     * @param typeSet The type set to write variable modifications to.
+     * @return The new variant of `incomingMatch`, with type variables sufficiently replaced.
+     */
+    default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet) {
+        System.out.println("===> Matching type " + this.verboseTypeName() + " against pattern " + incomingMatch.verboseTypeName());
+        if(this instanceof SpannedType<?, ?> spannedType) {
+            return spannedType.type().resolveTypeVariables(incomingMatch, typeSet);
+        }
+        switch (incomingMatch) {
+            case VariableType matchingVarType -> {
+                System.out.println("Resolving variable type `" + matchingVarType.variableName() + "` for type `" + this.verboseTypeName() + "`");
+                typeSet.resolveTypeVariable(matchingVarType.variableName(), this);
+            }
+            case ListType matchListType -> {
+                if(this instanceof ListType(Type<?> subtype)) {
+                    subtype.resolveTypeVariables(matchListType.subtype(), typeSet);
+                } else {
+                    System.out.println("==== /!\\ Match provided is a list, but the expression is not (" + this.verboseTypeName() + ")");
+                }
+            }
+            case DictionaryType matchDictType -> {
+                if(this instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
+                    keyType.resolveTypeVariables(matchDictType.keyType(), typeSet);
+                    valueType.resolveTypeVariables(matchDictType.valueType(), typeSet);
+                } else {
+                    System.out.println("==== /!\\ Match provided is a dict, but the expression is not (" + this.verboseTypeName() + ")");
+                }
+            }
+            default -> {}
+        }
+        System.out.println("<===");
+        return incomingMatch.fixTypeVariables(typeSet);
+    }
+
+    /**
+     * Returns a new time, that applied a patch to the current type instance. The patch replaces all `VariableType`
+     * with their associated correct types.
+     * @param typeSet The type set to use for resolving type variables.
+     * @return A new instance of this type.
+     */
+    default Type<?> fixTypeVariables(ExpressionTypeSet typeSet) {
+        return switch (this) {
+            case VariableType variableType -> typeSet.resolveTypeVariable(variableType.variableName());
+            case ListType listType -> Type.list(
+                    listType.subtype().fixTypeVariables(typeSet)
+            );
+            case DictionaryType dictionaryType -> Type.dict(
+                    dictionaryType.keyType().fixTypeVariables(typeSet),
+                    dictionaryType.valueType().fixTypeVariables(typeSet)
+            );
+            default -> this;
+        };
     }
 
     static NumberType number() {
@@ -83,8 +148,15 @@ public interface Type<T> {
         return new ItemType();
     }
 
+    static VariableType var(ExpressionTypeSet typeSet, String name) {
+        return new VariableType(typeSet, name);
+    }
+
     default boolean typeEquals(Type<?> other) {
-        if(this.typeName().equals("any") || other.typeName().equals("any")) {
+        if(other == null) {
+            return false;
+        }
+        if(other.typeName().equals("any")) {
             return true;
         }
 

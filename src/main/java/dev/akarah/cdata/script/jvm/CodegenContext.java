@@ -238,6 +238,10 @@ public class CodegenContext {
      * @return This.
      */
     public CodegenContext pushValue(Expression expression) {
+        if(expression == null) {
+            this.codeBuilder.aconst_null();
+            return this;
+        }
         expression.compile(this);
         return this;
     }

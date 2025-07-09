@@ -153,7 +153,10 @@ public class DslParser {
         while(peek() instanceof DslToken.EqualSymbol
         && baseExpression instanceof GetLocalAction(String variable, SpanData spanData)) {
             var eq = expect(DslToken.EqualSymbol.class);
-            baseExpression = new SetLocalAction(variable, typeHint, parseValue(), eq.span());
+            baseExpression = new SpannedExpression<>(
+                    new SetLocalAction(variable, typeHint, parseValue(), eq.span()),
+                    eq.span()
+            );
         }
         return baseExpression;
     }
@@ -258,10 +261,12 @@ public class DslParser {
     public Expression parseBaseExpression() {
         var tok = read();
         return switch (tok) {
-            case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value());
-            case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value());
-            case DslToken.Identifier(String id, SpanData span) when id.equals("true") -> new BooleanExpression(true);
-            case DslToken.Identifier(String id, SpanData span) when id.equals("false") -> new BooleanExpression(false);
+            case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
+            case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());
+            case DslToken.Identifier(String id, SpanData span) when id.equals("true") ->
+                    new SpannedExpression<>(new BooleanExpression(true), span);
+            case DslToken.Identifier(String id, SpanData span) when id.equals("false") ->
+                    new SpannedExpression<>(new BooleanExpression(false), span);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier(), identifier.span());
             case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
             case DslToken.OpenBracket openBracket -> {

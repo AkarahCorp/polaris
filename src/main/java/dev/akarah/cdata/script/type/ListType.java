@@ -25,6 +25,8 @@ public record ListType(Type<?> subtype) implements Type<ArrayList<Object>> {
 
     @Override
     public List<Type<?>> subtypes() {
-        return List.of(subtype);
+        var a = new ArrayList<Type<?>>();
+        a.add(subtype);
+        return a;
     }
 }

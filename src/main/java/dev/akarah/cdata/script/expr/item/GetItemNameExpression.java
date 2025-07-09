@@ -1,11 +1,10 @@
 package dev.akarah.cdata.script.expr.item;
 
-import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.constant.MethodTypeDesc;
@@ -28,14 +27,10 @@ public record GetItemNameExpression(
                 );
     }
 
-    @Override
-    public Type<?> type(CodegenContext ctx) {
-        return Type.string();
-    }
-
-    public static List<Pair<String, Type<?>>> fields() {
-        return List.of(
-                Pair.of("item", Type.itemStack())
-        );
+    public static ExpressionTypeSet parameters() {
+        return ExpressionTypeSet.builder()
+                .required("item", Type.itemStack())
+                .returns(Type.string())
+                .build();
     }
 }

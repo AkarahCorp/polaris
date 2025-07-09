@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.classfile.CodeBuilder;
@@ -35,16 +36,11 @@ public record DictPutExpression(
 
     }
 
-    @Override
-    public Type<?> type(CodegenContext ctx) {
-        return Type.any();
-    }
-
-    public static List<Pair<String, Type<?>>> fields() {
-        return List.of(
-                Pair.of("map", Type.dict(Type.any(), Type.any())),
-                Pair.of("key", Type.any()),
-                Pair.of("value", Type.any())
-        );
+    public static ExpressionTypeSet parameters() {
+        return ExpressionTypeSet.builder()
+                .required("dict", e -> Type.dict(Type.var(e, "K"), Type.var(e, "V")))
+                .required("key", e -> Type.var(e, "K"))
+                .required("value", e -> Type.var(e, "V"))
+                .build();
     }
 }
