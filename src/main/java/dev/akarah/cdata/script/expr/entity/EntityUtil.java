@@ -6,10 +6,12 @@ import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.Expression;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +29,7 @@ public class EntityUtil {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/stat"), EntityStatExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/set_attribute"), EntitySetAttributeExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/set_health"), EntitySetHealthExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/type"), EntityTypeExpression.class);
     }
 
     public static Vec3 entityDirection(Entity entity) {
@@ -91,5 +94,12 @@ public class EntityUtil {
         if(entity instanceof LivingEntity le) {
             le.setHealth(health.floatValue());
         }
+    }
+
+    public static ResourceLocation entityType(Entity entity) {
+        if(entity instanceof DynamicEntity dynamicEntity) {
+            return dynamicEntity.base().id();
+        }
+        return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
     }
 }
