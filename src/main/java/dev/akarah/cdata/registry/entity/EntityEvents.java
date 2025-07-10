@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record EntityEvents(
+        Optional<List<ResourceLocation>> onSpawn,
         Optional<List<ResourceLocation>> onPlayerAttack,
         Optional<List<ResourceLocation>> onTakeDamage,
         Optional<List<ResourceLocation>> onPlayerKill,
@@ -15,6 +16,7 @@ public record EntityEvents(
         Optional<List<ResourceLocation>> onTick
 ) {
     public static Codec<EntityEvents> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.listOf().optionalFieldOf("spawn").forGetter(EntityEvents::onSpawn),
             ResourceLocation.CODEC.listOf().optionalFieldOf("player_attack").forGetter(EntityEvents::onPlayerAttack),
             ResourceLocation.CODEC.listOf().optionalFieldOf("take_damage").forGetter(EntityEvents::onTakeDamage),
             ResourceLocation.CODEC.listOf().optionalFieldOf("player_kill").forGetter(EntityEvents::onPlayerKill),

@@ -9,7 +9,7 @@ import java.lang.constant.ClassDesc;
 public record ItemType() implements Type<ItemStack> {
     @Override
     public String typeName() {
-        return "item_stack";
+        return "item";
     }
 
     @Override

@@ -48,6 +48,7 @@ public class StatManager {
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
+            stats.add(ExtReloadableResources.config().baseStats());
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
                 CustomItem.itemOf(item).ifPresent(customItem -> {

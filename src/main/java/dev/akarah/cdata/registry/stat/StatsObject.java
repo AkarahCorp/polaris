@@ -12,18 +12,18 @@ import java.util.Set;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
-            .unboundedMap(ResourceLocation.CODEC, Codec.DOUBLE)
+            .unboundedMap(Codec.STRING, Codec.DOUBLE)
             .xmap(StatsObject::new, x -> x.values);
 
     public static StatsObject EMPTY = new StatsObject();
 
-    Map<ResourceLocation, Double> values = new HashMap<>();
+    Map<String, Double> values = new HashMap<>();
 
     private StatsObject() {
 
     }
 
-    private StatsObject(Map<ResourceLocation, Double> map) {
+    private StatsObject(Map<String, Double> map) {
         this.values = map;
     }
 
@@ -32,18 +32,30 @@ public class StatsObject {
     }
 
     public boolean has(ResourceLocation id) {
-        return this.values.containsKey(id);
+        return this.values.containsKey(id.toString());
     }
 
     public void set(ResourceLocation id, double value) {
-        this.values.put(id, value);
+        this.values.put(id.toString(), value);
     }
 
     public double get(ResourceLocation id) {
+        return this.values.getOrDefault(id.toString(), 0.0);
+    }
+
+    public boolean has(String id) {
+        return this.values.containsKey(id);
+    }
+
+    public void set(String id, double value) {
+        this.values.put(id, value);
+    }
+
+    public double get(String id) {
         return this.values.getOrDefault(id, 0.0);
     }
 
-    public Set<ResourceLocation> keySet() {
+    public Set<String> keySet() {
         return this.values.keySet();
     }
 
@@ -63,18 +75,14 @@ public class StatsObject {
     }
 
     public StatsObject performFinalCalculations() {
-        var so = ExtReloadableResources.config().baseStats().copy();
         for(var key : this.keySet()) {
-            so.set(key, this.get(key));
-        }
-        for(var key : this.keySet()) {
-            if(key.getPath().endsWith("/pct")) {
-                so.set(key, this.get(key) * this.get(key.withPath(x -> x.replace("/pct", ""))));
-            } else if(key.getPath().endsWith("/mul")) {
-                so.set(key, this.get(key) * this.get(key.withPath(x -> x.replace("/mul", ""))));
+            if(key.startsWith("%")) {
+                this.set(key, (this.get(key) + 100) * this.get(key.replace("%", "")));
+            } else if(key.startsWith("*")) {
+                this.set(key, (this.get(key) + 1.0) * this.get(key.replace("*", "")));
             }
         }
-        return so;
+        return this;
     }
 
     @Override

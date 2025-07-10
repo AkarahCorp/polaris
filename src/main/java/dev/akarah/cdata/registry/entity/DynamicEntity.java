@@ -67,6 +67,10 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         FAKED_TYPES.put(this.getId(), base.entityType());
         this.setCustomNameVisible(true);
         this.setBoundingBox(this.getDefaultDimensions(Pose.STANDING).makeBoundingBox(0.0, 0.0, 0.0));
+
+        this.base().events()
+                .flatMap(EntityEvents::onSpawn)
+                .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
     }
 
     @Override

@@ -1,6 +1,8 @@
 package dev.akarah.cdata.script.params;
 
 import com.google.common.collect.Maps;
+import dev.akarah.cdata.script.exception.ParsingException;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.nodes.OptionalParameter;
@@ -42,12 +44,19 @@ public class ExpressionTypeSet {
         return this.typeVariables.get(variableName);
     }
 
-    public Type<?> resolveTypeVariable(String variableName, Type<?> hint) {
+    public void resolveTypeVariable(String variableName, Type<?> hint) {
         if(!this.typeVariables.containsKey(variableName)) {
             this.typeVariables.put(variableName, hint);
-            return hint;
+        } else if(this.typeVariables.containsKey(variableName) && !this.typeVariables.get(variableName).equals(hint)) {
+            throw new ParsingException(
+                    "Expected value of type `"
+                            + this.typeVariables.get(variableName).verboseTypeName()
+                            + "`, got value of type `"
+                            + hint.verboseTypeName()
+                            + "`",
+                    null
+            );
         }
-        return this.typeVariables.get(variableName);
     }
 
     public static class Builder {

@@ -52,7 +52,7 @@ public class ItemUtil {
     }
 
     public static double getItemStat(ItemStack itemStack, String stat) {
-        return getItemStats(itemStack).get(ResourceLocation.parse(stat));
+        return getItemStats(itemStack).get(stat);
     }
 
     public static ItemStack renderCustomItem(ResourceLocation base) {

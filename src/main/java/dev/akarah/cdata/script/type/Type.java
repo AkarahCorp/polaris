@@ -57,17 +57,18 @@ public interface Type<T> {
      */
     default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet) {
         var this2 = this.despan();
+
         switch (incomingMatch) {
             case VariableType matchingVarType -> {
                 typeSet.resolveTypeVariable(matchingVarType.variableName(), this2);
             }
             case ListType matchListType -> {
-                if(this instanceof ListType(Type<?> subtype)) {
+                if(this2 instanceof ListType(Type<?> subtype)) {
                     subtype.resolveTypeVariables(matchListType.subtype(), typeSet);
                 }
             }
             case DictionaryType matchDictType -> {
-                if(this instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
+                if(this2 instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
                     keyType.resolveTypeVariables(matchDictType.keyType(), typeSet);
                     valueType.resolveTypeVariables(matchDictType.valueType(), typeSet);
                 }
