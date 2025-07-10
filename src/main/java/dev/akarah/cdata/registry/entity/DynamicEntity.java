@@ -102,6 +102,9 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
 
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if(this.base().invulnerable()) {
+            return false;
+        }
         var result = super.hurtServer(serverLevel, damageSource, f);
         if(result) {
             this.base().events()
