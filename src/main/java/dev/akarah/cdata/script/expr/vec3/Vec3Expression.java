@@ -10,7 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record Vec3Expression(
+@SuppressWarnings("unused")
+record Vec3Expression(
         Expression x,
         Expression y,
         Expression z

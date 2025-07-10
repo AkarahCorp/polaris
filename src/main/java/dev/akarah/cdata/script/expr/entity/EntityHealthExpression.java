@@ -10,7 +10,8 @@ import net.minecraft.world.entity.Entity;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record EntityHealthExpression(
+@SuppressWarnings("unused")
+record EntityHealthExpression(
         Expression entityExpression
 ) implements Expression {
     @Override

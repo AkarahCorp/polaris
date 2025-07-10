@@ -11,7 +11,8 @@ import net.minecraft.world.level.Level;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record GetWorldExpression(
+@SuppressWarnings("unused")
+record GetWorldExpression(
         Expression worldName
 ) implements Expression {
     @Override

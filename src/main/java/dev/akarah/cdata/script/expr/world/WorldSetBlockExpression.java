@@ -13,7 +13,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 import java.util.Map;
 
-public record WorldSetBlockExpression(
+@SuppressWarnings("unused")
+record WorldSetBlockExpression(
         Expression world,
         Expression position,
         Expression blockId,

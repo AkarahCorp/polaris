@@ -11,7 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record SetItemNameExpression(
+@SuppressWarnings("unused")
+record SetItemNameExpression(
         Expression itemValue,
         Expression itemName
 ) implements Expression {

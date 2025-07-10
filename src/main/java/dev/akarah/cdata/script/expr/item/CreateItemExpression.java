@@ -11,7 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record CreateItemExpression(
+@SuppressWarnings("unused")
+record CreateItemExpression(
         Expression itemId
 ) implements Expression {
     @Override

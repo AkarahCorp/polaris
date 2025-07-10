@@ -11,7 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record CreateTemplatedItemExpression(
+@SuppressWarnings("unused")
+record CreateTemplatedItemExpression(
         Expression itemId,
         Expression templateId
 ) implements Expression {

@@ -10,7 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record GetItemNameExpression(
+@SuppressWarnings("unused")
+record GetItemNameExpression(
         Expression itemValue
 ) implements Expression {
     @Override

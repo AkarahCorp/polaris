@@ -12,7 +12,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record GetWorldEntitiesExpression(
+@SuppressWarnings("unused")
+record GetWorldEntitiesExpression(
         Expression world
 ) implements Expression {
     @Override

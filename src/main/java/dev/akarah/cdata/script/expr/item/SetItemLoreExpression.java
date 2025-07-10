@@ -11,7 +11,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record SetItemLoreExpression(
+@SuppressWarnings("unused")
+record SetItemLoreExpression(
         Expression itemValue,
         Expression loreList
 ) implements Expression {

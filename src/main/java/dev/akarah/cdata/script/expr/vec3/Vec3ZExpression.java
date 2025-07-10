@@ -10,7 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record Vec3ZExpression(
+@SuppressWarnings("unused")
+record Vec3ZExpression(
         Expression value
 ) implements Expression {
     @Override

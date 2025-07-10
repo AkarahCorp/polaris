@@ -11,7 +11,8 @@ import net.minecraft.world.entity.Entity;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record PlayerSendMessageAction(
+@SuppressWarnings("unused")
+record PlayerSendMessageAction(
         Expression entityExpression,
         Expression message
 ) implements Expression {

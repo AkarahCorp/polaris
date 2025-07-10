@@ -10,7 +10,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AddListExpression(
+@SuppressWarnings("unused")
+record AddListExpression(
         Expression listValue,
         Expression valueToPush
 ) implements Expression {

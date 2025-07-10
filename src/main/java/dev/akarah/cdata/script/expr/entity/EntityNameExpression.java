@@ -11,7 +11,8 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record EntityNameExpression(
+@SuppressWarnings("unused")
+record EntityNameExpression(
         Expression entityExpression
 ) implements Expression {
     @Override

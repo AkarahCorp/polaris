@@ -17,6 +17,8 @@ import net.minecraft.core.Holder;
 
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,13 +84,18 @@ public class LateResolvedFunctionCall implements Expression {
         if(exprClassOpt.isPresent()) {
             var exprClass = exprClassOpt.orElseThrow();
 
-
+            MethodHandles.Lookup lookup = null;
+            try {
+                lookup = MethodHandles.privateLookupIn(exprClass, MethodHandles.lookup());
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
             List<Expression> expressionList;
             try {
-                var parameterSetCtor = exprClass.getDeclaredMethod("parameters");
-                var parameterSet = (ExpressionTypeSet) parameterSetCtor.invoke(null);
+                var parameterSetCtor = lookup.findStatic(exprClass, "parameters", MethodType.methodType(ExpressionTypeSet.class));
+                var parameterSet = (ExpressionTypeSet) parameterSetCtor.invoke();
                 expressionList = parameterSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.span()));
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
 
@@ -97,13 +104,12 @@ public class LateResolvedFunctionCall implements Expression {
             var constructorArguments = repeatInArray(expressionList.size());
 
             try {
-                var constructor = exprClass.getConstructor(constructorArguments);
+                var constructor = lookup.findConstructor(exprClass, MethodType.methodType(void.class, constructorArguments));
                 return Optional.of(new SpannedExpression<>(
-                        constructor.newInstance((Object[]) emptyArguments),
+                        (Expression) constructor.invokeWithArguments((Object[]) emptyArguments),
                         this.span()
                 ));
-            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                     IllegalAccessException e) {
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }

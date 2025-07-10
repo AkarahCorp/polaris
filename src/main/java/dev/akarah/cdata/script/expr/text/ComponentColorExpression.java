@@ -10,7 +10,8 @@ import net.minecraft.network.chat.MutableComponent;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record ComponentColorExpression(
+@SuppressWarnings("unused")
+record ComponentColorExpression(
         Expression component,
         Expression color
 ) implements Expression {

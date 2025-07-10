@@ -2,7 +2,9 @@ package dev.akarah.cdata.script.expr.item;
 
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatsObject;
+import dev.akarah.cdata.script.expr.Expression;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -14,6 +16,15 @@ import net.minecraft.world.item.component.ItemLore;
 import java.util.ArrayList;
 
 public class ItemUtil {
+    public static void bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/create"), CreateItemExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/create_templated"), CreateTemplatedItemExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/set_lore"), SetItemLoreExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/set_name"), SetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/name"), GetItemNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("item/stat"), GetItemStatExpression.class);
+    }
+
     public static void setItemLore(ItemStack itemStack, ArrayList<?> components) {
         var lore = new ItemLore(
                 components.stream()

@@ -4,10 +4,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.world.entity.animal.Cod;
-import net.minecraft.world.phys.Vec3;
 
-import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
@@ -21,7 +18,7 @@ public record AddExpression(
                 .pushValue(lhs)
                 .pushValue(rhs)
                 .invokeStatic(
-                        CodegenUtil.ofClass(OperationUtils.class),
+                        CodegenUtil.ofClass(NumberUtil.class),
                         "add",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),

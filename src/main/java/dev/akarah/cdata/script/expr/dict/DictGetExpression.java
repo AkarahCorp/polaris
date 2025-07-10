@@ -11,7 +11,7 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.HashMap;
 import java.util.List;
 
-public record DictGetExpression(
+record DictGetExpression(
         Expression dict,
         Expression key
 ) implements Expression {

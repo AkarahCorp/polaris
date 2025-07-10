@@ -11,7 +11,8 @@ import net.minecraft.world.entity.Entity;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record EntitySetNameAction(
+@SuppressWarnings("unused")
+record EntitySetNameAction(
         Expression entityExpression,
         Expression name
 ) implements Expression {

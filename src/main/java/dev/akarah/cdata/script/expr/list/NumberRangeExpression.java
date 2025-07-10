@@ -11,7 +11,8 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record NumberRangeExpression(
+@SuppressWarnings("unused")
+record NumberRangeExpression(
         Expression lhs,
         Expression rhs
 ) implements Expression {

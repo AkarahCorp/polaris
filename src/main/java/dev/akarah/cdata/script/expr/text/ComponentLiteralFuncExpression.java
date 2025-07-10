@@ -10,7 +10,8 @@ import net.minecraft.network.chat.MutableComponent;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record ComponentLiteralFuncExpression(Expression value) implements Expression {
+@SuppressWarnings("unused")
+record ComponentLiteralFuncExpression(Expression value) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx

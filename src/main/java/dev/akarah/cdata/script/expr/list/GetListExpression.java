@@ -10,7 +10,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record GetListExpression(
+@SuppressWarnings("unused")
+record GetListExpression(
         Expression listValue,
         Expression index
 ) implements Expression {

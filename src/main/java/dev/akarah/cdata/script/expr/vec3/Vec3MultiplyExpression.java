@@ -10,7 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record Vec3MultiplyExpression(
+@SuppressWarnings("unused")
+record Vec3MultiplyExpression(
         Expression lhs,
         Expression rhs
 ) implements Expression {

@@ -11,7 +11,8 @@ import net.minecraft.world.level.Level;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record EntityWorldExpression(
+@SuppressWarnings("unused")
+record EntityWorldExpression(
         Expression entityExpression
 ) implements Expression {
     @Override

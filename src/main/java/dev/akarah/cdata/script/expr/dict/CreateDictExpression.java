@@ -12,7 +12,7 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.HashMap;
 import java.util.List;
 
-public record CreateDictExpression() implements Expression {
+record CreateDictExpression() implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx.invokeStatic(

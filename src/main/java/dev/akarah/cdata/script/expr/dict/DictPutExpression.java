@@ -12,7 +12,7 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.HashMap;
 import java.util.List;
 
-public record DictPutExpression(
+record DictPutExpression(
         Expression dict,
         Expression key,
         Expression value

@@ -3,8 +3,10 @@ package dev.akarah.cdata.script.expr.world;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.script.expr.Expression;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 public class WorldUtil {
+    public static void bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/get"), GetWorldExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/set_block"), WorldSetBlockExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/entities"), GetWorldEntitiesExpression.class);
+    }
+
     public static Level getLevel(ResourceLocation resourceLocation) {
         return Main.server().getLevel(
                 Main.server().registryAccess()

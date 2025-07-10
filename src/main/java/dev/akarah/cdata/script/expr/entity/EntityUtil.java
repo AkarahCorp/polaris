@@ -1,13 +1,27 @@
 package dev.akarah.cdata.script.expr.entity;
 
 import dev.akarah.cdata.registry.entity.DynamicEntity;
+import dev.akarah.cdata.script.expr.Expression;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class EntityUtil {
+    public static void bootStrap(Registry<Class<? extends Expression>> actions) {
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/position"), EntityPositionExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/direction"), EntityDirectionExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/world"), EntityWorldExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/set_name"), EntitySetNameAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/name"), EntityNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/health"), EntityHealthExpression.class);
+    }
+
     public static Vec3 entityDirection(Entity entity) {
         return entity.getLookAngle();
     }
