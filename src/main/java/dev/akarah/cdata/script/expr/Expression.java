@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr;
 
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
+import dev.akarah.cdata.script.expr.datastore.DataStoreUtil;
 import dev.akarah.cdata.script.expr.dict.DictUtil;
 import dev.akarah.cdata.script.expr.entity.EntityUtil;
 import dev.akarah.cdata.script.expr.id.ResourceLocationUtil;
@@ -50,6 +51,7 @@ public interface Expression {
         Vec3Util.bootStrap(actions);
         PlayerUtil.bootStrap(actions);
         EntityUtil.bootStrap(actions);
+        DataStoreUtil.bootStrap(actions);
 
         var failures = new ArrayList<>();
         actions.listElements().forEach(classReference -> {

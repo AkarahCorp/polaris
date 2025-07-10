@@ -89,6 +89,10 @@ public interface DslToken {
 
     }
 
+    record DoubleEqualSymbol(SpanData span) implements DslToken {
+
+    }
+
     record ArrowSymbol(SpanData span) implements DslToken {
 
     }

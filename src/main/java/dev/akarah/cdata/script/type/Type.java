@@ -150,6 +150,10 @@ public interface Type<T> {
         return new WorldType();
     }
 
+    static StoreType store() {
+        return new StoreType();
+    }
+
     static VariableType var(ExpressionTypeSet typeSet, String name) {
         return new VariableType(typeSet, name);
     }

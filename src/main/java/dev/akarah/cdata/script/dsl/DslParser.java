@@ -147,7 +147,7 @@ public class DslParser {
     }
 
     public Expression parseStorage() {
-        var baseExpression = parseComparisonExpression();
+        var baseExpression = parseEqualityExpression();
         var typeHint = Optional.<Type<?>>empty();
         if(peek() instanceof DslToken.Colon) {
             expect(DslToken.Colon.class);
@@ -160,6 +160,15 @@ public class DslParser {
                     new SetLocalAction(variable, typeHint, parseValue(), eq.span()),
                     eq.span()
             );
+        }
+        return baseExpression;
+    }
+
+    public Expression parseEqualityExpression() {
+        var baseExpression = parseComparisonExpression();
+        while(peek() instanceof DslToken.DoubleEqualSymbol) {
+            expect(DslToken.DoubleEqualSymbol.class);
+            baseExpression = new EqualToExpression(baseExpression, parseEqualityExpression());
         }
         return baseExpression;
     }

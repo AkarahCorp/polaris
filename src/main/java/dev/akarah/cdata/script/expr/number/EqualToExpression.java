@@ -2,10 +2,13 @@ package dev.akarah.cdata.script.expr.number;
 
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.Opcode;
+import java.lang.constant.MethodTypeDesc;
+import java.util.List;
 
 public record EqualToExpression(
         Expression lhs,
@@ -15,16 +18,14 @@ public record EqualToExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(lhs)
-                .typecheck(Double.class)
-                .unboxNumber()
                 .pushValue(rhs)
-                .typecheck(Double.class)
-                .unboxNumber()
-                .bytecodeUnsafe(CodeBuilder::dcmpg)
-                .ifThenElse(
-                        Opcode.IFEQ,
-                        () -> ctx.constant(1),
-                        () -> ctx.constant(0)
+                .invokeVirtual(
+                        CodegenUtil.ofClass(Object.class),
+                        "equals",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofBoolean(),
+                                List.of(CodegenUtil.ofClass(Object.class))
+                        )
                 );
     }
 
