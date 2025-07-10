@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.entity.behavior.TaskType;
+import dev.akarah.cdata.registry.item.CustomItem;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -22,12 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     CustomEntity base;
-    static Lock lock = new ReentrantLock();
     static CustomEntity TEMPORARY_BASE;
     public static Map<Integer, EntityType<?>> FAKED_TYPES = Maps.newHashMap();
 
@@ -40,11 +38,9 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
             Level level,
             CustomEntity base
     ) {
-        lock.lock();
+
         TEMPORARY_BASE = base;
-        var e = new DynamicEntity(entityType, level, base);
-        lock.unlock();
-        return e;
+        return new DynamicEntity(entityType, level, base);
     }
 
     @Override
@@ -68,6 +64,13 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         this.setCustomNameVisible(true);
         this.setBoundingBox(this.getDefaultDimensions(Pose.STANDING).makeBoundingBox(0.0, 0.0, 0.0));
 
+        for(var equipment : this.base().equipment().entrySet()) {
+            CustomItem.byId(equipment.getValue()).ifPresent(customItem -> {
+                this.equipment.set(equipment.getKey(), customItem.toItemStack());
+            });
+
+        }
+
         this.base().events()
                 .flatMap(EntityEvents::onSpawn)
                 .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
@@ -81,12 +84,6 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     @Override
     public boolean shouldBeSaved() {
         return false;
-    }
-
-    @Override
-    public void remove(RemovalReason removalReason) {
-        super.remove(removalReason);
-        FAKED_TYPES.remove(this.getId());
     }
 
     @Override
@@ -106,25 +103,27 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
         var result = super.hurtServer(serverLevel, damageSource, f);
-        this.base().events()
-                .flatMap(EntityEvents::onTakeDamage)
-                .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
-
-        if(this.getHealth() <= 0.0) {
+        if(result) {
             this.base().events()
-                    .flatMap(EntityEvents::onDeath)
+                    .flatMap(EntityEvents::onTakeDamage)
                     .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
-        }
-
-        if(damageSource.getEntity() instanceof ServerPlayer attacker) {
-            this.base().events()
-                    .flatMap(EntityEvents::onPlayerAttack)
-                    .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(attacker, this)));
 
             if(this.getHealth() <= 0.0) {
                 this.base().events()
-                        .flatMap(EntityEvents::onPlayerKill)
+                        .flatMap(EntityEvents::onDeath)
+                        .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
+            }
+
+            if(damageSource.getEntity() instanceof ServerPlayer attacker) {
+                this.base().events()
+                        .flatMap(EntityEvents::onPlayerAttack)
                         .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(attacker, this)));
+
+                if(this.getHealth() <= 0.0) {
+                    this.base().events()
+                            .flatMap(EntityEvents::onPlayerKill)
+                            .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(attacker, this)));
+                }
             }
         }
         return result;
@@ -148,5 +147,11 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         TEMPORARY_BASE.targetGoals().stream().flatMap(Collection::stream).forEach(goal -> {
             this.targetSelector.addGoal(goal.priority(), goal.task().build(this));
         });
+    }
+
+    @Override
+    public void onRemoval(RemovalReason removalReason) {
+        super.onRemoval(removalReason);
+        FAKED_TYPES.remove(this.getId());
     }
 }

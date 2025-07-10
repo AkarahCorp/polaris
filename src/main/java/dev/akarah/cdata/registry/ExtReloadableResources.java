@@ -7,11 +7,19 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Util;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.registry.entity.DynamicEntity;
+import dev.akarah.cdata.registry.entity.MobSpawnRule;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.dsl.DslActionManager;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +36,7 @@ public class ExtReloadableResources {
     static ReloadableJsonManager<CustomItem> CUSTOM_ITEM;
     static ReloadableJsonManager<CustomEntity> CUSTOM_ENTITY;
     static ReloadableJsonManager<MetaCodec<?>> META_CODEC;
+    static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -49,16 +58,19 @@ public class ExtReloadableResources {
         return CUSTOM_ENTITY;
     }
 
+    public static ReloadableJsonManager<MobSpawnRule> mobSpawnRule() {
+        return MOB_SPAWN_RULE;
+    }
+
     public static void reloadEverything(ResourceManager resourceManager) {
         ExtReloadableResources.reset();
 
         try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            ExtReloadableResources.reset();
-
             CompletableFuture.allOf(
                     ExtReloadableResources.customItem().reloadWithManager(resourceManager, executor),
                     ExtReloadableResources.actionManager().reloadWithManager(resourceManager, executor),
-                    ExtReloadableResources.customEntity().reloadWithManager(resourceManager, executor)
+                    ExtReloadableResources.customEntity().reloadWithManager(resourceManager, executor),
+                    ExtReloadableResources.mobSpawnRule().reloadWithManager(resourceManager, executor)
             ).get();
         } catch (ExecutionException | InterruptedException e) {
             Main.handleError(e);
@@ -85,5 +97,6 @@ public class ExtReloadableResources {
         ExtReloadableResources.CUSTOM_ITEM = ReloadableJsonManager.of("item", CustomItem.CODEC);
         ExtReloadableResources.CUSTOM_ENTITY = ReloadableJsonManager.of("entity", CustomEntity.CODEC);
         ExtReloadableResources.META_CODEC = ReloadableJsonManager.of("codec", MetaCodec.CODEC);
+        ExtReloadableResources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
     }
 }

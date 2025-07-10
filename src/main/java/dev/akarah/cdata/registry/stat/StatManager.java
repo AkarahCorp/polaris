@@ -63,6 +63,8 @@ public class StatManager {
 
             ExtReloadableResources.actionManager().callFunctions(functions, List.of(player));
         }
+
+        ExtReloadableResources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 
     public void refreshPlayerInventories() {
