@@ -18,7 +18,9 @@ public record PlayerSendActionbarAction(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.pushValue(this.entityExpression)
+                .typecheck(Entity.class)
                 .pushValue(this.message)
+                .typecheck(Component.class)
                 .constant(1)
                 .invokeStatic(
                         CodegenUtil.ofClass(PlayerUtil.class),

@@ -1,38 +1,39 @@
-package dev.akarah.cdata.script.expr.entity;
+package dev.akarah.cdata.script.expr.world;
 
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import java.lang.constant.MethodTypeDesc;
+import java.util.ArrayList;
 import java.util.List;
 
-public record EntityWorldExpression(
-        Expression entityExpression
+public record GetWorldEntitiesExpression(
+        Expression world
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx
-                .pushValue(this.entityExpression)
-                .typecheck(Entity.class)
+                .pushValue(this.world)
+                .typecheck(Level.class)
                 .invokeStatic(
-                        CodegenUtil.ofClass(EntityUtil.class),
-                        "entityWorld",
+                        CodegenUtil.ofClass(WorldUtil.class),
+                        "entities",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofClass(Level.class),
-                                List.of(CodegenUtil.ofClass(Entity.class))
+                                CodegenUtil.ofClass(ArrayList.class),
+                                List.of(CodegenUtil.ofClass(Level.class))
                         )
                 );
     }
 
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
-                .required("entity", Type.entity())
-                .returns(Type.world())
+                .required("world", Type.world())
+                .returns(Type.list(Type.entity()))
                 .build();
     }
 }

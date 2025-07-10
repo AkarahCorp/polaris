@@ -15,6 +15,7 @@ import dev.akarah.cdata.script.expr.string.StringExpression;
 import dev.akarah.cdata.script.expr.text.ComponentColorExpression;
 import dev.akarah.cdata.script.expr.text.ComponentLiteralFuncExpression;
 import dev.akarah.cdata.script.expr.vec3.*;
+import dev.akarah.cdata.script.expr.world.GetWorldEntitiesExpression;
 import dev.akarah.cdata.script.expr.world.GetWorldExpression;
 import dev.akarah.cdata.script.expr.world.WorldSetBlockExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -47,6 +48,7 @@ public interface Expression {
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("world/get"), GetWorldExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("world/set_block"), WorldSetBlockExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("world/entities"), GetWorldEntitiesExpression.class);
 
         Registry.register(actions, ResourceLocation.withDefaultNamespace("id"), IdentifierExpression.class);
 
@@ -81,6 +83,9 @@ public interface Expression {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport"), EntityTeleportAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/teleport_relative"), EntityTeleportRelativeAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/world"), EntityWorldExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/set_name"), EntitySetNameAction.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/name"), EntityNameExpression.class);
+        Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/health"), EntityHealthExpression.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_message"), PlayerSendMessageAction.class);
         Registry.register(actions, ResourceLocation.withDefaultNamespace("entity/send_actionbar"), PlayerSendActionbarAction.class);
 

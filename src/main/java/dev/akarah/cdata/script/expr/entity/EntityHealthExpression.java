@@ -1,17 +1,16 @@
 package dev.akarah.cdata.script.expr.entity;
 
-import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record EntityDirectionExpression(
+public record EntityHealthExpression(
         Expression entityExpression
 ) implements Expression {
     @Override
@@ -21,9 +20,9 @@ public record EntityDirectionExpression(
                 .typecheck(Entity.class)
                 .invokeStatic(
                         CodegenUtil.ofClass(EntityUtil.class),
-                        "entityDirection",
+                        "health",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofClass(Vec3.class),
+                                CodegenUtil.ofClass(Double.class),
                                 List.of(CodegenUtil.ofClass(Entity.class))
                         )
                 );
@@ -32,7 +31,7 @@ public record EntityDirectionExpression(
     public static ExpressionTypeSet parameters() {
         return ExpressionTypeSet.builder()
                 .required("entity", Type.entity())
-                .returns(Type.vector())
+                .returns(Type.number())
                 .build();
     }
 }

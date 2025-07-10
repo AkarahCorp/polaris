@@ -1,7 +1,11 @@
 package dev.akarah.cdata.registry.stat;
 
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.item.CustomItem;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 
@@ -39,6 +43,9 @@ public class StatManager {
     );
 
     public void loopPlayers() {
+        var eventName = ResourceLocation.withDefaultNamespace("player/tick");
+        var functions = ExtReloadableResources.actionManager().functionsByEvent(eventName);
+
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
             for(var slot : LOOPED_SLOTS) {
@@ -52,6 +59,8 @@ public class StatManager {
                 });
             }
             this.set(player, stats.performFinalCalculations());
+
+            ExtReloadableResources.actionManager().callFunctions(functions, List.of(player));
         }
     }
 

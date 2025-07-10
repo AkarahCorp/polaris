@@ -16,10 +16,10 @@ public class OperationUtils {
                     .append(rc);
         }
 
-        if(lhs instanceof Component lc && rhs instanceof String rc) {
+        if(lhs instanceof Component lc && rhs instanceof Object rc) {
             return Component.empty()
                     .append(lc)
-                    .append(rc);
+                    .append(rc.toString());
         }
         throw new RuntimeException("Can not add " + lhs + " and " + rhs);
     }

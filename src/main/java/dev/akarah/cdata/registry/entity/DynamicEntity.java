@@ -1,22 +1,26 @@
 package dev.akarah.cdata.registry.entity;
 
 import com.google.common.collect.Maps;
+import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.entity.behavior.TaskType;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -44,6 +48,10 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
         return new SmartBrainProvider<>(this);
     }
 
+    public CustomEntity base() {
+        return this.base;
+    }
+
     public static DynamicEntity create(
             EntityType<? extends PathfinderMob> entityType,
             Level level,
@@ -56,6 +64,16 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
         return e;
     }
 
+    @Override
+    protected @NotNull EntityDimensions getDefaultDimensions(Pose pose) {
+        return this.base().entityType().getDimensions();
+    }
+
+    @Override
+    protected AABB getHitbox() {
+        return this.getBoundingBox();
+    }
+
     private DynamicEntity(
             EntityType<? extends PathfinderMob> entityType,
             Level level,
@@ -64,6 +82,8 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
         super(entityType, level);
         this.base = base;
         FAKED_TYPES.put(this.getId(), base.entityType());
+        this.setCustomNameVisible(true);
+        this.setBoundingBox(this.getDefaultDimensions(Pose.STANDING).makeBoundingBox(0.0, 0.0, 0.0));
     }
 
     @Override
@@ -129,5 +149,42 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
     @Override
     public void performRangedAttack(LivingEntity livingEntity, float f) {
 
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
+        var result = super.hurtServer(serverLevel, damageSource, f);
+        this.base().events()
+                .flatMap(EntityEvents::onTakeDamage)
+                .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
+
+        if(this.getHealth() <= 0.0) {
+            this.base().events()
+                    .flatMap(EntityEvents::onDeath)
+                    .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
+        }
+
+        if(damageSource.getEntity() instanceof ServerPlayer attacker) {
+            this.base().events()
+                    .flatMap(EntityEvents::onPlayerAttack)
+                    .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(attacker, this)));
+
+            if(this.getHealth() <= 0.0) {
+                this.base().events()
+                        .flatMap(EntityEvents::onPlayerKill)
+                        .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(attacker, this)));
+            }
+        }
+        return result;
+
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        this.base().events()
+                .flatMap(EntityEvents::onTick)
+                .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
     }
 }

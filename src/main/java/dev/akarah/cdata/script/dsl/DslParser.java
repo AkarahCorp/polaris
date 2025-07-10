@@ -230,7 +230,10 @@ public class DslParser {
         while(peek() instanceof DslToken.ArrowSymbol) {
             expect(DslToken.ArrowSymbol.class);
             var name = expect(DslToken.Identifier.class);
-            var parameters = parseTuple();
+            var parameters = Lists.<Expression>newArrayList();
+            if(peek() instanceof DslToken.OpenParen) {
+                parameters.addAll(parseTuple());
+            }
             parameters.addFirst(baseExpression);
             baseExpression = new LateResolvedFunctionCall(name.identifier(), parameters, name.span());
         }

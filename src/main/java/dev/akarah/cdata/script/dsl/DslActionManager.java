@@ -1,17 +1,22 @@
 package dev.akarah.cdata.script.dsl;
 
 import com.google.common.collect.Maps;
+import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.expr.flow.SchemaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.apache.commons.compress.utils.Lists;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -23,6 +28,7 @@ public class DslActionManager {
     Map<String, ResourceLocation> resourceNames = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
+    Map<ResourceLocation, List<ResourceLocation>> events = Maps.newHashMap();
     Class<?> codeClass;
 
     public Map<String, SchemaExpression> expressions() {
@@ -49,9 +55,51 @@ public class DslActionManager {
         return this.methodHandles.get(resourceLocation);
     }
 
+    public List<ResourceLocation> functionsByEvent(ResourceLocation eventName) {
+        return this.events.getOrDefault(eventName, List.of());
+    }
+
+    public List<MethodHandle> methodsByEvent(ResourceLocation eventName) {
+        return this.functionsByEvent(eventName).stream().map(this::functionByLocation).toList();
+    }
+
+    public void callFunctions(List<ResourceLocation> functions, List<Object> objects) {
+        for(var f : functions) {
+            var m = this.functionByLocation(f);
+            try {
+                m.invokeWithArguments(objects);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public CompletableFuture<Void> reloadWithManager(ResourceManager resourceManager, Executor executor) {
         return CompletableFuture.runAsync(
                 () -> {
+                    for(var resourceEntry : resourceManager.listResources("engine/event", rl -> rl.getPath().endsWith(".json")).entrySet()) {
+                        try(var inputStream = resourceEntry.getValue().open()) {
+                            var bytes = inputStream.readAllBytes();
+                            var string = new String(bytes);
+
+                            var key = resourceEntry.getKey().withPath(s ->
+                                    s.replace(".json", "")
+                                            .replace("engine/event/", ""));
+
+                            var codec = ResourceLocation.CODEC.listOf();
+                            var entries = codec
+                                    .decode(JsonOps.INSTANCE, JsonParser.parseString(string))
+                                    .getOrThrow()
+                                    .getFirst();
+                            if(!this.events.containsKey(key)) {
+                                this.events.put(key, Lists.newArrayList());
+                            }
+                            this.events.get(key).addAll(entries);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".aka")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();
