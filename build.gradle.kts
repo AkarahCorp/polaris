@@ -16,11 +16,6 @@ repositories {
         url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         mavenContent { snapshotsOnly() }
     }
-
-    maven {
-        name = "SmartBrainLib (SBL) Maven Repo"
-        url = uri("https://dl.cloudsmith.io/public/tslat/sbl/maven/")
-    }
 }
 
 loom {
@@ -36,7 +31,6 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
-    modImplementation("net.tslat.smartbrainlib:SmartBrainLib-fabric-${project.property("minecraft_version")}:${project.property("sbl_version")}")
 }
 
 tasks.processResources {

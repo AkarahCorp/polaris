@@ -4,18 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
-import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 
-public record MeleeAttackTask(int delayTicks) implements TaskType {
+public record MeleeAttackTask(double speedModifier, boolean followTarget) implements TaskType {
     public static MapCodec<MeleeAttackTask> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("delay").forGetter(MeleeAttackTask::delayTicks)
+            Codec.DOUBLE.optionalFieldOf("speed_modifier", 1.0).forGetter(MeleeAttackTask::speedModifier),
+            Codec.BOOL.optionalFieldOf("follow_target", true).forGetter(MeleeAttackTask::followTarget)
     ).apply(instance, MeleeAttackTask::new));
 
     @Override
-    public ExtendedBehaviour<? super DynamicEntity> build() {
-        return new AnimatableMeleeAttack<>(this.delayTicks);
+    public Goal build(DynamicEntity entity) {
+        return new MeleeAttackGoal(entity, speedModifier, followTarget);
     }
 
     @Override

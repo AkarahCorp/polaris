@@ -7,8 +7,7 @@
     "BuiltInRegistriesMixin",
     "MinecraftServerMixin",
     "RegistryDataLoaderMixin",
-    "ReloadableResourceManagerMixin",
-    "SBLFabricMixin"
+    "ReloadableResourceManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

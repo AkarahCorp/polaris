@@ -2,22 +2,22 @@ package dev.akarah.cdata.registry.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.registry.entity.behavior.ActivityMap;
+import dev.akarah.cdata.registry.entity.behavior.PrioritizedTask;
+import dev.akarah.cdata.registry.entity.behavior.TaskType;
 import dev.akarah.cdata.registry.stat.StatsObject;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public record CustomEntity(
         EntityType<?> entityType,
         String name,
         Optional<StatsObject> stats,
-        ActivityMap brain,
+        Optional<List<PrioritizedTask>> behaviorGoals,
+        Optional<List<PrioritizedTask>> targetGoals,
         Optional<EntityEvents> events
 
 ) {
@@ -25,7 +25,8 @@ public record CustomEntity(
             EntityType.CODEC.fieldOf("type").forGetter(CustomEntity::entityType),
             Codec.STRING.fieldOf("name").forGetter(CustomEntity::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomEntity::stats),
-            ActivityMap.CODEC.optionalFieldOf("brain", new ActivityMap(Map.of())).forGetter(CustomEntity::brain),
+            PrioritizedTask.CODEC.listOf().optionalFieldOf("behavior_goals").forGetter(CustomEntity::behaviorGoals),
+            PrioritizedTask.CODEC.listOf().optionalFieldOf("target_goals").forGetter(CustomEntity::targetGoals),
             EntityEvents.CODEC.optionalFieldOf("events").forGetter(CustomEntity::events)
     ).apply(instance, CustomEntity::new)));
 

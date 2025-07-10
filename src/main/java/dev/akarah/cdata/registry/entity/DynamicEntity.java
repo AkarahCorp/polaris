@@ -14,39 +14,22 @@ import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.monster.RangedAttackMob;
-import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.tslat.smartbrainlib.api.SmartBrainOwner;
-import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
-import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<DynamicEntity>, RangedAttackMob {
+public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     CustomEntity base;
     static Lock lock = new ReentrantLock();
     static CustomEntity TEMPORARY_BASE;
     public static Map<Integer, EntityType<?>> FAKED_TYPES = Maps.newHashMap();
-
-    @Override
-    protected Brain.@NotNull Provider<DynamicEntity> brainProvider() {
-        if(this.base == null) {
-            this.base = TEMPORARY_BASE;
-        }
-        return new SmartBrainProvider<>(this);
-    }
 
     public CustomEntity base() {
         return this.base;
@@ -92,14 +75,6 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel Level) {
-        ProfilerFiller profilerFiller = Profiler.get();
-        profilerFiller.push("dynamicEntityBrain");
-        tickBrain(this);
-        profilerFiller.pop();
-    }
-
-    @Override
     public boolean shouldBeSaved() {
         return false;
     }
@@ -117,33 +92,6 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
             addEntityPacket.type = FAKED_TYPES.get(this.getId());
         }
         return packet;
-    }
-
-    @Override
-    public List<? extends ExtendedSensor<? extends DynamicEntity>> getSensors() {
-        return List.of(
-                new NearbyLivingEntitySensor<>(),
-                new HurtBySensor<>()
-        );
-    }
-
-    @Override
-    public Map<Activity, BrainActivityGroup<? extends DynamicEntity>> getAdditionalTasks() {
-        var map = Maps.<Activity, BrainActivityGroup<? extends DynamicEntity>>newHashMap();
-        for(var entry : this.base.brain().activities().entrySet()) {
-            map.put(entry.getKey(), brainActivityGroupFor(entry.getKey(), entry.getValue()));
-        }
-        return map;
-    }
-
-    @SuppressWarnings("unchecked")
-    public BrainActivityGroup<DynamicEntity> brainActivityGroupFor(Activity activity, List<TaskType> taskTypes) {
-        var group = new BrainActivityGroup<DynamicEntity>(activity);
-        for(var task : taskTypes) {
-            var behavior = task.build();
-            group.behaviours(behavior);
-        }
-        return group;
     }
 
     @Override
@@ -186,5 +134,15 @@ public class DynamicEntity extends PathfinderMob implements SmartBrainOwner<Dyna
         this.base().events()
                 .flatMap(EntityEvents::onTick)
                 .ifPresent(x -> ExtReloadableResources.actionManager().callFunctions(x, List.of(this)));
+    }
+
+    @Override
+    protected void registerGoals() {
+        TEMPORARY_BASE.behaviorGoals().stream().flatMap(Collection::stream).forEach(goal -> {
+            this.goalSelector.addGoal(goal.priority(), goal.task().build(this));
+        });
+        TEMPORARY_BASE.targetGoals().stream().flatMap(Collection::stream).forEach(goal -> {
+            this.targetSelector.addGoal(goal.priority(), goal.task().build(this));
+        });
     }
 }
