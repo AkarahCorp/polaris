@@ -58,6 +58,7 @@ public record CustomEntity(
 
         entity.visual.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity.visual);
+        level.addFreshEntity(entity.visual.fakeName);
         return entity;
     }
 }

@@ -37,6 +37,10 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         return this.base;
     }
 
+    public EntityEquipment equipment() {
+        return this.equipment;
+    }
+
     public static DynamicEntity create(
             EntityType<? extends PathfinderMob> entityType,
             Level level,

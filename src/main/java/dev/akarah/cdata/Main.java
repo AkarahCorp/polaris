@@ -52,16 +52,17 @@ public class Main implements ModInitializer {
             });
 
             ExtReloadableResources.customEntity().registry().listElements().forEach(element -> {
-                root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
-                    try {
-                        if(ctx.getSource().getEntity() instanceof Player p) {
-                            element.value().spawn(p.level(), p.getPosition(0.0f));
-                        }
-                    } catch (RuntimeException exception) {
-                        exception.printStackTrace();
-                    }
-                    return 0;
-                })));
+                root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString())
+                        .executes(ctx -> {
+                            try {
+                                if(ctx.getSource().getEntity() instanceof Player p) {
+                                    element.value().spawn(p.level(), p.getPosition(0.0f));
+                                }
+                            } catch (RuntimeException exception) {
+                                exception.printStackTrace();
+                            }
+                            return 0;
+                        })));
             });
 
             context.lookupOrThrow(ExtRegistries.META_CODEC).listElements().forEach(element -> {
