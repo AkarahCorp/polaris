@@ -5,14 +5,19 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import java.util.Map;
 
 public class DataStore {
-    Map<String, Object> objects = new Object2ObjectAVLTreeMap<>();
+    Object2ObjectAVLTreeMap<String, Object> objects;
 
-    private DataStore() {
 
+    private DataStore(Object2ObjectAVLTreeMap<String, Object> map) {
+        this.objects = map;
     }
 
     public static DataStore of() {
-        return new DataStore();
+        return new DataStore(new Object2ObjectAVLTreeMap<>());
+    }
+
+    public static DataStore of(Object2ObjectAVLTreeMap<String, Object> map) {
+        return new DataStore(map);
     }
 
     public void put(String key, Object value) {
@@ -33,5 +38,9 @@ public class DataStore {
             return d;
         }
         return fallback;
+    }
+
+    public Object2ObjectAVLTreeMap<String, Object> map() {
+        return this.objects;
     }
 }

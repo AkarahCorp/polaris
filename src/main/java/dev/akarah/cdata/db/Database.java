@@ -3,6 +3,8 @@ package dev.akarah.cdata.db;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class Database {
     Map<String, DataStore> dataStores = new Object2ObjectAVLTreeMap<>();
@@ -37,5 +39,13 @@ public class Database {
         } else {
             return value;
         }
+    }
+
+    public void writeDataStore(String name, DataStore dataStore) {
+        this.dataStores.put(name, dataStore);
+    }
+
+    public Stream<Map.Entry<String, DataStore>> dataStores() {
+        return this.dataStores.entrySet().stream();
     }
 }
