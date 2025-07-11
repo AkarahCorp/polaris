@@ -7,7 +7,9 @@
     "BuiltInRegistriesMixin",
     "MinecraftServerMixin",
     "RegistryDataLoaderMixin",
-    "ReloadableResourceManagerMixin"
+    "ReloadableResourceManagerMixin",
+    "ServerEntityMixin",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
