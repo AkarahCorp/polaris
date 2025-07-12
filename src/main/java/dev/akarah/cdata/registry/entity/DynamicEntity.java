@@ -1,31 +1,35 @@
 package dev.akarah.cdata.registry.entity;
 
 import com.google.common.collect.Maps;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.entity.behavior.TaskType;
 import dev.akarah.cdata.registry.item.CustomItem;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     CustomEntity base;
+    public VisualEntity visual;
     static CustomEntity TEMPORARY_BASE;
     public static Map<Integer, EntityType<?>> FAKED_TYPES = Maps.newHashMap();
 
@@ -33,12 +37,15 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         return this.base;
     }
 
+    public EntityEquipment equipment() {
+        return this.equipment;
+    }
+
     public static DynamicEntity create(
             EntityType<? extends PathfinderMob> entityType,
             Level level,
             CustomEntity base
     ) {
-
         TEMPORARY_BASE = base;
         return new DynamicEntity(entityType, level, base);
     }
@@ -49,7 +56,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     }
 
     @Override
-    protected AABB getHitbox() {
+    protected @NotNull AABB getHitbox() {
         return this.getBoundingBox();
     }
 
@@ -60,6 +67,9 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     ) {
         super(entityType, level);
         this.base = base;
+        Objects.requireNonNull(this.getAttribute(Attributes.SCALE)).setBaseValue(0.01);
+        this.visual = new VisualEntity(entityType, level, this);
+
         FAKED_TYPES.put(this.getId(), base.entityType());
         this.setCustomNameVisible(true);
         this.setBoundingBox(this.getDefaultDimensions(Pose.STANDING).makeBoundingBox(0.0, 0.0, 0.0));
@@ -68,7 +78,6 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
             CustomItem.byId(equipment.getValue()).ifPresent(customItem -> {
                 this.equipment.set(equipment.getKey(), customItem.toItemStack());
             });
-
         }
 
         this.base().events()
@@ -90,7 +99,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {
         var packet = super.getAddEntityPacket(serverEntity);
         if(packet instanceof ClientboundAddEntityPacket addEntityPacket) {
-            addEntityPacket.type = FAKED_TYPES.get(this.getId());
+            addEntityPacket.type = EntityType.ZOMBIE;
         }
         return packet;
     }
@@ -155,6 +164,19 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     @Override
     public void onRemoval(RemovalReason removalReason) {
         super.onRemoval(removalReason);
+        this.visual.remove(removalReason);
         FAKED_TYPES.remove(this.getId());
+    }
+
+    @Override
+    public boolean isInvisible() {
+        return true;
+    }
+
+    @Override
+    public void setCustomName(@Nullable Component component) {
+        this.setCustomNameVisible(false);
+        this.visual.setCustomName(component);
+        this.visual.setCustomNameVisible(true);
     }
 }

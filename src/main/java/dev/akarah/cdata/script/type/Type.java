@@ -7,11 +7,29 @@ import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface Type<T> {
     String typeName();
     Class<T> typeClass();
     ClassDesc classDescType();
+
+    static List<Type<?>> allTypes() {
+        return List.of(
+                Type.any(),
+                Type.number(),
+                Type.string(),
+                Type.bool(),
+                Type.list(Type.any()),
+                Type.dict(Type.any(), Type.any())
+        );
+    }
+
+    static Type<?> forClass(Class<?> clazz) {
+        return allTypes().stream()
+                .filter(type -> type.typeClass().equals(clazz))
+                .findFirst().orElse(Type.any());
+    }
 
     default Type<?> despan() {
         if(this instanceof SpannedType<?,?> spannedType) {
@@ -57,6 +75,7 @@ public interface Type<T> {
      */
     default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet) {
         var this2 = this.despan();
+        incomingMatch = incomingMatch.despan();
 
         switch (incomingMatch) {
             case VariableType matchingVarType -> {

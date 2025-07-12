@@ -15,7 +15,7 @@ public record VariableType(
     public String typeName() {
         var rt = this.typeSet.resolveTypeVariable(this.variableName);
         if(rt == null) {
-            return this.variableName;
+            return "?" + this.variableName;
         } else {
             return rt.typeName();
         }
@@ -25,7 +25,7 @@ public record VariableType(
     public String verboseTypeName() {
         var rt = this.typeSet.resolveTypeVariable(this.variableName);
         if(rt == null) {
-            return this.variableName;
+            return "?" + this.variableName;
         } else {
             return rt.verboseTypeName();
         }
