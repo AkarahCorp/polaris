@@ -13,7 +13,7 @@ import dev.akarah.cdata.script.expr.ast.value.NumberExpression;
 import dev.akarah.cdata.script.expr.ast.value.InlineDictExpression;
 import dev.akarah.cdata.script.expr.ast.value.InlineListExpression;
 import dev.akarah.cdata.script.expr.ast.operation.*;
-import dev.akarah.cdata.script.expr.ast.StringExpression;
+import dev.akarah.cdata.script.expr.ast.value.StringExpression;
 import dev.akarah.cdata.script.expr.ast.value.ComponentLiteralExpression;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
@@ -82,7 +82,7 @@ public class DslParser {
             case "void" -> _ -> new SpannedType<>(Type.void_(), identifier.span());
             case "number" -> _ -> new SpannedType<>(Type.number(), identifier.span());
             case "boolean" -> _ -> new SpannedType<>(Type.bool(), identifier.span());
-            case "str" -> _ -> new SpannedType<>(Type.string(), identifier.span());
+            case "string" -> _ -> new SpannedType<>(Type.string(), identifier.span());
             case "vector" -> _ -> new SpannedType<>(Type.vector(), identifier.span());
             case "text" -> _ -> new SpannedType<>(Type.text(), identifier.span());
             case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
@@ -126,7 +126,13 @@ public class DslParser {
         while(!(peek() instanceof DslToken.CloseParen)) {
             var name = expect(DslToken.Identifier.class);
             expect(DslToken.Colon.class);
-            ts.required(name.identifier(), parseType(typeParameters));
+            var type = parseType(typeParameters);
+            if(peek() instanceof DslToken.QuestionMark) {
+                expect(DslToken.QuestionMark.class);
+                ts.optional(name.identifier(), type);
+            } else {
+                ts.required(name.identifier(), type);
+            }
             if(!(peek() instanceof DslToken.CloseParen)) {
                 expect(DslToken.Comma.class);
             }

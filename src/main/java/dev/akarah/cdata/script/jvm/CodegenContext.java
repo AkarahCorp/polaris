@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RNumber;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -316,10 +317,10 @@ public class CodegenContext {
      */
     public CodegenContext boxNumber() {
         this.codeBuilder.invokestatic(
-                CodegenUtil.ofClass(Double.class),
-                "valueOf",
+                CodegenUtil.ofClass(RNumber.class),
+                "of",
                 MethodTypeDesc.of(
-                        CodegenUtil.ofClass(Double.class),
+                        CodegenUtil.ofClass(RNumber.class),
                         List.of(CodegenUtil.ofDouble())
                 )
         );
@@ -333,7 +334,7 @@ public class CodegenContext {
      */
     public CodegenContext unboxNumber() {
         this.codeBuilder.invokevirtual(
-                CodegenUtil.ofClass(Double.class),
+                CodegenUtil.ofClass(RNumber.class),
                 "doubleValue",
                 MethodTypeDesc.of(
                         CodegenUtil.ofDouble(),

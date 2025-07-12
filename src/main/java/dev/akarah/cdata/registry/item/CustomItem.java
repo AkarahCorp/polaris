@@ -6,6 +6,7 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
+import dev.akarah.cdata.script.value.RItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -70,7 +71,7 @@ public record CustomItem(
         if(itemTemplate != null) {
             try {
                 ExtReloadableResources.actionManager().functionByLocation(itemTemplate)
-                        .invoke(is);
+                        .invokeWithArguments(RItem.of(is));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

@@ -1,5 +1,6 @@
 package dev.akarah.cdata.db.persistence;
 
+import dev.akarah.cdata.script.value.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,28 +13,28 @@ import java.util.List;
 import java.util.Map;
 
 public class DbCodecs {
-    public static StreamCodec<RegistryFriendlyByteBuf, Object> DYNAMIC_CODEC = StreamCodec.recursive(selfCodec -> StreamCodec.of(
+    public static StreamCodec<RegistryFriendlyByteBuf, RuntimeValue<?>> DYNAMIC_CODEC = StreamCodec.recursive(selfCodec -> StreamCodec.of(
             (buf, object) -> {
                 switch (object) {
-                    case Double d -> {
+                    case RNumber d -> {
                         buf.writeVarInt(1);
-                        buf.writeDouble(d);
+                        buf.writeDouble(d.doubleValue());
                     }
-                    case String s -> {
+                    case RString s -> {
                         buf.writeVarInt(2);
-                        buf.writeByteArray(s.getBytes(StandardCharsets.UTF_8));
+                        buf.writeByteArray(s.javaValue().getBytes(StandardCharsets.UTF_8));
                     }
-                    case List<?> arrayList -> {
+                    case RList arrayList -> {
                         buf.writeVarInt(3);
-                        buf.writeVarInt(arrayList.size());
-                        for(var element : arrayList) {
+                        buf.writeVarInt(arrayList.javaValue().size());
+                        for(var element : arrayList.javaValue()) {
                             selfCodec.encode(buf, element);
                         }
                     }
-                    case Map<?, ?> map -> {
+                    case RDict map -> {
                         buf.writeVarInt(4);
-                        buf.writeVarInt(map.size());
-                        for(var entry : map.entrySet()) {
+                        buf.writeVarInt(map.javaValue().size());
+                        for(var entry : map.javaValue().entrySet()) {
                             selfCodec.encode(buf, entry.getKey());
                             selfCodec.encode(buf, entry.getValue());
                         }
@@ -45,24 +46,24 @@ public class DbCodecs {
                 var id = buf.readVarInt();
                 switch (id) {
                     case 1 -> {
-                        return buf.readDouble();
+                        return RNumber.of(buf.readDouble());
                     }
                     case 2 -> {
-                        return new String(buf.readByteArray(), StandardCharsets.UTF_8);
+                        return RString.of(new String(buf.readByteArray(), StandardCharsets.UTF_8));
                     }
                     case 3 -> {
-                        var list = new ArrayList<>();
+                        var list = RList.create();
                         var size = buf.readVarInt();
                         for(int i = 0; i < size; i++) {
-                            list.add(selfCodec.decode(buf));
+                            RList.add(list, selfCodec.decode(buf));
                         }
                         return list;
                     }
                     case 4 -> {
-                        var map = new HashMap<>();
+                        var map = RDict.create();
                         var size = buf.readVarInt();
                         for(int i = 0; i < size; i++) {
-                            map.put(selfCodec.decode(buf), selfCodec.decode(buf));
+                            RDict.put(map, selfCodec.decode(buf), selfCodec.decode(buf));
                         }
                         return map;
                     }
@@ -71,7 +72,7 @@ public class DbCodecs {
             }
     ));
 
-    public static StreamCodec<RegistryFriendlyByteBuf, Object2ObjectAVLTreeMap<String, Object>> TREE_MAP_CODEC = StreamCodec.of(
+    public static StreamCodec<RegistryFriendlyByteBuf, Object2ObjectAVLTreeMap<String, RuntimeValue<?>>> TREE_MAP_CODEC = StreamCodec.of(
             (buf, map) -> {
                 buf.writeVarInt(map.size());
                 for(var entry : map.entrySet()) {
@@ -80,7 +81,7 @@ public class DbCodecs {
                 }
             },
             (buf) -> {
-                var map = new Object2ObjectAVLTreeMap<String, Object>();
+                var map = new Object2ObjectAVLTreeMap<String, RuntimeValue<?>>();
                 var entries = buf.readVarInt();
                 for(int i = 0; i < entries; i++) {
                     var key = ByteBufCodecs.STRING_UTF8.decode(buf);

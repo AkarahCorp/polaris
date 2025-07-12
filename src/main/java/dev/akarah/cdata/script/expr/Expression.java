@@ -2,7 +2,7 @@ package dev.akarah.cdata.script.expr;
 
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
-import dev.akarah.cdata.script.expr.ast.StringExpression;
+import dev.akarah.cdata.script.expr.ast.value.StringExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;

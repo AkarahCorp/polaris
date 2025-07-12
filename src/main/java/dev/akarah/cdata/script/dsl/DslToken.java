@@ -25,6 +25,10 @@ public interface DslToken {
 
     }
 
+    record QuestionMark(SpanData span) implements DslToken {
+
+    }
+
     record Semicolon(SpanData span) implements DslToken {
 
     }

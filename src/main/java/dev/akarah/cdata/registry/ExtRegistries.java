@@ -13,8 +13,6 @@ public class ExtRegistries {
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec/type"));
     public static ResourceKey<Registry<MetaCodec<?>>> META_CODEC =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "codec"));
-    public static ResourceKey<Registry<Class<? extends Expression>>> ACTION_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "script/action/type"));
     public static ResourceKey<Registry<MapCodec<? extends TaskType>>> BEHAVIOR_TYPE =
             ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "behavior/type"));
 }

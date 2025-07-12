@@ -4,6 +4,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
@@ -18,11 +19,11 @@ public record AddExpression(
                 .pushValue(lhs)
                 .pushValue(rhs)
                 .invokeStatic(
-                        CodegenUtil.ofClass(NumberUtil.class),
+                        CodegenUtil.ofClass(OperationUtil.class),
                         "add",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofClass(Object.class),
-                                List.of(CodegenUtil.ofClass(Object.class), CodegenUtil.ofClass(Object.class))
+                                CodegenUtil.ofClass(RuntimeValue.class),
+                                List.of(CodegenUtil.ofClass(RuntimeValue.class), CodegenUtil.ofClass(RuntimeValue.class))
                         )
                 );
     }

@@ -5,6 +5,7 @@ import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.exception.SpannedException;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.value.REntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -106,7 +107,7 @@ public class Main implements ModInitializer {
                     try {
                         var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getFirst());
                         var method = ExtReloadableResources.actionManager().functionByLocation(resourceName);
-                        if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(Entity.class)) {
+                        if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
                             return;
                         }
                         root.then(Commands.literal("run").then(
@@ -114,7 +115,7 @@ public class Main implements ModInitializer {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
-                                            method.invoke(serverPlayer);
+                                            method.invoke(REntity.of(serverPlayer));
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Throwable e) {

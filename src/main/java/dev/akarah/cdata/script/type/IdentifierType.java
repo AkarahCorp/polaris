@@ -1,23 +1,24 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.value.RIdentifier;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.ClassDesc;
 
-public record IdentifierType() implements Type<ResourceLocation> {
+public record IdentifierType() implements Type<RIdentifier> {
     @Override
     public String typeName() {
         return "identifier";
     }
 
     @Override
-    public Class<ResourceLocation> typeClass() {
-        return ResourceLocation.class;
+    public Class<RIdentifier> typeClass() {
+        return RIdentifier.class;
     }
 
     @Override
     public ClassDesc classDescType() {
-        return CodegenUtil.ofClass(ResourceLocation.class);
+        return CodegenUtil.ofClass(RIdentifier.class);
     }
 }

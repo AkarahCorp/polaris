@@ -3,8 +3,11 @@ package dev.akarah.cdata.registry.entity.behavior;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
+import dev.akarah.cdata.script.value.REntity;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 
 public record NearestAttackableTargetTask(ResourceLocation target) implements TaskType {
     public static MapCodec<NearestAttackableTargetTask> GENERATOR_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -13,8 +16,12 @@ public record NearestAttackableTargetTask(ResourceLocation target) implements Ta
 
     @Override
     public Goal build(DynamicEntity entity) {
-        throw new RuntimeException("please reimplement");
-        // return new NearestAttackableTargetGoal<>(entity, LivingEntity.class, true, ((livingEntity, _) -> EntityUtil.entityType(livingEntity).equals(this.target)));
+        return new NearestAttackableTargetGoal<>(
+                entity,
+                LivingEntity.class,
+                true,
+                ((livingEntity, _) -> REntity.type(REntity.of(livingEntity)).javaValue().equals(this.target))
+        );
     }
 
     @Override

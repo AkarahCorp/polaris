@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.expr.ast.operation;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RNumber;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.Opcode;
@@ -15,10 +16,10 @@ public record GreaterThanExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(lhs)
-                .typecheck(Double.class)
+                .typecheck(RNumber.class)
                 .unboxNumber()
                 .pushValue(rhs)
-                .typecheck(Double.class)
+                .typecheck(RNumber.class)
                 .unboxNumber()
                 .bytecodeUnsafe(CodeBuilder::dcmpg)
                 .ifThenElse(

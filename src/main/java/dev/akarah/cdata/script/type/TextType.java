@@ -1,23 +1,23 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import net.minecraft.network.chat.Component;
+import dev.akarah.cdata.script.value.RText;
 
 import java.lang.constant.ClassDesc;
 
-public record TextType() implements Type<Component> {
+public record TextType() implements Type<RText> {
     @Override
     public String typeName() {
         return "text";
     }
 
     @Override
-    public Class<Component> typeClass() {
-        return Component.class;
+    public Class<RText> typeClass() {
+        return RText.class;
     }
 
     @Override
     public ClassDesc classDescType() {
-        return CodegenUtil.ofClass(Component.class);
+        return CodegenUtil.ofClass(RText.class);
     }
 }

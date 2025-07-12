@@ -14,7 +14,6 @@ public record ListType(Type<?> subtype) implements Type<RList> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Class<RList> typeClass() {
         return RList.class;
     }

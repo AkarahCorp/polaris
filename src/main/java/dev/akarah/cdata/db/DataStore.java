@@ -1,14 +1,16 @@
 package dev.akarah.cdata.db;
 
+import dev.akarah.cdata.script.value.RNumber;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 
 import java.util.Map;
 
 public class DataStore {
-    Object2ObjectAVLTreeMap<String, Object> objects;
+    Object2ObjectAVLTreeMap<String, RuntimeValue<?>> objects;
 
 
-    private DataStore(Object2ObjectAVLTreeMap<String, Object> map) {
+    private DataStore(Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map) {
         this.objects = map;
     }
 
@@ -16,31 +18,19 @@ public class DataStore {
         return new DataStore(new Object2ObjectAVLTreeMap<>());
     }
 
-    public static DataStore of(Object2ObjectAVLTreeMap<String, Object> map) {
+    public static DataStore of(Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map) {
         return new DataStore(map);
     }
 
-    public void put(String key, Object value) {
+    public void put(String key, RuntimeValue<?> value) {
         this.objects.put(key, value);
     }
 
-    public void putNumber(String key, Double number) {
-        this.objects.put(key, number);
-    }
-
-    public Object get(String key, Object fallback) {
+    public RuntimeValue<?> get(String key, RuntimeValue<?> fallback) {
         return this.objects.getOrDefault(key, fallback);
     }
 
-    public Double getNumber(String key, Double fallback) {
-        var value = this.objects.get(key);
-        if(value instanceof Double d) {
-            return d;
-        }
-        return fallback;
-    }
-
-    public Object2ObjectAVLTreeMap<String, Object> map() {
+    public Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map() {
         return this.objects;
     }
 }

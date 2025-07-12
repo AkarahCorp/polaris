@@ -12,12 +12,10 @@ import java.util.List;
 
 public class ExtBuiltInRegistries {
     public static Registry<MapCodec<? extends MetaCodec<?>>> META_CODEC_TYPE;
-    public static Registry<Class<? extends Expression>> ACTION_TYPE;
     public static Registry<MapCodec<? extends TaskType>> BEHAVIOR_TYPE;
 
     public static void bootStrap() {
         ExtBuiltInRegistries.META_CODEC_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.META_CODEC_TYPE, MetaCodec::bootStrapTypes);
-        ExtBuiltInRegistries.ACTION_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.ACTION_TYPE, Expression::bootStrap);
         ExtBuiltInRegistries.BEHAVIOR_TYPE = BuiltInRegistries.registerSimple(ExtRegistries.BEHAVIOR_TYPE, TaskType::bootStrap);
     }
 
