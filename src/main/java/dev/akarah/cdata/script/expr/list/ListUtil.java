@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.expr.list;
 
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.value.RList;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.compress.utils.Lists;
@@ -15,15 +16,5 @@ public class ListUtil {
         Registry.register(actions, ResourceLocation.withDefaultNamespace("list/get"), GetListExpression.class);
     }
 
-    public static List<Double> range(Double min, Double max) {
-        var list = Lists.<Double>newArrayList();
-        var minIsLower = min < max;
 
-        double idx = minIsLower ? min : max;
-        while(idx <= (minIsLower ? max : min)) {
-            list.add(idx);
-            idx += 1;
-        }
-        return list;
-    }
 }

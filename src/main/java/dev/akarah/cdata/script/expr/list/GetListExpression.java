@@ -5,6 +5,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RList;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
@@ -18,17 +19,15 @@ record GetListExpression(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.pushValue(listValue)
-                .typecheck(ArrayList.class)
+                .typecheck(RList.class)
                 .pushValue(index)
                 .typecheck(Double.class)
-                .unboxNumber()
-                .d2i()
                 .invokeVirtual(
-                        CodegenUtil.ofClass(ArrayList.class),
+                        CodegenUtil.ofClass(RList.class),
                         "get",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),
-                                List.of(CodegenUtil.ofInt())
+                                List.of(CodegenUtil.ofClass(Double.class))
                         )
                 );
     }

@@ -5,6 +5,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RList;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.ArrayList;
@@ -22,11 +23,11 @@ record AddAllListExpression(
                 .pushValue(valueToPush)
                 .typecheck(List.class)
                 .invokeVirtual(
-                        CodegenUtil.ofClass(ArrayList.class),
-                        "addAll",
+                        CodegenUtil.ofClass(RList.class),
+                        "add_all",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofBoolean(),
-                                List.of(CodegenUtil.ofClass(List.class))
+                                List.of(CodegenUtil.ofClass(RList.class))
                         )
                 )
                 .pop();

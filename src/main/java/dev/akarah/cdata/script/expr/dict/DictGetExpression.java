@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ record DictGetExpression(
                 .typecheck(HashMap.class)
                 .pushValue(key)
                 .invokeVirtual(
-                        CodegenUtil.ofClass(HashMap.class),
+                        CodegenUtil.ofClass(RDict.class),
                         "get",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(Object.class),

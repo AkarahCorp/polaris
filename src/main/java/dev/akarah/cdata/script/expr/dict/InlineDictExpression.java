@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
@@ -21,10 +22,10 @@ public record InlineDictExpression(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.invokeStatic(
-            CodegenUtil.ofClass(Maps.class),
-            "newHashMap",
+            CodegenUtil.ofClass(RDict.class),
+            "create",
             MethodTypeDesc.of(
-                    CodegenUtil.ofClass(HashMap.class),
+                    CodegenUtil.ofClass(RDict.class),
                     List.of()
             )
         );
@@ -34,7 +35,7 @@ public record InlineDictExpression(
                     .pushValue(expr.getFirst())
                     .pushValue(expr.getSecond())
                     .invokeVirtual(
-                            CodegenUtil.ofClass(HashMap.class),
+                            CodegenUtil.ofClass(RDict.class),
                             "put",
                             MethodTypeDesc.of(
                                     CodegenUtil.ofClass(Object.class),

@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
@@ -21,18 +22,17 @@ record DictPutExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(dict)
-                .typecheck(HashMap.class)
+                .typecheck(RDict.class)
                 .pushValue(key)
                 .pushValue(value)
                 .invokeVirtual(
-                        CodegenUtil.ofClass(HashMap.class),
+                        CodegenUtil.ofClass(RDict.class),
                         "put",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofClass(Object.class),
+                                CodegenUtil.ofVoid(),
                                 List.of(CodegenUtil.ofClass(Object.class), CodegenUtil.ofClass(Object.class))
                         )
-                )
-                .pop();
+                );
 
     }
 

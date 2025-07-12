@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RList;
 import net.minecraft.world.phys.Vec3;
 
 import java.lang.constant.MethodTypeDesc;
@@ -24,10 +25,10 @@ record NumberRangeExpression(
                 .pushValue(this.rhs)
                 .typecheck(Double.class)
                 .invokeStatic(
-                        CodegenUtil.ofClass(ListUtil.class),
+                        CodegenUtil.ofClass(RList.class),
                         "range",
                         MethodTypeDesc.of(
-                                CodegenUtil.ofClass(List.class),
+                                CodegenUtil.ofClass(RList.class),
                                 List.of(CodegenUtil.ofClass(Double.class), CodegenUtil.ofClass(Double.class))
                         )
                 );

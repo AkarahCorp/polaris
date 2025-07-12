@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.constant.ClassDesc;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
 public record DictionaryType(
         Type<?> keyType,
         Type<?> valueType
-) implements Type<Map<Object, Object>> {
+) implements Type<RDict> {
     @Override
     public String typeName() {
         return "dict";
@@ -17,13 +18,13 @@ public record DictionaryType(
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class<Map<Object, Object>> typeClass() {
-        return (Class<Map<Object, Object>>) (Class<?>) Map.class;
+    public Class<RDict> typeClass() {
+        return RDict.class;
     }
 
     @Override
     public ClassDesc classDescType() {
-        return CodegenUtil.ofClass(Map.class);
+        return CodegenUtil.ofClass(RDict.class);
     }
 
     @Override

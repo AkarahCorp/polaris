@@ -14,6 +14,9 @@ public class SpannedException extends RuntimeException {
 
     @Override
     public String getMessage() {
+         if(this.span == null) {
+             return super.getMessage();
+         }
         return super.getMessage() +
                 "\n" +
                 span.debugInfo();

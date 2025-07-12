@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.HashMap;
@@ -16,10 +17,10 @@ record CreateDictExpression() implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
         ctx.invokeStatic(
-                CodegenUtil.ofClass(Maps.class),
-                "newHashMap",
+                CodegenUtil.ofClass(RDict.class),
+                "create",
                 MethodTypeDesc.of(
-                        CodegenUtil.ofClass(HashMap.class),
+                        CodegenUtil.ofClass(RDict.class),
                         List.of()
                 )
         );

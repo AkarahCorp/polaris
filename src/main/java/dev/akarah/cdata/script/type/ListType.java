@@ -1,12 +1,13 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.value.RList;
 
 import java.lang.constant.ClassDesc;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ListType(Type<?> subtype) implements Type<ArrayList<Object>> {
+public record ListType(Type<?> subtype) implements Type<RList> {
     @Override
     public String typeName() {
         return "list";
@@ -14,13 +15,13 @@ public record ListType(Type<?> subtype) implements Type<ArrayList<Object>> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class<ArrayList<Object>> typeClass() {
-        return (Class<ArrayList<Object>>) (Class<?>) ArrayList.class;
+    public Class<RList> typeClass() {
+        return RList.class;
     }
 
     @Override
     public ClassDesc classDescType() {
-        return CodegenUtil.ofClass(ArrayList.class);
+        return CodegenUtil.ofClass(RList.class);
     }
 
     @Override

@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RList;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
@@ -19,10 +20,10 @@ public record InlineListExpression(
     @Override
     public void compile(CodegenContext ctx) {
         ctx.invokeStatic(
-            CodegenUtil.ofClass(Lists.class),
-            "newArrayList",
+            CodegenUtil.ofClass(RList.class),
+            "create",
             MethodTypeDesc.of(
-                    CodegenUtil.ofClass(ArrayList.class),
+                    CodegenUtil.ofClass(RList.class),
                     List.of()
             )
         );
@@ -31,14 +32,13 @@ public record InlineListExpression(
                     .dup()
                     .pushValue(expr)
                     .invokeVirtual(
-                            CodegenUtil.ofClass(ArrayList.class),
+                            CodegenUtil.ofClass(RList.class),
                             "add",
                             MethodTypeDesc.of(
-                                    CodegenUtil.ofBoolean(),
+                                    CodegenUtil.ofVoid(),
                                     List.of(CodegenUtil.ofClass(Object.class))
                             )
-                    )
-                    .bytecodeUnsafe(CodeBuilder::pop);
+                    );
         }
     }
 
