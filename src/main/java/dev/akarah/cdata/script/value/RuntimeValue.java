@@ -1,4 +1,4 @@
 package dev.akarah.cdata.script.value;
 
-public interface RuntimeValue {
+public class RuntimeValue {
 }

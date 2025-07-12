@@ -2,17 +2,7 @@ package dev.akarah.cdata.script.expr;
 
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
-import dev.akarah.cdata.script.expr.datastore.DataStoreUtil;
-import dev.akarah.cdata.script.expr.dict.DictUtil;
-import dev.akarah.cdata.script.expr.entity.EntityUtil;
-import dev.akarah.cdata.script.expr.id.ResourceLocationUtil;
-import dev.akarah.cdata.script.expr.item.ItemUtil;
-import dev.akarah.cdata.script.expr.list.ListUtil;
-import dev.akarah.cdata.script.expr.player.PlayerUtil;
 import dev.akarah.cdata.script.expr.ast.StringExpression;
-import dev.akarah.cdata.script.expr.text.TextUtil;
-import dev.akarah.cdata.script.expr.vec3.Vec3Util;
-import dev.akarah.cdata.script.expr.world.WorldUtil;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.Type;
@@ -42,17 +32,6 @@ public interface Expression {
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {
-        WorldUtil.bootStrap(actions);
-        ResourceLocationUtil.bootStrap(actions);
-        ItemUtil.bootStrap(actions);
-        TextUtil.bootStrap(actions);
-        ListUtil.bootStrap(actions);
-        DictUtil.bootStrap(actions);
-        Vec3Util.bootStrap(actions);
-        PlayerUtil.bootStrap(actions);
-        EntityUtil.bootStrap(actions);
-        DataStoreUtil.bootStrap(actions);
-
         var failures = new ArrayList<>();
         actions.listElements().forEach(classReference -> {
             try {

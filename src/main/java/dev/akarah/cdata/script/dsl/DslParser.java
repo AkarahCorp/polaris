@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.ast.*;
+import dev.akarah.cdata.script.expr.ast.func.LateResolvedFunctionCall;
 import dev.akarah.cdata.script.expr.ast.value.BooleanExpression;
 import dev.akarah.cdata.script.expr.ast.value.NumberExpression;
 import dev.akarah.cdata.script.expr.ast.value.InlineDictExpression;
@@ -14,12 +15,14 @@ import dev.akarah.cdata.script.expr.ast.value.InlineListExpression;
 import dev.akarah.cdata.script.expr.ast.operation.*;
 import dev.akarah.cdata.script.expr.ast.StringExpression;
 import dev.akarah.cdata.script.expr.ast.value.ComponentLiteralExpression;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -30,6 +33,13 @@ public class DslParser {
         parser.tokens = tokens;
 
         return parser.parseSchema();
+    }
+
+    public static ExpressionTypeSet parseExpressionTypeSet(List<DslToken> tokens) {
+        var parser = new DslParser();
+        parser.tokens = tokens;
+
+        return parser.parseTypeSet();
     }
 
     public SchemaExpression parseSchema() {
@@ -59,34 +69,74 @@ public class DslParser {
     }
 
     public Type<?> parseType() {
+        return parseType(List.of()).apply(null);
+    }
+
+    public Function<ExpressionTypeSet, Type<?>> parseType(List<String> typeVariables) {
         var identifier = expect(DslToken.Identifier.class);
+        if(typeVariables.contains(identifier.identifier())) {
+            return e -> Type.var(e, identifier.identifier());
+        }
         return switch (identifier.identifier()) {
-            case "any" -> new SpannedType<>(Type.any(), identifier.span());
-            case "void" -> new SpannedType<>(Type.void_(), identifier.span());
-            case "number" -> new SpannedType<>(Type.number(), identifier.span());
-            case "boolean" -> new SpannedType<>(Type.bool(), identifier.span());
-            case "str" -> new SpannedType<>(Type.string(), identifier.span());
-            case "vector" -> new SpannedType<>(Type.vector(), identifier.span());
-            case "text" -> new SpannedType<>(Type.text(), identifier.span());
-            case "world" -> new SpannedType<>(Type.world(), identifier.span());
+            case "any" -> _ -> new SpannedType<>(Type.any(), identifier.span());
+            case "void" -> _ -> new SpannedType<>(Type.void_(), identifier.span());
+            case "number" -> _ -> new SpannedType<>(Type.number(), identifier.span());
+            case "boolean" -> _ -> new SpannedType<>(Type.bool(), identifier.span());
+            case "str" -> _ -> new SpannedType<>(Type.string(), identifier.span());
+            case "vector" -> _ -> new SpannedType<>(Type.vector(), identifier.span());
+            case "text" -> _ -> new SpannedType<>(Type.text(), identifier.span());
+            case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
             case "list" -> {
                 expect(DslToken.OpenBracket.class);
-                var subtype = parseType();
+                var subtype = parseType(typeVariables);
                 expect(DslToken.CloseBracket.class);
-                yield new SpannedType<>(Type.list(subtype), identifier.span());
+                yield e -> new SpannedType<>(Type.list(subtype.apply(e)), identifier.span());
             }
             case "dict" -> {
                 expect(DslToken.OpenBracket.class);
-                var keyType = parseType();
+                var keyType = parseType(typeVariables);
                 expect(DslToken.Comma.class);
-                var valueType = parseType();
+                var valueType = parseType(typeVariables);
                 expect(DslToken.CloseBracket.class);
-                yield new SpannedType<>(Type.dict(keyType, valueType), identifier.span());
+                yield e -> new SpannedType<>(Type.dict(keyType.apply(e), valueType.apply(e)), identifier.span());
             }
-            case "entity" -> new SpannedType<>(Type.entity(), identifier.span());
-            case "item" -> new SpannedType<>(Type.itemStack(), identifier.span());
+            case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
+            case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
+    }
+
+    public ExpressionTypeSet parseTypeSet() {
+        var ts = ExpressionTypeSet.builder();
+
+        var typeParameters = new ArrayList<String>();
+        if(peek() instanceof DslToken.LessThanSymbol) {
+            expect(DslToken.LessThanSymbol.class);
+            while(!(peek() instanceof DslToken.GreaterThanSymbol)) {
+                typeParameters.add(expect(DslToken.Identifier.class).identifier());
+                if(!(peek() instanceof DslToken.GreaterThanSymbol)) {
+                    expect(DslToken.Comma.class);
+                }
+            }
+            expect(DslToken.GreaterThanSymbol.class);
+        }
+
+
+        expect(DslToken.OpenParen.class);
+        while(!(peek() instanceof DslToken.CloseParen)) {
+            var name = expect(DslToken.Identifier.class);
+            expect(DslToken.Colon.class);
+            ts.required(name.identifier(), parseType(typeParameters));
+            if(!(peek() instanceof DslToken.CloseParen)) {
+                expect(DslToken.Comma.class);
+            }
+        }
+        expect(DslToken.CloseParen.class);
+
+        expect(DslToken.ArrowSymbol.class);
+        ts.returns(parseType(typeParameters));
+
+        return ts.build();
     }
 
     public Expression parseStatement() {

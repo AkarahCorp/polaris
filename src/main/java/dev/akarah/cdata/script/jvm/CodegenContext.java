@@ -150,7 +150,7 @@ public class CodegenContext {
         );
     }
 
-    public static ResourceLocation idName(String name) {
+    public static ResourceLocation jvmFunctionToId(String name) {
         return ResourceLocation.withDefaultNamespace(name.replace(".", "/"));
     }
 

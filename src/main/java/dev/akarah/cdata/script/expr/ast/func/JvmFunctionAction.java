@@ -1,17 +1,20 @@
-package dev.akarah.cdata.script.expr.ast;
+package dev.akarah.cdata.script.expr.ast.func;
 
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
+import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
-public record UserFunctionAction(
+public record JvmFunctionAction(
+        ClassDesc declaringClass,
         String name,
         MethodTypeDesc methodTypeDesc,
-        List<Expression> parameters
+        List<Expression> parameters,
+        Type<?> returnType
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
@@ -19,7 +22,7 @@ public record UserFunctionAction(
             ctx.pushValue(expr);
         }
         ctx.invokeStatic(
-                CodegenContext.ACTION_CLASS_DESC,
+                declaringClass,
                 name,
                 methodTypeDesc
         );
@@ -27,6 +30,6 @@ public record UserFunctionAction(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return ExtReloadableResources.actionManager().expressions().get(name).type(ctx);
+        return returnType;
     }
 }

@@ -1,33 +1,46 @@
-package dev.akarah.cdata.script.expr.ast;
+package dev.akarah.cdata.script.expr.ast.func;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.script.dsl.DslParser;
+import dev.akarah.cdata.script.dsl.DslToken;
+import dev.akarah.cdata.script.dsl.DslTokenizer;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.params.ExpressionStream;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.GlobalNamespace;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class LateResolvedFunctionCall implements Expression {
     String functionName;
     List<Expression> parameters;
     Expression fullyResolved;
     SpanData spanData;
+
+    String declaringClass;
+    String jvmFunctionName;
+    MethodTypeDesc jvmFunctionType;
+    Type<?> cachedReturnType;
 
     public LateResolvedFunctionCall(String functionName, List<Expression> parameters, SpanData spanData) {
         this.functionName = functionName;
@@ -49,71 +62,77 @@ public class LateResolvedFunctionCall implements Expression {
         return Optional.ofNullable(this.fullyResolved);
     }
 
-    public String alternateWithNormalTypeName(CodegenContext ctx) {
+    public Type<?> virtualType(CodegenContext ctx) {
         if(this.parameters.isEmpty()) {
-            return this.functionName;
-        } else {
-            return this.parameters.getFirst().type(ctx).typeName() + "/" + this.functionName;
+            return Type.any();
         }
+        return this.parameters.getFirst().type(ctx);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Class<?>, String>[] functionLookupPossibilities(CodegenContext ctx) {
+        return new Pair[]{
+                Pair.of(this.virtualType(ctx).typeClass(), this.alternateWithVerboseTypeName(ctx)),
+                Pair.of(this.virtualType(ctx).typeClass(), this.functionName),
+                Pair.of(GlobalNamespace.class, this.functionName),
+        };
+    }
+
+    public String alternateWithNormalTypeName(CodegenContext ctx) {
+        return this.virtualType(ctx).typeName() + "__" + this.functionName;
     }
 
     public String alternateWithVerboseTypeName(CodegenContext ctx) {
-        if(this.parameters.isEmpty()) {
-            return this.functionName;
-        } else {
-            return (this.parameters.getFirst().type(ctx).verboseTypeName() + "/" + this.functionName)
-                    .replace("[", "-")
-                    .replace("]", "-")
-                    .replace(",", "-");
-        }
+        return (this.virtualType(ctx).verboseTypeName() + "__" + this.functionName)
+                .replace("[", "$_")
+                .replace("]", "_$")
+                .replace(",", "_");
     }
 
-    public Optional<Expression> resolveStandardAction(CodegenContext ctx) {
-        var exprClassOpt = ExtBuiltInRegistries.ACTION_TYPE
-                .get(CodegenContext.idName(this.functionName))
-                .or(() -> ExtBuiltInRegistries.ACTION_TYPE.get(CodegenContext.idName(
-                        this.alternateWithNormalTypeName(ctx)
-                )))
-                .or(() -> ExtBuiltInRegistries.ACTION_TYPE.get(CodegenContext.idName(
-                        this.alternateWithVerboseTypeName(ctx)
-                )))
-                .map(Holder.Reference::value);
-
-        if(exprClassOpt.isPresent()) {
-            var exprClass = exprClassOpt.orElseThrow();
-
-            MethodHandles.Lookup lookup = null;
-            try {
-                lookup = MethodHandles.privateLookupIn(exprClass, MethodHandles.lookup());
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+    public Optional<Expression> resolveJvmAction(CodegenContext ctx) {
+        Method method = null;
+        for(var pair : this.functionLookupPossibilities(ctx)) {
+            if(method != null) {
+                continue;
             }
-            List<Expression> expressionList;
-            try {
-                var parameterSetCtor = lookup.findStatic(exprClass, "parameters", MethodType.methodType(ExpressionTypeSet.class));
-                var parameterSet = (ExpressionTypeSet) parameterSetCtor.invoke();
-                expressionList = parameterSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.span()));
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-
-
-            var emptyArguments = toArray(expressionList);
-            var constructorArguments = repeatInArray(expressionList.size());
-
-            try {
-                var constructor = lookup.findConstructor(exprClass, MethodType.methodType(void.class, constructorArguments));
-                return Optional.of(new SpannedExpression<>(
-                        (Expression) constructor.invokeWithArguments((Object[]) emptyArguments),
-                        this.span()
-                ));
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
+            method = Arrays.stream(pair.getFirst().getDeclaredMethods())
+                    .filter(x -> x.getName().equals(pair.getSecond()))
+                    .findFirst().orElse(null);
         }
 
-        return Optional.empty();
+        if(method == null) {
+            return Optional.empty();
+        }
+
+        if(method.getAnnotations().length == 0) {
+            System.out.println("Call " + method.getDeclaringClass() + "#" + this.functionName + " is valid, but lacks an annotation.");
+            return Optional.empty();
+        }
+        if(!(method.getAnnotations()[0] instanceof MethodTypeHint methodTypeHint)) {
+            System.out.println("Call " + method.getDeclaringClass() + "#" + this.functionName + " is valid, but lacks a MethodTypeHint annotation in first position.");
+            return Optional.empty();
+        }
+
+        var typeSet = DslParser.parseExpressionTypeSet(
+                DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.value())
+                        .getOrThrow()
+        );
+        var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));
+
+        return Optional.of(new JvmFunctionAction(
+                CodegenUtil.ofClass(method.getDeclaringClass()),
+                method.getName(),
+                MethodTypeDesc.of(
+                        CodegenUtil.ofClass(method.getReturnType()),
+                        Arrays.stream(method.getParameterTypes())
+                                .map(CodegenUtil::ofClass)
+                                .toList()
+                ),
+                newParameters,
+                typeSet.returns()
+        ));
     }
+
 
     public static String filterNameToMethodName(String input) {
         return input
@@ -167,7 +186,7 @@ public class LateResolvedFunctionCall implements Expression {
 
     public Expression resolve(CodegenContext ctx) {
         return this.resolveFromCache()
-                .or(() -> this.resolveStandardAction(ctx))
+                .or(() -> this.resolveJvmAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
                 .orElseThrow(() -> new ParsingException("no clue how to resolve `" + this.functionName + "` sorry", this.span()));
     }
