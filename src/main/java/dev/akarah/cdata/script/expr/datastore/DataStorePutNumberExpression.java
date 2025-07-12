@@ -2,7 +2,6 @@ package dev.akarah.cdata.script.expr.datastore;
 
 import dev.akarah.cdata.db.DataStore;
 import dev.akarah.cdata.script.expr.Expression;
-import dev.akarah.cdata.script.expr.number.NumberExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;

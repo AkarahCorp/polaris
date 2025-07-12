@@ -1,11 +1,9 @@
-package dev.akarah.cdata.script.expr.flow;
+package dev.akarah.cdata.script.expr.ast;
 
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Cod;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;

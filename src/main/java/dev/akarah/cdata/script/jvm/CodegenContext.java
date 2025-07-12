@@ -5,7 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
-import dev.akarah.cdata.script.expr.flow.SchemaExpression;
+import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
 import net.minecraft.resources.ResourceLocation;
 

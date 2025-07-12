@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.expr.number;
+package dev.akarah.cdata.script.expr.ast.operation;
 
 import dev.akarah.cdata.script.expr.Expression;
 import net.minecraft.core.Registry;

@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.expr.number;
+package dev.akarah.cdata.script.expr.ast.operation;
 
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -6,7 +6,7 @@ import dev.akarah.cdata.script.type.Type;
 
 import java.lang.classfile.CodeBuilder;
 
-public record DivideExpression(
+public record RemainderExpression(
         Expression lhs,
         Expression rhs
 ) implements Expression {
@@ -17,7 +17,7 @@ public record DivideExpression(
                 .unboxNumber()
                 .pushValue(rhs)
                 .unboxNumber()
-                .bytecodeUnsafe(CodeBuilder::ddiv)
+                .bytecodeUnsafe(CodeBuilder::drem)
                 .boxNumber();
     }
 

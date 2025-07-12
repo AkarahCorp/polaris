@@ -1,6 +1,7 @@
-package dev.akarah.cdata.script.expr.text;
+package dev.akarah.cdata.script.expr.ast.value;
 
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.text.TextUtil;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;

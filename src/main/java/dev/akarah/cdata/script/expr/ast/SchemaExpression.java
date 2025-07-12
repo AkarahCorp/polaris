@@ -1,15 +1,11 @@
-package dev.akarah.cdata.script.expr.flow;
+package dev.akarah.cdata.script.expr.ast;
 
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-import net.minecraft.resources.ResourceLocation;
 
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
 
 public record SchemaExpression(

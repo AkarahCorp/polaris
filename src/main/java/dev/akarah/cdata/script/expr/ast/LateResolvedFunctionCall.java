@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.expr.flow;
+package dev.akarah.cdata.script.expr.ast;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
@@ -6,7 +6,6 @@ import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import dev.akarah.cdata.registry.ExtReloadableResources;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
-import dev.akarah.cdata.script.exception.TypeCheckException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -19,7 +18,6 @@ import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.expr.flow;
+package dev.akarah.cdata.script.expr.ast;
 
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;

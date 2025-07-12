@@ -9,7 +9,7 @@ import dev.akarah.cdata.script.expr.id.ResourceLocationUtil;
 import dev.akarah.cdata.script.expr.item.ItemUtil;
 import dev.akarah.cdata.script.expr.list.ListUtil;
 import dev.akarah.cdata.script.expr.player.PlayerUtil;
-import dev.akarah.cdata.script.expr.string.StringExpression;
+import dev.akarah.cdata.script.expr.ast.StringExpression;
 import dev.akarah.cdata.script.expr.text.TextUtil;
 import dev.akarah.cdata.script.expr.vec3.Vec3Util;
 import dev.akarah.cdata.script.expr.world.WorldUtil;

@@ -1,14 +1,8 @@
-package dev.akarah.cdata.script.expr.string;
+package dev.akarah.cdata.script.expr.ast;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
-
-import java.util.List;
-import java.util.Optional;
 
 public record StringExpression(String value) implements Expression {
     @Override

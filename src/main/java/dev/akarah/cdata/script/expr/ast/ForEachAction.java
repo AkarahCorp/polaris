@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.expr.flow;
+package dev.akarah.cdata.script.expr.ast;
 
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
@@ -6,7 +6,6 @@ import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.ListType;
-import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.classfile.TypeKind;

@@ -1,7 +1,5 @@
-package dev.akarah.cdata.script.expr.dict;
+package dev.akarah.cdata.script.expr.ast.value;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -11,10 +9,7 @@ import dev.akarah.cdata.script.value.RDict;
 
 import java.lang.classfile.CodeBuilder;
 import java.lang.constant.MethodTypeDesc;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public record InlineDictExpression(
         List<Pair<Expression, Expression>> expressions
