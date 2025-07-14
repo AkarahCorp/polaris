@@ -19,4 +19,6 @@ public class RNumber extends RuntimeValue<Double> {
     public double doubleValue() {
         return this.inner;
     }
+
+    public int intValue() { return (int) this.inner; }
 }

@@ -151,10 +151,6 @@ public class CodegenContext {
         );
     }
 
-    public static ResourceLocation jvmFunctionToId(String name) {
-        return ResourceLocation.withDefaultNamespace(name.replace(".", "/"));
-    }
-
     /**
      * Compiles an individual entry in the action registry into the class.
      * @param name The name of the entry.

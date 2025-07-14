@@ -28,6 +28,7 @@ public interface Expression {
     }
 
     default SpanData span() {
+        System.out.println("WARNING: " + this + " has no span data.");
         return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
     }
 

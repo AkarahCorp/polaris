@@ -85,6 +85,7 @@ public class DslParser {
             case "string" -> _ -> new SpannedType<>(Type.string(), identifier.span());
             case "vector" -> _ -> new SpannedType<>(Type.vector(), identifier.span());
             case "text" -> _ -> new SpannedType<>(Type.text(), identifier.span());
+            case "inventory" -> _ -> new SpannedType<>(Type.inventory(), identifier.span());
             case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
             case "list" -> {
                 expect(DslToken.OpenBracket.class);
@@ -102,6 +103,7 @@ public class DslParser {
             }
             case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
             case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
+            case "identifier" -> _ -> new SpannedType<>(Type.identifier(), identifier.span());
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }
@@ -362,8 +364,8 @@ public class DslParser {
                         expect(DslToken.Comma.class);
                     }
                 }
-                expect(DslToken.CloseBracket.class);
-                yield new InlineListExpression(list);
+                var closeBracket = expect(DslToken.CloseBracket.class);
+                yield new InlineListExpression(list, SpanData.merge(openBracket.span(), closeBracket.span()));
             }
             case DslToken.OpenBrace openBrace -> {
                 var map = Lists.<Pair<Expression, Expression>>newArrayList();
@@ -376,8 +378,8 @@ public class DslParser {
                     }
                     map.add(Pair.of(key, value));
                 }
-                expect(DslToken.CloseBrace.class);
-                yield new InlineDictExpression(map);
+                var closeBrace = expect(DslToken.CloseBrace.class);
+                yield new InlineDictExpression(map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };

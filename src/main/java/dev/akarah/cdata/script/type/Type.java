@@ -173,6 +173,10 @@ public interface Type<T> {
         return new StoreType();
     }
 
+    static InventoryType inventory() {
+        return new InventoryType();
+    }
+
     static VariableType var(ExpressionTypeSet typeSet, String name) {
         return new VariableType(typeSet, name);
     }

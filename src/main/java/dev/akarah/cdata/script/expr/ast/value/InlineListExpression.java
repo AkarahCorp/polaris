@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.ast.value;
 
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
@@ -11,7 +12,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public record InlineListExpression(
-        List<Expression> expressions
+        List<Expression> expressions,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

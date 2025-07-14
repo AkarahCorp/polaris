@@ -73,25 +73,27 @@ public class LateResolvedFunctionCall implements Expression {
     public Pair<Class<?>, String>[] functionLookupPossibilities(CodegenContext ctx) {
         return new Pair[]{
                 Pair.of(this.virtualType(ctx).typeClass(), this.alternateWithVerboseTypeName(ctx)),
-                Pair.of(this.virtualType(ctx).typeClass(), this.functionName),
-                Pair.of(GlobalNamespace.class, this.functionName),
+                Pair.of(this.virtualType(ctx).typeClass(), this.functionName.replace(".", "__")),
+                Pair.of(GlobalNamespace.class, this.functionName.replace(".", "__")),
         };
     }
 
     public String alternateWithNormalTypeName(CodegenContext ctx) {
-        return this.virtualType(ctx).typeName() + "__" + this.functionName;
+        return this.virtualType(ctx).typeName() + "__" + this.functionName.replace(".", "__");
     }
 
     public String alternateWithVerboseTypeName(CodegenContext ctx) {
         return (this.virtualType(ctx).verboseTypeName() + "__" + this.functionName)
                 .replace("[", "$_")
                 .replace("]", "_$")
-                .replace(",", "_");
+                .replace(",", "_")
+                .replace(".", "__");
     }
 
     public Optional<Expression> resolveJvmAction(CodegenContext ctx) {
         Method method = null;
         for(var pair : this.functionLookupPossibilities(ctx)) {
+            System.out.println("trying: " + pair);
             if(method != null) {
                 continue;
             }

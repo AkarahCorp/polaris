@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.expr.ast;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RNumber;
 
 import java.lang.classfile.TypeKind;
 
@@ -14,7 +15,7 @@ public record RepeatTimesAction(
     public void compile(CodegenContext ctx) {
         var local = ctx.bytecodeUnsafe().allocateLocal(TypeKind.INT);
         ctx.pushValue(times)
-                .typecheck(Double.class)
+                .typecheck(RNumber.class)
                 .unboxNumber()
                 .d2i()
                 .istore(local);

@@ -6,6 +6,9 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
@@ -52,5 +55,21 @@ public class GlobalNamespace {
         return RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(template.javaValue()))
                 .orElse(ItemStack.EMPTY));
+    }
+
+    @MethodTypeHint("(items: list[item]?, name: text?) -> inventory")
+    public static RInventory inventory__create(RList itemList, RText name) {
+        var inv = RInventory.of(new DynamicContainer(27));
+        if(itemList != null) {
+            for(var item : itemList.javaValue()) {
+                if(item instanceof RItem item1) {
+                    RInventory.add_item(inv, item1);
+                }
+            }
+        }
+        if(name != null) {
+            RInventory.set_name(inv, name);
+        }
+        return inv;
     }
 }

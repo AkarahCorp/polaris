@@ -7,6 +7,8 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.ListType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RList;
+import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.MethodTypeDesc;
@@ -32,6 +34,15 @@ public record ForEachAction(
             throw new ParsingException("Expected a list in list position", this.span());
         }
         ctx.pushValue(list)
+                .typecheck(RList.class)
+                .invokeVirtual(
+                        CodegenUtil.ofClass(RuntimeValue.class),
+                        "javaValue",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofClass(Object.class),
+                                List.of()
+                        )
+                )
                 .typecheck(ArrayList.class)
                 .invokeVirtual(
                     CodegenUtil.ofClass(ArrayList.class),
@@ -63,6 +74,7 @@ public record ForEachAction(
                                                 List.of()
                                         )
                                 )
+                                .typecheck(listSubType.typeClass())
                                 .storeLocal(this.variableName(), listSubType)
                                 .pushValue(this.block)
                                 .bytecodeUnsafe(cb -> cb.goto_(loopJumpLabel))

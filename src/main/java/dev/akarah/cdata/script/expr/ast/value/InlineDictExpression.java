@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.expr.ast.value;
 
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
@@ -12,7 +13,8 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record InlineDictExpression(
-        List<Pair<Expression, Expression>> expressions
+        List<Pair<Expression, Expression>> expressions,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
