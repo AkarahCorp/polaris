@@ -15,4 +15,8 @@ public class RBoolean extends RuntimeValue<Boolean> {
     public Boolean javaValue() {
         return this.inner;
     }
+
+    public int asInt() {
+        return this.inner ? 1 : 0;
+    }
 }

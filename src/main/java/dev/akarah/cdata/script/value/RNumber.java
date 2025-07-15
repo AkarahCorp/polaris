@@ -21,4 +21,9 @@ public class RNumber extends RuntimeValue<Double> {
     }
 
     public int intValue() { return (int) this.inner; }
+
+    @Override
+    public String toString() {
+        return Double.toString(this.inner);
+    }
 }

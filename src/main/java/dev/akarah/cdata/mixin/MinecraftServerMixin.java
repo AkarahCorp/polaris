@@ -53,6 +53,11 @@ public class MinecraftServerMixin {
         }
     }
 
+    @Inject(at = @At("TAIL"), method = "tickChildren")
+    public void onTickTail(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+        Resources.scheduler().tick();
+    }
+
     @Inject(at = @At("HEAD"), method = "runServer")
     public void onRun(CallbackInfo ci) {
         System.out.println("Loading persistent data from file system...");

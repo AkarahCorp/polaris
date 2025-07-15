@@ -61,6 +61,18 @@ public interface DslToken {
 
     }
 
+    record BreakKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record ContinueKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record ReturnKeyword(SpanData span) implements DslToken {
+
+    }
+
     record IfKeyword(SpanData span) implements DslToken {
 
     }

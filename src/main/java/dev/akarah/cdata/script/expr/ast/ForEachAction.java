@@ -56,7 +56,9 @@ public record ForEachAction(
                 .astore(local);
 
         var loopJumpLabel = ctx.bytecodeUnsafe().newLabel();
-        ctx.bytecodeUnsafe(cb -> cb.labelBinding(loopJumpLabel))
+        var loopExitLabel = ctx.bytecodeUnsafe().newLabel();
+        ctx
+                .bytecodeUnsafe(cb -> cb.labelBinding(loopJumpLabel))
                 .aload(local)
                 .typecheck(Iterator.class)
                 .invokeInterface(
@@ -66,6 +68,7 @@ public record ForEachAction(
                 )
                 .ifThen(
                         () -> ctx.aload(local)
+                                .typecheck(Iterator.class)
                                 .invokeInterface(
                                         CodegenUtil.ofClass(Iterator.class),
                                         "next",
@@ -75,10 +78,13 @@ public record ForEachAction(
                                         )
                                 )
                                 .typecheck(listSubType.typeClass())
+                                .pushFrame(loopJumpLabel, loopExitLabel)
                                 .storeLocal(this.variableName(), listSubType)
                                 .pushValue(this.block)
+                                .popFrame()
                                 .bytecodeUnsafe(cb -> cb.goto_(loopJumpLabel))
-                );
+                )
+                .bytecodeUnsafe(cb -> cb.labelBinding(loopExitLabel));
     }
 
     @Override

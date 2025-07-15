@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.RList;
+import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
@@ -29,12 +30,15 @@ public record InlineListExpression(
             ctx
                     .dup()
                     .pushValue(expr)
-                    .invokeVirtual(
+                    .invokeStatic(
                             CodegenUtil.ofClass(RList.class),
                             "add",
                             MethodTypeDesc.of(
                                     CodegenUtil.ofVoid(),
-                                    List.of(CodegenUtil.ofClass(Object.class))
+                                    List.of(
+                                            CodegenUtil.ofClass(RList.class),
+                                            CodegenUtil.ofClass(RuntimeValue.class)
+                                    )
                             )
                     );
         }

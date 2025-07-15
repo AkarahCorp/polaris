@@ -38,7 +38,7 @@ public class RItem extends RuntimeValue<ItemStack> {
         return RNumber.of(CustomItem.itemOf($this.javaValue())
                 .flatMap(CustomItem::stats)
                 .map(x -> x.get(stat.javaValue()))
-                .orElse(0.0));
+                .orElse(-1.0));
     }
 
     @MethodTypeHint("(item: item, lore: list[text]) -> void")

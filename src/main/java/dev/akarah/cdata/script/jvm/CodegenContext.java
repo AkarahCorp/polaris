@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.jvm;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
@@ -41,8 +42,16 @@ public class CodegenContext {
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
 
-    Map<String, Integer> methodLocals = Maps.newHashMap();
-    Map<String, Type<?>> methodLocalTypes = Maps.newHashMap();
+    List<StackFrame> stackFrames = Lists.newArrayList();
+
+    public record StackFrame(
+            Map<String, Integer> methodLocals,
+            Map<String, Type<?>> methodLocalTypes,
+            Label startLabel,
+            Label breakLabel
+    ) {
+
+    }
 
     public static CodegenContext INSTANCE;
 
@@ -169,19 +178,26 @@ public class CodegenContext {
                 MethodTypeDesc.of(returnType, parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
-                    this.methodLocalTypes.clear();
-                    this.methodLocals.clear();
-
-                    int idx = 0;
-                    for(var parameter : action.parameters()) {
-                        this.methodLocals.put(parameter.getFirst(), idx++);
-                        this.methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
-                    }
+                    this.stackFrames.clear();
 
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
+
+                        var startLabel = codeBuilder.newLabel();
+                        var endLabel = codeBuilder.newLabel();
+
+                        this.pushFrame(startLabel, endLabel);
+
+                        int idx = 0;
+                        for(var parameter : action.parameters()) {
+                            this.stackFrames.getLast().methodLocals.put(parameter.getFirst(), idx++);
+                            this.stackFrames.getLast().methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
+                        }
+
                         this.codeBuilder = codeBuilder;
+                        codeBuilder.labelBinding(startLabel);
                         action.compile(this);
+                        codeBuilder.labelBinding(endLabel);
                         this.codeBuilder.return_();
                     });
                 }
@@ -424,25 +440,50 @@ public class CodegenContext {
     }
 
     public CodegenContext storeLocal(String variable, Type<?> type) {
-        if(this.methodLocals.containsKey(variable)) {
-            this.methodLocalTypes.put(variable, type);
-            return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), this.methodLocals.get(variable)));
-        } else {
-            var index = this.codeBuilder.allocateLocal(type.classFileType());
-            this.methodLocals.put(variable, index);
-            this.methodLocalTypes.put(variable, type);
-            return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
+        for(var frame : this.stackFrames.reversed()) {
+            if(frame.methodLocals.containsKey(variable)) {
+                frame.methodLocalTypes.put(variable, type);
+                return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), frame.methodLocals.get(variable)));
+            }
         }
+        var index = this.codeBuilder.allocateLocal(type.classFileType());
+        var frame = this.stackFrames.getLast();
+        frame.methodLocals.put(variable, index);
+        frame.methodLocalTypes.put(variable, type);
+        return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
-    public CodegenContext pushLocal(String variable) {
-        if(!this.methodLocals.containsKey(variable)) {
-            throw new RuntimeException("Variable `" + variable + "` in method doesn't exist yet!");
+    public CodegenContext pushLocal(String variable, SpanData spanData) {
+        for(var frame : this.stackFrames.reversed()) {
+            if(!frame.methodLocals.containsKey(variable)) {
+                continue;
+            }
+            if(!frame.methodLocalTypes.containsKey(variable)) {
+                continue;
+            }
+            return this.bytecodeUnsafe(cb -> cb.loadLocal(frame.methodLocalTypes.get(variable).classFileType(), frame.methodLocals.get(variable)));
         }
-        if(!this.methodLocalTypes.containsKey(variable)) {
-            throw new RuntimeException("Variable `" + variable + "` somehow doesn't have a type!");
-        }
-        return this.bytecodeUnsafe(cb -> cb.loadLocal(this.methodLocalTypes.get(variable).classFileType(), this.methodLocals.get(variable)));
+        throw new ParsingException("Variable `" + variable + "` in method doesn't exist yet!", spanData);
+
+    }
+
+    public CodegenContext pushFrame(Label startLabel, Label endLabel) {
+        this.stackFrames.add(new StackFrame(
+                Maps.newHashMap(),
+                Maps.newHashMap(),
+                startLabel,
+                endLabel
+        ));
+        return this;
+    }
+
+    public CodegenContext popFrame() {
+        this.stackFrames.removeLast();
+        return this;
+    }
+
+    public StackFrame getFrame() {
+        return this.stackFrames.getLast();
     }
 
     public CodegenContext invokeVirtual(ClassDesc owner, String functionName, MethodTypeDesc desc) {
@@ -508,9 +549,13 @@ public class CodegenContext {
     }
 
     public Type<?> typeOfLocal(String variable, SpanData span) {
-        if(!this.methodLocalTypes.containsKey(variable)) {
-            throw new ParsingException("Could not determine type of local `" + variable + "`, perhaps it was used before it's definition?", span);
+        for(var frame : this.stackFrames) {
+            if(!frame.methodLocalTypes.containsKey(variable)) {
+                continue;
+            }
+            return frame.methodLocalTypes.get(variable);
         }
-        return this.methodLocalTypes.get(variable);
+        throw new ParsingException("Could not determine type of local `" + variable + "`, perhaps it was used before it's definition?", span);
+
     }
 }

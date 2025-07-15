@@ -27,7 +27,6 @@ public class ServerPlayerGameModeMixin {
 
     @Inject(method = "handleBlockBreakAction", at = @At("HEAD"))
     public void handleBlockBreakAction(BlockPos blockPos, ServerboundPlayerActionPacket.Action action, Direction direction, int i, int j, CallbackInfo ci) {
-        System.out.println(action);
         if(action.equals(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK)
             && this.player.gameMode().equals(GameType.SURVIVAL)) {
             Resources.miningManager().clearStatus(this.player);
@@ -35,7 +34,6 @@ public class ServerPlayerGameModeMixin {
                     this.level.getBlockState(blockPos).getBlock(),
                     blockPos
             );
-            System.out.println(rule);
             rule.ifPresent(miningRule -> {
                 Resources.miningManager().setStatus(
                         this.player,

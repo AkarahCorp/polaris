@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.EngineConfig;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.Util;
 import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
@@ -27,11 +28,13 @@ public class Resources {
     static EngineConfig CONFIG;
     static DslActionManager ACTION_MANAGER;
     static MiningManager MINING_MANAGER;
+    static Scheduler SCHEDULER = new Scheduler();
     static ReloadableJsonManager<CustomItem> CUSTOM_ITEM;
     static ReloadableJsonManager<CustomEntity> CUSTOM_ENTITY;
     static ReloadableJsonManager<MetaCodec<?>> META_CODEC;
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
+
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -47,6 +50,10 @@ public class Resources {
 
     public static EngineConfig config() {
         return CONFIG;
+    }
+
+    public static Scheduler scheduler() {
+        return SCHEDULER;
     }
 
     public static ReloadableJsonManager<CustomItem> customItem() {

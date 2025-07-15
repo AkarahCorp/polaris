@@ -81,6 +81,9 @@ public class DslTokenizer {
                         case "schema" -> new DslToken.SchemaKeyword(this.createSpan(start));
                         case "foreach" -> new DslToken.ForeachKeyword(this.createSpan(start));
                         case "in" -> new DslToken.InKeyword(this.createSpan(start));
+                        case "break" -> new DslToken.BreakKeyword(this.createSpan(start));
+                        case "continue" -> new DslToken.ContinueKeyword(this.createSpan(start));
+                        case "return" -> new DslToken.ReturnKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

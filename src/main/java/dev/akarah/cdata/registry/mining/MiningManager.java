@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -58,13 +59,11 @@ public class MiningManager {
     }
 
     public void tickPlayers() {
-        System.out.println(this.statuses);
         for(var player : Main.server().getPlayerList().getPlayers()) {
             statusFor(player).ifPresent(status -> {
                 var miningSpeed = Resources.statManager().lookup(player).get(status.appliedRule().speedStat());
                 var currentTicks = status.progress().addAndGet(1);
                 var targetTicks = (30 * status.appliedRule().toughness()) / miningSpeed;
-                System.out.println(currentTicks + "/" + targetTicks);
                 if(currentTicks > targetTicks) {
                     var spread = Resources.statManager().lookup(player).get(status.appliedRule().spreadStat());
                     recursiveBreaking(player, status.appliedRule(), spread, status.target());
@@ -91,17 +90,25 @@ public class MiningManager {
             BlockPos.ZERO.west()
     ));
 
+
     public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target) {
+        recursiveBreaking(player, rule, remainingSpread, target, 0);
+    }
+
+    public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int depth) {
         if(!rule.materials().contains(player.level().getBlockState(target).getBlock())) {
             return;
         }
 
-        player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+        Resources.scheduler().schedule(
+                depth,
+                () -> player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE)
+        );
+
         Collections.shuffle(VECTORS);
 
         var nearbyIsSafe = new ArrayList<BlockPos>();
         for(var vector : VECTORS) {
-
             var randomAdjacent = target.offset(vector);
             if(
                     rule.materials().contains(player.level().getBlockState(randomAdjacent).getBlock())
@@ -109,12 +116,11 @@ public class MiningManager {
             ) {
                 remainingSpread -= 1;
                 nearbyIsSafe.add(randomAdjacent);
-
             }
         }
 
         for(var safe : nearbyIsSafe) {
-            recursiveBreaking(player, rule, remainingSpread, safe);
+            recursiveBreaking(player, rule, remainingSpread, safe, depth + 1);
         }
     }
 }

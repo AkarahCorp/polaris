@@ -157,6 +157,21 @@ public class DslParser {
         if(this.peek() instanceof DslToken.ForeachKeyword) {
             return parseForEach();
         }
+        if(this.peek() instanceof DslToken.BreakKeyword) {
+            expect(DslToken.BreakKeyword.class);
+            return new BreakAction();
+        }
+        if(this.peek() instanceof DslToken.ContinueKeyword) {
+            expect(DslToken.ContinueKeyword.class);
+            return new ContinueAction();
+        }
+        if(this.peek() instanceof DslToken.ReturnKeyword) {
+            this.expect(DslToken.ReturnKeyword.class);
+            if(peek() instanceof DslToken.CloseBrace) {
+                return new ReturnAction(null);
+            }
+            return new ReturnAction(parseValue());
+        }
         return parseStorage();
     }
 

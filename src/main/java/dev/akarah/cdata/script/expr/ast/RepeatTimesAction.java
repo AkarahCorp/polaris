@@ -25,7 +25,9 @@ public record RepeatTimesAction(
         var loopStart = ctx.bytecodeUnsafe().newLabel();
         var loopExit = ctx.bytecodeUnsafe().newLabel();
 
-        ctx.bytecodeUnsafe(
+        ctx
+                .pushFrame(loopCheck, loopExit)
+                .bytecodeUnsafe(
                 cb -> cb.labelBinding(loopCheck)
                         .iload(local)
                         .loadConstant(0)

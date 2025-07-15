@@ -2,15 +2,12 @@ package dev.akarah.cdata.script.value;
 
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 
 public class REntity extends RuntimeValue<Entity> {
