@@ -19,4 +19,12 @@ public abstract class RuntimeValue<T> {
     public String toString() {
         return this.javaValue().toString();
     }
+
+    public static RuntimeValue<?> fromJava(Object object) {
+        return switch (object) {
+            case String s -> RString.of(s);
+            case Boolean b -> RBoolean.of(b);
+            default -> null;
+        };
+    }
 }

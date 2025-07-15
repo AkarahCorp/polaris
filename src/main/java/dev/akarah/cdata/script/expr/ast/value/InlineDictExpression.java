@@ -43,8 +43,7 @@ public record InlineDictExpression(
                                             CodegenUtil.ofClass(RuntimeValue.class)
                                     )
                             )
-                    )
-                    .bytecodeUnsafe(CodeBuilder::pop);
+                    );
         }
     }
 

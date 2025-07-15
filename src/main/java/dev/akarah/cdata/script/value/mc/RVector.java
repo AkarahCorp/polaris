@@ -32,6 +32,6 @@ public class RVector extends RuntimeValue<Vec3> {
     }
 
     public BlockPos asBlockPos() {
-        return new BlockPos((int) this.inner.x, (int) this.inner.y, (int) this.inner.z);
+        return new BlockPos((int) Math.floor(this.inner.x), (int) Math.floor(this.inner.y), (int) Math.floor(this.inner.z));
     }
 }

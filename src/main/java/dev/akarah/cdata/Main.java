@@ -112,7 +112,7 @@ public class Main implements ModInitializer {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
-                                            method.invoke(REntityEvent.of(REntity.of(serverPlayer)));
+                                            method.invoke(REntity.of(serverPlayer));
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Throwable e) {
