@@ -1,6 +1,6 @@
 package dev.akarah.cdata.mixin;
 
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -16,7 +16,7 @@ public abstract class ReloadableResourceManagerMixin implements ResourceManager 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void reloadLocalResources(PackType packType, List<?> list, CallbackInfo ci) {
         if(packType.equals(PackType.SERVER_DATA)) {
-            ExtReloadableResources.reloadEverything(this);
+            Resources.reloadEverything(this);
         }
     }
 }

@@ -9,6 +9,7 @@
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
     "ServerEntityMixin",
+    "ServerPlayerGameModeMixin",
     "ServerPlayerMixin"
   ],
   "injectors": {

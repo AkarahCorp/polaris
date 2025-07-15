@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ public record MobSpawnRule(
     ).apply(instance, MobSpawnRule::new));
 
     public void tick() {
-        if(ExtReloadableResources.customEntity().registry().entrySet().isEmpty()) {
+        if(Resources.customEntity().registry().entrySet().isEmpty()) {
             return;
         }
         var level = Main.server().getLevel(this.level);
@@ -65,7 +65,7 @@ public record MobSpawnRule(
                 pos = pos.below();
             }
             pos = pos.above();
-            var entityBase = ExtReloadableResources.customEntity().registry().get(this.entityType).orElseThrow().value();
+            var entityBase = Resources.customEntity().registry().get(this.entityType).orElseThrow().value();
             entityBase.spawn(level, pos.getCenter());
         }
     }

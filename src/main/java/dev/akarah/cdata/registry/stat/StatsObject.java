@@ -2,7 +2,6 @@ package dev.akarah.cdata.registry.stat;
 
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
-import dev.akarah.cdata.registry.ExtReloadableResources;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 

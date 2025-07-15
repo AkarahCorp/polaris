@@ -5,12 +5,11 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.behavior.PrioritizedTask;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -46,7 +45,7 @@ public record CustomEntity(
     ).apply(instance, CustomEntity::new)));
 
     public ResourceLocation id() {
-        return ExtReloadableResources.customEntity()
+        return Resources.customEntity()
                 .registry()
                 .getKey(this);
     }

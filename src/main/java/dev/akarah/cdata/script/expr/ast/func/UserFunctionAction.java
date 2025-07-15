@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.expr.ast.func;
 
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
@@ -27,6 +27,6 @@ public record UserFunctionAction(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return ExtReloadableResources.actionManager().expressions().get(name).type(ctx);
+        return Resources.actionManager().expressions().get(name).type(ctx);
     }
 }

@@ -1,13 +1,15 @@
 package dev.akarah.cdata.registry.stat;
 
 import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.*;
 
@@ -41,11 +43,11 @@ public class StatManager {
 
     public void loopPlayers() {
         var eventName = ResourceLocation.withDefaultNamespace("player/tick");
-        var functions = ExtReloadableResources.actionManager().functionsByEvent(eventName);
+        var functions = Resources.actionManager().functionsByEvent(eventName);
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
-            stats.add(ExtReloadableResources.config().baseStats());
+            stats.add(Resources.config().baseStats());
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
                 CustomItem.itemOf(item).ifPresent(customItem -> {
@@ -58,16 +60,27 @@ public class StatManager {
             }
             this.set(player, stats.performFinalCalculations());
 
-            ExtReloadableResources.actionManager().callFunctions(functions, List.of(player));
+            Resources.actionManager().callFunctions(functions, List.of(player));
 
             var packet = new ClientboundPlayerInfoUpdatePacket(
                     EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                     new HashSet<>(CustomEntity.FAKE_PLAYERS)
             );
             player.connection.send(packet);
+
+            var container = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+            if(container != null) {
+                container.addOrReplacePermanentModifier(
+                        new AttributeModifier(
+                                ResourceLocation.fromNamespaceAndPath("polaris", "overwrite_mining"),
+                                -1000,
+                                AttributeModifier.Operation.ADD_VALUE
+                        )
+                );
+            }
         }
 
-        ExtReloadableResources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
+        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 
     public void refreshPlayerInventories() {

@@ -2,34 +2,26 @@ package dev.akarah.cdata.script.expr.ast.func;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
-import dev.akarah.cdata.registry.ExtBuiltInRegistries;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.dsl.DslParser;
-import dev.akarah.cdata.script.dsl.DslToken;
 import dev.akarah.cdata.script.dsl.DslTokenizer;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
-import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.params.ExpressionStream;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.GlobalNamespace;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class LateResolvedFunctionCall implements Expression {
     String functionName;
@@ -93,7 +85,6 @@ public class LateResolvedFunctionCall implements Expression {
     public Optional<Expression> resolveJvmAction(CodegenContext ctx) {
         Method method = null;
         for(var pair : this.functionLookupPossibilities(ctx)) {
-            System.out.println("trying: " + pair);
             if(method != null) {
                 continue;
             }
@@ -146,10 +137,10 @@ public class LateResolvedFunctionCall implements Expression {
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
-        var functionSchema = ExtReloadableResources.actionManager().expressions().get(functionName);
+        var functionSchema = Resources.actionManager().expressions().get(functionName);
         if(functionSchema == null) {
             functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));
-            functionSchema = ExtReloadableResources.actionManager().expressions().get(functionName);
+            functionSchema = Resources.actionManager().expressions().get(functionName);
         }
 
         if(functionSchema != null) {

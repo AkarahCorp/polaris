@@ -2,22 +2,18 @@ package dev.akarah.cdata;
 
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtRegistries;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.exception.SpannedException;
-import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.value.REntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +35,7 @@ public class Main implements ModInitializer {
 
             root.then(Commands.literal("give"));
 
-            ExtReloadableResources.customItem().registry().listElements().forEach(element -> {
+            Resources.customItem().registry().listElements().forEach(element -> {
                 root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
                     try {
                         if(ctx.getSource().getEntity() instanceof Player p) {
@@ -52,7 +48,7 @@ public class Main implements ModInitializer {
                 })));
             });
 
-            ExtReloadableResources.customEntity().registry().listElements().forEach(element -> {
+            Resources.customEntity().registry().listElements().forEach(element -> {
                 root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString())
                         .executes(ctx -> {
                             try {
@@ -90,14 +86,14 @@ public class Main implements ModInitializer {
                 ));
             });
 
-            var elements = ExtReloadableResources.actionManager().expressions()
+            var elements = Resources.actionManager().expressions()
                     .entrySet()
                     .stream()
                     .map(x -> Pair.of(x.getKey(), x.getValue()))
                     .toList();
             try {
                 try {
-                    var methodHandle = ExtReloadableResources.actionManager().functionByRawName("$static_init");
+                    var methodHandle = Resources.actionManager().functionByRawName("$static_init");
                     methodHandle.invoke();
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
@@ -105,8 +101,8 @@ public class Main implements ModInitializer {
 
                 elements.forEach(element -> {
                     try {
-                        var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getFirst());
-                        var method = ExtReloadableResources.actionManager().functionByLocation(resourceName);
+                        var resourceName = Resources.actionManager().resourceNames().get(element.getFirst());
+                        var method = Resources.actionManager().functionByLocation(resourceName);
                         if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
                             return;
                         }
@@ -141,7 +137,7 @@ public class Main implements ModInitializer {
 
             root.then(Commands.literal("my_stats").executes(ctx -> {
                 if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
-                    var stats = ExtReloadableResources.statManager().lookup(serverPlayer);
+                    var stats = Resources.statManager().lookup(serverPlayer);
                     ctx.getSource().sendSuccess(() -> Component.literal(stats.toString()), false);
                 }
                 return 0;

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import net.minecraft.resources.ResourceLocation;
@@ -138,7 +138,7 @@ public class DslActionManager {
                         this.namedMethodHandles.put("$static_init", lookup.findStatic(codeClass, "$static_init", MethodType.methodType(void.class)));
 
                         for(var element : this.dslExpressions.entrySet()) {
-                            var resourceName = ExtReloadableResources.actionManager().resourceNames().get(element.getKey());
+                            var resourceName = Resources.actionManager().resourceNames().get(element.getKey());
                             var methodHandle = lookup.findStatic(
                                     codeClass,
                                     element.getKey(),

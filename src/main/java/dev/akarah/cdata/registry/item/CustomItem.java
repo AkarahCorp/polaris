@@ -2,8 +2,7 @@ package dev.akarah.cdata.registry.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.cdata.Main;
-import dev.akarah.cdata.registry.ExtReloadableResources;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.value.RItem;
@@ -16,9 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ItemLore;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 public record CustomItem(
@@ -39,10 +36,10 @@ public record CustomItem(
     ).apply(instance, CustomItem::new));
 
     public static Codec<CustomItem> CODEC_BY_ID =
-            Codec.lazyInitialized(() -> ExtReloadableResources.customItem().registry().byNameCodec());
+            Codec.lazyInitialized(() -> Resources.customItem().registry().byNameCodec());
 
     public ResourceLocation id() {
-        return ExtReloadableResources
+        return Resources
                 .customItem()
                 .registry()
                 .getKey(this);
@@ -70,7 +67,7 @@ public record CustomItem(
         });
         if(itemTemplate != null) {
             try {
-                ExtReloadableResources.actionManager().functionByLocation(itemTemplate)
+                Resources.actionManager().functionByLocation(itemTemplate)
                         .invokeWithArguments(RItem.of(is));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
@@ -90,11 +87,11 @@ public record CustomItem(
 
     public static Optional<CustomItem> itemOf(ItemStack itemStack) {
         return itemIdOf(itemStack)
-                .flatMap(x -> ExtReloadableResources.customItem().registry().get(x))
+                .flatMap(x -> Resources.customItem().registry().get(x))
                 .map(Holder.Reference::value);
     }
 
     public static Optional<CustomItem> byId(ResourceLocation id) {
-        return ExtReloadableResources.customItem().registry().get(id).map(Holder.Reference::value);
+        return Resources.customItem().registry().get(id).map(Holder.Reference::value);
     }
 }
