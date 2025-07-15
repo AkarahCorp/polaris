@@ -13,7 +13,8 @@ public record EntityEvents(
         Optional<List<ResourceLocation>> onTakeDamage,
         Optional<List<ResourceLocation>> onPlayerKill,
         Optional<List<ResourceLocation>> onDeath,
-        Optional<List<ResourceLocation>> onTick
+        Optional<List<ResourceLocation>> onTick,
+        Optional<List<ResourceLocation>> onInteract
 ) {
     public static Codec<EntityEvents> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.listOf().optionalFieldOf("spawn").forGetter(EntityEvents::onSpawn),
@@ -21,6 +22,7 @@ public record EntityEvents(
             ResourceLocation.CODEC.listOf().optionalFieldOf("take_damage").forGetter(EntityEvents::onTakeDamage),
             ResourceLocation.CODEC.listOf().optionalFieldOf("player_kill").forGetter(EntityEvents::onPlayerKill),
             ResourceLocation.CODEC.listOf().optionalFieldOf("death").forGetter(EntityEvents::onDeath),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("tick").forGetter(EntityEvents::onTick)
+            ResourceLocation.CODEC.listOf().optionalFieldOf("tick").forGetter(EntityEvents::onTick),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("interact").forGetter(EntityEvents::onInteract)
     ).apply(instance, EntityEvents::new)));
 }

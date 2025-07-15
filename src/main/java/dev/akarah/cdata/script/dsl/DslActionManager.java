@@ -7,6 +7,7 @@ import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.compress.utils.Lists;
@@ -62,7 +63,7 @@ public class DslActionManager {
         return this.functionsByEvent(eventName).stream().map(this::functionByLocation).toList();
     }
 
-    public void callFunctions(List<ResourceLocation> functions, List<Object> objects) {
+    public void callFunctions(List<ResourceLocation> functions, List<RuntimeValue<?>> objects) {
         for(var f : functions) {
             var m = this.functionByLocation(f);
             try {

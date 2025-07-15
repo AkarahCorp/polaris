@@ -18,7 +18,9 @@ public record JvmFunctionAction(
     @Override
     public void compile(CodegenContext ctx) {
         for(var expr : parameters) {
-            ctx.pushValue(expr);
+            ctx
+                    .pushValue(expr)
+                    .typecheck(ctx.getTypeOf(expr).typeClass());
         }
         ctx.invokeStatic(
                 declaringClass,

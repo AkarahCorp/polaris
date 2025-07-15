@@ -1,13 +1,19 @@
 package dev.akarah.cdata.script.value;
 
+import dev.akarah.cdata.db.Database;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.inventory.MenuType;
 
 public class REntity extends RuntimeValue<Entity> {
@@ -24,6 +30,19 @@ public class REntity extends RuntimeValue<Entity> {
     @Override
     public Entity javaValue() {
         return this.inner;
+    }
+
+    @MethodTypeHint("(this: entity) -> store")
+    public static RStore temp_data(REntity $this) {
+        return RStore.of(Database.temp().get("entity/" + $this.javaValue().getStringUUID()));
+    }
+
+    @MethodTypeHint("(this: entity) -> store")
+    public static RStore save_data(REntity $this) {
+        if($this.javaValue() instanceof ServerPlayer) {
+            return RStore.of(Database.save().get("entity/" + $this.javaValue().getStringUUID()));
+        }
+        return REntity.temp_data($this);
     }
 
     @MethodTypeHint("(this: entity) -> vector")
@@ -110,6 +129,26 @@ public class REntity extends RuntimeValue<Entity> {
             if(mp != null) {
                 serverPlayer.openMenu(mp);
             }
+        }
+    }
+
+    @MethodTypeHint("(this: entity, stat: string) -> number")
+    public static RNumber stat(REntity $this, RString key) {
+        if($this.inner instanceof ServerPlayer serverPlayer) {
+            return RNumber.of(Resources.statManager().lookup(serverPlayer).get(key.javaValue()));
+        }
+        return RNumber.of(0.0);
+    }
+
+    @MethodTypeHint("(this: entity, attribute: identifier, value: number) -> void")
+    public static void set_attribute(REntity $this, RIdentifier key, RNumber value) {
+        if($this.inner instanceof LivingEntity le) {
+            BuiltInRegistries.ATTRIBUTE.get(key.javaValue()).ifPresent(attributeReference -> {
+                var attr = le.getAttribute(attributeReference);
+                if(attr != null) {
+                    attr.setBaseValue(value.doubleValue());
+                }
+            });
         }
     }
 }

@@ -24,7 +24,8 @@ public record CustomItem(
         Optional<StatsObject> stats,
         Optional<EquippableData> equippable,
         Optional<ResourceLocation> itemTemplate,
-        Optional<CustomData> customData
+        Optional<CustomData> customData,
+        Optional<ItemEvents> events
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
@@ -32,7 +33,8 @@ public record CustomItem(
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
             ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
-            CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData)
+            CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData),
+            ItemEvents.CODEC.optionalFieldOf("events").forGetter(CustomItem::events)
     ).apply(instance, CustomItem::new));
 
     public static Codec<CustomItem> CODEC_BY_ID =

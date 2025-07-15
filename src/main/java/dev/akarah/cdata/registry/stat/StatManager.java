@@ -4,6 +4,7 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.script.value.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -60,7 +61,7 @@ public class StatManager {
             }
             this.set(player, stats.performFinalCalculations());
 
-            Resources.actionManager().callFunctions(functions, List.of(player));
+            Resources.actionManager().callFunctions(functions, List.of(REntity.of(player)));
 
             var packet = new ClientboundPlayerInfoUpdatePacket(
                     EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),

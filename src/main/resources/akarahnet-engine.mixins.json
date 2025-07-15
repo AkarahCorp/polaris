@@ -6,9 +6,11 @@
   "mixins": [
     "BuiltInRegistriesMixin",
     "MinecraftServerMixin",
+    "PlayerListMixin",
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
     "ServerEntityMixin",
+    "ServerGamePacketListenerMixin",
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin"
   ],

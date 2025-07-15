@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value;
 
+import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import net.minecraft.core.component.DataComponentType;
@@ -71,5 +72,15 @@ public class GlobalNamespace {
             RInventory.set_name(inv, name);
         }
         return inv;
+    }
+
+    @MethodTypeHint("(key: string) -> store")
+    public static RStore store__temp(RString key) {
+        return RStore.of(Database.temp().get(key.javaValue()));
+    }
+
+    @MethodTypeHint("(key: string) -> store")
+    public static RStore store__save(RString key) {
+        return RStore.of(Database.temp().get(key.javaValue()));
     }
 }
