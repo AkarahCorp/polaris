@@ -1,6 +1,7 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 

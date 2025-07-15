@@ -1,8 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.RVector;
-import net.minecraft.world.phys.Vec3;
+import dev.akarah.cdata.script.value.mc.RVector;
 
 import java.lang.constant.ClassDesc;
 

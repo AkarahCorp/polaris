@@ -3,7 +3,7 @@ package dev.akarah.cdata.registry.entity.behavior;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
-import dev.akarah.cdata.script.value.REntity;
+import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;

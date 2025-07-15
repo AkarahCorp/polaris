@@ -1,8 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.RInventory;
-import dev.akarah.cdata.script.value.RText;
+import dev.akarah.cdata.script.value.mc.RInventory;
 
 import java.lang.constant.ClassDesc;
 

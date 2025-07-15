@@ -1,6 +1,7 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;

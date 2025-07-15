@@ -1,16 +1,14 @@
 package dev.akarah.cdata.script.dsl;
 
 import com.google.common.collect.Maps;
-import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
-import dev.akarah.cdata.script.value.RuntimeValue;
+import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.event.REvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.apache.commons.compress.utils.Lists;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -28,7 +26,6 @@ public class DslActionManager {
     Map<String, ResourceLocation> resourceNames = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
-    Map<ResourceLocation, List<ResourceLocation>> events = Maps.newHashMap();
     Class<?> codeClass;
 
     public Map<String, SchemaExpression> expressions() {
@@ -55,19 +52,37 @@ public class DslActionManager {
         return this.methodHandles.get(resourceLocation);
     }
 
-    public List<ResourceLocation> functionsByEvent(ResourceLocation eventName) {
-        return this.events.getOrDefault(eventName, List.of());
+    Map<String, Type<?>> typeInterning = Maps.newHashMap();
+    Map<String, List<ResourceLocation>> eventInterning = Maps.newHashMap();
+
+    public List<ResourceLocation> functionsByEventType(String typeName) {
+        var type = typeInterning.get(typeName);
+        if(type == null) {
+            var tokens = DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("_", "_"), "event[" + typeName + "]").getOrThrow();
+            type = DslParser.parseTopLevelType(tokens);
+        }
+
+        var event = eventInterning.get(typeName);
+        if(event == null) {
+            Type<?> finalType = type;
+            event = this.dslExpressions.entrySet()
+                    .stream()
+                    .filter(x -> !x.getValue().parameters().isEmpty())
+                    .map(x -> Map.entry(x.getKey(), x.getValue().parameters().getFirst().getSecond()))
+                    .filter(x -> x.getValue().typeEquals(finalType))
+                    .map(Map.Entry::getKey)
+                    .map(x -> this.resourceNames.get(x))
+                    .toList();
+        }
+
+        return event;
     }
 
-    public List<MethodHandle> methodsByEvent(ResourceLocation eventName) {
-        return this.functionsByEvent(eventName).stream().map(this::functionByLocation).toList();
-    }
-
-    public void callFunctions(List<ResourceLocation> functions, List<RuntimeValue<?>> objects) {
+    public void callEvents(List<ResourceLocation> functions, REvent event) {
         for(var f : functions) {
             var m = this.functionByLocation(f);
             try {
-                m.invokeWithArguments(objects);
+                m.invokeWithArguments(List.of(event));
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -77,28 +92,6 @@ public class DslActionManager {
     public CompletableFuture<Void> reloadWithManager(ResourceManager resourceManager, Executor executor) {
         return CompletableFuture.runAsync(
                 () -> {
-                    for(var resourceEntry : resourceManager.listResources("engine/event", rl -> rl.getPath().endsWith(".json")).entrySet()) {
-                        try(var inputStream = resourceEntry.getValue().open()) {
-                            var bytes = inputStream.readAllBytes();
-                            var string = new String(bytes);
-
-                            var key = resourceEntry.getKey().withPath(s ->
-                                    s.replace(".json", "")
-                                            .replace("engine/event/", ""));
-
-                            var codec = ResourceLocation.CODEC.listOf();
-                            var entries = codec
-                                    .decode(JsonOps.INSTANCE, JsonParser.parseString(string))
-                                    .getOrThrow()
-                                    .getFirst();
-                            if(!this.events.containsKey(key)) {
-                                this.events.put(key, Lists.newArrayList());
-                            }
-                            this.events.get(key).addAll(entries);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
 
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".aka")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {

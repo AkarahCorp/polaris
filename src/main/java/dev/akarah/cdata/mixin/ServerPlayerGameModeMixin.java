@@ -6,8 +6,9 @@ import dev.akarah.cdata.registry.entity.EntityUtil;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.item.ItemEvents;
 import dev.akarah.cdata.registry.mining.MiningManager;
-import dev.akarah.cdata.script.value.REntity;
-import dev.akarah.cdata.script.value.RItem;
+import dev.akarah.cdata.script.value.event.REntityItemEvent;
+import dev.akarah.cdata.script.value.mc.REntity;
+import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -27,9 +28,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
@@ -66,9 +64,9 @@ public class ServerPlayerGameModeMixin {
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
             CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onRightClick)
-                    .ifPresent(events -> Resources.actionManager().callFunctions(
+                    .ifPresent(events -> Resources.actionManager().callEvents(
                             events,
-                            List.of(REntity.of(serverPlayer), RItem.of(item))
+                            REntityItemEvent.of(REntity.of(serverPlayer), RItem.of(item))
                     ));
         }
     }
@@ -77,9 +75,9 @@ public class ServerPlayerGameModeMixin {
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
             CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onRightClick)
-                    .ifPresent(events -> Resources.actionManager().callFunctions(
+                    .ifPresent(events -> Resources.actionManager().callEvents(
                             events,
-                            List.of(REntity.of(serverPlayer), RItem.of(item))
+                            REntityItemEvent.of(REntity.of(serverPlayer), RItem.of(item))
                     ));
         }
     }

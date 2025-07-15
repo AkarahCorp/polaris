@@ -2,8 +2,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.RWorld;
-import net.minecraft.world.level.Level;
+import dev.akarah.cdata.script.value.mc.RWorld;
 
 import java.lang.constant.ClassDesc;
 

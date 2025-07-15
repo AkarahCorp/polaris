@@ -1,9 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.RItem;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import dev.akarah.cdata.script.value.mc.RItem;
 
 import java.lang.constant.ClassDesc;
 

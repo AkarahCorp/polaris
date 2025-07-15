@@ -1,8 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.REntity;
-import net.minecraft.world.entity.Entity;
+import dev.akarah.cdata.script.value.mc.REntity;
 
 import java.lang.constant.ClassDesc;
 

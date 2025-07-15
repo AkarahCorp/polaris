@@ -52,6 +52,7 @@ public record CustomEntity(
 
     public DynamicEntity spawn(Level level, Vec3 position) {
         var entity = DynamicEntity.create(EntityType.ZOMBIE, level, this);
+        entity.setCustomNameVisible(false);
         entity.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity);
 

@@ -1,4 +1,4 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.mc.rt;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;

@@ -5,7 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
-import dev.akarah.cdata.script.value.RItem;
+import dev.akarah.cdata.script.value.event.RItemEvent;
+import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -70,7 +71,7 @@ public record CustomItem(
         if(itemTemplate != null) {
             try {
                 Resources.actionManager().functionByLocation(itemTemplate)
-                        .invokeWithArguments(RItem.of(is));
+                        .invokeWithArguments(RItemEvent.of(RItem.of(is)));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

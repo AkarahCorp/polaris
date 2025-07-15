@@ -3,15 +3,13 @@ package dev.akarah.cdata.script.value;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
+import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
+import dev.akarah.cdata.script.value.mc.RIdentifier;
+import dev.akarah.cdata.script.value.mc.RInventory;
+import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.Containers;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemLore;
 
 public class GlobalNamespace {
     @MethodTypeHint("(min: number, max: number) -> list[number]")

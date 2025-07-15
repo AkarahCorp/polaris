@@ -2,7 +2,9 @@ package dev.akarah.cdata.script.type;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
+import dev.akarah.cdata.script.type.event.*;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
@@ -36,6 +38,10 @@ public interface Type<T> {
             return spannedType.type();
         }
         return this;
+    }
+
+    default SpannedType<T, Type<T>> spanned(SpanData spanData) {
+        return new SpannedType<>(this, spanData);
     }
 
     default TypeKind classFileType() {
@@ -179,6 +185,32 @@ public interface Type<T> {
 
     static VariableType var(ExpressionTypeSet typeSet, String name) {
         return new VariableType(typeSet, name);
+    }
+
+    static Events events() {
+        return new Events();
+    }
+
+    class Events {
+        public EntityEventType entity(String name) {
+            return new EntityEventType(name);
+        }
+
+        public DoubleEntityEventType doubleEntity(String name) {
+            return new DoubleEntityEventType(name);
+        }
+
+        public EntityItemEventType entityItem(String name) {
+            return new EntityItemEventType(name);
+        }
+
+        public EntityDamageEventType entityDamage(String name) {
+            return new EntityDamageEventType(name);
+        }
+
+        public ItemEventType item(String name) {
+            return new ItemEventType(name);
+        }
     }
 
     default boolean typeEquals(Type<?> other) {

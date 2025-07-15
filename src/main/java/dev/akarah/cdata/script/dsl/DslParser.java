@@ -42,6 +42,13 @@ public class DslParser {
         return parser.parseTypeSet();
     }
 
+    public static Type<?> parseTopLevelType(List<DslToken> tokens) {
+        var parser = new DslParser();
+        parser.tokens = tokens;
+
+        return parser.parseType();
+    }
+
     public SchemaExpression parseSchema() {
         expect(DslToken.SchemaKeyword.class);
         expect(DslToken.OpenParen.class);
@@ -104,6 +111,23 @@ public class DslParser {
             case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
             case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
             case "identifier" -> _ -> new SpannedType<>(Type.identifier(), identifier.span());
+            case "event" -> {
+                expect(DslToken.OpenBracket.class);
+                var eventType = expect(DslToken.Identifier.class);
+                expect(DslToken.CloseBracket.class);
+                yield switch (eventType.identifier()) {
+                    case "player.join", "player.quit", "player.hurt", "player.tick", "entity.take_damage",
+                         "entity.tick", "entity.kill" ->
+                            _ -> Type.events().entity(eventType.identifier()).spanned(identifier.span());
+                    case "entity.interact", "entity.player_attack", "entity.player_kill" ->
+                            _ -> Type.events().doubleEntity(eventType.identifier()).spanned(identifier.span());
+                    case "item.right_click", "item.left_click" ->
+                            _ -> Type.events().entityItem(eventType.identifier()).spanned(identifier.span());
+                    case "item.decorate" ->
+                            _ -> Type.events().item(eventType.identifier()).spanned(identifier.span());
+                    default -> throw new ParsingException("Unexpected value: " + eventType.identifier(), eventType.span());
+                };
+            }
             default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
         };
     }

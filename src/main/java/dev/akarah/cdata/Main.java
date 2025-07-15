@@ -4,7 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.exception.SpannedException;
-import dev.akarah.cdata.script.value.REntity;
+import dev.akarah.cdata.script.value.event.REntityEvent;
+import dev.akarah.cdata.script.value.mc.REntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -111,7 +112,7 @@ public class Main implements ModInitializer {
                                     if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                         try {
                                             var start = System.nanoTime()/1000000.0;
-                                            method.invoke(REntity.of(serverPlayer));
+                                            method.invoke(REntityEvent.of(REntity.of(serverPlayer)));
                                             var end = System.nanoTime()/1000000.0;
                                             ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                         } catch (Throwable e) {

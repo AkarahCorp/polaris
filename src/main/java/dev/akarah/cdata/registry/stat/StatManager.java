@@ -4,7 +4,8 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
-import dev.akarah.cdata.script.value.REntity;
+import dev.akarah.cdata.script.value.event.REntityEvent;
+import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,8 +44,7 @@ public class StatManager {
     );
 
     public void loopPlayers() {
-        var eventName = ResourceLocation.withDefaultNamespace("player/tick");
-        var functions = Resources.actionManager().functionsByEvent(eventName);
+        var functions = Resources.actionManager().functionsByEventType("player.tick");
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
@@ -61,7 +61,9 @@ public class StatManager {
             }
             this.set(player, stats.performFinalCalculations());
 
-            Resources.actionManager().callFunctions(functions, List.of(REntity.of(player)));
+
+            Resources.actionManager().callEvents(functions, REntityEvent.of(REntity.of(player)));
+
 
             var packet = new ClientboundPlayerInfoUpdatePacket(
                     EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),

@@ -1,10 +1,13 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
+import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import net.minecraft.core.Holder;
+import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
+import dev.akarah.cdata.script.value.mc.rt.DynamicContainerMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,8 +15,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.inventory.MenuType;
 
 public class REntity extends RuntimeValue<Entity> {
@@ -72,6 +73,20 @@ public class REntity extends RuntimeValue<Entity> {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             serverPlayer.sendSystemMessage(message.javaValue(), true);
         }
+    }
+
+    @MethodTypeHint("(this: entity) -> string")
+    public static RString name(REntity $this) {
+        if($this.inner instanceof DynamicEntity dynamicEntity) {
+            return RString.of(dynamicEntity.base().name());
+        }
+        if($this.inner instanceof VisualEntity visual) {
+            return RString.of(visual.dynamic().base().name());
+        }
+        if($this.inner instanceof ServerPlayer serverPlayer) {
+            return RString.of(serverPlayer.getName().getString());
+        }
+        return RString.of("Unnamed");
     }
 
     @MethodTypeHint("(this: entity, name: text) -> void")

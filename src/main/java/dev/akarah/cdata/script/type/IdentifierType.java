@@ -1,8 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
-import dev.akarah.cdata.script.value.RIdentifier;
-import net.minecraft.resources.ResourceLocation;
+import dev.akarah.cdata.script.value.mc.RIdentifier;
 
 import java.lang.constant.ClassDesc;
 

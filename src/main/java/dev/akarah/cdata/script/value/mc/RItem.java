@@ -1,7 +1,8 @@
-package dev.akarah.cdata.script.value;
+package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.value.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
