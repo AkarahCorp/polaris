@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.value;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.value.mc.RVector;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
 import dev.akarah.cdata.script.value.mc.RIdentifier;
 import dev.akarah.cdata.script.value.mc.RInventory;
@@ -10,6 +11,7 @@ import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class GlobalNamespace {
     @MethodTypeHint("(min: number, max: number) -> list[number]")
@@ -26,6 +28,11 @@ public class GlobalNamespace {
             idx += 1;
         }
         return list;
+    }
+
+    @MethodTypeHint("(x: number, y: number, z: number) -> vector")
+    public static RVector vec(RNumber x, RNumber y, RNumber z) {
+        return RVector.of(new Vec3(x.doubleValue(), y.doubleValue(), z.doubleValue()));
     }
 
     @MethodTypeHint("(v: any) -> text")
@@ -80,5 +87,10 @@ public class GlobalNamespace {
     @MethodTypeHint("(key: string) -> store")
     public static RStore store__save(RString key) {
         return RStore.of(Database.temp().get(key.javaValue()));
+    }
+
+    @MethodTypeHint("(this: any) -> boolean")
+    public static RBoolean is_nonnull(RuntimeValue<?> any) {
+        return RBoolean.of(any != null);
     }
 }

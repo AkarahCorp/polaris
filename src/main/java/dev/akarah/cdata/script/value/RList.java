@@ -28,6 +28,11 @@ public class RList extends RuntimeValue<List<RuntimeValue<?>>> {
         $this.inner.addAll(list.inner);
     }
 
+    @MethodTypeHint("<T>(this: list[T], value: T) -> boolean")
+    public static RBoolean contains(RList $this, RuntimeValue<?> value) {
+        return RBoolean.of($this.inner.contains(value));
+    }
+
     @Override
     public List<RuntimeValue<?>> javaValue() {
         return this.inner;

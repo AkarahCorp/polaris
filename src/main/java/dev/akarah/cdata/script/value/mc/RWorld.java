@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -53,7 +55,7 @@ public class RWorld extends RuntimeValue<ServerLevel> {
     }
 
     @MethodTypeHint("(this: world, position: vector) -> identifier")
-    public static RIdentifier get_block(RWorld world, RVector vector) {
+    public static RIdentifier block_at(RWorld world, RVector vector) {
         return RIdentifier.of(
                 world.javaValue().getBlockState(vector.asBlockPos())
                         .getBlock().builtInRegistryHolder().key().location()
@@ -62,7 +64,7 @@ public class RWorld extends RuntimeValue<ServerLevel> {
 
 
     @MethodTypeHint("(this: world, position: vector) -> dict[string, any]")
-    public static RDict get_block_state(RWorld world, RVector vector) {
+    public static RDict block_state_at(RWorld world, RVector vector) {
         var dict = RDict.create();
         var state = world.javaValue().getBlockState(vector.asBlockPos());
         for(var property : state.getProperties()) {
@@ -77,5 +79,18 @@ public class RWorld extends RuntimeValue<ServerLevel> {
             }
         }
         return dict;
+    }
+
+    @MethodTypeHint("(this: world, position: vector) -> inventory")
+    public static RInventory block_inventory_at(RWorld world, RVector position) {
+        var entity = world.javaValue().getBlockEntity(position.asBlockPos());
+        System.out.println(entity);
+        if(entity == null) {
+            return null;
+        }
+        if(entity instanceof Container container) {
+            return RInventory.of(container);
+        }
+        return null;
     }
 }
