@@ -6,7 +6,6 @@ import com.mojang.serialization.DataResult;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.profiling.jfr.stats.StructureGenStat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +77,7 @@ public class DslTokenizer {
                         case "else" -> new DslToken.ElseKeyword(this.createSpan(start));
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
-                        case "schema" -> new DslToken.SchemaKeyword(this.createSpan(start));
+                        case "function" -> new DslToken.FunctionKeyword(this.createSpan(start));
                         case "foreach" -> new DslToken.ForeachKeyword(this.createSpan(start));
                         case "in" -> new DslToken.InKeyword(this.createSpan(start));
                         case "break" -> new DslToken.BreakKeyword(this.createSpan(start));

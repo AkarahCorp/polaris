@@ -89,7 +89,7 @@ public interface DslToken {
 
     }
 
-    record SchemaKeyword(SpanData span) implements DslToken {
+    record FunctionKeyword(SpanData span) implements DslToken {
 
     }
 

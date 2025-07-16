@@ -50,7 +50,7 @@ public class DslParser {
     }
 
     public SchemaExpression parseSchema() {
-        expect(DslToken.SchemaKeyword.class);
+        expect(DslToken.FunctionKeyword.class);
         expect(DslToken.OpenParen.class);
 
         var parameters = new ArrayList<Pair<String, Type<?>>>();
