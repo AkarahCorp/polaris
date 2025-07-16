@@ -13,9 +13,9 @@ public class RDict extends RuntimeValue<Map<RuntimeValue<?>, RuntimeValue<?>>> {
         return new RDict();
     }
 
-    @MethodTypeHint("<K, V>(dictionary: dict[K, V], key: K) -> V")
-    public static RuntimeValue<?> get(RDict dict, RuntimeValue<?> key) {
-        return dict.inner.get(key);
+    @MethodTypeHint("<K, V>(dictionary: dict[K, V], key: K) -> nullable[V]")
+    public static RNullable get(RDict dict, RuntimeValue<?> key) {
+        return RNullable.of(dict.inner.get(key));
     }
 
     @MethodTypeHint("<K, V>(dictionary: dict[K, V], key: K, value: V) -> V")

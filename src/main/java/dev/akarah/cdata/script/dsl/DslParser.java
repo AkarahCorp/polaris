@@ -94,6 +94,12 @@ public class DslParser {
             case "text" -> _ -> new SpannedType<>(Type.text(), identifier.span());
             case "inventory" -> _ -> new SpannedType<>(Type.inventory(), identifier.span());
             case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
+            case "nullable" -> {
+                expect(DslToken.OpenBracket.class);
+                var subtype = parseType(typeVariables);
+                expect(DslToken.CloseBracket.class);
+                yield e -> new SpannedType<>(Type.nullable(subtype.apply(e)), identifier.span());
+            }
             case "list" -> {
                 expect(DslToken.OpenBracket.class);
                 var subtype = parseType(typeVariables);

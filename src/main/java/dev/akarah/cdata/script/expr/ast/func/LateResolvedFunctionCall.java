@@ -18,10 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class LateResolvedFunctionCall implements Expression {
     String functionName;
@@ -178,10 +175,25 @@ public class LateResolvedFunctionCall implements Expression {
     }
 
     public Expression resolve(CodegenContext ctx) {
+        var tries = Arrays.stream(this.functionLookupPossibilities(ctx))
+                .map(Pair::getSecond)
+                .map(x -> x
+                        .replaceFirst("\\$_", "[")
+                        .replaceFirst("_\\$", "]")
+                        .replace("__", "."))
+                .map(x -> "fn " + x)
+                .toList()
+                .toString();
         return this.resolveFromCache()
                 .or(() -> this.resolveJvmAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
-                .orElseThrow(() -> new ParsingException("no clue how to resolve `" + this.functionName + "` sorry", this.span()));
+                .orElseThrow(() -> new ParsingException(
+                        "Can not resolve function `"
+                                + this.functionName
+                                + "`. Tried possibilities: "
+                                + tries,
+                        this.span()
+                ));
     }
 
     private static Expression[] toArray(List<Expression> list) {

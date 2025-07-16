@@ -13,9 +13,13 @@ public class RList extends RuntimeValue<List<RuntimeValue<?>>> {
         return new RList();
     }
 
-    @MethodTypeHint("<T>(this: list[T], index: number) -> T")
-    public static RuntimeValue<?> get(RList $this, RNumber index) {
-        return $this.inner.get(index.javaValue().intValue());
+    @MethodTypeHint("<T>(this: list[T], index: number) -> nullable[T]")
+    public static RNullable get(RList $this, RNumber index) {
+        try {
+            return RNullable.of($this.inner.get(index.javaValue().intValue()));
+        } catch (Exception e) {
+            return RNullable.empty();
+        }
     }
 
     @MethodTypeHint("<T>(this: list[T], value: T) -> void")

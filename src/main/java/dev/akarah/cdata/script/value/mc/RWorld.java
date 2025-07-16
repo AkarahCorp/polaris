@@ -81,16 +81,12 @@ public class RWorld extends RuntimeValue<ServerLevel> {
         return dict;
     }
 
-    @MethodTypeHint("(this: world, position: vector) -> inventory")
-    public static RInventory block_inventory_at(RWorld world, RVector position) {
+    @MethodTypeHint("(this: world, position: vector) -> nullable[inventory]")
+    public static RNullable block_inventory_at(RWorld world, RVector position) {
         var entity = world.javaValue().getBlockEntity(position.asBlockPos());
-        System.out.println(entity);
-        if(entity == null) {
-            return null;
-        }
         if(entity instanceof Container container) {
-            return RInventory.of(container);
+            return RNullable.of(RInventory.of(container));
         }
-        return null;
+        return RNullable.empty();
     }
 }

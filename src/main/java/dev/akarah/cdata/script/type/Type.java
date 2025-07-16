@@ -98,6 +98,11 @@ public interface Type<T> {
                     valueType.resolveTypeVariables(matchDictType.valueType(), typeSet);
                 }
             }
+            case NullableType matchNullableType -> {
+                if(this2 instanceof NullableType(Type<?> subtype)) {
+                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet);
+                }
+            }
             default -> {}
         }
         return incomingMatch.fixTypeVariables(typeSet);
@@ -118,6 +123,10 @@ public interface Type<T> {
             case DictionaryType dictionaryType -> Type.dict(
                     dictionaryType.keyType().fixTypeVariables(typeSet),
                     dictionaryType.valueType().fixTypeVariables(typeSet)
+            );
+
+            case NullableType nullableType -> Type.nullable(
+                    nullableType.subtype().fixTypeVariables(typeSet)
             );
             default -> this;
         };
@@ -177,6 +186,10 @@ public interface Type<T> {
 
     static StoreType store() {
         return new StoreType();
+    }
+
+    static NullableType nullable(Type<?> subtype) {
+        return new NullableType(subtype);
     }
 
     static InventoryType inventory() {
