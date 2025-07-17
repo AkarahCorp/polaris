@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Items;
 
-public class RInventory extends RuntimeValue<Container> {
+public class RInventory extends RuntimeValue {
     Container inner;
     RText name = RText.of(Component.literal("Menu"));
 

@@ -36,7 +36,7 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint("(v: any) -> text")
-    public static RText text(RuntimeValue<?> runtimeValue) {
+    public static RText text(RuntimeValue runtimeValue) {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
     }
 
@@ -49,21 +49,37 @@ public class GlobalNamespace {
         return RIdentifier.of(ResourceLocation.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
     }
 
-    @MethodTypeHint("(item_id: identifier) -> item")
-    public static RItem item__create(RIdentifier id) {
-        return RItem.of(CustomItem.byId(id.javaValue())
+    @MethodTypeHint("(item_id: identifier, application?: function(item) -> void) -> item")
+    public static RItem item__create(RIdentifier id, RFunction function) {
+        var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(CustomItem::toItemStack)
                 .orElse(ItemStack.EMPTY));
+        if(function != null) {
+            try {
+                function.javaValue().invoke(item);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return item;
     }
 
-    @MethodTypeHint("(item_id: identifier, template: identifier) -> item")
-    public static RItem item__templated(RIdentifier id, RIdentifier template) {
-        return RItem.of(CustomItem.byId(id.javaValue())
+    @MethodTypeHint("(item_id: identifier, template: identifier, application?: function(item) -> void) -> item")
+    public static RItem item__templated(RIdentifier id, RIdentifier template, RFunction function) {
+        var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(template.javaValue()))
                 .orElse(ItemStack.EMPTY));
+        if(function != null) {
+            try {
+                function.javaValue().invoke(item);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return item;
     }
 
-    @MethodTypeHint("(items: list[item]?, name: text?) -> inventory")
+    @MethodTypeHint("(items?: list[item], name?: text) -> inventory")
     public static RInventory inventory__create(RList itemList, RText name) {
         var inv = RInventory.of(new DynamicContainer(27));
         if(itemList != null) {
@@ -90,7 +106,7 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint("<T>(this: T) -> nullable[T]")
-    public static RNullable nullable__of(RuntimeValue<?> any) {
+    public static RNullable nullable__of(RuntimeValue any) {
         return RNullable.of(any);
     }
 

@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.value;
 
-public class RNumber extends RuntimeValue<Double> {
+public class RNumber extends RuntimeValue {
     private final double inner;
 
     private RNumber(double inner) {

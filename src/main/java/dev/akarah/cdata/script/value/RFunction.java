@@ -6,7 +6,7 @@ import java.lang.invoke.MethodHandle;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RFunction extends RuntimeValue<MethodHandle> {
+public class RFunction extends RuntimeValue {
     private final MethodHandle inner;
 
     private RFunction(MethodHandle inner) {

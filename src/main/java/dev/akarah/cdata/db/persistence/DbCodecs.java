@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DbCodecs {
-    public static StreamCodec<RegistryFriendlyByteBuf, RuntimeValue<?>> DYNAMIC_CODEC = StreamCodec.recursive(selfCodec -> StreamCodec.of(
+    public static StreamCodec<RegistryFriendlyByteBuf, RuntimeValue> DYNAMIC_CODEC = StreamCodec.recursive(selfCodec -> StreamCodec.of(
             (buf, object) -> {
                 switch (object) {
                     case RNumber d -> {
@@ -72,7 +72,7 @@ public class DbCodecs {
             }
     ));
 
-    public static StreamCodec<RegistryFriendlyByteBuf, Object2ObjectAVLTreeMap<String, RuntimeValue<?>>> TREE_MAP_CODEC = StreamCodec.of(
+    public static StreamCodec<RegistryFriendlyByteBuf, Object2ObjectAVLTreeMap<String, RuntimeValue>> TREE_MAP_CODEC = StreamCodec.of(
             (buf, map) -> {
                 buf.writeVarInt(map.size());
                 for(var entry : map.entrySet()) {
@@ -81,7 +81,7 @@ public class DbCodecs {
                 }
             },
             (buf) -> {
-                var map = new Object2ObjectAVLTreeMap<String, RuntimeValue<?>>();
+                var map = new Object2ObjectAVLTreeMap<String, RuntimeValue>();
                 var entries = buf.readVarInt();
                 for(int i = 0; i < entries; i++) {
                     var key = ByteBufCodecs.STRING_UTF8.decode(buf);

@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.MenuType;
 
-public class REntity extends RuntimeValue<Entity> {
+public class REntity extends RuntimeValue {
     private final Entity inner;
 
     private REntity(Entity inner) {

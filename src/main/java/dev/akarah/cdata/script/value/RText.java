@@ -3,7 +3,7 @@ package dev.akarah.cdata.script.value;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import net.minecraft.network.chat.Component;
 
-public class RText extends RuntimeValue<Component> {
+public class RText extends RuntimeValue {
     private final Component inner;
 
     private RText(Component inner) {

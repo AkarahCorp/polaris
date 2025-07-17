@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
-    private final RuntimeValue<?> inner;
+public class RNullable extends RuntimeValue {
+    private final RuntimeValue inner;
 
-    private RNullable(RuntimeValue<?> inner) {
+    private RNullable(RuntimeValue inner) {
         this.inner = inner;
     }
 
@@ -19,7 +19,7 @@ public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
     }
 
     @MethodTypeHint("<T>(value: T) -> nullable[T]")
-    public static RNullable of(RuntimeValue<?> value) {
+    public static RNullable of(RuntimeValue value) {
         return new RNullable(value);
     }
 
@@ -34,7 +34,7 @@ public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
     }
 
     @MethodTypeHint("<T>(value: nullable[T]) -> T")
-    public static RuntimeValue<?> unwrap(RNullable $this) {
+    public static RuntimeValue unwrap(RNullable $this) {
         if($this.inner == null) {
             throw new RuntimeException("Can not unwrap null value.");
         }
@@ -56,7 +56,7 @@ public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
     public static RNullable map(RNullable $this, RFunction function) {
         if($this.inner != null) {
             try {
-                return RNullable.of((RuntimeValue<?>) function.javaValue().invoke($this.inner));
+                return RNullable.of((RuntimeValue) function.javaValue().invoke($this.inner));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -65,7 +65,7 @@ public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
     }
 
     @Override
-    public Optional<RuntimeValue<?>> javaValue() {
+    public Optional<RuntimeValue> javaValue() {
         return Optional.ofNullable(this.inner);
     }
 }

@@ -1,16 +1,21 @@
 package dev.akarah.cdata.script.value;
 
+import com.google.common.collect.Lists;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RList extends RuntimeValue<List<RuntimeValue<?>>> {
-    private final List<RuntimeValue<?>> inner = new ArrayList<>();
+public class RList extends RuntimeValue {
+    private final List<RuntimeValue> inner;
+
+    public RList(List<RuntimeValue> inner) {
+        this.inner = inner;
+    }
 
     @MethodTypeHint("<T>() -> list[T]")
     public static RList create() {
-        return new RList();
+        return new RList(Lists.newArrayList());
     }
 
     @MethodTypeHint("<T>(this: list[T], index: number) -> nullable[T]")
@@ -23,7 +28,7 @@ public class RList extends RuntimeValue<List<RuntimeValue<?>>> {
     }
 
     @MethodTypeHint("<T>(this: list[T], value: T) -> void")
-    public static void add(RList $this, RuntimeValue<?> object) {
+    public static void add(RList $this, RuntimeValue object) {
         $this.inner.add(object);
     }
 
@@ -33,12 +38,12 @@ public class RList extends RuntimeValue<List<RuntimeValue<?>>> {
     }
 
     @MethodTypeHint("<T>(this: list[T], value: T) -> boolean")
-    public static RBoolean contains(RList $this, RuntimeValue<?> value) {
+    public static RBoolean contains(RList $this, RuntimeValue value) {
         return RBoolean.of($this.inner.contains(value));
     }
 
     @Override
-    public List<RuntimeValue<?>> javaValue() {
+    public List<RuntimeValue> javaValue() {
         return this.inner;
     }
 }

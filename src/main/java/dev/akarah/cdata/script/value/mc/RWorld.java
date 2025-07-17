@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public class RWorld extends RuntimeValue<ServerLevel> {
+public class RWorld extends RuntimeValue {
     private final ServerLevel inner;
 
     private RWorld(ServerLevel inner) {

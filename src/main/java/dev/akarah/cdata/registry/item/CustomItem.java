@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import dev.akarah.cdata.script.value.event.RItemEvent;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
+import java.util.Map;
 import java.util.Optional;
 
 public record CustomItem(
@@ -25,7 +27,7 @@ public record CustomItem(
         Optional<StatsObject> stats,
         Optional<EquippableData> equippable,
         Optional<ResourceLocation> itemTemplate,
-        Optional<CustomData> customData,
+        Optional<Map<String, RuntimeValue>> customData,
         Optional<ItemEvents> events
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -34,7 +36,7 @@ public record CustomItem(
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
             ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
-            CustomData.CODEC.optionalFieldOf("custom_data").forGetter(CustomItem::customData),
+            Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData),
             ItemEvents.CODEC.optionalFieldOf("events").forGetter(CustomItem::events)
     ).apply(instance, CustomItem::new));
 

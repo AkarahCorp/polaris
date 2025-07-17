@@ -7,7 +7,7 @@ import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.network.chat.Component;
 
 public class OperationUtil {
-    public static RuntimeValue<?> add(RuntimeValue<?> lhs, RuntimeValue<?> rhs) {
+    public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {
         if(rhs == null) {
             rhs = RString.of("null");
         }

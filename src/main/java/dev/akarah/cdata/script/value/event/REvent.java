@@ -4,7 +4,7 @@ import dev.akarah.cdata.script.value.RBoolean;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import dev.akarah.cdata.script.value.mc.REntity;
 
-public class REvent extends RuntimeValue<Void> {
+public class REvent extends RuntimeValue {
     private final RBoolean cancelled;
 
     public REvent() {

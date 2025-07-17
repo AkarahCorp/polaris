@@ -3,7 +3,7 @@ package dev.akarah.cdata.script.value;
 import dev.akarah.cdata.db.DataStore;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 
-public class RStore extends RuntimeValue<DataStore> {
+public class RStore extends RuntimeValue {
     private final DataStore inner;
 
     private RStore(DataStore inner) {
@@ -20,12 +20,12 @@ public class RStore extends RuntimeValue<DataStore> {
     }
 
     @MethodTypeHint("(this: store, key: string, value: any) -> void")
-    public static void set(RStore store, RString key, RuntimeValue<?> value) {
+    public static void set(RStore store, RString key, RuntimeValue value) {
         store.javaValue().put(key.javaValue(), value);
     }
 
     @MethodTypeHint("(this: store, key: string, fallback: any?) -> any")
-    public static RuntimeValue<?> get(RStore store, RString key, RuntimeValue<?> fallback) {
+    public static RuntimeValue get(RStore store, RString key, RuntimeValue fallback) {
         return store.javaValue().get(key.javaValue(), fallback);
     }
 }

@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.value;
 
-public class RString extends RuntimeValue<String> {
+public class RString extends RuntimeValue {
     private final String inner;
 
     private RString(String inner) {

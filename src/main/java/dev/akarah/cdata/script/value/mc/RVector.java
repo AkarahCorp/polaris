@@ -5,7 +5,7 @@ import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
-public class RVector extends RuntimeValue<Vec3> {
+public class RVector extends RuntimeValue {
     private final Vec3 inner;
 
     private RVector(Vec3 inner) {

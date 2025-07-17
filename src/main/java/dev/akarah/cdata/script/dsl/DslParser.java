@@ -195,14 +195,22 @@ public class DslParser {
         expect(DslToken.OpenParen.class);
         while(!(peek() instanceof DslToken.CloseParen)) {
             var name = expect(DslToken.Identifier.class);
+
+            var required = true;
+            if(peek() instanceof DslToken.QuestionMark) {
+                required = false;
+                expect(DslToken.QuestionMark.class);
+            }
             expect(DslToken.Colon.class);
             var type = parseType(typeParameters);
-            if(peek() instanceof DslToken.QuestionMark) {
-                expect(DslToken.QuestionMark.class);
-                ts.optional(name.identifier(), type);
-            } else {
+
+
+            if(required) {
                 ts.required(name.identifier(), type);
+            } else {
+                ts.optional(name.identifier(), type);
             }
+
             if(!(peek() instanceof DslToken.CloseParen)) {
                 expect(DslToken.Comma.class);
             }

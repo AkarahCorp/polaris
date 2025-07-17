@@ -7,10 +7,10 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import java.util.Map;
 
 public class DataStore {
-    Object2ObjectAVLTreeMap<String, RuntimeValue<?>> objects;
+    Object2ObjectAVLTreeMap<String, RuntimeValue> objects;
 
 
-    private DataStore(Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map) {
+    private DataStore(Object2ObjectAVLTreeMap<String, RuntimeValue> map) {
         this.objects = map;
     }
 
@@ -18,19 +18,19 @@ public class DataStore {
         return new DataStore(new Object2ObjectAVLTreeMap<>());
     }
 
-    public static DataStore of(Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map) {
+    public static DataStore of(Object2ObjectAVLTreeMap<String, RuntimeValue> map) {
         return new DataStore(map);
     }
 
-    public void put(String key, RuntimeValue<?> value) {
+    public void put(String key, RuntimeValue value) {
         this.objects.put(key, value);
     }
 
-    public RuntimeValue<?> get(String key, RuntimeValue<?> fallback) {
+    public RuntimeValue get(String key, RuntimeValue fallback) {
         return this.objects.getOrDefault(key, fallback);
     }
 
-    public Object2ObjectAVLTreeMap<String, RuntimeValue<?>> map() {
+    public Object2ObjectAVLTreeMap<String, RuntimeValue> map() {
         return this.objects;
     }
 }
