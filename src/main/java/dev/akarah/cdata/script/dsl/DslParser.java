@@ -15,7 +15,6 @@ import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
-import dev.akarah.cdata.script.type.UnresolvedType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,7 @@ public class DslParser {
 
     public Function<ExpressionTypeSet, Type<?>> parseType(List<String> typeVariables) {
         return switch (peek()) {
-            case DslToken.FunctionKeyword ignored -> {
+            case DslToken.FunctionKeyword _ -> {
                 expect(DslToken.FunctionKeyword.class);
                 var parameterTypes = Lists.<Function<ExpressionTypeSet, Type<?>>>newArrayList();
                 expect(DslToken.OpenParen.class);
@@ -184,7 +183,12 @@ public class DslParser {
                     }
                     default -> _ -> {
                         if(this.userTypes.containsKey(identifier.identifier().replace(".", "_"))) {
-                            return this.userTypes.get(identifier.identifier().replace(".", "_"));
+                            return new SpannedType<>(
+                                    this.userTypes.get(identifier.identifier().replace(".", "_")),
+                                    identifier.span(),
+                                    identifier.identifier(),
+                                    identifier.identifier()
+                            );
                         }
                         throw new ParsingException("`" + identifier.identifier() + "` is not a valid type.", identifier.span());
                     };

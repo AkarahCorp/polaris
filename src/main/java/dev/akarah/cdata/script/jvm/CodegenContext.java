@@ -201,7 +201,7 @@ public class CodegenContext {
      * @return This.
      */
     public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
-        var returnType = action.returnType().despan() instanceof VoidType ? void.class : RuntimeValue.class;
+        var returnType = action.returnType().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
             parameters.add(CodegenUtil.ofClass(RuntimeValue.class));

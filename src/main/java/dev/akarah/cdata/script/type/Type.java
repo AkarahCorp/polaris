@@ -35,15 +35,15 @@ public interface Type<T> {
         );
     }
 
-    default Type<?> despan() {
-        if(this instanceof SpannedType<?,?> spannedType) {
-            return spannedType.type();
+    default Type<?> flatten() {
+        if(this instanceof SpannedType<?> spannedType) {
+            return spannedType.type().flatten();
         }
         return this;
     }
 
-    default SpannedType<T, Type<T>> spanned(SpanData spanData) {
-        return new SpannedType<>(this, spanData);
+    default SpannedType<T> spanned(SpanData spanData) {
+        return new SpannedType<>(this, spanData, this.typeName(), this.verboseTypeName());
     }
 
     default TypeKind classFileType() {
@@ -82,13 +82,13 @@ public interface Type<T> {
      * @return The new variant of `incomingMatch`, with type variables sufficiently replaced.
      */
     default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet, SpanData fallbackSpan) {
-        var this2 = this.despan();
-        incomingMatch = incomingMatch.despan();
+        var this2 = this.flatten();
+        incomingMatch = incomingMatch.flatten();
 
         SpanData span = null;
-        if(this instanceof SpannedType<?,?> spannedType) {
+        if(this instanceof SpannedType<?> spannedType) {
             span = spannedType.span();
-        } else if(incomingMatch instanceof SpannedType<?,?> spannedType) {
+        } else if(incomingMatch instanceof SpannedType<?> spannedType) {
             span = spannedType.span();
         } else {
             span = fallbackSpan;

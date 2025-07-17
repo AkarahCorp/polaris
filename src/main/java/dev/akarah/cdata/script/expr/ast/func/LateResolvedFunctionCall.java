@@ -71,7 +71,7 @@ public class LateResolvedFunctionCall implements Expression {
     }
 
     public String alternateWithNormalTypeName(CodegenContext ctx) {
-        return this.virtualType(ctx).typeName() + "__" + this.functionName.replace(".", "__");
+        return this.virtualType(ctx).typeName() + "_" + this.functionName.replace(".", "_");
     }
 
     public String alternateWithVerboseTypeName(CodegenContext ctx) {
@@ -86,7 +86,7 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
-        if(!(ctx.getTypeOf(this.parameters.getFirst()).despan() instanceof StructType(List<StructType.Field> fields))) {
+        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(List<StructType.Field> fields))) {
             return Optional.empty();
         }
         int idx = 0;
@@ -185,6 +185,7 @@ public class LateResolvedFunctionCall implements Expression {
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
+        System.out.println(Resources.actionManager().expressions().keySet() + " vs. " + functionName);
         var functionSchema = Resources.actionManager().expressions().get(functionName);
         if(functionSchema == null) {
             functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));
@@ -192,7 +193,7 @@ public class LateResolvedFunctionCall implements Expression {
         }
 
         if(functionSchema != null) {
-            var returnType = functionSchema.returnType().despan() instanceof VoidType ? void.class : RuntimeValue.class;
+            var returnType = functionSchema.returnType().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
             var typeParameters = new ArrayList<ClassDesc>();
             for(var parameter : functionSchema.parameters()) {
                 typeParameters.add(parameter.getSecond().classDescType());

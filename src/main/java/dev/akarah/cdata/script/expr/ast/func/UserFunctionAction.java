@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 public record UserFunctionAction(
@@ -15,8 +16,15 @@ public record UserFunctionAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
+        int i = 0;
+        var lookup = MethodHandles.lookup();
         for(var expr : parameters) {
-            ctx.pushValue(expr);
+            try {
+                ctx.pushValue(expr).typecheck(methodTypeDesc.parameterList().get(i).resolveConstantDesc(lookup));
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+            i++;
         }
         ctx.invokeStatic(
                 CodegenContext.ACTION_CLASS_DESC,

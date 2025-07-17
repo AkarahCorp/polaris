@@ -26,7 +26,7 @@ public record ForEachAction(
     public void compile(CodegenContext ctx) {
         var local = ctx.bytecodeUnsafe().allocateLocal(TypeKind.REFERENCE);
 
-        var listValueType = ctx.getTypeOf(list).despan();
+        var listValueType = ctx.getTypeOf(list).flatten();
         Type<?> listSubType;
         if(listValueType instanceof ListType(Type<?> subtype))  {
             listSubType = subtype;

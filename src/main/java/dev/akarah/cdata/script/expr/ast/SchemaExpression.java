@@ -28,7 +28,7 @@ public record SchemaExpression(
 
     public MethodType methodType() {
         return MethodType.methodType(
-                this.returnType.despan() instanceof VoidType ? void.class : RuntimeValue.class,
+                this.returnType.flatten() instanceof VoidType ? void.class : RuntimeValue.class,
                 this.parameters.stream()
                         .map(Pair::getSecond)
                         .map(Type::typeClass)
