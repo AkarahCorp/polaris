@@ -1,10 +1,12 @@
 package dev.akarah.cdata.db.persistence;
 
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.RVector;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -39,6 +41,17 @@ public class DbCodecs {
                             selfCodec.encode(buf, entry.getValue());
                         }
                     }
+                    case RStruct struct -> {
+                        buf.writeVarInt(5);
+                        buf.writeVarInt(struct.javaValue().length);
+                        for(var entry : struct.javaValue()) {
+                            selfCodec.encode(buf, entry);
+                        }
+                    }
+                    case RVector vector -> {
+                        buf.writeVarInt(6);
+                        Vec3.STREAM_CODEC.encode(buf, vector.javaValue());
+                    }
                     default -> throw new RuntimeException("Unable to make a codec out of " + object);
                 }
             },
@@ -66,6 +79,17 @@ public class DbCodecs {
                             RDict.put(map, selfCodec.decode(buf), selfCodec.decode(buf));
                         }
                         return map;
+                    }
+                    case 5 -> {
+                        var size = buf.readVarInt();
+                        var struct = RStruct.create(size);
+                        for(int i = 0; i < size; i++) {
+                            RStruct.put(struct, i, selfCodec.decode(buf));
+                        }
+                        return struct;
+                    }
+                    case 6 -> {
+                        return RVector.of(Vec3.STREAM_CODEC.decode(buf));
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }
