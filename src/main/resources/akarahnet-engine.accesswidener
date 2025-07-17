@@ -7,4 +7,3 @@ accessible field net/minecraft/network/protocol/game/ClientboundAddEntityPacket 
 mutable field net/minecraft/network/protocol/game/ClientboundAddEntityPacket type Lnet/minecraft/world/entity/EntityType;
 accessible method net/minecraft/network/syncher/SynchedEntityData <init> (Lnet/minecraft/network/syncher/SyncedDataHolder;[Lnet/minecraft/network/syncher/SynchedEntityData$DataItem;)V
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
-mutable field com/mojang/authlib/GameProfile id Ljava/util/UUID;
