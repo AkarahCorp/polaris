@@ -39,7 +39,7 @@ public class RNullable extends RuntimeValue {
         return $this.inner;
     }
 
-    @MethodTypeHint(signature = "<T>(value: nullable[T], callback: function(inventory) -> void) -> void", documentation = "Runs the callback if the value inside is not null.")
+    @MethodTypeHint(signature = "<T>(value: nullable[T], callback: function(T) -> void) -> void", documentation = "Runs the callback if the value inside is not null.")
     public static void if_present(RNullable $this, RFunction function) {
         if($this.inner != null) {
             try {
