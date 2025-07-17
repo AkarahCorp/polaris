@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.WrongMethodTypeException;
+import java.util.List;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;

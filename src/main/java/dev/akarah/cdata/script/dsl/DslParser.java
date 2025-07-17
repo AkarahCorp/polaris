@@ -163,7 +163,7 @@ public class DslParser {
                                     _ -> Type.events().entity(eventType.identifier()).spanned(identifier.span());
                             case "entity.interact", "entity.player_attack", "entity.player_kill" ->
                                     _ -> Type.events().doubleEntity(eventType.identifier()).spanned(identifier.span());
-                            case "item.right_click", "item.left_click" ->
+                            case "item.right_click", "item.left_click", "item.menu_click" ->
                                     _ -> Type.events().entityItem(eventType.identifier()).spanned(identifier.span());
                             case "item.decorate" ->
                                     _ -> Type.events().item(eventType.identifier()).spanned(identifier.span());

@@ -21,6 +21,9 @@ public record JvmFunctionAction(
         for(var expr : parameters) {
             ctx.pushValue(expr);
             try {
+                if(expr == null) {
+                    continue;
+                }
                 if(!(ctx.getTypeOf(expr) instanceof JavaClassType<?>)) {
                     ctx.typecheck(ctx.getTypeOf(expr).typeClass());
                 }

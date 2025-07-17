@@ -475,6 +475,9 @@ public class CodegenContext {
     }
 
     public Type<?> getTypeOf(Expression expression) {
+        if(expression == null) {
+            return Type.any();
+        }
         return expression.type(this);
     }
 
