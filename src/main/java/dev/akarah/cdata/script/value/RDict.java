@@ -18,6 +18,11 @@ public class RDict extends RuntimeValue<Map<RuntimeValue<?>, RuntimeValue<?>>> {
         return RNullable.of(dict.inner.get(key));
     }
 
+    @MethodTypeHint("<K, V>(dictionary: dict[K, V], key: K) -> V")
+    public static RuntimeValue<?> get_or_throw(RDict dict, RuntimeValue<?> key) {
+        return RNullable.unwrap(RNullable.of(dict.inner.get(key)));
+    }
+
     @MethodTypeHint("<K, V>(dictionary: dict[K, V], key: K, value: V) -> V")
     public static void put(RDict dict, RuntimeValue<?> key, RuntimeValue<?> value) {
         dict.inner.put(key, value);

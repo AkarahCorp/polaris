@@ -27,4 +27,9 @@ public abstract class RuntimeValue<T> {
             default -> null;
         };
     }
+
+    @Override
+    public int hashCode() {
+        return this.javaValue().hashCode();
+    }
 }

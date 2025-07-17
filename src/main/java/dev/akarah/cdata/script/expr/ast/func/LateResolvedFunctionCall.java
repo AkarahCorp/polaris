@@ -8,11 +8,14 @@ import dev.akarah.cdata.script.dsl.DslTokenizer;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.ast.value.CdExpression;
+import dev.akarah.cdata.script.expr.ast.value.StringExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionStream;
+import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
-import dev.akarah.cdata.script.value.GlobalNamespace;
+import dev.akarah.cdata.script.value.*;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.ClassDesc;
@@ -77,6 +80,54 @@ public class LateResolvedFunctionCall implements Expression {
                 .replace("]", "_$")
                 .replace(",", "_")
                 .replace(".", "__");
+    }
+
+    public Optional<Expression> resolveStructGetter(CodegenContext ctx) {
+        if(this.parameters.isEmpty()) {
+            return Optional.empty();
+        }
+        if(!(ctx.getTypeOf(this.parameters.getFirst()).despan() instanceof StructType(List<StructType.Field> fields))) {
+            return Optional.empty();
+        }
+        int idx = 0;
+        for(var field : fields) {
+            var keyExpr = new CdExpression(idx);
+            idx += 1;
+            if(this.functionName.equals(field.name()) && this.parameters.size() == 2) {
+                return Optional.of(new JvmFunctionAction(
+                        CodegenUtil.ofClass(RStruct.class),
+                        "put",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofVoid(),
+                                List.of(
+                                        CodegenUtil.ofClass(RStruct.class),
+                                        CodegenUtil.ofInt(),
+                                        CodegenUtil.ofClass(RuntimeValue.class)
+                                )
+                        ),
+                        List.of(this.parameters.getFirst(), keyExpr, this.parameters.get(1)),
+                        Type.void_()
+                ));
+            }
+
+            if(this.functionName.equals(field.name()) && this.parameters.size() == 1) {
+                return Optional.of(new JvmFunctionAction(
+                        CodegenUtil.ofClass(RStruct.class),
+                        "get",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofClass(RuntimeValue.class),
+                                List.of(
+                                        CodegenUtil.ofClass(RStruct.class),
+                                        CodegenUtil.ofInt()
+                                )
+                        ),
+                        List.of(this.parameters.getFirst(), keyExpr),
+                        field.type()
+
+                ));
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<Expression> resolveJvmAction(CodegenContext ctx) {
@@ -185,6 +236,7 @@ public class LateResolvedFunctionCall implements Expression {
                 .toList()
                 .toString();
         return this.resolveFromCache()
+                .or(() -> this.resolveStructGetter(ctx))
                 .or(() -> this.resolveJvmAction(ctx))
                 .or(() -> this.resolveFromUserCode(ctx))
                 .orElseThrow(() -> new ParsingException(

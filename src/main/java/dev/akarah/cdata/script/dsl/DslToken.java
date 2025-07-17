@@ -93,6 +93,10 @@ public interface DslToken {
 
     }
 
+    record StructKeyword(SpanData span) implements DslToken {
+
+    }
+
     record ForeachKeyword(SpanData span) implements DslToken {
 
     }

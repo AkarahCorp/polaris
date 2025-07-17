@@ -46,7 +46,7 @@ public interface Type<T> {
     default TypeKind classFileType() {
         return TypeKind.REFERENCE;
     }
-    default List<Type<?>> subtypes() { return List.of(); }
+    default List<? extends Type<?>> subtypes() { return List.of(); }
 
     default String verboseTypeName() {
         var sb = new StringBuilder();
@@ -197,6 +197,10 @@ public interface Type<T> {
 
     static FunctionType function(Type<?> returnType, List<? extends Type<?>> parameters) {
         return new FunctionType(returnType, parameters);
+    }
+
+    static StructType struct(List<StructType.Field> fields) {
+        return new StructType(fields);
     }
 
     static VariableType var(ExpressionTypeSet typeSet, String name) {

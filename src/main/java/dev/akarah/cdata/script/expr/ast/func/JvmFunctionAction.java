@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr.ast.func;
 
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.JavaClassType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.lang.constant.ClassDesc;
@@ -18,9 +19,14 @@ public record JvmFunctionAction(
     @Override
     public void compile(CodegenContext ctx) {
         for(var expr : parameters) {
-            ctx
-                    .pushValue(expr)
-                    .typecheck(ctx.getTypeOf(expr).typeClass());
+            ctx.pushValue(expr);
+            try {
+                if(!(ctx.getTypeOf(expr) instanceof JavaClassType<?>)) {
+                    ctx.typecheck(ctx.getTypeOf(expr).typeClass());
+                }
+            } catch (IllegalArgumentException ignored) {
+
+            }
         }
         ctx.invokeStatic(
                 declaringClass,

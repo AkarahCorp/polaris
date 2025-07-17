@@ -8,15 +8,11 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.SpannedExpression;
 import dev.akarah.cdata.script.expr.ast.*;
 import dev.akarah.cdata.script.expr.ast.func.LateResolvedFunctionCall;
-import dev.akarah.cdata.script.expr.ast.value.BooleanExpression;
-import dev.akarah.cdata.script.expr.ast.value.NumberExpression;
-import dev.akarah.cdata.script.expr.ast.value.InlineDictExpression;
-import dev.akarah.cdata.script.expr.ast.value.InlineListExpression;
+import dev.akarah.cdata.script.expr.ast.value.*;
 import dev.akarah.cdata.script.expr.ast.operation.*;
-import dev.akarah.cdata.script.expr.ast.value.StringExpression;
-import dev.akarah.cdata.script.expr.ast.value.ComponentLiteralExpression;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
+import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 
 import java.util.ArrayList;
@@ -103,6 +99,22 @@ public class DslParser {
                                 .toList()
                 );
             }
+            case DslToken.StructKeyword structKeyword -> e -> {
+                expect(DslToken.StructKeyword.class);
+                expect(DslToken.OpenBrace.class);
+                var fields = Lists.<StructType.Field>newArrayList();
+                while(!(peek() instanceof DslToken.CloseBrace)) {
+                    var name = expect(DslToken.Identifier.class);
+                    expect(DslToken.Colon.class);
+                    var type = parseType(typeVariables);
+                    fields.add(new StructType.Field(name.identifier(), type.apply(e)));
+                    if(!(peek() instanceof DslToken.CloseBrace)) {
+                        expect(DslToken.Comma.class);
+                    }
+                }
+                expect(DslToken.CloseBrace.class);
+                return new SpannedType<>(Type.struct(fields), structKeyword.span());
+            };
             default -> {
                 var identifier = expect(DslToken.Identifier.class);
                 if(typeVariables.contains(identifier.identifier())) {
@@ -422,6 +434,22 @@ public class DslParser {
             case DslToken.FunctionKeyword functionKeyword -> {
                 this.index -= 1;
                 yield this.parseSchema().asLambdaExpression();
+            }
+            case DslToken.StructKeyword structKeyword -> {
+                var openBrace = expect(DslToken.OpenBrace.class);
+                var map = Lists.<Pair<String, Expression>>newArrayList();
+                while(!(peek() instanceof DslToken.CloseBrace)) {
+                    var key = expect(DslToken.Identifier.class).identifier();
+                    expect(DslToken.EqualSymbol.class);
+                    var value = parseValue();
+                    if(!(peek() instanceof DslToken.CloseBrace)) {
+                        expect(DslToken.Comma.class);
+                    }
+                    map.add(Pair.of(key, value));
+                }
+                var closeBrace = expect(DslToken.CloseBrace.class);
+
+                yield new InlineStructExpression(map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
             case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
             case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());

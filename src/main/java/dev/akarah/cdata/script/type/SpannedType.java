@@ -25,7 +25,7 @@ public record SpannedType<U,T extends Type<U>>(
     }
 
     @Override
-    public List<Type<?>> subtypes() {
+    public List<? extends Type<?>> subtypes() {
         return this.type.subtypes();
     }
 }
