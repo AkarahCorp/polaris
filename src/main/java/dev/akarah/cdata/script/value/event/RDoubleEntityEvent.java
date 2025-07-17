@@ -1,7 +1,6 @@
 package dev.akarah.cdata.script.value.event;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import dev.akarah.cdata.script.value.RuntimeValue;
 import dev.akarah.cdata.script.value.mc.REntity;
 
 public class RDoubleEntityEvent extends REvent {
@@ -22,22 +21,22 @@ public class RDoubleEntityEvent extends REvent {
         throw new RuntimeException("Not applicable to REntityEvent.");
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the primary entity associated with this event.")
     public static REntity primary(RDoubleEntityEvent event) {
         return event.primary;
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the secondary entity associated with this event.")
     public static REntity secondary(RDoubleEntityEvent event) {
         return event.secondary;
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the attacker associated with this event.")
     public static REntity attacker(RDoubleEntityEvent event) {
         return event.primary;
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the victim associated with this event.")
     public static REntity victim(RDoubleEntityEvent event) {
         return event.secondary;
     }

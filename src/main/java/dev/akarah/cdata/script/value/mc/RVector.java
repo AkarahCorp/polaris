@@ -21,12 +21,12 @@ public class RVector extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint("(lhs: vector, rhs: vector) -> vector")
+    @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Adds two vectors together, returning a new one with the sum.")
     public static RVector add(RVector lhs, RVector rhs) {
         return RVector.of(lhs.javaValue().add(rhs.javaValue()));
     }
 
-    @MethodTypeHint("(lhs: vector, rhs: vector) -> vector")
+    @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Multiplies two vectors together element-wise, returning a new vector.")
     public static RVector multiply(RVector lhs, RVector rhs) {
         return RVector.of(lhs.javaValue().multiply(rhs.javaValue()));
     }

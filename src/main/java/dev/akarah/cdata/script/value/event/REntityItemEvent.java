@@ -22,12 +22,12 @@ public class REntityItemEvent extends REvent {
         throw new RuntimeException("Not applicable to REntityEvent.");
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the entity associated with this event.")
     public static REntity entity(REntityItemEvent event) {
         return event.primary;
     }
 
-    @MethodTypeHint("(this: any) -> item")
+    @MethodTypeHint(signature = "(this: any) -> item", documentation = "Returns the item associated with this event.")
     public static RItem item(REntityItemEvent event) {
         return event.secondary;
     }

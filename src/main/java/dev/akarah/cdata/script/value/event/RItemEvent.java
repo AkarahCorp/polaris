@@ -1,7 +1,6 @@
 package dev.akarah.cdata.script.value.event;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 
 public class RItemEvent extends REvent {
@@ -17,10 +16,10 @@ public class RItemEvent extends REvent {
 
     @Override
     public Void javaValue() {
-        throw new RuntimeException("Not applicable to REntityEvent.");
+        throw new RuntimeException("Not applicable to RItemEvent.");
     }
 
-    @MethodTypeHint("(this: any) -> item")
+    @MethodTypeHint(signature = "(this: any) -> item", documentation = "Gets the item associated with this event.")
     public static RItem item(RItemEvent event) {
         return event.secondary;
     }

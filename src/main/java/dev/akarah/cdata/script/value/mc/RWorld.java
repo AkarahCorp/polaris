@@ -1,18 +1,11 @@
 package dev.akarah.cdata.script.value.mc;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
-import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
-import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.Property;
 
 public class RWorld extends RuntimeValue {
@@ -31,7 +24,11 @@ public class RWorld extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint("(this: world, position: vector, block_type: identifier, block_state: dict[string, any]?) -> void")
+    @MethodTypeHint(
+            signature = "(this: world, position: vector, block_type: identifier, block_state: dict[string, any]?) -> void",
+            documentation = "Sets a block in this world of the given type. " +
+                    "If no state value is provided, it will use the default block state."
+    )
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void set_block(RWorld world, RVector vector, RIdentifier blockId, RDict stateDict) {
         var block = BuiltInRegistries.BLOCK.get(blockId.javaValue()).orElseThrow().value();
@@ -54,7 +51,7 @@ public class RWorld extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint("(this: world, position: vector) -> identifier")
+    @MethodTypeHint(signature = "(this: world, position: vector) -> identifier", documentation = "Returns the block ID at the given position. If the block is empty, it will return `minecraft:air`.")
     public static RIdentifier block_at(RWorld world, RVector vector) {
         return RIdentifier.of(
                 world.javaValue().getBlockState(vector.asBlockPos())
@@ -63,7 +60,10 @@ public class RWorld extends RuntimeValue {
     }
 
 
-    @MethodTypeHint("(this: world, position: vector) -> dict[string, any]")
+    @MethodTypeHint(
+            signature = "(this: world, position: vector) -> dict[string, any]",
+            documentation = "Returns the state of the block at the given position. If no block is present, it will return an empty dictionary."
+    )
     public static RDict block_state_at(RWorld world, RVector vector) {
         var dict = RDict.create();
         var state = world.javaValue().getBlockState(vector.asBlockPos());
@@ -81,7 +81,10 @@ public class RWorld extends RuntimeValue {
         return dict;
     }
 
-    @MethodTypeHint("(this: world, position: vector) -> nullable[inventory]")
+    @MethodTypeHint(
+            signature = "(this: world, position: vector) -> nullable[inventory]",
+            documentation = "Returns the inventory present in the block at the given position. Returns null if the block is not a container."
+    )
     public static RNullable block_inventory_at(RWorld world, RVector position) {
         var entity = world.javaValue().getBlockEntity(position.asBlockPos());
         if(entity instanceof Container container) {

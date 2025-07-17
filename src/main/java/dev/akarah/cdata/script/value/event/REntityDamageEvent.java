@@ -22,12 +22,12 @@ public class REntityDamageEvent extends REvent {
         throw new RuntimeException("Not applicable to REntityEvent.");
     }
 
-    @MethodTypeHint("(this: any) -> entity")
+    @MethodTypeHint(signature = "(this: any) -> entity", documentation = "Returns the entity associated with this event.")
     public static REntity entity(REntityDamageEvent event) {
         return event.primary;
     }
 
-    @MethodTypeHint("(this: any) -> number")
+    @MethodTypeHint(signature = "(this: any) -> number", documentation = "Returns the damage amount of this event.")
     public static RNumber damage(REntityDamageEvent event) {
         return event.secondary;
     }

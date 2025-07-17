@@ -1,20 +1,21 @@
 package dev.akarah.cdata.script.params;
 
 import com.google.common.collect.Maps;
+
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.nodes.OptionalParameter;
 import dev.akarah.cdata.script.params.nodes.RequiredParameter;
-import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
-import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import com.google.common.collect.Lists;
 
 public class ExpressionTypeSet {
     List<ParameterNode> parameters;

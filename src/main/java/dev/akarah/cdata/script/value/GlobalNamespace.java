@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 public class GlobalNamespace {
-    @MethodTypeHint("(min: number, max: number) -> list[number]")
+    @MethodTypeHint(signature = "(min: number, max: number) -> list[number]", documentation = "Returns a list of numbers from the minimum to the maximum, inclusive.")
     public static RList range(RNumber min, RNumber max) {
         var list = RList.create();
 
@@ -30,12 +30,12 @@ public class GlobalNamespace {
         return list;
     }
 
-    @MethodTypeHint("(x: number, y: number, z: number) -> vector")
+    @MethodTypeHint(signature = "(x: number, y: number, z: number) -> vector", documentation = "Creates a new vector from X, Y, and Z components.")
     public static RVector vec(RNumber x, RNumber y, RNumber z) {
         return RVector.of(new Vec3(x.doubleValue(), y.doubleValue(), z.doubleValue()));
     }
 
-    @MethodTypeHint("(v: any) -> text")
+    @MethodTypeHint(signature = "(v: any) -> text", documentation = "Creates a new text from the given value converted to a string.")
     public static RText text(RuntimeValue runtimeValue) {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
     }
@@ -44,12 +44,16 @@ public class GlobalNamespace {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
     }
 
-    @MethodTypeHint("(namespace: string, path: string) -> identifier")
+    @MethodTypeHint(signature = "(namespace: string, path: string) -> identifier", documentation = "Returns a new identifier from the namespace and path provided.")
     public static RIdentifier id(RString namespace, RString path) {
         return RIdentifier.of(ResourceLocation.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
     }
 
-    @MethodTypeHint("(item_id: identifier, application?: function(item) -> void) -> item")
+    @MethodTypeHint(
+            signature = "(item_id: identifier, application?: function(item) -> void) -> item",
+            documentation = "Creates a new custom item, based on the identifier provided. " +
+                    "If present, the application function will be invoked on the item after creation before returning the value."
+    )
     public static RItem item__create(RIdentifier id, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(CustomItem::toItemStack)
@@ -64,7 +68,11 @@ public class GlobalNamespace {
         return item;
     }
 
-    @MethodTypeHint("(item_id: identifier, template: identifier, application?: function(item) -> void) -> item")
+    @MethodTypeHint(
+            signature = "(item_id: identifier, template: identifier, application?: function(item) -> void) -> item",
+            documentation = "Creates a new custom item, based on the identifier provided, using the given item template. "
+                    + "If present, the application function will be invoked on the item after creation before returning the value."
+    )
     public static RItem item__templated(RIdentifier id, RIdentifier template, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(template.javaValue()))
@@ -79,7 +87,7 @@ public class GlobalNamespace {
         return item;
     }
 
-    @MethodTypeHint("(items?: list[item], name?: text) -> inventory")
+    @MethodTypeHint(signature = "(items?: list[item], name?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and name provided.")
     public static RInventory inventory__create(RList itemList, RText name) {
         var inv = RInventory.of(new DynamicContainer(27));
         if(itemList != null) {
@@ -95,22 +103,22 @@ public class GlobalNamespace {
         return inv;
     }
 
-    @MethodTypeHint("(key: string) -> store")
+    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the temporary data store with the associated name.")
     public static RStore store__temp(RString key) {
         return RStore.of(Database.temp().get(key.javaValue()));
     }
 
-    @MethodTypeHint("(key: string) -> store")
+    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the persistent data store with the associated name.")
     public static RStore store__save(RString key) {
         return RStore.of(Database.temp().get(key.javaValue()));
     }
 
-    @MethodTypeHint("<T>(this: T) -> nullable[T]")
+    @MethodTypeHint(signature = "<T>(this: T) -> nullable[T]", documentation = "Returns a nullable instance with the given type.")
     public static RNullable nullable__of(RuntimeValue any) {
         return RNullable.of(any);
     }
 
-    @MethodTypeHint("() -> nullable[any]")
+    @MethodTypeHint(signature = "() -> nullable[any]", documentation = "Returns an empty nullable instance.")
     public static RNullable nullable__empty() {
         return RNullable.of(null);
     }

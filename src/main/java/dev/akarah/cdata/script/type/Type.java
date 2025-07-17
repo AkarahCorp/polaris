@@ -17,19 +17,22 @@ public interface Type<T> {
 
     static List<Type<?>> allTypes() {
         return List.of(
-                Type.any(),
                 Type.number(),
                 Type.string(),
                 Type.bool(),
-                Type.list(Type.any()),
-                Type.dict(Type.any(), Type.any())
+                Type.list(Type.var(null, "T")),
+                Type.dict(Type.var(null, "K"), Type.var(null, "V")),
+                Type.nullable(Type.var(null, "T")),
+                Type.vector(),
+                Type.world(),
+                Type.entity(),
+                Type.store(),
+                Type.identifier(),
+                Type.inventory(),
+                Type.itemStack(),
+                Type.text(),
+                Type.uuid()
         );
-    }
-
-    static Type<?> forClass(Class<?> clazz) {
-        return allTypes().stream()
-                .filter(type -> type.typeClass().equals(clazz))
-                .findFirst().orElse(Type.any());
     }
 
     default Type<?> despan() {

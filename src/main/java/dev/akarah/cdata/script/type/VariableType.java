@@ -13,9 +13,12 @@ public record VariableType(
 ) implements Type<Object> {
     @Override
     public String typeName() {
+        if(typeSet == null) {
+            return this.variableName;
+        }
         var rt = this.typeSet.resolveTypeVariable(this.variableName);
         if(rt == null) {
-            return "?" + this.variableName;
+            return this.variableName;
         } else {
             return rt.typeName();
         }
@@ -23,9 +26,13 @@ public record VariableType(
 
     @Override
     public String verboseTypeName() {
+        if(typeSet == null) {
+            return this.variableName;
+        }
+
         var rt = this.typeSet.resolveTypeVariable(this.variableName);
         if(rt == null) {
-            return "?" + this.variableName;
+            return this.variableName;
         } else {
             return rt.verboseTypeName();
         }

@@ -9,7 +9,6 @@ import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.value.CdExpression;
-import dev.akarah.cdata.script.expr.ast.value.StringExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionStream;
@@ -156,7 +155,7 @@ public class LateResolvedFunctionCall implements Expression {
         }
 
         var typeSet = DslParser.parseExpressionTypeSet(
-                DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.value())
+                DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.signature())
                         .getOrThrow()
         );
         var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));

@@ -8,7 +8,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
@@ -32,18 +31,18 @@ public class RItem extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint("(item: item, name: text) -> void")
+    @MethodTypeHint(signature = "(item: item, name: text) -> void", documentation = "Sets the name of the item stack.")
     public static void set_name(RItem item, RText name) {
         item.javaValue().set(DataComponents.ITEM_NAME, name.javaValue());
     }
 
-    @MethodTypeHint("(item: item) -> string")
+    @MethodTypeHint(signature = "(item: item) -> string", documentation = "Gets the name of the base item.")
     public static RString name(RItem $this) {
         return RString.of(CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::name)
                 .orElse($this.javaValue().getItemName().getString()));
     }
 
-    @MethodTypeHint("(item: item, stat: string) -> number")
+    @MethodTypeHint(signature = "(item: item, stat: string) -> number", documentation = "Gets the value of the stat provided associated with this item.")
     public static RNumber stat(RItem $this, RString stat) {
         return RNumber.of(CustomItem.itemOf($this.javaValue())
                 .flatMap(CustomItem::stats)
@@ -51,7 +50,7 @@ public class RItem extends RuntimeValue {
                 .orElse(-1.0));
     }
 
-    @MethodTypeHint("(item: item, key: string) -> nullable[any]")
+    @MethodTypeHint(signature = "(item: item, key: string) -> nullable[any]", documentation = "Gets a custom item tag from the item, based on the key provided.")
     public static RNullable tag(RItem $this, RString keyTag) {
         return RNullable.of(
                 Optional.<RuntimeValue>empty()
@@ -64,7 +63,7 @@ public class RItem extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint("(item: item, key: string, value: any) -> void")
+    @MethodTypeHint(signature = "(item: item, key: string, value: any) -> void", documentation = "Sets an item tag on the item, held with the key provided.")
     public static void set_tag(RItem $this, RString keyTag, RuntimeValue keyValue) {
         if(!$this.javaValue().has(DataComponents.CUSTOM_DATA)) {
             $this.javaValue().set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
@@ -79,7 +78,7 @@ public class RItem extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint("(item: item, lore: list[text]) -> void")
+    @MethodTypeHint(signature = "(item: item, lore: list[text]) -> void", documentation = "Sets the lore of the item stack.")
     public static void set_lore(RItem $this, RList name) {
         $this.javaValue().set(
                 DataComponents.LORE,

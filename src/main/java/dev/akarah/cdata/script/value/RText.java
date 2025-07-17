@@ -19,7 +19,7 @@ public class RText extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint("(this: text, color: string) -> text")
+    @MethodTypeHint(signature = "(this: text, color: string) -> text", documentation = "Changes the color of the text to the hex code provided.")
     public static RText color(RText $this, RString color) {
         return RText.of($this.javaValue().copy().withColor(Integer.parseInt(color.javaValue(), 16)));
     }

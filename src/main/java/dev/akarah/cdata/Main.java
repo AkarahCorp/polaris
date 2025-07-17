@@ -1,10 +1,19 @@
 package dev.akarah.cdata;
 
+import java.io.IOException;
+import java.lang.invoke.WrongMethodTypeException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mojang.datafixers.util.Pair;
+
 import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.exception.SpannedException;
-import dev.akarah.cdata.script.value.event.REntityEvent;
+import dev.akarah.cdata.script.expr.docs.DocBuilder;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -16,11 +25,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.WrongMethodTypeException;
-import java.util.List;
 
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
@@ -28,6 +32,23 @@ public class Main implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        var docs = DocBuilder.builder().addAllTypes().build();
+
+        var path = Paths.get("./DOCS.md");
+
+        try {
+            Files.deleteIfExists(path);
+            Files.createFile(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Files.writeString(path, docs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             Main.SERVER = server;
         });

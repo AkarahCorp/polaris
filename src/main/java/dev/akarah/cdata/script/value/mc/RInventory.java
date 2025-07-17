@@ -24,12 +24,12 @@ public class RInventory extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint("(this: inventory, slot: number, item: item) -> void")
+    @MethodTypeHint(signature = "(this: inventory, slot: number, item: item) -> void", documentation = "Returns the item provided in the given slot of this inventory.")
     public static void set_slot(RInventory $this, RNumber slot, RItem item) {
         $this.inner.setItem(slot.intValue(), item.javaValue());
     }
 
-    @MethodTypeHint("(this: inventory, item: item) -> void")
+    @MethodTypeHint(signature = "(this: inventory, item: item) -> void", documentation = "Adds a new item to the inventory if there is room for it.")
     public static void add_item(RInventory $this, RItem item) {
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
             if($this.inner.getItem(i).is(Items.AIR)) {
@@ -39,14 +39,14 @@ public class RInventory extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint("(this: inventory) -> void")
+    @MethodTypeHint(signature = "(this: inventory) -> void", documentation = "If this is a custom inventory, this will no longer be able to be manipulated by players.")
     public static void cancel_clicks(RInventory $this) {
         if($this.inner instanceof DynamicContainer dynamicContainer) {
             dynamicContainer.cancelClicks = true;
         }
     }
 
-    @MethodTypeHint("(this: inventory, name: text) -> void")
+    @MethodTypeHint(signature = "(this: inventory, name: text) -> void", documentation = "Sets the name of a custom inventory.")
     public static void set_name(RInventory $this, RText name) {
         $this.name = name;
     }
