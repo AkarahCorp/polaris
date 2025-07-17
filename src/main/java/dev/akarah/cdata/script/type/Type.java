@@ -192,6 +192,10 @@ public interface Type<T> {
         return new WorldType();
     }
 
+    static UuidType uuid() {
+        return new UuidType();
+    }
+
     static StoreType store() {
         return new StoreType();
     }

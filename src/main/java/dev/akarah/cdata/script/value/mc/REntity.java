@@ -166,4 +166,9 @@ public class REntity extends RuntimeValue {
             });
         }
     }
+
+    @MethodTypeHint("(this: entity) -> uuid")
+    public static RUuid uuid(REntity $this) {
+        return RUuid.of($this.inner.getUUID());
+    }
 }

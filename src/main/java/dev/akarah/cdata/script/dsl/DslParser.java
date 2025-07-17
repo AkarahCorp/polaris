@@ -141,6 +141,7 @@ public class DslParser {
                     case "inventory" -> _ -> new SpannedType<>(Type.inventory(), identifier.span());
                     case "store" -> _ -> new SpannedType<>(Type.store(), identifier.span());
                     case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
+                    case "uuid" -> _ -> new SpannedType<>(Type.uuid(), identifier.span());
                     case "nullable" -> {
                         expect(DslToken.OpenBracket.class);
                         var subtype = parseType(typeVariables);

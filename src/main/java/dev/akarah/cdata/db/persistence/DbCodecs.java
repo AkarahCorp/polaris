@@ -3,6 +3,7 @@ package dev.akarah.cdata.db.persistence;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.RVector;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -52,6 +53,10 @@ public class DbCodecs {
                         buf.writeVarInt(6);
                         Vec3.STREAM_CODEC.encode(buf, vector.javaValue());
                     }
+                    case RUuid uuid -> {
+                        buf.writeVarInt(7);
+                        UUIDUtil.STREAM_CODEC.encode(buf, uuid.javaValue());
+                    }
                     default -> throw new RuntimeException("Unable to make a codec out of " + object);
                 }
             },
@@ -90,6 +95,9 @@ public class DbCodecs {
                     }
                     case 6 -> {
                         return RVector.of(Vec3.STREAM_CODEC.decode(buf));
+                    }
+                    case 7 -> {
+                        return RUuid.of(UUIDUtil.STREAM_CODEC.decode(buf));
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }
