@@ -84,6 +84,7 @@ public class DslTokenizer {
                         case "continue" -> new DslToken.ContinueKeyword(this.createSpan(start));
                         case "return" -> new DslToken.ReturnKeyword(this.createSpan(start));
                         case "struct" -> new DslToken.StructKeyword(this.createSpan(start));
+                        case "type" -> new DslToken.TypeKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

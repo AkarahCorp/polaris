@@ -5,6 +5,8 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.func.LambdaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.VoidType;
+import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.invoke.MethodType;
 import java.util.List;
@@ -26,7 +28,7 @@ public record SchemaExpression(
 
     public MethodType methodType() {
         return MethodType.methodType(
-                this.returnType.typeClass(),
+                this.returnType.despan() instanceof VoidType ? void.class : RuntimeValue.class,
                 this.parameters.stream()
                         .map(Pair::getSecond)
                         .map(Type::typeClass)

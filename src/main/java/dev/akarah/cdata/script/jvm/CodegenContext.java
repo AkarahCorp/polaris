@@ -8,6 +8,7 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
@@ -200,7 +201,7 @@ public class CodegenContext {
      * @return This.
      */
     public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
-        var returnType = action.returnType().classDescType();
+        var returnType = action.returnType().despan() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
             parameters.add(CodegenUtil.ofClass(RuntimeValue.class));
@@ -211,7 +212,7 @@ public class CodegenContext {
 
         return this.classBuilder.withMethod(
                 name,
-                MethodTypeDesc.of(returnType, parameters),
+                MethodTypeDesc.of(CodegenUtil.ofClass(returnType), parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
                     this.stackFrames = frames;

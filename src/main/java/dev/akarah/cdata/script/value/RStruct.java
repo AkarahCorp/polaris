@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.value;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,5 +28,10 @@ public class RStruct extends RuntimeValue {
     @Override
     public RuntimeValue[] javaValue() {
         return this.inner;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(this.inner);
     }
 }

@@ -27,7 +27,7 @@ public record RequiredParameter(
             );
         }
         var exprType = ctx.getTypeOf(expression);
-        var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet);
+        var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet, expression.span());
         if(!exprType.typeEquals(newRequiredType)) {
             throw new ParsingException(
                     "Expected value of type `" + newRequiredType.verboseTypeName()

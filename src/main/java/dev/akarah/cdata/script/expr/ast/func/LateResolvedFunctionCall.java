@@ -15,6 +15,7 @@ import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionStream;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.*;
 import net.minecraft.resources.ResourceLocation;
 
@@ -192,7 +193,7 @@ public class LateResolvedFunctionCall implements Expression {
         }
 
         if(functionSchema != null) {
-            var returnType = functionSchema.returnType().classDescType();
+            var returnType = functionSchema.returnType().despan() instanceof VoidType ? void.class : RuntimeValue.class;
             var typeParameters = new ArrayList<ClassDesc>();
             for(var parameter : functionSchema.parameters()) {
                 typeParameters.add(parameter.getSecond().classDescType());
@@ -216,7 +217,7 @@ public class LateResolvedFunctionCall implements Expression {
             return Optional.of(new UserFunctionAction(
                     functionName,
                     MethodTypeDesc.of(
-                            returnType,
+                            CodegenUtil.ofClass(returnType),
                             typeParameters
                     ),
                     this.parameters

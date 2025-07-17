@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
+import dev.akarah.cdata.script.expr.ast.TypeExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.event.REvent;
@@ -21,7 +22,9 @@ import java.util.concurrent.Executor;
 
 public class DslActionManager {
     Map<String, String> rawDslPrograms = Maps.newHashMap();
+    Map<String, List<DslToken>> rawDslTokens = Maps.newHashMap();
     Map<String, SchemaExpression> dslExpressions = Maps.newHashMap();
+    Map<String, Type<?>> dslTypes = Maps.newHashMap();
     Map<SchemaExpression, String> dslReverseExpressions = Maps.newHashMap();
     Map<String, ResourceLocation> resourceNames = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
@@ -92,7 +95,6 @@ public class DslActionManager {
     public CompletableFuture<Void> reloadWithManager(ResourceManager resourceManager, Executor executor) {
         return CompletableFuture.runAsync(
                 () -> {
-
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".aka")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();
@@ -109,15 +111,49 @@ public class DslActionManager {
                             );
                         } catch (IOException e) {
                             this.rawDslPrograms.clear();
+                            this.dslExpressions.clear();
+                            this.dslTypes.clear();
                             throw new RuntimeException(e);
                         }
                     }
 
                     for(var entry : this.rawDslPrograms.entrySet()) {
                         var tokens = DslTokenizer.tokenize(this.resourceNames.get(entry.getKey()), entry.getValue()).getOrThrow();
-                        var expression = DslParser.parseTopLevelExpression(tokens);
-                        this.dslExpressions.put(entry.getKey(), expression);
-                        this.dslReverseExpressions.put(expression, entry.getKey());
+                        this.rawDslTokens.put(entry.getKey(), tokens);
+                    }
+
+                    while(true) {
+                        int counts = 0;
+                        for(var entry : this.rawDslTokens.entrySet()) {
+                            if(!(entry.getValue().getFirst() instanceof DslToken.TypeKeyword)) {
+                                continue;
+                            }
+                            if(this.dslTypes.containsKey(entry.getKey())) {
+                                continue;
+                            }
+
+                            try {
+                                var expression = DslParser.parseTopLevelExpression(entry.getValue(), this.dslTypes);
+
+                                if (expression instanceof TypeExpression(Type<?> alias)) {
+                                    this.dslTypes.put(entry.getKey(), alias);
+                                    counts++;
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        }
+                        if(counts == 0) {
+                            break;
+                        }
+                    }
+                    for(var entry : this.rawDslPrograms.entrySet()) {
+                        var tokens = DslTokenizer.tokenize(this.resourceNames.get(entry.getKey()), entry.getValue()).getOrThrow();
+                        var expression = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
+
+                        if(expression instanceof SchemaExpression schemaExpression) {
+                            this.dslExpressions.put(entry.getKey(), schemaExpression);
+                        }
                     }
 
                     this.codeClass = CodegenContext.initializeCompilation(

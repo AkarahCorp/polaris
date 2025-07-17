@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.dsl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
@@ -14,20 +15,29 @@ import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.UnresolvedType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 public class DslParser {
     List<DslToken> tokens;
+    Map<String, Type<?>> userTypes = Maps.newHashMap();
     int index;
 
-    public static SchemaExpression parseTopLevelExpression(List<DslToken> tokens) {
+    public static Expression parseTopLevelExpression(List<DslToken> tokens, Map<String, Type<?>> userTypes) {
         var parser = new DslParser();
         parser.tokens = tokens;
+        parser.userTypes = userTypes;
 
+        if(parser.peek() instanceof DslToken.TypeKeyword) {
+            parser.expect(DslToken.TypeKeyword.class);
+            var outputType = parser.parseType();
+            return new TypeExpression(outputType);
+        }
         return parser.parseSchema();
     }
 
@@ -129,6 +139,7 @@ public class DslParser {
                     case "vector" -> _ -> new SpannedType<>(Type.vector(), identifier.span());
                     case "text" -> _ -> new SpannedType<>(Type.text(), identifier.span());
                     case "inventory" -> _ -> new SpannedType<>(Type.inventory(), identifier.span());
+                    case "store" -> _ -> new SpannedType<>(Type.store(), identifier.span());
                     case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
                     case "nullable" -> {
                         expect(DslToken.OpenBracket.class);
@@ -170,7 +181,12 @@ public class DslParser {
                             default -> throw new ParsingException("Unexpected value: " + eventType.identifier(), eventType.span());
                         };
                     }
-                    default -> throw new ParsingException("Type `" + identifier + "` is unknown.", identifier.span());
+                    default -> _ -> {
+                        if(this.userTypes.containsKey(identifier.identifier().replace(".", "_"))) {
+                            return this.userTypes.get(identifier.identifier().replace(".", "_"));
+                        }
+                        throw new ParsingException("`" + identifier.identifier() + "` is not a valid type.", identifier.span());
+                    };
                 };
             }
         };
@@ -264,16 +280,16 @@ public class DslParser {
         return this.parseComparisonExpression();
     }
 
-    public RepeatTimesAction parseRepeat() {
-        expect(DslToken.RepeatKeyword.class);
+    public Expression parseRepeat() {
+        var kw = expect(DslToken.RepeatKeyword.class);
         var times = parseValue();
         var block = parseBlock();
 
-        return new RepeatTimesAction(times, block);
+        return new SpannedExpression<>(new RepeatTimesAction(times, block), kw.span());
     }
 
-    public IfAction parseIf() {
-        expect(DslToken.IfKeyword.class);
+    public Expression parseIf() {
+        var kw = expect(DslToken.IfKeyword.class);
         var times = parseValue();
         var block = parseBlock();
 
@@ -283,7 +299,7 @@ public class DslParser {
             orElse = Optional.of(parseBlock());
         }
 
-        return new IfAction(times, block, orElse);
+        return new SpannedExpression<>(new IfAction(times, block, orElse), kw.span());
     }
 
     public AllOfAction parseBlock() {

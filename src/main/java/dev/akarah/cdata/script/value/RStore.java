@@ -24,8 +24,8 @@ public class RStore extends RuntimeValue {
         store.javaValue().put(key.javaValue(), value);
     }
 
-    @MethodTypeHint("(this: store, key: string, fallback: any?) -> any")
-    public static RuntimeValue get(RStore store, RString key, RuntimeValue fallback) {
-        return store.javaValue().get(key.javaValue(), fallback);
+    @MethodTypeHint("(this: store, key: string) -> nullable[any]")
+    public static RNullable get(RStore store, RString key) {
+        return RNullable.of(store.javaValue().get(key.javaValue()));
     }
 }

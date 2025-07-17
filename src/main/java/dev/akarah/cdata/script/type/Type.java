@@ -78,28 +78,37 @@ public interface Type<T> {
      * @param typeSet The type set to write variable modifications to.
      * @return The new variant of `incomingMatch`, with type variables sufficiently replaced.
      */
-    default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet) {
+    default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet, SpanData fallbackSpan) {
         var this2 = this.despan();
         incomingMatch = incomingMatch.despan();
 
+        SpanData span = null;
+        if(this instanceof SpannedType<?,?> spannedType) {
+            span = spannedType.span();
+        } else if(incomingMatch instanceof SpannedType<?,?> spannedType) {
+            span = spannedType.span();
+        } else {
+            span = fallbackSpan;
+        }
+
         switch (incomingMatch) {
             case VariableType matchingVarType -> {
-                typeSet.resolveTypeVariable(matchingVarType.variableName(), this2);
+                typeSet.resolveTypeVariable(matchingVarType.variableName(), this2, span);
             }
             case ListType matchListType -> {
                 if(this2 instanceof ListType(Type<?> subtype)) {
-                    subtype.resolveTypeVariables(matchListType.subtype(), typeSet);
+                    subtype.resolveTypeVariables(matchListType.subtype(), typeSet, fallbackSpan);
                 }
             }
             case DictionaryType matchDictType -> {
                 if(this2 instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
-                    keyType.resolveTypeVariables(matchDictType.keyType(), typeSet);
-                    valueType.resolveTypeVariables(matchDictType.valueType(), typeSet);
+                    keyType.resolveTypeVariables(matchDictType.keyType(), typeSet, fallbackSpan);
+                    valueType.resolveTypeVariables(matchDictType.valueType(), typeSet, fallbackSpan);
                 }
             }
             case NullableType matchNullableType -> {
                 if(this2 instanceof NullableType(Type<?> subtype)) {
-                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet);
+                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, fallbackSpan);
                 }
             }
             default -> {}
@@ -236,6 +245,9 @@ public interface Type<T> {
     default boolean typeEquals(Type<?> other) {
         if(other == null) {
             return false;
+        }
+        if(this.typeName().equals("any")) {
+            return true;
         }
         if(other.typeName().equals("any")) {
             return true;

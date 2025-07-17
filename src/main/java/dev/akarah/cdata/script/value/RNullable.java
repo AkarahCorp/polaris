@@ -64,6 +64,11 @@ public class RNullable extends RuntimeValue {
         return $this;
     }
 
+    @MethodTypeHint("<T>(value: nullable[T], alternative: T) -> T")
+    public static RuntimeValue or_else(RNullable $this, RuntimeValue fallback) {
+        return $this.inner == null ? fallback : $this.inner;
+    }
+
     @Override
     public Optional<RuntimeValue> javaValue() {
         return Optional.ofNullable(this.inner);

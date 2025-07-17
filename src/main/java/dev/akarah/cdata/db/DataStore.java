@@ -26,8 +26,8 @@ public class DataStore {
         this.objects.put(key, value);
     }
 
-    public RuntimeValue get(String key, RuntimeValue fallback) {
-        return this.objects.getOrDefault(key, fallback);
+    public RuntimeValue get(String key) {
+        return this.objects.getOrDefault(key, null);
     }
 
     public Object2ObjectAVLTreeMap<String, RuntimeValue> map() {

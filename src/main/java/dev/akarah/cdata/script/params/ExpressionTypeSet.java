@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.nodes.OptionalParameter;
 import dev.akarah.cdata.script.params.nodes.RequiredParameter;
+import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.Type;
 import org.apache.commons.compress.utils.Lists;
 
@@ -44,17 +45,17 @@ public class ExpressionTypeSet {
         return this.typeVariables.get(variableName);
     }
 
-    public void resolveTypeVariable(String variableName, Type<?> hint) {
+    public void resolveTypeVariable(String variableName, Type<?> hint, SpanData fallbackSpan) {
         if(!this.typeVariables.containsKey(variableName)) {
             this.typeVariables.put(variableName, hint);
-        } else if(this.typeVariables.containsKey(variableName) && !this.typeVariables.get(variableName).equals(hint)) {
+        } else if(this.typeVariables.containsKey(variableName) && !this.typeVariables.get(variableName).typeEquals(hint)) {
             throw new ParsingException(
                     "Expected value of type `"
                             + this.typeVariables.get(variableName).verboseTypeName()
                             + "`, got value of type `"
                             + hint.verboseTypeName()
                             + "`",
-                    null
+                    fallbackSpan
             );
         }
     }
