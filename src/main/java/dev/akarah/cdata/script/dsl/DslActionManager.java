@@ -108,6 +108,7 @@ public class DslActionManager {
                                     string
                             );
                         } catch (IOException e) {
+                            this.rawDslPrograms.clear();
                             throw new RuntimeException(e);
                         }
                     }

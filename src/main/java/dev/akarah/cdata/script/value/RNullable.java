@@ -41,6 +41,29 @@ public class RNullable extends RuntimeValue<Optional<RuntimeValue<?>>> {
         return $this.inner;
     }
 
+    @MethodTypeHint("<T>(value: nullable[T], callback: function(inventory) -> void) -> void")
+    public static void if_present(RNullable $this, RFunction function) {
+        if($this.inner != null) {
+            try {
+                function.javaValue().invoke($this.inner);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @MethodTypeHint("<T>(value: nullable[T], callback: function(T) -> T) -> nullable[T]")
+    public static RNullable map(RNullable $this, RFunction function) {
+        if($this.inner != null) {
+            try {
+                return RNullable.of((RuntimeValue<?>) function.javaValue().invoke($this.inner));
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return $this;
+    }
+
     @Override
     public Optional<RuntimeValue<?>> javaValue() {
         return Optional.ofNullable(this.inner);

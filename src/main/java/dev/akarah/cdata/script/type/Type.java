@@ -9,7 +9,6 @@ import dev.akarah.cdata.script.type.event.*;
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.util.List;
-import java.util.stream.Stream;
 
 public interface Type<T> {
     String typeName();
@@ -194,6 +193,10 @@ public interface Type<T> {
 
     static InventoryType inventory() {
         return new InventoryType();
+    }
+
+    static FunctionType function(Type<?> returnType, List<? extends Type<?>> parameters) {
+        return new FunctionType(returnType, parameters);
     }
 
     static VariableType var(ExpressionTypeSet typeSet, String name) {

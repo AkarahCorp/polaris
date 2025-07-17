@@ -44,6 +44,8 @@ public class CodegenContext {
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
+    List<Pair<String, SchemaExpression>> requestedSchemas = Lists.newArrayList();
+
     public record StackFrame(
             Map<String, Integer> methodLocals,
             Map<String, Type<?>> methodLocalTypes,
@@ -105,9 +107,12 @@ public class CodegenContext {
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
 
-                    refs.forEach(entry -> {
-                        cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond());
-                    });
+                    refs.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond()));
+                    while(!cc.requestedSchemas.isEmpty()) {
+                        var oldSchemas = cc.requestedSchemas.stream().toList();
+                        cc.requestedSchemas.clear();
+                        oldSchemas.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond()));
+                    }
 
                     for(var field : cc.staticClasses.entrySet()) {
                         cc.classBuilder = cc.classBuilder.withField(
@@ -160,13 +165,17 @@ public class CodegenContext {
         );
     }
 
+    public void requestAction(String name, SchemaExpression action) {
+        this.requestedSchemas.add(Pair.of(name, action));
+    }
+
     /**
      * Compiles an individual entry in the action registry into the class.
      * @param name The name of the entry.
      * @param action The action code of the entry.
      * @return This.
      */
-    private ClassBuilder compileAction(String name, SchemaExpression action) {
+    public ClassBuilder compileAction(String name, SchemaExpression action) {
         var returnType = action.returnType().classDescType();
         var parameters = new ArrayList<ClassDesc>();
         for(var parameter : action.parameters()) {

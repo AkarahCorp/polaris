@@ -89,8 +89,13 @@ public class GlobalNamespace {
         return RStore.of(Database.temp().get(key.javaValue()));
     }
 
-    @MethodTypeHint("(this: any) -> boolean")
-    public static RBoolean is_nonnull(RuntimeValue<?> any) {
-        return RBoolean.of(any != null);
+    @MethodTypeHint("<T>(this: T) -> nullable[T]")
+    public static RNullable nullable__of(RuntimeValue<?> any) {
+        return RNullable.of(any);
+    }
+
+    @MethodTypeHint("() -> nullable[any]")
+    public static RNullable nullable__empty() {
+        return RNullable.of(null);
     }
 }

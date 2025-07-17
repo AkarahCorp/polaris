@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr.ast;
 
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.expr.Expression;
+import dev.akarah.cdata.script.expr.ast.func.LambdaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.Type;
 
@@ -30,6 +31,14 @@ public record SchemaExpression(
                         .map(Pair::getSecond)
                         .map(Type::typeClass)
                         .toArray(Class[]::new)
+        );
+    }
+
+    public LambdaExpression asLambdaExpression() {
+        return new LambdaExpression(
+                this.parameters,
+                this.returnType,
+                this.body
         );
     }
 }
