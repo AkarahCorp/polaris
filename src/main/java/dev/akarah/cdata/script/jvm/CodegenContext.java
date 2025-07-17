@@ -9,6 +9,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.RNumber;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -19,10 +20,7 @@ import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -44,7 +42,16 @@ public class CodegenContext {
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
-    List<Pair<String, SchemaExpression>> requestedSchemas = Lists.newArrayList();
+    public record SchemaRequest(
+            String name,
+            SchemaExpression schema,
+            Integer freeLocals,
+            List<StackFrame> stackFrames
+    ) {
+
+    }
+
+    List<SchemaRequest> requestedSchemas = Lists.newArrayList();
 
     public record StackFrame(
             Map<String, Integer> methodLocals,
@@ -107,11 +114,11 @@ public class CodegenContext {
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
 
-                    refs.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond()));
+                    refs.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond(), -1, Lists.newArrayList()));
                     while(!cc.requestedSchemas.isEmpty()) {
                         var oldSchemas = cc.requestedSchemas.stream().toList();
                         cc.requestedSchemas.clear();
-                        oldSchemas.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond()));
+                        oldSchemas.forEach(entry -> cc.classBuilder = cc.compileAction(entry.name(), entry.schema(), entry.freeLocals(), entry.stackFrames()));
                     }
 
                     for(var field : cc.staticClasses.entrySet()) {
@@ -165,8 +172,25 @@ public class CodegenContext {
         );
     }
 
-    public void requestAction(String name, SchemaExpression action) {
-        this.requestedSchemas.add(Pair.of(name, action));
+    public void requestAction(String name, SchemaExpression action, int highestLocal, List<StackFrame> stackFrames) {
+        this.requestedSchemas.add(new SchemaRequest(
+                name,
+                action,
+                highestLocal,
+                Lists.newArrayList(stackFrames)
+        ));
+    }
+
+    public int highestLocal() {
+        int i = -1;
+        for(var frame : this.stackFrames) {
+            for(var local : frame.methodLocals.values()) {
+                if(i <= local) {
+                    i = local;
+                }
+            }
+        }
+        return i;
     }
 
     /**
@@ -175,9 +199,12 @@ public class CodegenContext {
      * @param action The action code of the entry.
      * @return This.
      */
-    public ClassBuilder compileAction(String name, SchemaExpression action) {
+    public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
         var returnType = action.returnType().classDescType();
         var parameters = new ArrayList<ClassDesc>();
+        for(int i = 0; i <= freeLocals; i++) {
+            parameters.add(CodegenUtil.ofClass(RuntimeValue.class));
+        }
         for(var parameter : action.parameters()) {
             parameters.add(parameter.getSecond().classDescType());
         }
@@ -187,7 +214,7 @@ public class CodegenContext {
                 MethodTypeDesc.of(returnType, parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
-                    this.stackFrames.clear();
+                    this.stackFrames = frames;
 
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
@@ -197,7 +224,10 @@ public class CodegenContext {
 
                         this.pushFrame(startLabel, endLabel);
 
-                        int idx = 0;
+                        int idx = freeLocals + 1;
+                        if(freeLocals == -1) {
+                            idx = 0;
+                        }
                         for(var parameter : action.parameters()) {
                             this.stackFrames.getLast().methodLocals.put(parameter.getFirst(), idx++);
                             this.stackFrames.getLast().methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
@@ -493,6 +523,10 @@ public class CodegenContext {
 
     public StackFrame getFrame() {
         return this.stackFrames.getLast();
+    }
+
+    public List<StackFrame> getFrames() {
+        return this.stackFrames;
     }
 
     public CodegenContext invokeVirtual(ClassDesc owner, String functionName, MethodTypeDesc desc) {
