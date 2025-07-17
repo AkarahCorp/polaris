@@ -53,7 +53,7 @@ public class Main implements ModInitializer {
             Main.SERVER = server;
         });
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, _) -> {
             var root = Commands.literal("engine");
 
             root.then(Commands.literal("give"));
@@ -169,7 +169,7 @@ public class Main implements ModInitializer {
             dispatcher.register(root);
         });
 
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, _, success) -> {
             if(success) {
                 for(var player : server.getPlayerList().getPlayers()) {
                     server.getCommands().sendCommands(player);

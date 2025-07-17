@@ -249,21 +249,6 @@ public class LateResolvedFunctionCall implements Expression {
                 ));
     }
 
-    private static Expression[] toArray(List<Expression> list) {
-        var array = new Expression[list.size()];
-        for(int i = 0; i < list.size(); i++) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Class<Expression>[] repeatInArray(int size) {
-        var array = new Class[size];
-        Arrays.fill(array, Expression.class);
-        return array;
-    }
-
     @Override
     public SpanData span() {
         return this.spanData;

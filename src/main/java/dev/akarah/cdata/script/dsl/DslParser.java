@@ -325,7 +325,7 @@ public class DslParser {
             typeHint = Optional.of(parseType());
         }
         while(peek() instanceof DslToken.EqualSymbol
-        && baseExpression instanceof GetLocalAction(String variable, SpanData spanData)) {
+        && baseExpression instanceof GetLocalAction(String variable, SpanData _)) {
             var eq = expect(DslToken.EqualSymbol.class);
             baseExpression = new SpannedExpression<>(
                     new SetLocalAction(variable, typeHint, parseValue(), eq.span()),
@@ -423,7 +423,7 @@ public class DslParser {
     public Expression parseInvocation() {
         var baseExpression = parseNegation();
 
-        if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName, SpanData spanData)) {
+        if(peek() instanceof DslToken.OpenParen && baseExpression instanceof GetLocalAction(String functionName, SpanData _)) {
             var tuple = parseTuple();
             baseExpression = new LateResolvedFunctionCall(functionName, tuple, baseExpression.span());
         }
@@ -460,11 +460,11 @@ public class DslParser {
     public Expression parseBaseExpression() {
         var tok = read();
         return switch (tok) {
-            case DslToken.FunctionKeyword functionKeyword -> {
+            case DslToken.FunctionKeyword _ -> {
                 this.index -= 1;
                 yield this.parseSchema().asLambdaExpression();
             }
-            case DslToken.StructKeyword structKeyword -> {
+            case DslToken.StructKeyword _ -> {
                 var openBrace = expect(DslToken.OpenBrace.class);
                 var map = Lists.<Pair<String, Expression>>newArrayList();
                 while(!(peek() instanceof DslToken.CloseBrace)) {
