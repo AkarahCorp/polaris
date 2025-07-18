@@ -3,18 +3,21 @@ package dev.akarah.cdata.registry.mining;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.registry.loot.LootTable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.Optional;
 
 public record MiningRule(
         List<Block> materials,
         Pair<BlockPos, BlockPos> area,
         double toughness,
         String speedStat,
-        String spreadStat
+        String spreadStat,
+        Optional<LootTable> lootTable
 ) {
     public static Codec<MiningRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BuiltInRegistries.BLOCK.byNameCodec().listOf().fieldOf("materials").forGetter(MiningRule::materials),
@@ -23,6 +26,7 @@ public record MiningRule(
                     .forGetter(MiningRule::area),
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),
             Codec.STRING.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
-            Codec.STRING.optionalFieldOf("spread_stat", "?").forGetter(MiningRule::spreadStat)
+            Codec.STRING.optionalFieldOf("spread_stat", "?").forGetter(MiningRule::spreadStat),
+            LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable)
     ).apply(instance, MiningRule::new));
 }

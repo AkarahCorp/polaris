@@ -101,7 +101,10 @@ public class MiningManager {
 
         Resources.scheduler().schedule(
                 depth,
-                () -> player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE)
+                () -> {
+                    player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+                    rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
+                }
         );
 
         Collections.shuffle(VECTORS);
