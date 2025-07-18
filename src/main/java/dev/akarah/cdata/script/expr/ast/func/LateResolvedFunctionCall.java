@@ -185,7 +185,6 @@ public class LateResolvedFunctionCall implements Expression {
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
-        System.out.println(Resources.actionManager().expressions().keySet() + " vs. " + functionName);
         var functionSchema = Resources.actionManager().expressions().get(functionName);
         if(functionSchema == null) {
             functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));

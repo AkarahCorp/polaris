@@ -345,13 +345,10 @@ public class DslParser {
     public Expression parseBooleanOperands() {
         var base = parseEqualityExpression();
         while(true) {
-            System.out.println(peek());
             if(peek() instanceof DslToken.DoubleAmpersand) {
-                System.out.println("a");
                 expect(DslToken.DoubleAmpersand.class);
                 base = new AndExpression(base, parseEqualityExpression());
             } else if(peek() instanceof DslToken.DoubleLine) {
-                System.out.println("b");
                 expect(DslToken.DoubleLine.class);
                 base = new OrExpression(base, parseEqualityExpression());
             } else {
