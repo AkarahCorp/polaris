@@ -54,6 +54,15 @@ public class MiningManager {
     }
 
     public void clearStatus(ServerPlayer player) {
+        statusFor(player).ifPresent(status -> {
+            player.connection.send(
+                    new ClientboundBlockDestructionPacket(
+                            player.getId() + 1,
+                            status.target,
+                            -1
+                    )
+            );
+        });
         statuses.remove(player.getUUID());
     }
 
