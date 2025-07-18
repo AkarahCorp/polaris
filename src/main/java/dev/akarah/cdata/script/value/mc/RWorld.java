@@ -1,7 +1,12 @@
 package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.RBoolean;
+import dev.akarah.cdata.script.value.RDict;
+import dev.akarah.cdata.script.value.RNullable;
+import dev.akarah.cdata.script.value.RNumber;
+import dev.akarah.cdata.script.value.RString;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -25,7 +30,7 @@ public class RWorld extends RuntimeValue {
     }
 
     @MethodTypeHint(
-            signature = "(this: world, position: vector, block_type: identifier, block_state: dict[string, any]?) -> void",
+            signature = "(this: world, position: vector, block_type: identifier, block_state?: dict[string, any]) -> void",
             documentation = "Sets a block in this world of the given type. " +
                     "If no state value is provided, it will use the default block state."
     )
