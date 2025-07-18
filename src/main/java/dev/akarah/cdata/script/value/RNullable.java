@@ -44,8 +44,8 @@ public class RNullable extends RuntimeValue {
         if($this.inner != null) {
             try {
                 function.javaValue().invoke($this.inner);
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+            } catch (Throwable _) {
+
             }
         }
     }
@@ -59,8 +59,8 @@ public class RNullable extends RuntimeValue {
         if($this.inner != null) {
             try {
                 return RNullable.of((RuntimeValue) function.javaValue().invoke($this.inner));
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+            } catch (Throwable _) {
+
             }
         }
         return $this;

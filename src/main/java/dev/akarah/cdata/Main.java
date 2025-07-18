@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.invoke.WrongMethodTypeException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import dev.akarah.cdata.script.value.RuntimeValue;
 import org.slf4j.Logger;
@@ -97,40 +98,40 @@ public class Main implements ModInitializer {
                 try {
                     var methodHandle = Resources.actionManager().functionByRawName("$static_init");
                     methodHandle.invoke();
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
+                    elements.forEach(element -> {
+                        try {
+                            var resourceName = Resources.actionManager().resourceNames().get(element.getFirst());
+                            var method = Resources.actionManager().functionByLocation(resourceName);
+                            if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
+                                return;
+                            }
+                            root.then(Commands.literal("run").then(
+                                    Commands.literal(resourceName.toString()).executes(ctx -> {
+                                        if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                            try {
+                                                var start = System.nanoTime()/1000000.0;
+                                                method.invoke(REntity.of(serverPlayer));
+                                                var end = System.nanoTime()/1000000.0;
+                                                ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
+                                            } catch (Throwable e) {
+                                                if(!(e instanceof WrongMethodTypeException)) {
+                                                    ctx.getSource().sendFailure(Component.literal("Method " + resourceName + " must take 1 parameter of type `entity`!"));
 
-                elements.forEach(element -> {
-                    try {
-                        var resourceName = Resources.actionManager().resourceNames().get(element.getFirst());
-                        var method = Resources.actionManager().functionByLocation(resourceName);
-                        if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
-                            return;
-                        }
-                        root.then(Commands.literal("run").then(
-                                Commands.literal(resourceName.toString()).executes(ctx -> {
-                                    if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
-                                        try {
-                                            var start = System.nanoTime()/1000000.0;
-                                            method.invoke(REntity.of(serverPlayer));
-                                            var end = System.nanoTime()/1000000.0;
-                                            ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
-                                        } catch (Throwable e) {
-                                            if(!(e instanceof WrongMethodTypeException)) {
-                                                ctx.getSource().sendFailure(Component.literal("Script execution failed, check console for details!"));
-                                                e.printStackTrace();
+                                                }
                                             }
                                         }
-                                    }
-                                    return 0;
-                                })
-                        ));
-                    } catch (Exception e) {
-                        // if we got here, the method has parameters.
-                        // just don't make it runnable in commands
-                    }
-                });
+                                        return 0;
+                                    })
+                            ));
+                        } catch (Exception e) {
+                            // if we got here, the method has parameters.
+                            // just don't make it runnable in commands
+                        }
+                    });
+                } catch (Throwable _) {
+                    // ignore it here, since invoking $static_init failed :(
+                    // that means we just say no actions exist and move on with our lives
+                }
             } catch (SpannedException e) {
                 handleError(e);
             }
@@ -168,7 +169,9 @@ public class Main implements ModInitializer {
                 + "\n";
 
         LOGGER.error(sb);
-        e.printStackTrace();
+        if(Objects.equals(System.getenv("POLARIS_PRINT_STACKTRACE_ON_COMPILE_FAIL"), "1")) {
+            e.printStackTrace();
+        }
 
         if(SERVER == null) {
             System.exit(1);

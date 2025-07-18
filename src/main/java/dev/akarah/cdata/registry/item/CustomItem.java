@@ -79,8 +79,8 @@ public record CustomItem(
             try {
                 Resources.actionManager().functionByLocation(itemTemplate)
                         .invokeWithArguments(RItemEvent.of(RItem.of(is)));
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable _) {
+
             }
         }
 

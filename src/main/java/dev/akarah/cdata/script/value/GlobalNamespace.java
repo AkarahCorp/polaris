@@ -61,8 +61,8 @@ public class GlobalNamespace {
         if(function != null) {
             try {
                 function.javaValue().invoke(item);
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+            } catch (Throwable _) {
+                
             }
         }
         return item;

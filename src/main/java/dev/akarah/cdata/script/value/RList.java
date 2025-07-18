@@ -47,8 +47,8 @@ public class RList extends RuntimeValue {
         for(var entry : $this.javaValue()) {
             try {
                 RList.add(newList, (RuntimeValue) function.javaValue().invoke(entry));
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+            } catch (Throwable _) {
+
             }
         }
         return newList;
@@ -62,8 +62,8 @@ public class RList extends RuntimeValue {
                 if(((RBoolean) function.javaValue().invoke(entry)).javaValue()) {
                     RList.add(newList, entry);
                 }
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+            } catch (Throwable _) {
+                
             }
         }
         return newList;

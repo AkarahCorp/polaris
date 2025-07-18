@@ -86,8 +86,8 @@ public class DslActionManager {
             var m = this.functionByLocation(f);
             try {
                 m.invokeWithArguments(List.of(event));
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable _) {
+
             }
         }
     }

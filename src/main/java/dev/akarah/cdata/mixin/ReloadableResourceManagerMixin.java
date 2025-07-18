@@ -16,7 +16,11 @@ public abstract class ReloadableResourceManagerMixin implements ResourceManager 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void reloadLocalResources(PackType packType, List<?> list, CallbackInfo ci) {
         if(packType.equals(PackType.SERVER_DATA)) {
-            Resources.reloadEverything(this);
+            try {
+                Resources.reloadEverything(this);
+            } catch (Exception ignored) {
+
+            }
         }
     }
 }
