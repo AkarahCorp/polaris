@@ -66,6 +66,16 @@ public class DslTokenizer {
                     }
                     yield DataResult.success(new DslToken.MinusSymbol(this.createSpan(start)));
                 }
+                case '|' -> {
+                    this.stringReader.expect('|');
+                    this.stringReader.expect('|');
+                    yield DataResult.success(new DslToken.DoubleLine(this.createSpan(start)));
+                }
+                case '&' -> {
+                    this.stringReader.expect('&');
+                    this.stringReader.expect('&');
+                    yield DataResult.success(new DslToken.DoubleAmpersand(this.createSpan(start)));
+                }
                 case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',

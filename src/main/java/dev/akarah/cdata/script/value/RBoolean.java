@@ -16,6 +16,10 @@ public class RBoolean extends RuntimeValue {
         return this.inner;
     }
 
+    public static RBoolean not(RBoolean $this) {
+        return RBoolean.of(!$this.inner);
+    }
+
     public int asInt() {
         return this.inner ? 1 : 0;
     }

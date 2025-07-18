@@ -1,8 +1,11 @@
 package dev.akarah.cdata.script.dsl;
 
+import java.lang.constant.MethodTypeDesc;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
@@ -21,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+
+import dev.akarah.cdata.script.expr.ast.func.JvmFunctionAction;
+import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.value.RBoolean;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -282,7 +289,7 @@ public class DslParser {
     }
 
     public Expression parseValue() {
-        return this.parseComparisonExpression();
+        return this.parseBooleanOperands();
     }
 
     public Expression parseRepeat() {
@@ -318,7 +325,7 @@ public class DslParser {
     }
 
     public Expression parseStorage() {
-        var baseExpression = parseEqualityExpression();
+        var baseExpression = parseBooleanOperands();
         var typeHint = Optional.<Type<?>>empty();
         if(peek() instanceof DslToken.Colon) {
             expect(DslToken.Colon.class);
@@ -333,6 +340,25 @@ public class DslParser {
             );
         }
         return baseExpression;
+    }
+
+    public Expression parseBooleanOperands() {
+        var base = parseEqualityExpression();
+        while(true) {
+            System.out.println(peek());
+            if(peek() instanceof DslToken.DoubleAmpersand) {
+                System.out.println("a");
+                expect(DslToken.DoubleAmpersand.class);
+                base = new AndExpression(base, parseEqualityExpression());
+            } else if(peek() instanceof DslToken.DoubleLine) {
+                System.out.println("b");
+                expect(DslToken.DoubleLine.class);
+                base = new OrExpression(base, parseEqualityExpression());
+            } else {
+                break;
+            }
+        }
+        return base;
     }
 
     public Expression parseEqualityExpression() {
@@ -450,9 +476,26 @@ public class DslParser {
             expect(DslToken.MinusSymbol.class);
             negate = true;
         }
+        boolean boolNot = false;
+        if(peek() instanceof DslToken.ExclamationMark) {
+            expect(DslToken.ExclamationMark.class);
+            boolNot = true;
+        }
         var baseExpr = parseBaseExpression();
         if(negate) {
             baseExpr = new MultiplyExpression(baseExpr, new NumberExpression(-1));
+        }
+        if(boolNot) {
+            baseExpr = new JvmFunctionAction(
+                CodegenUtil.ofClass(RBoolean.class), 
+                "not", 
+                MethodTypeDesc.of(
+                    CodegenUtil.ofClass(RBoolean.class),
+                    List.of(CodegenUtil.ofClass(RBoolean.class))
+                ), 
+                List.of(baseExpr), 
+                Type.bool()
+            );
         }
         return baseExpr;
     }

@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.ast.operation;
 
+import dev.akarah.cdata.script.value.RBoolean;
 import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.RString;
 import dev.akarah.cdata.script.value.RText;
@@ -28,5 +29,13 @@ public class OperationUtil {
                     .append(rhs.toString()));
         }
         throw new RuntimeException("Can not add " + lhs + " and " + rhs);
+    }
+
+    public static RuntimeValue and(RuntimeValue lhs, RuntimeValue rhs) {
+        return RBoolean.of(((RBoolean) lhs).javaValue() && ((RBoolean) rhs).javaValue());
+    }
+
+    public static RuntimeValue or(RuntimeValue lhs, RuntimeValue rhs) {
+        return RBoolean.of(((RBoolean) lhs).javaValue() || ((RBoolean) rhs).javaValue());
     }
 }

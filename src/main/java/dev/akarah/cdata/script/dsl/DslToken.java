@@ -145,6 +145,18 @@ public interface DslToken {
 
     }
 
+    record DoubleAmpersand(SpanData span) implements DslToken {
+
+    }
+
+    record DoubleLine(SpanData span) implements DslToken {
+
+    }
+
+    record ExclamationMark(SpanData span) implements DslToken {
+
+    }
+
     record EOF(SpanData span) implements DslToken {
 
     }
