@@ -6,7 +6,6 @@ import dev.akarah.cdata.EngineConfig;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.Util;
-import dev.akarah.cdata.registry.codec.MetaCodec;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.entity.MobSpawnRule;
 import dev.akarah.cdata.registry.item.CustomItem;
@@ -31,7 +30,6 @@ public class Resources {
     static Scheduler SCHEDULER = new Scheduler();
     static ReloadableJsonManager<CustomItem> CUSTOM_ITEM;
     static ReloadableJsonManager<CustomEntity> CUSTOM_ENTITY;
-    static ReloadableJsonManager<MetaCodec<?>> META_CODEC;
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
 
@@ -108,7 +106,6 @@ public class Resources {
         Resources.MINING_MANAGER = new MiningManager();
         Resources.CUSTOM_ITEM = ReloadableJsonManager.of("item", CustomItem.CODEC);
         Resources.CUSTOM_ENTITY = ReloadableJsonManager.of("entity", CustomEntity.CODEC);
-        Resources.META_CODEC = ReloadableJsonManager.of("codec", MetaCodec.CODEC);
         Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
         Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
     }

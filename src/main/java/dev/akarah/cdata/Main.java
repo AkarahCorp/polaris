@@ -88,30 +88,6 @@ public class Main implements ModInitializer {
                         })));
             });
 
-            context.lookupOrThrow(ExtRegistries.META_CODEC).listElements().forEach(element -> {
-                root.then(Commands.literal("checkwithcodec").then(
-                        Commands.literal(element.key().location().toString()).then(
-                                Commands.argument("item", NbtTagArgument.nbtTag()).executes(ctx -> {
-                                    try {
-                                        var value = NbtTagArgument.getNbtTag(ctx, "item");
-                                        var result = element.value().codec().decode(NbtOps.INSTANCE, value);
-                                        if(result.isError()) {
-                                            ctx.getSource().sendFailure(
-                                                    Component.literal("Failed: " + result.error().orElseThrow().message())
-                                            );
-                                            return 1;
-                                        } else {
-                                            ctx.getSource().sendSuccess(() -> Component.literal("Success!"), true);
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                    return 0;
-                                })
-                        )
-                ));
-            });
-
             var elements = Resources.actionManager().expressions()
                     .entrySet()
                     .stream()
