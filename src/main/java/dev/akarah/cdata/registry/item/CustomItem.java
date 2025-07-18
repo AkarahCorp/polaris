@@ -10,6 +10,7 @@ import dev.akarah.cdata.script.value.event.RItemEvent;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -55,7 +56,11 @@ public record CustomItem(
     }
 
     public ItemStack toItemStack(ResourceLocation itemTemplate) {
-        var is = new ItemStack(Holder.direct(Items.MUSIC_DISC_CAT));
+        var item = Items.MUSIC_DISC_CAT;
+        if(BuiltInRegistries.ITEM.containsKey(this.model)) {
+            item = BuiltInRegistries.ITEM.get(this.model).orElseThrow().value();
+        }
+        var is = new ItemStack(Holder.direct(item));
         is.remove(DataComponents.JUKEBOX_PLAYABLE);
         is.remove(DataComponents.ITEM_MODEL);
         is.remove(DataComponents.ITEM_MODEL);

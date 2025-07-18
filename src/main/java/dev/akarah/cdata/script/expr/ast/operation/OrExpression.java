@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RBoolean;
 import dev.akarah.cdata.script.value.RuntimeValue;
 
 public record OrExpression(
@@ -17,7 +18,9 @@ public record OrExpression(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(lhs)
+                .typecheck(RBoolean.class)
                 .pushValue(rhs)
+                .typecheck(RBoolean.class)
                 .invokeStatic(
                         CodegenUtil.ofClass(OperationUtil.class),
                         "or",

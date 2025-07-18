@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.type.Type;
 
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 public record JvmFunctionAction(
@@ -18,18 +19,21 @@ public record JvmFunctionAction(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
+        int idx = 0;
+        var lookup = MethodHandles.lookup();
         for(var expr : parameters) {
             ctx.pushValue(expr);
             try {
                 if(expr == null) {
                     continue;
                 }
-                if(!(ctx.getTypeOf(expr) instanceof JavaClassType<?>)) {
-                    ctx.typecheck(ctx.getTypeOf(expr).typeClass());
-                }
+                ctx.typecheck(methodTypeDesc.parameterList().get(idx).resolveConstantDesc(lookup));
             } catch (IllegalArgumentException ignored) {
 
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
             }
+            idx++;
         }
         ctx.invokeStatic(
                 declaringClass,

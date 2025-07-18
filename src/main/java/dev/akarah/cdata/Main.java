@@ -5,6 +5,7 @@ import java.lang.invoke.WrongMethodTypeException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import dev.akarah.cdata.script.value.RuntimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,8 @@ public class Main implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        RuntimeValue.dict();
+
         var docs = DocBuilder.builder().addAllTypes().build();
 
         var path = Paths.get("./DOCS.md");

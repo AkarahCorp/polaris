@@ -95,6 +95,7 @@ public class DslActionManager {
     public CompletableFuture<Void> reloadWithManager(ResourceManager resourceManager, Executor executor) {
         return CompletableFuture.runAsync(
                 () -> {
+                    Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".aka")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();

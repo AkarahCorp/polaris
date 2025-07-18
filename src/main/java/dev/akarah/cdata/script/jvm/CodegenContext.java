@@ -108,6 +108,11 @@ public class CodegenContext {
     private static byte[] compileClassBytecode(List<Pair<String, SchemaExpression>> refs) {
         var classFile = ClassFile.of();
 
+        classFile = classFile.withOptions(
+                ClassFile.ClassHierarchyResolverOption.of(
+                        ClassHierarchyResolver.ofClassLoading(RuntimeValue.class.getClassLoader())
+                )
+        );
         return classFile.build(
                 ACTION_CLASS_DESC,
                 classBuilder -> {

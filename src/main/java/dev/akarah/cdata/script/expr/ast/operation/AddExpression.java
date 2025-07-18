@@ -4,6 +4,8 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RBoolean;
+import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.constant.MethodTypeDesc;

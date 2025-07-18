@@ -110,7 +110,7 @@ public class GlobalNamespace {
 
     @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the persistent data store with the associated name.")
     public static RStore store__save(RString key) {
-        return RStore.of(Database.temp().get(key.javaValue()));
+        return RStore.of(Database.save().get(key.javaValue()));
     }
 
     @MethodTypeHint(signature = "<T>(this: T) -> nullable[T]", documentation = "Returns a nullable instance with the given type.")

@@ -22,6 +22,7 @@ public record IfAction(
     public void compile(CodegenContext ctx) {
         ctx
                 .pushValue(this.condition)
+                .typecheck(RBoolean.class)
                 .invokeVirtual(
                         CodegenUtil.ofClass(RBoolean.class),
                         "asInt",

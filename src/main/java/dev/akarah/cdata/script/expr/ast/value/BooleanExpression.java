@@ -1,14 +1,13 @@
 package dev.akarah.cdata.script.expr.ast.value;
 
+import java.lang.constant.MethodTypeDesc;
+import java.util.List;
+
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.RBoolean;
-import dev.akarah.cdata.script.value.RString;
-
-import java.lang.constant.MethodTypeDesc;
-import java.util.List;
 
 public record BooleanExpression(boolean value) implements Expression {
     @Override
