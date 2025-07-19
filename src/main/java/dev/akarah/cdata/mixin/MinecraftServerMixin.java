@@ -5,6 +5,9 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.db.persistence.DbPersistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.script.value.event.REmptyEvent;
+import dev.akarah.cdata.script.value.event.REntityEvent;
+import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
@@ -51,6 +54,9 @@ public class MinecraftServerMixin {
         if(this.tickCount % 200 == 0) {
             Resources.statManager().refreshPlayerInventories();
         }
+
+        var functions = Resources.actionManager().functionsByEventType("server.tick");
+        Resources.actionManager().callEvents(functions, REmptyEvent.of());
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")

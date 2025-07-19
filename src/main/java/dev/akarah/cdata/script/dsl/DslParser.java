@@ -185,6 +185,8 @@ public class DslParser {
                                     _ -> Type.events().entityItem(eventType.identifier()).spanned(identifier.span());
                             case "item.decorate" ->
                                     _ -> Type.events().item(eventType.identifier()).spanned(identifier.span());
+                            case "server.tick" ->
+                                    _ -> Type.events().empty(eventType.identifier()).spanned(identifier.span());
                             default -> throw new ParsingException("Unexpected value: " + eventType.identifier(), eventType.span());
                         };
                     }

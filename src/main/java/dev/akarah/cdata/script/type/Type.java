@@ -247,6 +247,8 @@ public interface Type<T> {
         public ItemEventType item(String name) {
             return new ItemEventType(name);
         }
+
+        public EmptyEventType empty(String name) { return new EmptyEventType(name); }
     }
 
     default boolean typeEquals(Type<?> other) {
