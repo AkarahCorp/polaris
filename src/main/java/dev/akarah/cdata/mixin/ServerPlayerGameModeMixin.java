@@ -41,7 +41,7 @@ public class ServerPlayerGameModeMixin {
             && this.player.gameMode().equals(GameType.SURVIVAL)) {
             Resources.miningManager().clearStatus(this.player);
             var rule = Resources.miningManager().ruleForMaterial(
-                    this.level.getBlockState(blockPos).getBlock(),
+                    this.level.getBlockState(blockPos),
                     blockPos
             );
             rule.ifPresent(miningRule -> {

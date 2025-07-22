@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -28,10 +29,26 @@ public class MiningManager {
 
     }
 
-    public Optional<MiningRule> ruleForMaterial(Block material, BlockPos position) {
+    public Optional<MiningRule> ruleForMaterial(BlockState state, BlockPos position) {
         return Resources.miningRule().registry().listElements()
                 .map(Holder.Reference::value)
-                .filter(x -> x.materials().contains(material))
+                .filter(x -> x.materials().contains(state.getBlock()))
+                .filter(x -> {
+                    var definition = state.getBlock().getStateDefinition();
+                    for(var stateEntry : x.stateRequirements().entrySet()) {
+                        try {
+                            var property = definition.getProperty(stateEntry.getKey());
+                            assert property != null;
+                            var value = property.getValue(stateEntry.getValue()).orElseThrow();
+                            if(!state.getValue(property).equals(value)) {
+                                return false;
+                            }
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
                 .filter(x -> {
                     var minPos = x.area().getFirst();
                     var maxPos = x.area().getSecond();

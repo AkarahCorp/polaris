@@ -13,6 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Optional;
 
 public record LootTable(
         List<WeightedEntry> weightedDrops,
@@ -21,23 +22,27 @@ public record LootTable(
 ) {
     record GuaranteedEntry(
             ResourceLocation item,
-            IntProvider amount
+            IntProvider amount,
+            Optional<String> fortuneStat
     ) {
         public static Codec<GuaranteedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("item").forGetter(GuaranteedEntry::item),
-                IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(GuaranteedEntry::amount)
+                IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(GuaranteedEntry::amount),
+                Codec.STRING.optionalFieldOf("fortune_stat").forGetter(GuaranteedEntry::fortuneStat)
         ).apply(instance, GuaranteedEntry::new));
     }
 
     public record WeightedEntry(
             int weight,
             ResourceLocation item,
-            IntProvider amount
+            IntProvider amount,
+            Optional<String> fortuneStat
     ) {
         public static Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("weight").forGetter(WeightedEntry::weight),
                 ResourceLocation.CODEC.fieldOf("item").forGetter(WeightedEntry::item),
-                IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(WeightedEntry::amount)
+                IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(WeightedEntry::amount),
+                Codec.STRING.optionalFieldOf("fortune_stat").forGetter(WeightedEntry::fortuneStat)
         ).apply(instance, WeightedEntry::new));
     }
 
@@ -60,16 +65,30 @@ public record LootTable(
         }
         for(var guaranteed : this.drops) {
             Resources.customItem().registry().get(guaranteed.item()).ifPresent(customItem -> {
+                var times = 1;
+
+                if(player != null) {
+                    double stat = guaranteed.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
+
+                    while(Math.random() <= stat) {
+                        stat -= 1;
+                        times += 1;
+                    }
+                }
+
+
                 var generated = customItem.value().toItemStack();
                 generated.setCount(guaranteed.amount().sample(rs));
 
-                var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+                for(int i = 0; i<times; i++) {
+                    var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
 
-                if(player != null) {
-                    ie.setTarget(player.getUUID());
+                    if(player != null) {
+                        ie.setTarget(player.getUUID());
+                    }
+
+                    level.addFreshEntity(ie);
                 }
-
-                level.addFreshEntity(ie);
             });
         }
 
@@ -89,12 +108,26 @@ public record LootTable(
             for(var entry : this.weightedDrops) {
                 weightRemainder -= entry.weight();
                 if(weightRemainder <= 0) {
+
+
                     Resources.customItem().registry().get(entry.item()).ifPresent(customItem -> {
+                        var times = 1;
+                        if(player != null) {
+                            double stat = entry.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
+
+                            while(Math.random() <= stat) {
+                                stat -= 1;
+                                times += 1;
+                            }
+                        }
+
                         var generated = customItem.value().toItemStack();
                         generated.setCount(entry.amount().sample(rs));
 
-                        var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
-                        level.addFreshEntity(ie);
+                        for(int i2 = 0; i2 < times; i2++) {
+                            var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+                            level.addFreshEntity(ie);
+                        }
                     });
                     break;
                 }

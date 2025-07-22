@@ -31,8 +31,8 @@ public class RWorld extends RuntimeValue {
 
     @MethodTypeHint(
             signature = "(this: world, position: vector, block_type: identifier, block_state?: dict[string, any]) -> void",
-            documentation = "Sets a block in this world of the given type. " +
-                    "If no state value is provided, it will use the default block state."
+            documentation = "Sets a block in this world of the given type. "
+            + "If no state is provided, the default state will be used."
     )
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void set_block(RWorld world, RVector vector, RIdentifier blockId, RDict stateDict) {
@@ -42,9 +42,14 @@ public class RWorld extends RuntimeValue {
 
         if(stateDict != null) {
             for(var entry : stateDict.javaValue().entrySet()) {
-                var property = definition.getProperty((String) entry.getKey().javaValue());
-                assert property != null;
-                var value = property.getValue(entry.getValue().toString()).orElseThrow();
+                var property = definition.getProperty(entry.getKey().toString());
+                if(property == null) {
+                    continue;
+                }
+                var value = property.getValue(entry.getValue().toString().replace(".0", "")).orElse(null);
+                if(value == null) {
+                    continue;
+                }
                 state = state.setValue((Property) property, (Comparable) value);
             }
         }
