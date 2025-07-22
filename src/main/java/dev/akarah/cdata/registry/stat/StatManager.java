@@ -4,6 +4,7 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.registry.item.value.CustomComponents;
 import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -52,7 +53,7 @@ public class StatManager {
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
                 CustomItem.itemOf(item).ifPresent(customItem -> {
-                    customItem.equippable().ifPresent(equippableData -> {
+                    customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
                         if(slot.equals(equippableData.slot())) {
                             stats.add(customItem.stats().orElse(StatsObject.EMPTY));
                         }

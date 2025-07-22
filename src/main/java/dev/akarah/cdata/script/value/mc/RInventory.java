@@ -3,8 +3,10 @@ package dev.akarah.cdata.script.value.mc;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class RInventory extends RuntimeValue {
@@ -36,6 +38,21 @@ public class RInventory extends RuntimeValue {
                 $this.inner.setItem(i, item.javaValue());
                 return;
             }
+            if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
+                var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+
+                var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
+                if(maxCount == null) {
+                    maxCount = 1;
+                }
+
+                if(sumCounts <= maxCount) {
+                    $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+                    return;
+                }
+                continue;
+            }
+
         }
     }
 

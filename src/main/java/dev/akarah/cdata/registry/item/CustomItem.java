@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.registry.item.value.CustomComponents;
 import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.value.RuntimeValue;
@@ -26,7 +27,7 @@ public record CustomItem(
         ResourceLocation model,
         Optional<String> name,
         Optional<StatsObject> stats,
-        Optional<EquippableData> equippable,
+        Optional<CustomComponents> components,
         Optional<ResourceLocation> itemTemplate,
         Optional<Map<String, RuntimeValue>> customData,
         Optional<ItemEvents> events
@@ -35,7 +36,7 @@ public record CustomItem(
             ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
             Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
-            EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItem::equippable),
+            CustomComponents.CODEC.optionalFieldOf("components").forGetter(CustomItem::components),
             ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData),
             ItemEvents.CODEC.optionalFieldOf("events").forGetter(CustomItem::events)
@@ -57,8 +58,11 @@ public record CustomItem(
 
     public ItemStack toItemStack(ResourceLocation itemTemplate) {
         var item = Items.MUSIC_DISC_CAT;
-        if(BuiltInRegistries.ITEM.containsKey(this.model)) {
-            item = BuiltInRegistries.ITEM.get(this.model).orElseThrow().value();
+
+        var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+
+        if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
+            item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
         }
         var is = new ItemStack(Holder.direct(item));
         is.remove(DataComponents.JUKEBOX_PLAYABLE);
@@ -72,9 +76,13 @@ public record CustomItem(
         is.setCount(1);
 
         is.set(DataComponents.ITEM_MODEL, this.model());
-        this.equippable.ifPresent(equippableData -> {
+        this.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });
+        this.components().flatMap(CustomComponents::color).ifPresent(dyedItemColor -> {
+            is.set(DataComponents.DYED_COLOR, dyedItemColor);
+        });
+        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {
             try {
                 Resources.actionManager().functionByLocation(itemTemplate)
