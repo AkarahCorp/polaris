@@ -566,6 +566,11 @@ public class DslParser {
                 var closeBrace = expect(DslToken.CloseBrace.class);
                 yield new InlineDictExpression(map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
+            case DslToken.OpenParen(SpanData span) -> {
+                var value = parseValue();
+                expect(DslToken.CloseParen.class);
+                yield value;
+            }
             default -> throw new ParsingException(tok + " is not a valid value, expected one of: Number, String, Text, Identifier", tok.span());
         };
     }
