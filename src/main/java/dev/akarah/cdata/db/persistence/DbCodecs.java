@@ -44,8 +44,8 @@ public class DbCodecs {
                     }
                     case RStruct struct -> {
                         buf.writeVarInt(5);
-                        buf.writeUtf(struct.name());
                         buf.writeVarInt(struct.javaValue().size());
+                        buf.writeUtf(struct.name());
                         for(var entry : struct.javaValue().entrySet()) {
                             buf.writeUtf(entry.getKey());
                             selfCodec.encode(buf, entry.getValue());
