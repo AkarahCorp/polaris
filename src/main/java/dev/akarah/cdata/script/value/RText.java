@@ -24,7 +24,7 @@ public class RText extends RuntimeValue {
         return RText.of($this.javaValue().copy().withColor(Integer.parseInt(color.javaValue(), 16)));
     }
 
-    @MethodTypeHint(signature = "(this: text) -> text", documentation = "Returns the literal content of the text component.")
+    @MethodTypeHint(signature = "(this: text) -> string", documentation = "Returns the literal content of the text component.")
     public static RString contents(RText $this) {
         return RString.of($this.javaValue().copy().getString());
     }

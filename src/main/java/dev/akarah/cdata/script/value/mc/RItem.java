@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.event.RItemEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -29,6 +30,14 @@ public class RItem extends RuntimeValue {
     @Override
     public ItemStack javaValue() {
         return this.inner;
+    }
+
+    @MethodTypeHint(signature = "(item: item) -> identifier", documentation = "Gets the ID of the item stack.")
+    public static RIdentifier id(RItem item) {
+        return RIdentifier.of(
+                CustomItem.itemIdOf(item.javaValue())
+                        .orElse(item.javaValue().getItem().builtInRegistryHolder().key().location())
+        );
     }
 
     @MethodTypeHint(signature = "(item: item, name: text) -> void", documentation = "Sets the name of the item stack.")
@@ -78,6 +87,18 @@ public class RItem extends RuntimeValue {
         );
     }
 
+    @MethodTypeHint(signature = "(item: item) -> list[text]", documentation = "Gets the current lore of the item stack.")
+    public static RList lore(RItem $this) {
+        var list = RList.create();
+        var lore = $this.javaValue().get(DataComponents.LORE);
+        if(lore != null) {
+            for(var line : lore.styledLines()) {
+                RList.add(list, RText.of(line));
+            }
+        }
+        return list;
+    }
+
     @MethodTypeHint(signature = "(item: item, lore: list[text]) -> void", documentation = "Sets the lore of the item stack.")
     public static void set_lore(RItem $this, RList name) {
         $this.javaValue().set(
@@ -89,5 +110,15 @@ public class RItem extends RuntimeValue {
                                 .toList()
                 )
         );
+    }
+
+    @MethodTypeHint(signature = "(item: item, amount: number) -> void", documentation = "Sets the amount of items in the item stack.")
+    public static void set_amount(RItem $this, RNumber amount) {
+        $this.javaValue().setCount(amount.intValue());
+    }
+
+    @MethodTypeHint(signature = "(item: item) -> number", documentation = "Returns the amount of items in the item stack.")
+    public static RNumber amount(RItem $this) {
+        return RNumber.of($this.javaValue().getCount());
     }
 }

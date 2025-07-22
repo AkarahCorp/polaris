@@ -115,6 +115,7 @@ public class Main implements ModInitializer {
                                                 ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                             } catch (Throwable e) {
                                                 if(e instanceof WrongMethodTypeException) {
+                                                    e.printStackTrace();
                                                     ctx.getSource().sendFailure(Component.literal("Method " + resourceName + " must take 1 parameter of type `entity`!"));
                                                 } else {
                                                     e.printStackTrace();

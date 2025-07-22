@@ -88,9 +88,9 @@ public class GlobalNamespace {
         return item;
     }
 
-    @MethodTypeHint(signature = "(items?: list[item], name?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and name provided.")
-    public static RInventory inventory__create(RList itemList, RText name) {
-        var inv = RInventory.of(new DynamicContainer(27));
+    @MethodTypeHint(signature = "(slots: number, items?: list[item], name?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and name provided.")
+    public static RInventory inventory__create(RNumber slots, RList itemList, RText name) {
+        var inv = RInventory.of(new DynamicContainer(slots.intValue()));
         if(itemList != null) {
             for(var item : itemList.javaValue()) {
                 if(item instanceof RItem item1) {
@@ -122,6 +122,11 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "() -> nullable[any]", documentation = "Returns an empty nullable instance.")
     public static RNullable nullable__empty() {
         return RNullable.of(null);
+    }
+
+    @MethodTypeHint(signature = "(str: string) -> identifier", documentation = "Parses a string into an identifier.")
+    public static RIdentifier identifier__parse(RString string) {
+        return RIdentifier.of(ResourceLocation.parse(string.javaValue()));
     }
 
     @MethodTypeHint(signature = "() -> number", documentation = "Returns the number of ticks the server has been up.")

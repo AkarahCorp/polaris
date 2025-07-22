@@ -133,17 +133,24 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity, inv: inventory) -> void", documentation = "Opens an inventory for the player.")
     public static void open_inventory(REntity $this, RInventory inventory) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
-            MenuProvider mp = null;
-            switch (inventory.javaValue().getContainerSize()) {
-                case 27 -> mp = new SimpleMenuProvider((id, playerInventory, _) -> new DynamicContainerMenu(
-                        MenuType.GENERIC_9x3, id,
-                        playerInventory, inventory.javaValue(),
-                        3
-                ), inventory.name.javaValue());
-            }
-            if(mp != null) {
-                serverPlayer.openMenu(mp);
-            }
+            var mt = switch (inventory.javaValue().getContainerSize()) {
+                case 9 -> MenuType.GENERIC_9x1;
+                case 18 -> MenuType.GENERIC_9x2;
+                case 27 -> MenuType.GENERIC_9x3;
+                case 36 -> MenuType.GENERIC_9x4;
+                case 45 -> MenuType.GENERIC_9x5;
+                case 54 -> MenuType.GENERIC_9x6;
+                case 5 -> MenuType.HOPPER;
+                default -> throw new RuntimeException();
+            };
+
+            serverPlayer.openMenu(
+                    new SimpleMenuProvider((id, playerInventory, _) -> new DynamicContainerMenu(
+                            mt, id,
+                            playerInventory, inventory.javaValue(),
+                            inventory.javaValue().getContainerSize() / 9
+                    ), inventory.name.javaValue())
+            );
         }
     }
 
