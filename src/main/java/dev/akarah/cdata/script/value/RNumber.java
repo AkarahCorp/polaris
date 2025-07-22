@@ -29,6 +29,21 @@ public class RNumber extends RuntimeValue {
         return Double.toString(this.inner);
     }
 
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the sine of this number.")
+    public static RNumber sin(RNumber number) {
+        return RNumber.of(Math.sin(number.doubleValue()));
+    }
+
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the cosine of this number.")
+    public static RNumber cos(RNumber number) {
+        return RNumber.of(Math.cos(number.doubleValue()));
+    }
+
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the tangent of this number.")
+    public static RNumber tan(RNumber number) {
+        return RNumber.of(Math.sin(number.doubleValue()));
+    }
+
     @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the lowest nearest integer.")
     public static RNumber floor(RNumber number) {
         return RNumber.of(Math.floor(number.doubleValue()));

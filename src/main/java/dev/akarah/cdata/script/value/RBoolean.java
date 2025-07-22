@@ -1,6 +1,6 @@
 package dev.akarah.cdata.script.value;
 
-public class RBoolean extends RuntimeValue {
+public class  RBoolean extends RuntimeValue {
     private final boolean inner;
 
     private RBoolean(boolean inner) {
