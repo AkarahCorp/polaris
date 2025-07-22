@@ -123,6 +123,7 @@ public class DslTokenizer {
                 case '>' -> token('>', () -> new DslToken.GreaterThanSymbol(this.createSpan(start)));
                 case '<' -> token('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)));
                 case '?' -> token('?', () -> new DslToken.QuestionMark(this.createSpan(start)));
+                case '%' -> token('%', () -> new DslToken.Percent(this.createSpan(start)));
                 default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             };
         } catch (CommandSyntaxException exception) {

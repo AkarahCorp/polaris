@@ -428,6 +428,9 @@ public class DslParser {
             } else if(peek() instanceof DslToken.SlashSymbol) {
                 expect(DslToken.SlashSymbol.class);
                 base = new DivideExpression(base, parseInvocation());
+            } else if(peek() instanceof DslToken.Percent) {
+                expect(DslToken.Percent.class);
+                base = new RemainderExpression(base, parseInvocation());
             } else {
                 break;
             }

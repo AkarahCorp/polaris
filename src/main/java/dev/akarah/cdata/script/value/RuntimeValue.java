@@ -74,4 +74,12 @@ public abstract class RuntimeValue {
         }
         return c;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if(other instanceof RuntimeValue runtimeValue) {
+            return this.javaValue().equals(runtimeValue.javaValue());
+        }
+        return this.javaValue().equals(other);
+    }
 }

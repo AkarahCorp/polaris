@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value;
 
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
@@ -121,5 +122,10 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "() -> nullable[any]", documentation = "Returns an empty nullable instance.")
     public static RNullable nullable__empty() {
         return RNullable.of(null);
+    }
+
+    @MethodTypeHint(signature = "() -> number", documentation = "Returns the number of ticks the server has been up.")
+    public static RNumber server__uptime() {
+        return RNumber.of(Main.server().getTickCount());
     }
 }

@@ -162,6 +162,10 @@ public interface DslToken {
 
     }
 
+    record Percent(SpanData span) implements DslToken {
+
+    }
+
     record EOF(SpanData span) implements DslToken {
 
     }
