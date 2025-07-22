@@ -86,13 +86,10 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
-        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(List<StructType.Field> fields))) {
+        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(String name, List<StructType.Field> fields))) {
             return Optional.empty();
         }
-        int idx = 0;
         for(var field : fields) {
-            var keyExpr = new CdExpression(idx);
-            idx += 1;
             if(this.functionName.equals(field.name()) && this.parameters.size() == 2) {
                 return Optional.of(new JvmFunctionAction(
                         CodegenUtil.ofClass(RStruct.class),
@@ -101,11 +98,11 @@ public class LateResolvedFunctionCall implements Expression {
                                 CodegenUtil.ofVoid(),
                                 List.of(
                                         CodegenUtil.ofClass(RStruct.class),
-                                        CodegenUtil.ofInt(),
+                                        CodegenUtil.ofClass(String.class),
                                         CodegenUtil.ofClass(RuntimeValue.class)
                                 )
                         ),
-                        List.of(this.parameters.getFirst(), keyExpr, this.parameters.get(1)),
+                        List.of(this.parameters.getFirst(), new CdExpression(field.name()), this.parameters.get(1)),
                         Type.void_()
                 ));
             }
@@ -118,12 +115,11 @@ public class LateResolvedFunctionCall implements Expression {
                                 CodegenUtil.ofClass(RuntimeValue.class),
                                 List.of(
                                         CodegenUtil.ofClass(RStruct.class),
-                                        CodegenUtil.ofInt()
+                                        CodegenUtil.ofClass(String.class)
                                 )
                         ),
-                        List.of(this.parameters.getFirst(), keyExpr),
+                        List.of(this.parameters.getFirst(), new CdExpression(field.name())),
                         field.type()
-
                 ));
             }
         }

@@ -31,17 +31,16 @@ import dev.akarah.cdata.script.value.RBoolean;
 
 public class DslParser {
     List<DslToken> tokens;
-    Map<String, Type<?>> userTypes = Maps.newHashMap();
+    Map<String, StructType> userTypes = Maps.newHashMap();
     int index;
 
-    public static Expression parseTopLevelExpression(List<DslToken> tokens, Map<String, Type<?>> userTypes) {
+    public static Expression parseTopLevelExpression(List<DslToken> tokens, Map<String, StructType> userTypes) {
         var parser = new DslParser();
         parser.tokens = tokens;
         parser.userTypes = userTypes;
 
-        if(parser.peek() instanceof DslToken.TypeKeyword) {
-            parser.expect(DslToken.TypeKeyword.class);
-            var outputType = parser.parseType();
+        if(parser.peek() instanceof DslToken.StructKeyword) {
+            var outputType = (StructType) parser.parseType().flatten();
             return new TypeExpression(outputType);
         }
         return parser.parseSchema();
@@ -129,7 +128,15 @@ public class DslParser {
                     }
                 }
                 expect(DslToken.CloseBrace.class);
-                return new SpannedType<>(Type.struct(fields), structKeyword.span());
+                return new SpannedType<>(
+                        Type.struct(
+                                structKeyword.span().fileName().toString()
+                                        .replace(":", ".")
+                                        .replace("/", "."),
+                                fields
+                        ),
+                        structKeyword.span()
+                );
             };
             default -> {
                 var identifier = expect(DslToken.Identifier.class);
@@ -506,7 +513,8 @@ public class DslParser {
                 this.index -= 1;
                 yield this.parseSchema().asLambdaExpression();
             }
-            case DslToken.StructKeyword _ -> {
+            case DslToken.NewKeyword kw -> {
+                var name = expect(DslToken.Identifier.class);
                 var openBrace = expect(DslToken.OpenBrace.class);
                 var map = Lists.<Pair<String, Expression>>newArrayList();
                 while(!(peek() instanceof DslToken.CloseBrace)) {
@@ -520,7 +528,7 @@ public class DslParser {
                 }
                 var closeBrace = expect(DslToken.CloseBrace.class);
 
-                yield new InlineStructExpression(map, SpanData.merge(openBrace.span(), closeBrace.span()));
+                yield new InlineStructExpression(name.identifier(), map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
             case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
             case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());

@@ -2,11 +2,10 @@ package dev.akarah.cdata.script.type;
 
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.value.RuntimeValue;
-import dev.akarah.cdata.script.value.mc.RItem;
 
 import java.lang.constant.ClassDesc;
 
-public record UnresolvedType(String name) implements Type<RuntimeValue> {
+public record UserType(String name) implements Type<RuntimeValue> {
     @Override
     public String typeName() {
         return this.name();

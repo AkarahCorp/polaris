@@ -7,6 +7,7 @@ import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
+import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.RNumber;
@@ -39,6 +40,7 @@ public class CodegenContext {
     MethodBuilder methodBuilder;
     CodeBuilder codeBuilder;
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
+    public Map<String, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
@@ -70,8 +72,8 @@ public class CodegenContext {
      * @param refs The list of expressions to compile.
      * @return The created class.
      */
-    public static Class<?> initializeCompilation(List<Pair<String, SchemaExpression>> refs) {
-        var bytes = CodegenContext.compileClassBytecode(refs);
+    public static Class<?> initializeCompilation(List<Pair<String, SchemaExpression>> refs, Map<String, StructType> userTypes) {
+        var bytes = CodegenContext.compileClassBytecode(refs, userTypes);
         try {
             Files.createDirectories(Path.of("./build/"));
             Files.write(
@@ -105,7 +107,7 @@ public class CodegenContext {
      * @param refs The references to include in the transformation.
      * @return The raw bytes of the new class created.
      */
-    private static byte[] compileClassBytecode(List<Pair<String, SchemaExpression>> refs) {
+    private static byte[] compileClassBytecode(List<Pair<String, SchemaExpression>> refs, Map<String, StructType> userTypes) {
         var classFile = ClassFile.of();
 
         classFile = classFile.withOptions(
@@ -119,6 +121,7 @@ public class CodegenContext {
                     var cc = new CodegenContext();
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
+                    cc.userTypes = userTypes;
 
                     refs.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond(), -1, Lists.newArrayList()));
                     while(!cc.requestedSchemas.isEmpty()) {

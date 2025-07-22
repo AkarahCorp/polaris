@@ -6,6 +6,7 @@ import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.expr.ast.TypeExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.event.REvent;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,7 @@ public class DslActionManager {
     Map<String, String> rawDslPrograms = Maps.newHashMap();
     Map<String, List<DslToken>> rawDslTokens = Maps.newHashMap();
     Map<String, SchemaExpression> dslExpressions = Maps.newHashMap();
-    Map<String, Type<?>> dslTypes = Maps.newHashMap();
+    Map<String, StructType> dslTypes = Maps.newHashMap();
     Map<SchemaExpression, String> dslReverseExpressions = Maps.newHashMap();
     Map<String, ResourceLocation> resourceNames = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
@@ -126,7 +127,7 @@ public class DslActionManager {
                     while(true) {
                         int counts = 0;
                         for(var entry : this.rawDslTokens.entrySet()) {
-                            if(!(entry.getValue().getFirst() instanceof DslToken.TypeKeyword)) {
+                            if(!(entry.getValue().getFirst() instanceof DslToken.StructKeyword)) {
                                 continue;
                             }
                             if(this.dslTypes.containsKey(entry.getKey())) {
@@ -136,7 +137,7 @@ public class DslActionManager {
                             try {
                                 var expression = DslParser.parseTopLevelExpression(entry.getValue(), this.dslTypes);
 
-                                if (expression instanceof TypeExpression(Type<?> alias)) {
+                                if (expression instanceof TypeExpression(StructType alias)) {
                                     this.dslTypes.put(entry.getKey(), alias);
                                     counts++;
                                 }
@@ -161,7 +162,8 @@ public class DslActionManager {
                             this.dslExpressions.entrySet()
                                     .stream()
                                     .map(x -> Pair.of(x.getKey(), x.getValue()))
-                                    .toList()
+                                    .toList(),
+                            this.dslTypes
                     );
 
                     var lookup = MethodHandles.lookup();

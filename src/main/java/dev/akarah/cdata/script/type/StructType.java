@@ -10,7 +10,7 @@ import java.lang.constant.ClassDesc;
 import java.util.List;
 import java.util.Map;
 
-public record StructType(List<Field> fields) implements Type<RStruct> {
+public record StructType(String name, List<Field> fields) implements Type<RStruct> {
     public record Field(
             String name,
             Type<?> type

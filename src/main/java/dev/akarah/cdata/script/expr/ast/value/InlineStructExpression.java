@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.expr.ast.value;
 
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -15,17 +16,19 @@ import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record InlineStructExpression(
+        String name,
         List<Pair<String, Expression>> expressions,
         SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.constant(this.expressions.size()).invokeStatic(
+        ctx.constant(this.name()).constant(this.expressions.size()).invokeStatic(
                 CodegenUtil.ofClass(RStruct.class),
                 "create",
                 MethodTypeDesc.of(
                         CodegenUtil.ofClass(RStruct.class),
                         List.of(
+                                CodegenUtil.ofClass(String.class),
                                 CodegenUtil.ofInt()
                         )
                 )
@@ -34,7 +37,7 @@ public record InlineStructExpression(
         for(var expr : expressions) {
             ctx
                     .dup()
-                    .constant(idx)
+                    .constant(expr.getFirst())
                     .pushValue(expr.getSecond())
                     .invokeStatic(
                             CodegenUtil.ofClass(RStruct.class),
@@ -43,7 +46,7 @@ public record InlineStructExpression(
                                     CodegenUtil.ofVoid(),
                                     List.of(
                                             CodegenUtil.ofClass(RStruct.class),
-                                            CodegenUtil.ofInt(),
+                                            CodegenUtil.ofClass(String.class),
                                             CodegenUtil.ofClass(RuntimeValue.class)
                                     )
                             )
@@ -54,11 +57,9 @@ public record InlineStructExpression(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return Type.struct(
-                this.expressions
-                        .stream()
-                        .map(x -> new StructType.Field(x.getFirst(), ctx.getTypeOf(x.getSecond())))
-                        .toList()
-        );
+        if(!ctx.userTypes.containsKey(this.name.replace(".", "_"))) {
+            throw new ParsingException("Structure `" + this.name + "` does not exist!", this.span);
+        }
+        return ctx.userTypes.get(this.name.replace(".", "_"));
     }
 }

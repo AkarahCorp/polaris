@@ -114,9 +114,10 @@ public class Main implements ModInitializer {
                                                 var end = System.nanoTime()/1000000.0;
                                                 ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                             } catch (Throwable e) {
-                                                if(!(e instanceof WrongMethodTypeException)) {
+                                                if(e instanceof WrongMethodTypeException) {
                                                     ctx.getSource().sendFailure(Component.literal("Method " + resourceName + " must take 1 parameter of type `entity`!"));
-
+                                                } else {
+                                                    e.printStackTrace();
                                                 }
                                             }
                                         }

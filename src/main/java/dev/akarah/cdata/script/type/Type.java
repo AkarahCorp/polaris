@@ -49,6 +49,7 @@ public interface Type<T> {
     default TypeKind classFileType() {
         return TypeKind.REFERENCE;
     }
+
     default List<? extends Type<?>> subtypes() { return List.of(); }
 
     default String verboseTypeName() {
@@ -215,8 +216,8 @@ public interface Type<T> {
         return new FunctionType(returnType, parameters);
     }
 
-    static StructType struct(List<StructType.Field> fields) {
-        return new StructType(fields);
+    static StructType struct(String name, List<StructType.Field> fields) {
+        return new StructType(name, fields);
     }
 
     static VariableType var(ExpressionTypeSet typeSet, String name) {

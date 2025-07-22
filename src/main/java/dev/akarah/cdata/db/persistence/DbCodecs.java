@@ -44,9 +44,11 @@ public class DbCodecs {
                     }
                     case RStruct struct -> {
                         buf.writeVarInt(5);
-                        buf.writeVarInt(struct.javaValue().length);
-                        for(var entry : struct.javaValue()) {
-                            selfCodec.encode(buf, entry);
+                        buf.writeUtf(struct.name());
+                        buf.writeVarInt(struct.javaValue().size());
+                        for(var entry : struct.javaValue().entrySet()) {
+                            buf.writeUtf(entry.getKey());
+                            selfCodec.encode(buf, entry.getValue());
                         }
                     }
                     case RVector vector -> {
@@ -87,9 +89,11 @@ public class DbCodecs {
                     }
                     case 5 -> {
                         var size = buf.readVarInt();
-                        var struct = RStruct.create(size);
+                        var name = buf.readUtf();
+                        var struct = RStruct.create(name, size);
                         for(int i = 0; i < size; i++) {
-                            RStruct.put(struct, i, selfCodec.decode(buf));
+                            var field = buf.readUtf();
+                            RStruct.put(struct, field, selfCodec.decode(buf));
                         }
                         return struct;
                     }
