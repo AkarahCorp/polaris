@@ -131,9 +131,8 @@ public class MiningManager {
                 depth,
                 () -> {
                     if(player.level().getBlockState(target) instanceof Container container) {
-                        var iter = container.iterator();
-                        while(iter.hasNext()) {
-                            var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), iter.next());
+                        for (var itemStack : container) {
+                            var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), itemStack);
                             player.level().addFreshEntity(ee);
                         }
                     }

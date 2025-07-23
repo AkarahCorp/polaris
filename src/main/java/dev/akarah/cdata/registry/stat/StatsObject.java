@@ -75,10 +75,11 @@ public class StatsObject {
 
     public StatsObject performFinalCalculations() {
         for(var key : this.keySet()) {
-            if(key.startsWith("%")) {
-                this.set(key, (this.get(key) + 100) * this.get(key.replace("%", "")));
-            } else if(key.startsWith("*")) {
-                this.set(key, (this.get(key) + 1.0) * this.get(key.replace("*", "")));
+            var realKey = key.replace("%", "").replace("*", "");
+            if(key.endsWith("%")) {
+                this.set(realKey, ((this.get(key) + 100) / 100) * this.get(realKey));
+            } else if(key.endsWith("*")) {
+                this.set(realKey, (this.get(key) + 1.0) * this.get(realKey));
             }
         }
         return this;
