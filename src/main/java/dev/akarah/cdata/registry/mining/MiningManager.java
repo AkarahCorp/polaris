@@ -10,6 +10,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -128,6 +130,13 @@ public class MiningManager {
         Resources.scheduler().schedule(
                 depth,
                 () -> {
+                    if(player.level().getBlockState(target) instanceof Container container) {
+                        var iter = container.iterator();
+                        while(iter.hasNext()) {
+                            var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), iter.next());
+                            player.level().addFreshEntity(ee);
+                        }
+                    }
                     player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
                 }
