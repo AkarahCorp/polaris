@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.expr.ast.func;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.AllOfAction;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
@@ -24,7 +25,8 @@ import java.util.stream.Stream;
 public record LambdaExpression(
         List<Pair<String, Type<?>>> parameters,
         Type<?> returnType,
-        AllOfAction body
+        AllOfAction body,
+        SpanData keywordSpan
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
@@ -110,7 +112,8 @@ public record LambdaExpression(
         return new SchemaExpression(
                 this.parameters,
                 this.returnType,
-                this.body
+                this.body,
+                this.keywordSpan
         );
     }
 }

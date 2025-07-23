@@ -6,6 +6,7 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.type.SpannedType;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.RDict;
@@ -33,7 +34,6 @@ public record InlineStructExpression(
                         )
                 )
         );
-        int idx = 0;
         for(var expr : expressions) {
             ctx
                     .dup()
@@ -51,7 +51,6 @@ public record InlineStructExpression(
                                     )
                             )
                     );
-            idx += 1;
         }
     }
 
@@ -60,6 +59,11 @@ public record InlineStructExpression(
         if(!ctx.userTypes.containsKey(this.name.replace(".", "_"))) {
             throw new ParsingException("Structure `" + this.name + "` does not exist!", this.span);
         }
-        return ctx.userTypes.get(this.name.replace(".", "_"));
+        return new SpannedType<>(
+                ctx.userTypes.get(this.name.replace(".", "_")),
+                this.span(),
+                this.name,
+                this.name
+        );
     }
 }

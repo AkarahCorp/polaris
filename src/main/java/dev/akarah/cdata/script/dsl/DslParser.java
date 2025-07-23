@@ -61,7 +61,7 @@ public class DslParser {
     }
 
     public SchemaExpression parseSchema() {
-        expect(DslToken.FunctionKeyword.class);
+        var kw = expect(DslToken.FunctionKeyword.class);
         expect(DslToken.OpenParen.class);
 
         var parameters = new ArrayList<Pair<String, Type<?>>>();
@@ -83,7 +83,7 @@ public class DslParser {
         }
 
         var body = parseBlock();
-        return new SchemaExpression(parameters, returnType, body);
+        return new SchemaExpression(parameters, returnType, body, kw.span());
     }
 
     public Type<?> parseType() {

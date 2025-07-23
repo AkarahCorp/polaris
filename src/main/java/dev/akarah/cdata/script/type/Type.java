@@ -263,7 +263,7 @@ public interface Type<T> {
             return true;
         }
 
-        var basicTypeCondition = this.typeName().equals(other.typeName());
+        var basicTypeCondition = this.typeName().equals(other.typeName()) || this.verboseTypeName().equals(other.verboseTypeName());
 
         var subtypeConditions = this.subtypes().size() == other.subtypes().size()
                 && Streams.zip(this.subtypes().stream(), other.subtypes().stream(), Pair::of)
