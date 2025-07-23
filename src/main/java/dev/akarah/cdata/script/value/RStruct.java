@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.value;
 
 import com.google.common.collect.Maps;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.jvm.CodegenContext;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,8 +21,12 @@ public class RStruct extends RuntimeValue {
         return new RStruct(name, Maps.newHashMap());
     }
 
-    public static RuntimeValue get(RStruct dict, String key) {
-        return dict.inner.get(key);
+    public static RuntimeValue get(RStruct dict, String key, RuntimeValue fallback) {
+        var result = dict.inner.get(key);
+        if(result == null) {
+            return fallback;
+        }
+        return result;
     }
 
     public static void put(RStruct dict, String key, RuntimeValue value) {

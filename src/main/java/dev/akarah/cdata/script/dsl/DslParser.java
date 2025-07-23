@@ -122,7 +122,12 @@ public class DslParser {
                     var name = expect(DslToken.Identifier.class);
                     expect(DslToken.Colon.class);
                     var type = parseType(typeVariables);
-                    fields.add(new StructType.Field(name.identifier(), type.apply(e)));
+                    Expression fallback = null;
+                    if(peek() instanceof DslToken.EqualSymbol equalSymbol) {
+                        expect(DslToken.EqualSymbol.class);
+                        fallback = parseBaseExpression();
+                    }
+                    fields.add(new StructType.Field(name.identifier(), type.apply(e), fallback));
                     if(!(peek() instanceof DslToken.CloseBrace)) {
                         expect(DslToken.Comma.class);
                     }

@@ -113,6 +113,10 @@ public class LateResolvedFunctionCall implements Expression {
             }
 
             if(this.functionName.equals(field.name()) && this.parameters.size() == 1) {
+                var fb = field.fallback();
+                if(fb == null) {
+                    fb = new CdExpression(null);
+                }
                 return Optional.of(new JvmFunctionAction(
                         CodegenUtil.ofClass(RStruct.class),
                         "get",
@@ -120,10 +124,11 @@ public class LateResolvedFunctionCall implements Expression {
                                 CodegenUtil.ofClass(RuntimeValue.class),
                                 List.of(
                                         CodegenUtil.ofClass(RStruct.class),
-                                        CodegenUtil.ofClass(String.class)
+                                        CodegenUtil.ofClass(String.class),
+                                        CodegenUtil.ofClass(RuntimeValue.class)
                                 )
                         ),
-                        List.of(this.parameters.getFirst(), new CdExpression(field.name())),
+                        List.of(this.parameters.getFirst(), new CdExpression(field.name()), fb),
                         field.type()
                 ));
             }

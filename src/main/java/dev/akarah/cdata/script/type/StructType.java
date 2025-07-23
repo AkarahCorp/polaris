@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.type;
 
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.value.RDict;
 import dev.akarah.cdata.script.value.RStruct;
@@ -13,7 +14,8 @@ import java.util.Map;
 public record StructType(String name, List<Field> fields) implements Type<RStruct> {
     public record Field(
             String name,
-            Type<?> type
+            Type<?> type,
+            Expression fallback
     ) {
         @Override
         public @NotNull String toString() {
