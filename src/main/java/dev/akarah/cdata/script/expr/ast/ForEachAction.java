@@ -35,6 +35,14 @@ public record ForEachAction(
         }
         ctx.pushValue(list)
                 .typecheck(RList.class)
+                .invokeStatic(
+                        CodegenUtil.ofClass(RList.class),
+                        "copy",
+                        MethodTypeDesc.of(
+                                CodegenUtil.ofClass(RList.class),
+                                List.of(CodegenUtil.ofClass(RList.class))
+                        )
+                )
                 .invokeVirtual(
                         CodegenUtil.ofClass(RuntimeValue.class),
                         "javaValue",
@@ -79,7 +87,7 @@ public record ForEachAction(
                                 )
                                 .typecheck(listSubType.typeClass())
                                 .pushFrame(loopJumpLabel, loopExitLabel)
-                                .storeLocal(this.variableName(), listSubType)
+                                .storeLocalShadowing(this.variableName(), listSubType)
                                 .pushValue(this.block)
                                 .popFrame()
                                 .bytecodeUnsafe(cb -> cb.goto_(loopJumpLabel))

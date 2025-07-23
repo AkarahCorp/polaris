@@ -48,12 +48,21 @@ public class DslActionManager {
         return this.codeClass;
     }
 
-    public MethodHandle functionByRawName(String string) {
+    public MethodHandle methodHandleByRawName(String string) {
         return this.namedMethodHandles.get(string);
     }
 
-    public MethodHandle functionByLocation(ResourceLocation resourceLocation) {
+    public MethodHandle methodHandleByLocation(ResourceLocation resourceLocation) {
         return this.methodHandles.get(resourceLocation);
+    }
+
+    public void execute(ResourceLocation name, List<Object> arguments) {
+        var mh = methodHandleByLocation(name);
+        try {
+            mh.invokeWithArguments(arguments);
+        } catch (Throwable e) {
+            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
+        }
     }
 
     Map<String, Type<?>> typeInterning = Maps.newHashMap();
@@ -84,12 +93,7 @@ public class DslActionManager {
 
     public void callEvents(List<ResourceLocation> functions, REvent event) {
         for(var f : functions) {
-            var m = this.functionByLocation(f);
-            try {
-                m.invokeWithArguments(List.of(event));
-            } catch (Throwable _) {
-
-            }
+            this.execute(f, List.of(event));
         }
     }
 

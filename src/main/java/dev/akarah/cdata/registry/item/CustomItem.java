@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -85,8 +86,7 @@ public record CustomItem(
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {
             try {
-                Resources.actionManager().functionByLocation(itemTemplate)
-                        .invokeWithArguments(RItemEvent.of(RItem.of(is)));
+                Resources.actionManager().execute(itemTemplate, List.of(RItemEvent.of(RItem.of(is))));
             } catch (Throwable _) {
 
             }

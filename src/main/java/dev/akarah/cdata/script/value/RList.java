@@ -69,6 +69,15 @@ public class RList extends RuntimeValue {
         return newList;
     }
 
+    @MethodTypeHint(signature = "<T>(this: list[T]) -> list[T]", documentation = "Creates a copy of the provided list.")
+    public static RList copy(RList $this) {
+        var list = RList.create();
+        for(var element : $this.javaValue()) {
+            RList.add(list, element);
+        }
+        return list;
+    }
+
     @Override
     public List<RuntimeValue> javaValue() {
         return this.inner;

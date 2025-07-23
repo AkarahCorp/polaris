@@ -96,12 +96,12 @@ public class Main implements ModInitializer {
                     .toList();
             try {
                 try {
-                    var methodHandle = Resources.actionManager().functionByRawName("$static_init");
+                    var methodHandle = Resources.actionManager().methodHandleByRawName("$static_init");
                     methodHandle.invoke();
                     elements.forEach(element -> {
                         try {
                             var resourceName = Resources.actionManager().resourceNames().get(element.getFirst());
-                            var method = Resources.actionManager().functionByLocation(resourceName);
+                            var method = Resources.actionManager().methodHandleByLocation(resourceName);
                             if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
                                 return;
                             }

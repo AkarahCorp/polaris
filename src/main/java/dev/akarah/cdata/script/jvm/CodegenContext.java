@@ -504,6 +504,14 @@ public class CodegenContext {
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
+    public CodegenContext storeLocalShadowing(String variable, Type<?> type) {
+        var index = this.codeBuilder.allocateLocal(type.classFileType());
+        var frame = this.stackFrames.getLast();
+        frame.methodLocals.put(variable, index);
+        frame.methodLocalTypes.put(variable, type);
+        return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
+    }
+
     public CodegenContext pushLocal(String variable, SpanData spanData) {
         for(var frame : this.stackFrames.reversed()) {
             if(!frame.methodLocals.containsKey(variable)) {
