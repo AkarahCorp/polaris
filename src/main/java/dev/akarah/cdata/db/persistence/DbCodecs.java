@@ -1,12 +1,17 @@
 package dev.akarah.cdata.db.persistence;
 
+import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
@@ -59,6 +64,14 @@ public class DbCodecs {
                         buf.writeVarInt(7);
                         UUIDUtil.STREAM_CODEC.encode(buf, uuid.javaValue());
                     }
+                    case RItem item -> CustomItem.itemOf(item.javaValue()).ifPresentOrElse(
+                            customItem -> {
+                                buf.writeVarInt(8);
+                                buf.writeResourceLocation(customItem.id());
+                                buf.writeVarInt(item.javaValue().getCount());
+                            },
+                            () -> buf.writeVarInt(9)
+                    );
                     default -> throw new RuntimeException("Unable to make a codec out of " + object);
                 }
             },
@@ -102,6 +115,16 @@ public class DbCodecs {
                     }
                     case 7 -> {
                         return RUuid.of(UUIDUtil.STREAM_CODEC.decode(buf));
+                    }
+                    case 8 -> {
+                        var itemId = buf.readResourceLocation();
+                        var itemSize = buf.readVarInt();
+                        return RItem.of(Resources.customItem().registry().get(itemId)
+                                .map(x -> x.value().toItemStack().copyWithCount(itemSize))
+                                .orElse(ItemStack.EMPTY));
+                    }
+                    case 9 -> {
+                        return RItem.of(ItemStack.EMPTY);
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }

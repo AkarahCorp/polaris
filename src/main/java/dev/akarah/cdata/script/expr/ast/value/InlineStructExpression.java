@@ -61,9 +61,7 @@ public record InlineStructExpression(
         }
         return new SpannedType<>(
                 ctx.userTypes.get(this.name.replace(".", "_")),
-                this.span(),
-                this.name,
-                this.name
+                this.span()
         );
     }
 }

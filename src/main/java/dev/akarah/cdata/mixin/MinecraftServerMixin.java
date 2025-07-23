@@ -75,6 +75,14 @@ public class MinecraftServerMixin {
 
     @Inject(at = @At("HEAD"), method = "stopServer")
     public void stopServer(CallbackInfo ci) {
+        for(var p : Main.server().getPlayerList().getPlayers()) {
+            var events = Resources.actionManager().functionsByEventType("player.quit");
+            Resources.actionManager().callEvents(
+                    events,
+                    REntityEvent.of(REntity.of(p))
+            );
+        }
+
         System.out.println("Saving persistent data to file system...");
         var start = Instant.now().toEpochMilli();
         DbPersistence.savePersistentDb(Main.SERVER.registryAccess()).join();

@@ -9,6 +9,7 @@ import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.VariableType;
 import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.RuntimeValue;

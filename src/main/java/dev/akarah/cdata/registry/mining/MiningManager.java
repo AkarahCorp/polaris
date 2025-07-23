@@ -6,17 +6,13 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -93,7 +89,7 @@ public class MiningManager {
                 var targetTicks = (30 * status.appliedRule().toughness()) / miningSpeed;
                 if(currentTicks > targetTicks) {
                     var spread = Resources.statManager().lookup(player).get(status.appliedRule().spreadStat());
-                    recursiveBreaking(player, status.appliedRule(), spread, status.target());
+                    recursiveBreaking(player, status.appliedRule(), spread, status.target(), (int) targetTicks);
                     clearStatus(player);
                 } else {
                     player.connection.send(
@@ -118,11 +114,11 @@ public class MiningManager {
     ));
 
 
-    public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target) {
-        recursiveBreaking(player, rule, remainingSpread, target, 0);
+    public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int tickTime) {
+        recursiveBreakingInner(player, rule, remainingSpread, target, 0, tickTime);
     }
 
-    public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int depth) {
+    public void recursiveBreakingInner(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int depth, int tickTime) {
         if(!rule.materials().contains(player.level().getBlockState(target).getBlock())) {
             return;
         }
@@ -130,7 +126,10 @@ public class MiningManager {
         Resources.scheduler().schedule(
                 depth,
                 () -> {
-                    if(player.level().getBlockState(target) instanceof Container container) {
+                    if(player.level().getBlockState(target).getBlock().equals(Blocks.AIR)) {
+                        return;
+                    }
+                    if(player.level().getBlockEntity(target) instanceof Container container) {
                         for (var itemStack : container) {
                             var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), itemStack);
                             player.level().addFreshEntity(ee);
@@ -148,6 +147,7 @@ public class MiningManager {
             var randomAdjacent = target.offset(vector);
             if(
                     rule.materials().contains(player.level().getBlockState(randomAdjacent).getBlock())
+                            && ruleForMaterial(player.level().getBlockState(randomAdjacent), randomAdjacent).map(x -> x.equals(rule)).orElse(false)
                             && Math.random() < remainingSpread
             ) {
                 remainingSpread -= 1;
@@ -156,7 +156,7 @@ public class MiningManager {
         }
 
         for(var safe : nearbyIsSafe) {
-            recursiveBreaking(player, rule, remainingSpread, safe, depth + 1);
+            recursiveBreakingInner(player, rule, remainingSpread, safe, depth + 1, tickTime);
         }
     }
 }

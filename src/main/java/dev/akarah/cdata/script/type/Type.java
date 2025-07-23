@@ -43,7 +43,7 @@ public interface Type<T> {
     }
 
     default SpannedType<T> spanned(SpanData spanData) {
-        return new SpannedType<>(this, spanData, this.typeName(), this.verboseTypeName());
+        return new SpannedType<>(this, spanData);
     }
 
     default TypeKind classFileType() {
@@ -127,7 +127,7 @@ public interface Type<T> {
      * @return A new instance of this type.
      */
     default Type<?> fixTypeVariables(ExpressionTypeSet typeSet) {
-        return switch (this) {
+        return switch (this.flatten()) {
             case VariableType variableType -> typeSet.resolveTypeVariable(variableType.variableName());
             case ListType listType -> Type.list(
                     listType.subtype().fixTypeVariables(typeSet)
@@ -255,6 +255,9 @@ public interface Type<T> {
     default boolean typeEquals(Type<?> other) {
         if(other == null) {
             return false;
+        }
+        if(this.flatten() instanceof StructType thisStruct && other.flatten() instanceof StructType otherStruct) {
+            return thisStruct.name().equals(otherStruct.name());
         }
         if(this.typeName().equals("any")) {
             return true;

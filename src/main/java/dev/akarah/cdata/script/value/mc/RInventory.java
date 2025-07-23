@@ -109,4 +109,28 @@ public class RInventory extends RuntimeValue {
     public static void set_name(RInventory $this, RText name) {
         $this.name = name;
     }
+
+    @MethodTypeHint(signature = "(this: inventory) -> list[item]", documentation = "Gets all items of this inventory in a list.")
+    public static RList items(RInventory $this) {
+        var list = RList.create();
+        for(var item : $this.inner) {
+            if(item == null) {
+                list.javaValue().add(RItem.of(ItemStack.EMPTY));
+            }
+            list.javaValue().add(RItem.of(item));
+        }
+        return list;
+    }
+
+    @MethodTypeHint(signature = "(this: inventory, items: list[item]) -> void", documentation = "Sets all items of this inventory to the list provided.")
+    public static void set_items(RInventory $this, RList list) {
+        $this.inner.clearContent();
+        int slot = 0;
+        for(var item : list.javaValue()) {
+            if(item.javaValue() instanceof ItemStack itemStack) {
+                $this.inner.setItem(slot, itemStack);
+            }
+            slot++;
+        }
+    }
 }

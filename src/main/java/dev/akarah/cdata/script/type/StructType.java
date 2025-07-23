@@ -23,7 +23,7 @@ public record StructType(String name, List<Field> fields) implements Type<RStruc
 
     @Override
     public String typeName() {
-        return "struct";
+        return this.name;
     }
 
     @Override
@@ -38,11 +38,6 @@ public record StructType(String name, List<Field> fields) implements Type<RStruc
 
     @Override
     public String verboseTypeName() {
-        return "struct" + this.fields.toString();
-    }
-
-    @Override
-    public List<? extends Type<?>> subtypes() {
-        return this.fields.stream().map(Field::type).toList();
+        return this.name;
     }
 }

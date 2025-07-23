@@ -7,17 +7,12 @@ import java.util.List;
 
 public record SpannedType<T>(
     Type<T> type,
-    SpanData span,
-    String renamed,
-    String verboseRenaming
+    SpanData span
 ) implements Type<T> {
-    public SpannedType(Type<T> type, SpanData span) {
-        this(type, span, type.typeName(), type.verboseTypeName());
-    }
 
     @Override
     public String typeName() {
-        return this.renamed();
+        return this.type.typeName();
     }
 
     @Override
@@ -37,10 +32,6 @@ public record SpannedType<T>(
 
     @Override
     public String verboseTypeName() {
-        return this.verboseRenaming;
-    }
-
-    public SpannedType<T> rename(String name, String verboseRename) {
-        return new SpannedType<>(this.type(), this.span(), name, verboseRename);
+        return this.type.verboseTypeName();
     }
 }

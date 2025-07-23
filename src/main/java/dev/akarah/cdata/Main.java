@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import dev.akarah.cdata.script.value.RuntimeValue;
+import dev.akarah.cdata.script.value.event.REntityEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

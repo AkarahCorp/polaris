@@ -96,6 +96,9 @@ public record CustomItem(
     }
 
     public static Optional<ResourceLocation> itemIdOf(ItemStack itemStack) {
+        if(itemStack == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(itemStack.get(DataComponents.CUSTOM_DATA))
                 .map(CustomData::copyTag)
                 .map(x -> x.get("id"))

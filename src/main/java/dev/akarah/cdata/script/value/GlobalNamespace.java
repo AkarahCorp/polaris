@@ -133,4 +133,9 @@ public class GlobalNamespace {
     public static RNumber server__uptime() {
         return RNumber.of(Main.server().getTickCount());
     }
+
+    @MethodTypeHint(signature = "(s: any) -> void", documentation = "Logs a string to the console.")
+    public static void debug__log(RuntimeValue value) {
+        System.out.println(value.toString());
+    }
 }

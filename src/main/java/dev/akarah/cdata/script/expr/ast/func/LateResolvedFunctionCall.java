@@ -14,6 +14,7 @@ import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionStream;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.VariableType;
 import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.*;
 import net.minecraft.resources.ResourceLocation;
@@ -86,6 +87,10 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
+        var ts = ctx.getTypeOf(this.parameters.getFirst()).flatten().toString();
+        if(ts.contains("name=akarahnet.profile.member")) {
+            System.out.println(ts);
+        }
         if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(String name, List<StructType.Field> fields))) {
             return Optional.empty();
         }
@@ -156,6 +161,14 @@ public class LateResolvedFunctionCall implements Expression {
         );
         var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));
 
+        var rt = typeSet.returns();
+        for(int i = 0; i < 10; i++) {
+            rt = rt.fixTypeVariables(typeSet);
+            if(rt == null) {
+                throw new ParsingException("Unable to infer return type, something went wrong", this.spanData);
+            }
+        }
+
         return Optional.of(new JvmFunctionAction(
                 CodegenUtil.ofClass(method.getDeclaringClass()),
                 method.getName(),
@@ -166,7 +179,7 @@ public class LateResolvedFunctionCall implements Expression {
                                 .toList()
                 ),
                 newParameters,
-                typeSet.returns()
+                typeSet.returns().fixTypeVariables(typeSet)
         ));
     }
 
@@ -239,7 +252,9 @@ public class LateResolvedFunctionCall implements Expression {
                         "Can not resolve function `"
                                 + this.functionName
                                 + "`. Tried possibilities: "
-                                + tries,
+                                + tries
+                                + " on parameters " + this.parameters
+                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).toList(),
                         this.span()
                 ));
     }

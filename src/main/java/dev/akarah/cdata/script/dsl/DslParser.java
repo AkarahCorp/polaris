@@ -201,9 +201,7 @@ public class DslParser {
                         if(this.userTypes.containsKey(identifier.identifier().replace(".", "_"))) {
                             return new SpannedType<>(
                                     this.userTypes.get(identifier.identifier().replace(".", "_")),
-                                    identifier.span(),
-                                    identifier.identifier(),
-                                    identifier.identifier()
+                                    identifier.span()
                             );
                         }
                         throw new ParsingException("`" + identifier.identifier() + "` is not a valid type.", identifier.span());
