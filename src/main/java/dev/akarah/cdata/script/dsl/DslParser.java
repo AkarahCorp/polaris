@@ -184,7 +184,7 @@ public class DslParser {
                         expect(DslToken.CloseBracket.class);
                         yield switch (eventType.identifier()) {
                             case "player.join", "player.quit", "player.hurt", "player.tick", "entity.take_damage",
-                                 "entity.tick", "entity.kill" ->
+                                 "entity.tick", "entity.kill", "player.swap_hands" ->
                                     _ -> Type.events().entity(eventType.identifier()).spanned(identifier.span());
                             case "entity.interact", "entity.player_attack", "entity.player_kill" ->
                                     _ -> Type.events().doubleEntity(eventType.identifier()).spanned(identifier.span());

@@ -8,10 +8,13 @@ import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.item.ItemEvents;
 import dev.akarah.cdata.script.value.event.RDoubleEntityEvent;
+import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.event.REntityItemEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -28,6 +31,20 @@ import java.util.List;
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerMixin {
     @Shadow public ServerPlayer player;
+
+    @Inject(method = "handlePlayerAction", at = @At("HEAD"), cancellable = true)
+    public void handlePlayerCommand(ServerboundPlayerActionPacket serverboundPlayerActionPacket, CallbackInfo ci) {
+        switch (serverboundPlayerActionPacket.getAction()) {
+            case SWAP_ITEM_WITH_OFFHAND -> {
+                ci.cancel();
+                var events = Resources.actionManager().functionsByEventType("player.swap_hands");
+                Resources.actionManager().callEvents(
+                        events,
+                        REntityEvent.of(REntity.of(player))
+                );
+            }
+        }
+    }
 
     @Inject(method = "handleInteract", at = @At("TAIL"))
     public void interactEvent(ServerboundInteractPacket serverboundInteractPacket, CallbackInfo ci) {
