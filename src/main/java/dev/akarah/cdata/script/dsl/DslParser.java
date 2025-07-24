@@ -188,7 +188,7 @@ public class DslParser {
                         var eventType = expect(DslToken.Identifier.class);
                         expect(DslToken.CloseBracket.class);
                         yield switch (eventType.identifier()) {
-                            case "player.join", "player.quit", "player.hurt", "player.tick", "entity.take_damage",
+                            case "player.join", "player.quit", "player.tick", "entity.take_damage",
                                  "entity.tick", "entity.kill", "player.swap_hands" ->
                                     _ -> Type.events().entity(eventType.identifier()).spanned(identifier.span());
                             case "entity.interact", "entity.player_attack", "entity.player_kill" ->
@@ -199,6 +199,8 @@ public class DslParser {
                                     _ -> Type.events().item(eventType.identifier()).spanned(identifier.span());
                             case "server.tick" ->
                                     _ -> Type.events().empty(eventType.identifier()).spanned(identifier.span());
+                            case "player.hurt" ->
+                                    _ -> Type.events().entityDamage(eventType.identifier()).spanned(identifier.span());
                             default -> throw new ParsingException("Unexpected value: " + eventType.identifier(), eventType.span());
                         };
                     }

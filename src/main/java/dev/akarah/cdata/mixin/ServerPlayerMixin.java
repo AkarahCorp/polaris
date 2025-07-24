@@ -23,12 +23,16 @@ public abstract class ServerPlayerMixin {
         }
     }
 
-    @Inject(method = "hurtServer", at = @At("HEAD"))
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
     public void damageEvent(ServerLevel serverLevel, DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
         var e = (ServerPlayer) (Object) this;
         if(!(e instanceof FakePlayer)) {
+            var event = REntityDamageEvent.of(REntity.of(e), RNumber.of(f));
             var functions = Resources.actionManager().functionsByEventType("player.hurt");
-            Resources.actionManager().callEvents(functions, REntityDamageEvent.of(REntity.of(e), RNumber.of(f)));
+            Resources.actionManager().callEvents(functions, event);
+            if(event.cancelled) {
+                cir.setReturnValue(false);
+            }
         }
     }
 }

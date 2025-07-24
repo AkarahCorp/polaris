@@ -5,10 +5,9 @@ import dev.akarah.cdata.script.value.RuntimeValue;
 import dev.akarah.cdata.script.value.mc.REntity;
 
 public class REvent extends RuntimeValue {
-    private final RBoolean cancelled;
 
     public REvent() {
-        this.cancelled = RBoolean.of(false);
+
     }
 
     public static REvent of() {

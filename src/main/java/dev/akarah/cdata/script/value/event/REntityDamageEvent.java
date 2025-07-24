@@ -7,10 +7,12 @@ import dev.akarah.cdata.script.value.mc.REntity;
 public class REntityDamageEvent extends REvent {
     private final REntity primary;
     private final RNumber secondary;
+    public boolean cancelled;
 
     private REntityDamageEvent(REntity primary, RNumber secondary) {
         this.primary = primary;
         this.secondary = secondary;
+        this.cancelled = false;
     }
 
     public static REntityDamageEvent of(REntity primary, RNumber secondary) {
@@ -30,5 +32,10 @@ public class REntityDamageEvent extends REvent {
     @MethodTypeHint(signature = "(this: any) -> number", documentation = "Returns the damage amount of this event.")
     public static RNumber damage(REntityDamageEvent event) {
         return event.secondary;
+    }
+
+    @MethodTypeHint(signature = "(this: any) -> void", documentation = "Cancels the damage dealing part of this event.")
+    public static void cancel(REntityDamageEvent event) {
+        event.cancelled = true;
     }
 }
