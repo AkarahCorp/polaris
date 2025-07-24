@@ -96,6 +96,12 @@ public class LateResolvedFunctionCall implements Expression {
         }
         for(var field : fields) {
             if(this.functionName.equals(field.name()) && this.parameters.size() == 2) {
+                if(!(ctx.getTypeOf(this.parameters.get(1)).flatten().typeEquals(field.type()))) {
+                    throw new ParsingException(
+                            "Expected type `" + field.type() + "`, got type `" + ctx.getTypeOf(this.parameters.get(1)) + "`",
+                            this.parameters.get(1).span()
+                    );
+                }
                 return Optional.of(new JvmFunctionAction(
                         CodegenUtil.ofClass(RStruct.class),
                         "put",

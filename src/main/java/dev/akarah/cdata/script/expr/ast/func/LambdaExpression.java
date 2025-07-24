@@ -86,7 +86,7 @@ public record LambdaExpression(
                 this.returnType.typeClass(),
                 Stream.concat(
                         IntStream.rangeClosed(0, ctx.highestLocal())
-                                .mapToObj(_ -> RuntimeValue.class),
+                                .mapToObj(_ -> Object.class),
                         this.parameters.stream()
                                 .map(Pair::getSecond)
                                 .map(Type::typeClass)

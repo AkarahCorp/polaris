@@ -34,6 +34,34 @@ public record InlineStructExpression(
                         )
                 )
         );
+        // todo: add field validation checks
+
+
+        var type = ctx.userTypes.get(name.replace(".", "_"));
+        if(type == null) {
+            throw new ParsingException("Type `" + name + "` does not exist.", this.span);
+        }
+
+        for(var expr : expressions) {
+            for(var field : type.fields()) {
+                if(field.name().equals(expr.getFirst())) {
+                    if(!ctx.getTypeOf(expr.getSecond()).typeEquals(field.type())) {
+                        throw new ParsingException(
+                                "Expected type of `" + field.type() + "`, got `" + ctx.getTypeOf(expr.getSecond()) + "`",
+                                expr.getSecond().span()
+                        );
+                    }
+                }
+            }
+        }
+
+        var structFields = expressions.stream().map(Pair::getFirst).toList();
+        for(var field : type.fields()) {
+            if(!structFields.contains(field.name()) && field.fallback() == null) {
+                throw new ParsingException("Struct is missing field `" + field.name() + "`", this.span);
+            }
+        }
+
         for(var expr : expressions) {
             ctx
                     .dup()

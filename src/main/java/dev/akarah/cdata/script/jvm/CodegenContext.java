@@ -213,7 +213,7 @@ public class CodegenContext {
         var returnType = action.returnType().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
-            parameters.add(CodegenUtil.ofClass(RuntimeValue.class));
+            parameters.add(CodegenUtil.ofClass(Object.class));
         }
         for(var parameter : action.parameters()) {
             parameters.add(parameter.getSecond().classDescType());

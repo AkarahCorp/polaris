@@ -53,7 +53,6 @@ public class MinecraftServerMixin {
             Resources.statManager().refreshPlayerInventories();
         }
 
-        var functions = Resources.actionManager().functionsByEventType("server.tick");
         Resources.actionManager().performEvents("server.tick");
     }
 

@@ -3,6 +3,7 @@ package dev.akarah.cdata.db.persistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.RIdentifier;
 import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -72,6 +73,17 @@ public class DbCodecs {
                             },
                             () -> buf.writeVarInt(9)
                     );
+                    case RIdentifier identifier -> {
+                        buf.writeVarInt(10);
+                        buf.writeResourceLocation(identifier.javaValue());
+                    }
+                    case RBoolean rBoolean -> {
+                        if(rBoolean.javaValue()) {
+                            buf.writeVarInt(11);
+                        } else {
+                            buf.writeVarInt(12);
+                        }
+                    }
                     default -> throw new RuntimeException("Unable to make a codec out of " + object);
                 }
             },
@@ -125,6 +137,15 @@ public class DbCodecs {
                     }
                     case 9 -> {
                         return RItem.of(ItemStack.EMPTY);
+                    }
+                    case 10 -> {
+                        return RIdentifier.of(buf.readResourceLocation());
+                    }
+                    case 11 -> {
+                        return RBoolean.of(true);
+                    }
+                    case 12 -> {
+                        return RBoolean.of(false);
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }

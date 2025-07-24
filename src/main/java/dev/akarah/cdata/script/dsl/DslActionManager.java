@@ -64,6 +64,7 @@ public class DslActionManager {
             mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
             System.out.println("Error executing script `" + name + "`: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -77,6 +78,7 @@ public class DslActionManager {
             return true;
         } catch (Throwable e) {
             System.out.println("Error executing script `" + name + "`: " + e.getMessage());
+            e.printStackTrace();
             return true;
         }
     }
@@ -172,13 +174,15 @@ public class DslActionManager {
                                     counts++;
                                 }
                             } catch (Exception e) {
-
+                                System.out.println("Error during type instantiation, if the server starts ignore this:");
+                                System.out.println(e.getMessage());
                             }
                         }
                         if(counts == 0) {
                             break;
                         }
                     }
+                    System.out.println(this.dslTypes.keySet());
                     for(var entry : this.rawDslPrograms.entrySet()) {
                         var tokens = DslTokenizer.tokenize(this.resourceNames.get(entry.getKey()), entry.getValue()).getOrThrow();
                         var expression = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
