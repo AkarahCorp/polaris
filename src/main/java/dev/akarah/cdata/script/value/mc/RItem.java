@@ -43,6 +43,7 @@ public class RItem extends RuntimeValue {
     @MethodTypeHint(signature = "(item: item, name: text) -> void", documentation = "Sets the name of the item stack.")
     public static void set_name(RItem item, RText name) {
         item.javaValue().set(DataComponents.ITEM_NAME, name.javaValue());
+        item.javaValue().set(DataComponents.CUSTOM_NAME, name.javaValue());;
     }
 
     @MethodTypeHint(signature = "(item: item) -> string", documentation = "Gets the name of the base item.")

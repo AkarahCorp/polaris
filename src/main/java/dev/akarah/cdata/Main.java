@@ -59,7 +59,7 @@ public class Main implements ModInitializer {
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, context, _) -> {
-            var root = Commands.literal("engine");
+            var root = Commands.literal("engine").requires(x -> x.hasPermission(4));
 
             root.then(Commands.literal("give"));
 
