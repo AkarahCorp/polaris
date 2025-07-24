@@ -5,7 +5,6 @@ import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
-import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +44,6 @@ public class StatManager {
     );
 
     public void loopPlayers() {
-        var functions = Resources.actionManager().functionsByEventType("player.tick");
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
@@ -60,10 +58,10 @@ public class StatManager {
                     });
                 });
             }
+
+            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player));
             this.set(player, stats.performFinalCalculations());
-
-
-            Resources.actionManager().callEvents(functions, REntityEvent.of(REntity.of(player)));
+            Resources.actionManager().performEvents("player.tick", REntity.of(player));
 
 
             var packet = new ClientboundPlayerInfoUpdatePacket(

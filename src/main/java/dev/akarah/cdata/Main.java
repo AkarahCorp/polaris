@@ -7,13 +7,11 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import dev.akarah.cdata.script.value.RuntimeValue;
-import dev.akarah.cdata.script.value.event.REntityEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mojang.datafixers.util.Pair;
 
-import dev.akarah.cdata.registry.ExtRegistries;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.exception.SpannedException;
 import dev.akarah.cdata.script.expr.docs.DocBuilder;
@@ -22,8 +20,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.NbtTagArgument;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;

@@ -3,8 +3,6 @@ package dev.akarah.cdata.registry.entity;
 import com.google.common.collect.Maps;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
-import dev.akarah.cdata.script.value.event.RDoubleEntityEvent;
-import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -77,9 +75,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
             });
         }
 
-        this.base().events()
-                .flatMap(EntityEvents::onSpawn)
-                .ifPresent(x -> Resources.actionManager().callEvents(x, REntityEvent.of(REntity.of(this))));
+        Resources.actionManager().performEvents("entity.spawn", REntity.of(this));
     }
 
     @Override
@@ -113,25 +109,17 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         }
         var result = super.hurtServer(serverLevel, damageSource, f);
         if(result) {
-            this.base().events()
-                    .flatMap(EntityEvents::onTakeDamage)
-                    .ifPresent(x -> Resources.actionManager().callEvents(x, REntityEvent.of(REntity.of(this))));
+            Resources.actionManager().performEvents("entity.take_damage", REntity.of(this));
 
             if(this.getHealth() <= 0.0) {
-                this.base().events()
-                        .flatMap(EntityEvents::onDeath)
-                        .ifPresent(x -> Resources.actionManager().callEvents(x, REntityEvent.of(REntity.of(this))));
+                Resources.actionManager().performEvents("entity.die", REntity.of(this));
             }
 
             if(damageSource.getEntity() instanceof ServerPlayer attacker) {
-                this.base().events()
-                        .flatMap(EntityEvents::onPlayerAttack)
-                        .ifPresent(x -> Resources.actionManager().callEvents(x, RDoubleEntityEvent.of(REntity.of(attacker), REntity.of(this))));
+                Resources.actionManager().performEvents("player.attack_entity", REntity.of(attacker), REntity.of(this));
 
                 if(this.getHealth() <= 0.0) {
-                    this.base().events()
-                            .flatMap(EntityEvents::onPlayerKill)
-                            .ifPresent(x -> Resources.actionManager().callEvents(x, RDoubleEntityEvent.of(REntity.of(attacker), REntity.of(this))));
+                    Resources.actionManager().performEvents("player.kill_entity", REntity.of(attacker), REntity.of(this));
                 }
             }
         }
@@ -143,9 +131,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     public void tick() {
         super.tick();
 
-        this.base().events()
-                .flatMap(EntityEvents::onTick)
-                .ifPresent(x -> Resources.actionManager().callEvents(x, REntityEvent.of(REntity.of(this))));
+        Resources.actionManager().performEvents("entity.tick", REntity.of(this));
     }
 
     @Override

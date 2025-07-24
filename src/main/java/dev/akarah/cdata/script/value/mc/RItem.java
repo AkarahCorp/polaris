@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
-import dev.akarah.cdata.script.value.event.RItemEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;

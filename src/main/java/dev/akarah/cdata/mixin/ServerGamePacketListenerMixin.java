@@ -6,15 +6,10 @@ import dev.akarah.cdata.registry.entity.EntityEvents;
 import dev.akarah.cdata.registry.entity.EntityUtil;
 import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
-import dev.akarah.cdata.registry.item.ItemEvents;
-import dev.akarah.cdata.script.value.event.RDoubleEntityEvent;
-import dev.akarah.cdata.script.value.event.REntityEvent;
-import dev.akarah.cdata.script.value.event.REntityItemEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -37,10 +32,9 @@ public class ServerGamePacketListenerMixin {
         switch (serverboundPlayerActionPacket.getAction()) {
             case SWAP_ITEM_WITH_OFFHAND -> {
                 ci.cancel();
-                var events = Resources.actionManager().functionsByEventType("player.swap_hands");
-                Resources.actionManager().callEvents(
-                        events,
-                        REntityEvent.of(REntity.of(player))
+                Resources.actionManager().performEvents(
+                        "player.swap_hands",
+                        REntity.of(player)
                 );
             }
         }
@@ -58,16 +52,14 @@ public class ServerGamePacketListenerMixin {
             public void onInteraction(InteractionHand interactionHand) {
                 if(interactionHand.equals(InteractionHand.MAIN_HAND)) {
                     if(target instanceof VisualEntity visual) {
-                        var events = visual.dynamic().base().events().flatMap(EntityEvents::onInteract).orElse(List.of());
-                        Resources.actionManager().callEvents(
-                                events,
-                                RDoubleEntityEvent.of(REntity.of(player), REntity.of(visual.dynamic()))
+                        Resources.actionManager().performEvents(
+                                "entity.interact",
+                                REntity.of(player), REntity.of(visual.dynamic())
                         );
                     } else if(target instanceof DynamicEntity dynamicEntity) {
-                        var events = dynamicEntity.base().events().flatMap(EntityEvents::onInteract).orElse(List.of());
-                        Resources.actionManager().callEvents(
-                                events,
-                                RDoubleEntityEvent.of(REntity.of(player), REntity.of(dynamicEntity))
+                        Resources.actionManager().performEvents(
+                                "entity.interact",
+                                REntity.of(player), REntity.of(dynamicEntity)
                         );
                     }
                 }
@@ -89,11 +81,11 @@ public class ServerGamePacketListenerMixin {
     @Inject(method = "handleAnimate", at = @At("TAIL"))
     public void handleLeftClick(ServerboundSwingPacket serverboundSwingPacket, CallbackInfo ci) {
         for(var item : EntityUtil.equipmentItemsOf(this.player)) {
-            CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onLeftClick)
-                    .ifPresent(events -> Resources.actionManager().callEvents(
-                            events,
-                            REntityItemEvent.of(REntity.of(this.player), RItem.of(item))
-                    ));
+            Resources.actionManager().performEvents(
+                    "item.left_click",
+                    REntity.of(this.player),
+                    RItem.of(item)
+            );
         }
     }
 }

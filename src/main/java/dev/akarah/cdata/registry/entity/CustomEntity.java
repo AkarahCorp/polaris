@@ -24,7 +24,6 @@ public record CustomEntity(
         Optional<StatsObject> stats,
         Optional<List<PrioritizedTask>> behaviorGoals,
         Optional<List<PrioritizedTask>> targetGoals,
-        Optional<EntityEvents> events,
         Map<EquipmentSlot, ResourceLocation> equipment,
         boolean invulnerable,
         UUID playerSkinName
@@ -38,7 +37,6 @@ public record CustomEntity(
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomEntity::stats),
             PrioritizedTask.CODEC.listOf().optionalFieldOf("behavior_goals").forGetter(CustomEntity::behaviorGoals),
             PrioritizedTask.CODEC.listOf().optionalFieldOf("target_goals").forGetter(CustomEntity::targetGoals),
-            EntityEvents.CODEC.optionalFieldOf("events").forGetter(CustomEntity::events),
             Codec.unboundedMap(EquipmentSlot.CODEC, ResourceLocation.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
             Codec.BOOL.optionalFieldOf("invulnerable", false).forGetter(CustomEntity::invulnerable),
             UUIDUtil.CODEC.optionalFieldOf("player_skin", UUID.fromString("092f1802-e1ad-4f3a-a129-da32eb2227de")).forGetter(CustomEntity::playerSkinName)

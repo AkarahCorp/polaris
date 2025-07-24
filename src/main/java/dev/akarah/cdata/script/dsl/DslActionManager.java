@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.dsl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.Resources;
@@ -8,10 +9,11 @@ import dev.akarah.cdata.script.expr.ast.TypeExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
-import dev.akarah.cdata.script.value.event.REvent;
+import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -56,44 +58,68 @@ public class DslActionManager {
         return this.methodHandles.get(resourceLocation);
     }
 
-    public void execute(ResourceLocation name, List<Object> arguments) {
+    public void executeVoid(ResourceLocation name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
         try {
-            mh.invokeWithArguments(arguments);
+            mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
             System.out.println("Error executing script `" + name + "`: " + e.getMessage());
         }
     }
 
-    Map<String, Type<?>> typeInterning = Maps.newHashMap();
-    Map<String, List<ResourceLocation>> eventInterning = Maps.newHashMap();
-
-    public List<ResourceLocation> functionsByEventType(String typeName) {
-        var type = typeInterning.get(typeName);
-        if(type == null) {
-            var tokens = DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("_", "_"), "event[" + typeName + "]").getOrThrow();
-            type = DslParser.parseTopLevelType(tokens);
+    public boolean executeBoolean(ResourceLocation name, RuntimeValue... arguments) {
+        var mh = methodHandleByLocation(name);
+        try {
+            var result = mh.invokeWithArguments((Object[]) arguments);
+            if(result instanceof Boolean a) {
+                return a;
+            }
+            return true;
+        } catch (Throwable e) {
+            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
+            return true;
         }
-
-        var event = eventInterning.get(typeName);
-        if(event == null) {
-            Type<?> finalType = type;
-            event = this.dslExpressions.entrySet()
-                    .stream()
-                    .filter(x -> !x.getValue().parameters().isEmpty())
-                    .map(x -> Map.entry(x.getKey(), x.getValue().parameters().getFirst().getSecond()))
-                    .filter(x -> x.getValue().typeEquals(finalType))
-                    .map(Map.Entry::getKey)
-                    .map(x -> this.resourceNames.get(x))
-                    .toList();
-        }
-
-        return event;
     }
 
-    public void callEvents(List<ResourceLocation> functions, REvent event) {
+    Map<String, List<ResourceLocation>> eventInterning = Maps.newHashMap();
+
+    public void internEventTypes() {
+        eventInterning.clear();
+        for(var function : this.dslExpressions.entrySet()) {
+            function.getValue().eventName().ifPresent(eventName -> {
+                if(eventInterning.containsKey(eventName)) {
+                    eventInterning.get(eventName).add(resourceNames.get(function.getKey()));
+                } else {
+                    eventInterning.put(eventName, Lists.newArrayList(resourceNames.get(function.getKey())));
+                }
+            });
+        }
+    }
+
+    public List<ResourceLocation> functionsByEventType(String typeName) {
+        if(eventInterning.isEmpty()) {
+            internEventTypes();
+        }
+        var value = eventInterning.get(typeName);
+        if(value == null) {
+            return List.of();
+        }
+        return value;
+    }
+
+    public boolean performEvents(String name, RuntimeValue... parameters) {
+        for(var f : functionsByEventType(name)) {
+            var result = this.executeBoolean(f, parameters);
+            if(!result) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void callFunctions(List<ResourceLocation> functions, RuntimeValue... parameters) {
         for(var f : functions) {
-            this.execute(f, List.of(event));
+            this.executeVoid(f, parameters);
         }
     }
 

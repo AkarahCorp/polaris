@@ -4,9 +4,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.EntityUtil;
 import dev.akarah.cdata.registry.item.CustomItem;
-import dev.akarah.cdata.registry.item.ItemEvents;
 import dev.akarah.cdata.registry.mining.MiningManager;
-import dev.akarah.cdata.script.value.event.REntityItemEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.BlockPos;
@@ -44,16 +42,14 @@ public class ServerPlayerGameModeMixin {
                     this.level.getBlockState(blockPos),
                     blockPos
             );
-            rule.ifPresent(miningRule -> {
-                Resources.miningManager().setStatus(
-                        this.player,
-                        new MiningManager.MiningStatus(
-                                blockPos,
-                                miningRule,
-                                new AtomicDouble(0.0)
-                        )
-                );
-            });
+            rule.ifPresent(miningRule -> Resources.miningManager().setStatus(
+                    this.player,
+                    new MiningManager.MiningStatus(
+                            blockPos,
+                            miningRule,
+                            new AtomicDouble(0.0)
+                    )
+            ));
         }
         if(action.equals(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK)) {
             Resources.miningManager().clearStatus(this.player);
@@ -63,22 +59,22 @@ public class ServerPlayerGameModeMixin {
     @Inject(method = "useItem", at = @At("HEAD"))
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
-            CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onRightClick)
-                    .ifPresent(events -> Resources.actionManager().callEvents(
-                            events,
-                            REntityItemEvent.of(REntity.of(serverPlayer), RItem.of(item))
-                    ));
+            Resources.actionManager().performEvents(
+                    "item.right_click",
+                    REntity.of(serverPlayer),
+                    RItem.of(item)
+            );
         }
     }
 
     @Inject(method = "useItemOn", at = @At("HEAD"))
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
-            CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onRightClick)
-                    .ifPresent(events -> Resources.actionManager().callEvents(
-                            events,
-                            REntityItemEvent.of(REntity.of(serverPlayer), RItem.of(item))
-                    ));
+            Resources.actionManager().performEvents(
+                    "item.right_click",
+                    REntity.of(serverPlayer),
+                    RItem.of(item)
+            );
         }
     }
 }

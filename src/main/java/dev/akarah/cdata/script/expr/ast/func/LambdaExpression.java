@@ -19,6 +19,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -113,6 +114,7 @@ public record LambdaExpression(
                 this.parameters,
                 this.returnType,
                 this.body,
+                Optional.empty(),
                 this.keywordSpan
         );
     }

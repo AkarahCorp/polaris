@@ -1,7 +1,6 @@
 package dev.akarah.cdata.mixin;
 
 import dev.akarah.cdata.registry.Resources;
-import dev.akarah.cdata.script.value.event.REntityDamageEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.RNumber;
 import net.fabricmc.fabric.api.entity.FakePlayer;
@@ -27,10 +26,11 @@ public abstract class ServerPlayerMixin {
     public void damageEvent(ServerLevel serverLevel, DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
         var e = (ServerPlayer) (Object) this;
         if(!(e instanceof FakePlayer)) {
-            var event = REntityDamageEvent.of(REntity.of(e), RNumber.of(f));
-            var functions = Resources.actionManager().functionsByEventType("player.hurt");
-            Resources.actionManager().callEvents(functions, event);
-            if(event.cancelled) {
+            var result = Resources.actionManager().performEvents(
+                    "player.hurt",
+                    REntity.of(e), RNumber.of(f)
+            );
+            if(!result) {
                 cir.setReturnValue(false);
             }
         }

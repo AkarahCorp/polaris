@@ -4,10 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
-import dev.akarah.cdata.registry.item.value.EquippableData;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.value.RuntimeValue;
-import dev.akarah.cdata.script.value.event.RItemEvent;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -30,8 +28,7 @@ public record CustomItem(
         Optional<StatsObject> stats,
         Optional<CustomComponents> components,
         Optional<ResourceLocation> itemTemplate,
-        Optional<Map<String, RuntimeValue>> customData,
-        Optional<ItemEvents> events
+        Optional<Map<String, RuntimeValue>> customData
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
@@ -39,8 +36,7 @@ public record CustomItem(
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             CustomComponents.CODEC.optionalFieldOf("components").forGetter(CustomItem::components),
             ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
-            Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData),
-            ItemEvents.CODEC.optionalFieldOf("events").forGetter(CustomItem::events)
+            Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
 
     public static Codec<CustomItem> CODEC_BY_ID =
@@ -86,7 +82,7 @@ public record CustomItem(
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {
             try {
-                Resources.actionManager().execute(itemTemplate, List.of(RItemEvent.of(RItem.of(is))));
+                Resources.actionManager().executeVoid(itemTemplate, RItem.of(is));
             } catch (Throwable _) {
 
             }

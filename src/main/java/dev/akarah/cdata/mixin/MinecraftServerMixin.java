@@ -5,8 +5,6 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.db.persistence.DbPersistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
-import dev.akarah.cdata.script.value.event.REmptyEvent;
-import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
@@ -56,7 +54,7 @@ public class MinecraftServerMixin {
         }
 
         var functions = Resources.actionManager().functionsByEventType("server.tick");
-        Resources.actionManager().callEvents(functions, REmptyEvent.of());
+        Resources.actionManager().performEvents("server.tick");
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")
@@ -76,10 +74,9 @@ public class MinecraftServerMixin {
     @Inject(at = @At("HEAD"), method = "stopServer")
     public void stopServer(CallbackInfo ci) {
         for(var p : Main.server().getPlayerList().getPlayers()) {
-            var events = Resources.actionManager().functionsByEventType("player.quit");
-            Resources.actionManager().callEvents(
-                    events,
-                    REntityEvent.of(REntity.of(p))
+            Resources.actionManager().performEvents(
+                    "player.quit",
+                    REntity.of(p)
             );
         }
 

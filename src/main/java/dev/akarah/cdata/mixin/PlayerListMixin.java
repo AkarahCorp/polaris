@@ -1,7 +1,6 @@
 package dev.akarah.cdata.mixin;
 
 import dev.akarah.cdata.registry.Resources;
-import dev.akarah.cdata.script.value.event.REntityEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,14 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     public void playerJoinEvent(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        var functions = Resources.actionManager().functionsByEventType("player.join");
-        Resources.actionManager().callEvents(functions, REntityEvent.of(REntity.of(serverPlayer)));
+        Resources.actionManager().performEvents("player.join", REntity.of(serverPlayer));
     }
 
     @Inject(method = "remove", at = @At("TAIL"))
     public void playerQuitEvent(ServerPlayer serverPlayer, CallbackInfo ci) {
-        var functions = Resources.actionManager().functionsByEventType("player.quit");
-        Resources.actionManager().callEvents(functions, REntityEvent.of(REntity.of(serverPlayer)));
+        Resources.actionManager().performEvents("player.quit", REntity.of(serverPlayer));
 
         REntity.scoreboards.remove(serverPlayer.getUUID());
         REntity.objectives.remove(serverPlayer.getUUID());

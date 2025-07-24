@@ -105,11 +105,11 @@ public interface DslToken {
 
     }
 
-    record TypeKeyword(SpanData span) implements DslToken {
+    record NewKeyword(SpanData span) implements DslToken {
 
     }
 
-    record NewKeyword(SpanData span) implements DslToken {
+    record EventKeyword(SpanData span) implements DslToken {
 
     }
 

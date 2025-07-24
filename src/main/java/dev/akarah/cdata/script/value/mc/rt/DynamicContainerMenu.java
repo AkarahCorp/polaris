@@ -2,8 +2,6 @@ package dev.akarah.cdata.script.value.mc.rt;
 
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
-import dev.akarah.cdata.registry.item.ItemEvents;
-import dev.akarah.cdata.script.value.event.REntityItemEvent;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,12 +22,13 @@ public class DynamicContainerMenu extends ChestMenu {
         if(this.getContainer() instanceof DynamicContainer dynamicContainer) {
             var item = dynamicContainer.getItem(slot);
             var p = (ServerPlayer) player;
-            CustomItem.itemOf(item).flatMap(CustomItem::events).flatMap(ItemEvents::onMenuClick)
-                    .ifPresent(events -> Resources.actionManager().callEvents(
-                            events,
-                            REntityItemEvent.of(REntity.of(p), RItem.of(item))
-                    ));
-            if(dynamicContainer.cancelClicks()) {
+
+            var result = Resources.actionManager().performEvents(
+                    "item.menu_click",
+                    REntity.of(p),
+                    RItem.of(item)
+            );
+            if(dynamicContainer.cancelClicks() || !result) {
                 this.sendAllDataToRemote();
                 return;
             }

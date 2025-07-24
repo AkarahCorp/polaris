@@ -43,6 +43,9 @@ public class DslParser {
             var outputType = (StructType) parser.parseType().flatten();
             return new TypeExpression(outputType);
         }
+        if(parser.peek() instanceof DslToken.EventKeyword) {
+            return parser.parseEvent();
+        }
         return parser.parseSchema();
     }
 
@@ -83,7 +86,35 @@ public class DslParser {
         }
 
         var body = parseBlock();
-        return new SchemaExpression(parameters, returnType, body, kw.span());
+        return new SchemaExpression(parameters, returnType, body, Optional.empty(), kw.span());
+    }
+
+    // TODO: merge with parseSchema
+    public SchemaExpression parseEvent() {
+        var kw = expect(DslToken.EventKeyword.class);
+        var eventName = expect(DslToken.Identifier.class);
+        expect(DslToken.OpenParen.class);
+
+        var parameters = new ArrayList<Pair<String, Type<?>>>();
+        while(!(peek() instanceof DslToken.CloseParen)) {
+            var name = expect(DslToken.Identifier.class);
+            expect(DslToken.Colon.class);
+            var type = parseType();
+            parameters.add(Pair.of(name.identifier(), type));
+            if(!(peek() instanceof DslToken.CloseParen)) {
+                expect(DslToken.Comma.class);
+            }
+        }
+        expect(DslToken.CloseParen.class);
+
+        Type<?> returnType = Type.void_();
+        if(peek() instanceof DslToken.ArrowSymbol) {
+            expect(DslToken.ArrowSymbol.class);
+            returnType = parseType();
+        }
+
+        var body = parseBlock();
+        return new SchemaExpression(parameters, returnType, body, Optional.of(eventName.identifier()), kw.span());
     }
 
     public Type<?> parseType() {
@@ -183,27 +214,6 @@ public class DslParser {
                     case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
                     case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
                     case "identifier" -> _ -> new SpannedType<>(Type.identifier(), identifier.span());
-                    case "event" -> {
-                        expect(DslToken.OpenBracket.class);
-                        var eventType = expect(DslToken.Identifier.class);
-                        expect(DslToken.CloseBracket.class);
-                        yield switch (eventType.identifier()) {
-                            case "player.join", "player.quit", "player.tick", "entity.take_damage",
-                                 "entity.tick", "entity.kill", "player.swap_hands" ->
-                                    _ -> Type.events().entity(eventType.identifier()).spanned(identifier.span());
-                            case "entity.interact", "entity.player_attack", "entity.player_kill" ->
-                                    _ -> Type.events().doubleEntity(eventType.identifier()).spanned(identifier.span());
-                            case "item.right_click", "item.left_click", "item.menu_click" ->
-                                    _ -> Type.events().entityItem(eventType.identifier()).spanned(identifier.span());
-                            case "item.decorate" ->
-                                    _ -> Type.events().item(eventType.identifier()).spanned(identifier.span());
-                            case "server.tick" ->
-                                    _ -> Type.events().empty(eventType.identifier()).spanned(identifier.span());
-                            case "player.hurt" ->
-                                    _ -> Type.events().entityDamage(eventType.identifier()).spanned(identifier.span());
-                            default -> throw new ParsingException("Unexpected value: " + eventType.identifier(), eventType.span());
-                        };
-                    }
                     default -> _ -> {
                         if(this.userTypes.containsKey(identifier.identifier().replace(".", "_"))) {
                             return new SpannedType<>(

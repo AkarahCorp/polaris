@@ -12,11 +12,13 @@ import dev.akarah.cdata.script.value.RuntimeValue;
 
 import java.lang.invoke.MethodType;
 import java.util.List;
+import java.util.Optional;
 
 public record SchemaExpression(
         List<Pair<String, Type<?>>> parameters,
         Type<?> returnType,
         AllOfAction body,
+        Optional<String> eventName,
         SpanData keywordSpan
 ) implements Expression {
     @Override
