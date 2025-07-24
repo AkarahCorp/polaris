@@ -229,6 +229,8 @@ public class CodegenContext {
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
 
+                        this.codeBuilder = codeBuilder;
+
                         var startLabel = codeBuilder.newLabel();
                         var endLabel = codeBuilder.newLabel();
 
@@ -239,11 +241,23 @@ public class CodegenContext {
                             idx = 0;
                         }
                         for(var parameter : action.parameters()) {
-                            this.stackFrames.getLast().methodLocals.put(parameter.getFirst(), idx++);
+                            this.stackFrames.getLast().methodLocals.put(parameter.getFirst(), idx);
                             this.stackFrames.getLast().methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
+
+                            codeBuilder.localVariable(
+                                    idx,
+                                    parameter.getFirst(),
+                                    parameter.getSecond().classDescType(),
+                                    startLabel,
+                                    endLabel
+                            );
+
+                            idx += 1;
                         }
 
-                        this.codeBuilder = codeBuilder;
+
+
+
                         codeBuilder.labelBinding(startLabel);
                         action.compile(this);
                         codeBuilder.labelBinding(endLabel);
@@ -502,6 +516,13 @@ public class CodegenContext {
         var frame = this.stackFrames.getLast();
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
+        this.codeBuilder.localVariable(
+                index,
+                variable,
+                type.classDescType(),
+                frame.startLabel,
+                frame.breakLabel
+        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
@@ -510,6 +531,14 @@ public class CodegenContext {
         var frame = this.stackFrames.getLast();
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
+
+        this.codeBuilder.localVariable(
+                index,
+                variable,
+                type.classDescType(),
+                frame.startLabel,
+                frame.breakLabel
+        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
