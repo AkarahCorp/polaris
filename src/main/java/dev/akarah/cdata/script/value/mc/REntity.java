@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value.mc;
 
+import com.google.common.collect.Maps;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
@@ -9,6 +10,11 @@ import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainerMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.numbers.BlankFormat;
+import net.minecraft.network.chat.numbers.NumberFormat;
+import net.minecraft.network.chat.numbers.NumberFormatTypes;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -16,6 +22,15 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.scores.DisplaySlot;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class REntity extends RuntimeValue {
     private final Entity inner;
@@ -177,5 +192,65 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity) -> uuid", documentation = "Returns the UUID of the entity.")
     public static RUuid uuid(REntity $this) {
         return RUuid.of($this.inner.getUUID());
+    }
+
+    public static Map<UUID, Scoreboard> scoreboards = Maps.newHashMap();
+    public static Map<UUID, Objective> objectives = Maps.newHashMap();
+
+    @MethodTypeHint(signature = "(this: entity, lines: list[text]) -> void", documentation = "Sets the line of the sidebar of the given player.")
+    public static void set_sidebar(REntity $this, RList list) {
+        if(list.javaValue().isEmpty()) {
+            return;
+        }
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            if(!scoreboards.containsKey(serverPlayer.getUUID())) {
+                var scoreboard = new Scoreboard();
+                var objective = scoreboard.addObjective(
+                        "polaris-sidebar",
+                        ObjectiveCriteria.DUMMY,
+                        (Component) list.javaValue().getFirst().javaValue(),
+                        ObjectiveCriteria.RenderType.INTEGER,
+                        true,
+                        BlankFormat.INSTANCE
+                );
+
+                scoreboards.put(serverPlayer.getUUID(), scoreboard);
+                objectives.put(serverPlayer.getUUID(), objective);
+
+                serverPlayer.connection.send(new ClientboundSetObjectivePacket(
+                        objective,
+                        0
+                ));
+            }
+
+            var scoreboard = scoreboards.get(serverPlayer.getUUID());
+            var objective = objectives.get(serverPlayer.getUUID());
+
+            objective.setDisplayName((Component) list.javaValue().getFirst().javaValue());
+
+            serverPlayer.connection.send(new ClientboundSetObjectivePacket(
+                    objective,
+                    2
+            ));
+            serverPlayer.connection.send(new ClientboundSetDisplayObjectivePacket(
+                    DisplaySlot.SIDEBAR,
+                    objective
+            ));
+
+            for(int score = 0; score < list.javaValue().size() - 1; score++) {
+                serverPlayer.connection.send(new ClientboundResetScorePacket(String.valueOf(score), "polaris-sidebar"));
+
+                var line = list.javaValue().reversed().get(score);
+                if(line instanceof RText text) {
+                    serverPlayer.connection.send(new ClientboundSetScorePacket(
+                            String.valueOf(score),
+                            "polaris-sidebar",
+                            score,
+                            Optional.of(text.javaValue()),
+                            Optional.of(BlankFormat.INSTANCE)
+                    ));
+                }
+            }
+        }
     }
 }

@@ -24,5 +24,8 @@ public class PlayerListMixin {
     public void playerQuitEvent(ServerPlayer serverPlayer, CallbackInfo ci) {
         var functions = Resources.actionManager().functionsByEventType("player.quit");
         Resources.actionManager().callEvents(functions, REntityEvent.of(REntity.of(serverPlayer)));
+
+        REntity.scoreboards.remove(serverPlayer.getUUID());
+        REntity.objectives.remove(serverPlayer.getUUID());
     }
 }
