@@ -11,6 +11,7 @@ import dev.akarah.cdata.registry.entity.MobSpawnRule;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.mining.MiningManager;
 import dev.akarah.cdata.registry.mining.MiningRule;
+import dev.akarah.cdata.registry.refreshable.Refreshable;
 import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.dsl.DslActionManager;
@@ -32,6 +33,7 @@ public class Resources {
     static ReloadableJsonManager<CustomEntity> CUSTOM_ENTITY;
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
+    static ReloadableJsonManager<Refreshable> REFRESHABLES;
 
 
     public static StatManager statManager() {
@@ -70,6 +72,10 @@ public class Resources {
         return MINING_RULE;
     }
 
+    public static ReloadableJsonManager<Refreshable> refreshable() {
+        return REFRESHABLES;
+    }
+
     public static void reloadEverything(ResourceManager resourceManager) {
         Resources.reset();
 
@@ -79,7 +85,8 @@ public class Resources {
                     Resources.actionManager().reloadWithManager(resourceManager, executor),
                     Resources.customEntity().reloadWithManager(resourceManager, executor),
                     Resources.mobSpawnRule().reloadWithManager(resourceManager, executor),
-                    Resources.miningRule().reloadWithManager(resourceManager, executor)
+                    Resources.miningRule().reloadWithManager(resourceManager, executor),
+                    Resources.refreshable().reloadWithManager(resourceManager, executor)
             ).get();
         } catch (ExecutionException | InterruptedException e) {
             Main.handleError(e);
@@ -108,5 +115,6 @@ public class Resources {
         Resources.CUSTOM_ENTITY = ReloadableJsonManager.of("entity", CustomEntity.CODEC);
         Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
         Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
+        Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
     }
 }

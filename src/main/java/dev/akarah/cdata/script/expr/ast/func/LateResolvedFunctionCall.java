@@ -87,10 +87,6 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
-        var ts = ctx.getTypeOf(this.parameters.getFirst()).flatten().toString();
-        if(ts.contains("name=akarahnet.profile.member")) {
-            System.out.println(ts);
-        }
         if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(String name, List<StructType.Field> fields))) {
             return Optional.empty();
         }

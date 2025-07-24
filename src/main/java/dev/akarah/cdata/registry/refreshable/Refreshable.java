@@ -1,0 +1,64 @@
+package dev.akarah.cdata.registry.refreshable;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.Main;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+
+import java.util.List;
+
+public record Refreshable(
+        ResourceLocation world,
+        ResourceLocation structure,
+        List<BlockPos> positions,
+        int frequency
+) {
+    public static Codec<Refreshable> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf("world").forGetter(Refreshable::world),
+            ResourceLocation.CODEC.fieldOf("structure").forGetter(Refreshable::structure),
+            BlockPos.CODEC.listOf().fieldOf("positions").forGetter(Refreshable::positions),
+            Codec.INT.fieldOf("frequency").forGetter(Refreshable::frequency)
+    ).apply(instance, Refreshable::new)));
+
+    public void execute() {
+        try {
+            if(Main.server() == null) {
+                return;
+            }
+            if(Main.server().getTickCount() % frequency == 5) {
+                var world = Main.server().getLevel(ResourceKey.create(Registries.DIMENSION, this.world));
+                assert world != null;
+                var structure = world.getStructureManager().get(this.structure).orElseThrow();
+                for(var position : this.positions) {
+                    var half = new BlockPos(
+                            structure.getSize().getX() / -2,
+                            structure.getSize().getY() / -2,
+                            structure.getSize().getZ() / -2
+                    );
+                    structure.placeInWorld(
+                            world,
+                            position.offset(half.atY(0)),
+                            half,
+                            new StructurePlaceSettings(),
+                            world.random,
+                            Block.UPDATE_ALL_IMMEDIATE
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

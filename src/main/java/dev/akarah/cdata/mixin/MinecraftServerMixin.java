@@ -54,6 +54,10 @@ public class MinecraftServerMixin {
         }
 
         Resources.actionManager().performEvents("server.tick");
+
+        for(var refreshable : Resources.refreshable().registry().entrySet()) {
+            refreshable.getValue().execute();
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")
