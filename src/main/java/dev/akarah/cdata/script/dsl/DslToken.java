@@ -113,6 +113,9 @@ public interface DslToken {
 
     }
 
+    record AsKeyword(SpanData span) implements DslToken {
+
+    }
 
     record EqualSymbol(SpanData span) implements DslToken {
 

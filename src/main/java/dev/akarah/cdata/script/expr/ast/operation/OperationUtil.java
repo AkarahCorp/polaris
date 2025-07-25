@@ -16,7 +16,7 @@ public class OperationUtil {
             return RNumber.of(ld.javaValue() + rd.javaValue());
         }
         if(lhs instanceof RString ls) {
-            return RString.of(ls.javaValue() + rhs.toString());
+            return RString.of(ls.javaValue() + rhs);
         }
         if(lhs instanceof RText lc && rhs instanceof RText rc) {
             return RText.of(Component.empty()

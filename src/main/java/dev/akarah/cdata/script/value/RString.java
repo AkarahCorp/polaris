@@ -45,4 +45,9 @@ public class RString extends RuntimeValue {
         }
         return list;
     }
+
+    @MethodTypeHint(signature = "(base: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
+    public static RString add(RString base, RuntimeValue convert) {
+        return RString.of(base.javaValue() + convert.toString());
+    }
 }

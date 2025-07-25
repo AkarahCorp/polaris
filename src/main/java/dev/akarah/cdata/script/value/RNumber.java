@@ -64,4 +64,29 @@ public class RNumber extends RuntimeValue {
         var doubleFactor = factor.doubleValue();
         return RNumber.of(Math.round(number.doubleValue() / doubleFactor) * doubleFactor);
     }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    public static RNumber add(RNumber lhs, RNumber rhs) {
+        return RNumber.of(lhs.doubleValue() + rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    public static RNumber sub(RNumber lhs, RNumber rhs) {
+        return RNumber.of(lhs.doubleValue() - rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    public static RNumber mul(RNumber lhs, RNumber rhs) {
+        return RNumber.of(lhs.doubleValue() * rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    public static RNumber div(RNumber lhs, RNumber rhs) {
+        return RNumber.of(lhs.doubleValue() / rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    public static RNumber rem(RNumber lhs, RNumber rhs) {
+        return RNumber.of(lhs.doubleValue() % rhs.doubleValue());
+    }
 }

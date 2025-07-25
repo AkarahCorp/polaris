@@ -392,7 +392,7 @@ public class DslParser {
     }
 
     public Expression parseComparisonExpression() {
-        var baseExpression = parseTerm();
+        var baseExpression = parseCast();
         while(true) {
             if(peek() instanceof DslToken.GreaterThanSymbol) {
                 expect(DslToken.GreaterThanSymbol.class);
@@ -417,15 +417,36 @@ public class DslParser {
         return baseExpression;
     }
 
+    public Expression parseCast() {
+        var base = parseTerm();
+        while(true) {
+            if(peek() instanceof DslToken.AsKeyword asKeyword) {
+                expect(DslToken.AsKeyword.class);
+                base = new CastExpression(base, parseType());
+            } else {
+                break;
+            }
+        }
+        return base;
+    }
+
     public Expression parseTerm() {
         var base = parseFactor();
         while(true) {
             if(peek() instanceof DslToken.PlusSymbol) {
-                expect(DslToken.PlusSymbol.class);
-                base = new AddExpression(base, parseFactor());
+                var symbol = expect(DslToken.PlusSymbol.class);
+                base = new LateResolvedFunctionCall(
+                        "add",
+                        List.of(base, parseFactor()),
+                        symbol.span()
+                );
             } else if(peek() instanceof DslToken.StarSymbol) {
-                expect(DslToken.StarSymbol.class);
-                base = new MultiplyExpression(base, parseFactor());
+                var symbol = expect(DslToken.StarSymbol.class);
+                base = new LateResolvedFunctionCall(
+                        "mul",
+                        List.of(base, parseFactor()),
+                        symbol.span()
+                );
             } else {
                 break;
             }
@@ -438,14 +459,26 @@ public class DslParser {
         var base = parseArrowExpression();
         while(true) {
             if(peek() instanceof DslToken.MinusSymbol) {
-                expect(DslToken.MinusSymbol.class);
-                base = new SubtractExpression(base, parseInvocation());
+                var symbol = expect(DslToken.MinusSymbol.class);
+                base = new LateResolvedFunctionCall(
+                        "sub",
+                        List.of(base, parseInvocation()),
+                        symbol.span()
+                );
             } else if(peek() instanceof DslToken.SlashSymbol) {
-                expect(DslToken.SlashSymbol.class);
-                base = new DivideExpression(base, parseInvocation());
+                var symbol = expect(DslToken.SlashSymbol.class);
+                base = new LateResolvedFunctionCall(
+                        "div",
+                        List.of(base, parseInvocation()),
+                        symbol.span()
+                );
             } else if(peek() instanceof DslToken.Percent) {
-                expect(DslToken.Percent.class);
-                base = new RemainderExpression(base, parseInvocation());
+                var symbol = expect(DslToken.Percent.class);
+                base = new LateResolvedFunctionCall(
+                        "rem",
+                        List.of(base, parseInvocation()),
+                        symbol.span()
+                );
             } else {
                 break;
             }
@@ -507,7 +540,11 @@ public class DslParser {
         }
         var baseExpr = parseBaseExpression();
         if(negate) {
-            baseExpr = new MultiplyExpression(baseExpr, new NumberExpression(-1));
+            baseExpr = new LateResolvedFunctionCall(
+                    "mul",
+                    List.of(baseExpr, new NumberExpression(-1)),
+                    baseExpr.span()
+            );
         }
         if(boolNot) {
             baseExpr = new JvmFunctionAction(

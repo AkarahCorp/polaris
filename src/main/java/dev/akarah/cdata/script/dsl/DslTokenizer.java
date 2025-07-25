@@ -96,6 +96,7 @@ public class DslTokenizer {
                         case "struct" -> new DslToken.StructKeyword(this.createSpan(start));
                         case "new" -> new DslToken.NewKeyword(this.createSpan(start));
                         case "event" -> new DslToken.EventKeyword(this.createSpan(start));
+                        case "as" -> new DslToken.AsKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

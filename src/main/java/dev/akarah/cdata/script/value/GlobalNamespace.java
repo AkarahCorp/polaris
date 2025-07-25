@@ -6,6 +6,7 @@ import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.expr.ast.operation.OperationUtil;
 import dev.akarah.cdata.script.value.mc.RVector;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
 import dev.akarah.cdata.script.value.mc.RIdentifier;
@@ -150,5 +151,11 @@ public class GlobalNamespace {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+
+    @MethodTypeHint(signature = "<T, U>(lhs: T, rhs: U) -> T", documentation = "Adds two values together.")
+    public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {
+        return OperationUtil.add(lhs, rhs);
     }
 }

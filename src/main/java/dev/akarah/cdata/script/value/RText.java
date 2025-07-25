@@ -28,4 +28,12 @@ public class RText extends RuntimeValue {
     public static RString contents(RText $this) {
         return RString.of($this.javaValue().copy().getString());
     }
+
+    @MethodTypeHint(signature = "(base: text, concat: any) -> text", documentation = "Returns a new string, concatenating 2 strings.")
+    public static RText add(RText base, RuntimeValue convert) {
+        if(convert instanceof RText text) {
+            return RText.of(base.javaValue().copy().append(text.javaValue()));
+        }
+        return RText.of(base.javaValue().copy().append(convert.toString()));
+    }
 }
