@@ -63,6 +63,9 @@ public class DslActionManager {
         try {
             mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
+            if(e.getMessage().contains("because \"mh\" is null")) {
+                return;
+            }
             System.out.println("Error executing script `" + name + "`: " + e.getMessage());
             e.printStackTrace();
         }
@@ -77,6 +80,9 @@ public class DslActionManager {
             }
             return true;
         } catch (Throwable e) {
+            if(e.getMessage().contains("because \"mh\" is null")) {
+                return true;
+            }
             System.out.println("Error executing script `" + name + "`: " + e.getMessage());
             e.printStackTrace();
             return true;

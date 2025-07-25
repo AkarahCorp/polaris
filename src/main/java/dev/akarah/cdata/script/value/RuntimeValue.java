@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -77,6 +78,10 @@ public abstract class RuntimeValue {
 
     @Override
     public boolean equals(Object other) {
+        if(this instanceof RItem item1 && other instanceof RItem item2) {
+            return RItem.id(item1).equals(RItem.id(item2))
+                    && item1.javaValue().getCount() == item2.javaValue().getCount();
+        }
         if(other instanceof RuntimeValue runtimeValue) {
             return this.javaValue().equals(runtimeValue.javaValue());
         }

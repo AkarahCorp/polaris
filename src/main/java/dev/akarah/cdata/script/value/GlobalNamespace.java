@@ -1,7 +1,9 @@
 package dev.akarah.cdata.script.value;
 
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.db.Database;
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.mc.RVector;
@@ -90,7 +92,7 @@ public class GlobalNamespace {
 
     @MethodTypeHint(signature = "(slots: number, items?: list[item], name?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and name provided.")
     public static RInventory inventory__create(RNumber slots, RList itemList, RText name) {
-        var inv = RInventory.of(new DynamicContainer(slots.intValue()));
+        var inv = RInventory.of(new DynamicContainer(slots.intValue()), RText.of(Component.literal("Menu")));
         if(itemList != null) {
             for(var item : itemList.javaValue()) {
                 if(item instanceof RItem item1) {
@@ -137,5 +139,16 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "(s: any) -> void", documentation = "Logs a string to the console.")
     public static void debug__log(RuntimeValue value) {
         System.out.println(value.toString());
+    }
+
+    @MethodTypeHint(signature = "(delay: number, runnable: function() -> void) -> void", documentation = "Logs a string to the console.")
+    public static void run_delayed(RNumber delay, RFunction runnable) {
+        Resources.scheduler().schedule(delay.intValue(), () -> {
+            try {
+                runnable.javaValue().invoke();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

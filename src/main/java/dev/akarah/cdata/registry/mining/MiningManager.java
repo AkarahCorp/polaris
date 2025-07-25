@@ -4,6 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.script.value.mc.REntity;
+import dev.akarah.cdata.script.value.mc.RItem;
+import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
@@ -135,6 +138,11 @@ public class MiningManager {
                             player.level().addFreshEntity(ee);
                         }
                     }
+                    Resources.actionManager().performEvents(
+                            "player.break_block",
+                            REntity.of(player),
+                            RVector.of(target.getCenter())
+                    );
                     player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
                 }

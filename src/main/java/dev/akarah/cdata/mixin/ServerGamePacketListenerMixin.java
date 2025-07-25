@@ -8,6 +8,7 @@ import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
+import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
@@ -87,5 +88,13 @@ public class ServerGamePacketListenerMixin {
                     RItem.of(item)
             );
         }
+    }
+
+    @Inject(method = "handleContainerClose", at = @At("HEAD"))
+    public void handleContainerClose(ServerboundContainerClosePacket serverboundContainerClosePacket, CallbackInfo ci) {
+        Resources.actionManager().performEvents(
+                "player.close_inventory",
+                REntity.of(this.player)
+        );
     }
 }

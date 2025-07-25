@@ -17,6 +17,7 @@ import net.minecraft.network.chat.numbers.NumberFormatTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
@@ -140,9 +141,21 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity) -> inventory", documentation = "Gets the inventory of the entity, returning a 0-slot inventory if it is not a player.")
     public static RInventory inventory(REntity $this) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
-            return RInventory.of(serverPlayer.getInventory());
+            return RInventory.of(serverPlayer.getInventory(), RText.of(Component.literal("Player Inventory")));
         }
-        return RInventory.of(new DynamicContainer(0));
+        return RInventory.of(new DynamicContainer(0), RText.of(Component.literal("Default Inventory")));
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> nullable[inventory]", documentation = "Gets the open inventory of the entity.")
+    public static RNullable current_open_inventory(REntity $this) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer && serverPlayer.hasContainerOpen()) {
+            var inv = RInventory.of(serverPlayer.containerMenu.getSlot(0).container, RText.of(Component.literal("Untitled")));
+            if(serverPlayer.containerMenu instanceof DynamicContainerMenu dynamicContainerMenu) {
+                inv.name = dynamicContainerMenu.name;
+            }
+            return RNullable.of(inv);
+        }
+        return RNullable.empty();
     }
 
     @MethodTypeHint(signature = "(this: entity, inv: inventory) -> void", documentation = "Opens an inventory for the player.")
@@ -163,7 +176,8 @@ public class REntity extends RuntimeValue {
                     new SimpleMenuProvider((id, playerInventory, _) -> new DynamicContainerMenu(
                             mt, id,
                             playerInventory, inventory.javaValue(),
-                            inventory.javaValue().getContainerSize() / 9
+                            inventory.javaValue().getContainerSize() / 9,
+                            inventory.name
                     ), inventory.name.javaValue())
             );
         }

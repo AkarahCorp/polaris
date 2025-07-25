@@ -1,6 +1,5 @@
 package dev.akarah.cdata.script.value.mc;
 
-import com.google.common.collect.Lists;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
@@ -14,12 +13,13 @@ public class RInventory extends RuntimeValue {
     Container inner;
     RText name = RText.of(Component.literal("Menu"));
 
-    private RInventory(Container inner) {
+    private RInventory(Container inner, RText name) {
         this.inner = inner;
+        this.name = name;
     }
 
-    public static RInventory of(Container value) {
-        return new RInventory(value);
+    public static RInventory of(Container value, RText name) {
+        return new RInventory(value, name);
     }
 
     @Override
@@ -108,6 +108,11 @@ public class RInventory extends RuntimeValue {
     @MethodTypeHint(signature = "(this: inventory, name: text) -> void", documentation = "Sets the name of a custom inventory.")
     public static void set_name(RInventory $this, RText name) {
         $this.name = name;
+    }
+
+    @MethodTypeHint(signature = "(this: inventory) -> text", documentation = "Gets the name of a custom inventory.")
+    public static RText name(RInventory $this) {
+        return $this.name;
     }
 
     @MethodTypeHint(signature = "(this: inventory) -> list[item]", documentation = "Gets all items of this inventory in a list.")

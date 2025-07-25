@@ -1,13 +1,9 @@
 package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
-import dev.akarah.cdata.script.value.RBoolean;
-import dev.akarah.cdata.script.value.RDict;
-import dev.akarah.cdata.script.value.RNullable;
-import dev.akarah.cdata.script.value.RNumber;
-import dev.akarah.cdata.script.value.RString;
-import dev.akarah.cdata.script.value.RuntimeValue;
+import dev.akarah.cdata.script.value.*;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.Block;
@@ -98,7 +94,7 @@ public class RWorld extends RuntimeValue {
     public static RNullable block_inventory_at(RWorld world, RVector position) {
         var entity = world.javaValue().getBlockEntity(position.asBlockPos());
         if(entity instanceof Container container) {
-            return RNullable.of(RInventory.of(container));
+            return RNullable.of(RInventory.of(container, RText.of(Component.literal("Container"))));
         }
         return RNullable.empty();
     }

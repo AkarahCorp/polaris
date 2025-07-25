@@ -408,6 +408,7 @@ public class CodegenContext {
      * @return This.
      */
     public CodegenContext unboxNumber() {
+        this.codeBuilder.checkcast(CodegenUtil.ofClass(RNumber.class));
         this.codeBuilder.invokevirtual(
                 CodegenUtil.ofClass(RNumber.class),
                 "doubleValue",
