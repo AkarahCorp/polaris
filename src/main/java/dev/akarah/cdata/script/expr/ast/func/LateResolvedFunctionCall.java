@@ -260,8 +260,7 @@ public class LateResolvedFunctionCall implements Expression {
                                 + this.functionName
                                 + "`. Tried possibilities: "
                                 + tries
-                                + " on parameters " + this.parameters
-                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).toList(),
+                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).map(x -> x.verboseTypeName()).toList(),
                         this.span()
                 ));
     }
