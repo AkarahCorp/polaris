@@ -64,7 +64,7 @@ public class DslActionManager {
             mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
             if(e.getMessage() == null) {
-                throw new RuntimeException(e);
+                return;
             }
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return;
@@ -84,7 +84,7 @@ public class DslActionManager {
             return true;
         } catch (Throwable e) {
             if(e.getMessage() == null) {
-                throw new RuntimeException(e);
+                return true;
             }
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return true;

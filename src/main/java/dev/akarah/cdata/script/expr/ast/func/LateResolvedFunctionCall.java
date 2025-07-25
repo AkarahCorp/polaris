@@ -214,6 +214,13 @@ public class LateResolvedFunctionCall implements Expression {
                 typeParameters.add(parameter.getSecond().classDescType());
             }
 
+            if(this.parameters.size() != functionSchema.parameters().size()) {
+                throw new ParsingException(
+                        "Argument count mismatch, expected " + functionSchema.parameters().size() + ", got " + this.parameters.size(),
+                        this.spanData
+                );
+            }
+
             Streams.zip(this.parameters.stream(), functionSchema.parameters().stream(), Pair::of)
                     .forEach(pair -> {
                         if(!ctx.getTypeOf(pair.getFirst()).typeEquals(pair.getSecond().getSecond())) {

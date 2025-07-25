@@ -4,6 +4,7 @@
   "package": "dev.akarah.cdata.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockItemMixin",
     "BuiltInRegistriesMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",

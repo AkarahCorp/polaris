@@ -24,6 +24,7 @@ public class RStruct extends RuntimeValue {
     public static RuntimeValue get(RStruct dict, String key, RuntimeValue fallback) {
         var result = dict.inner.get(key);
         if(result == null) {
+            dict.inner.put(key, fallback);
             return fallback;
         }
         return result;
