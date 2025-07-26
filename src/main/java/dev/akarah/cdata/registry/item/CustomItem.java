@@ -2,21 +2,29 @@ package dev.akarah.cdata.registry.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.world.item.equipment.trim.TrimMaterials;
+import net.minecraft.world.item.equipment.trim.TrimPattern;
 
 import java.util.List;
 import java.util.Map;
@@ -78,6 +86,17 @@ public record CustomItem(
         });
         this.components().flatMap(CustomComponents::color).ifPresent(dyedItemColor -> {
             is.set(DataComponents.DYED_COLOR, dyedItemColor);
+        });this.components().flatMap(CustomComponents::trim).ifPresent(trim -> {
+            try {
+                is.set(DataComponents.TRIM, new ArmorTrim(
+                        Main.server().registryAccess().lookup(Registries.TRIM_MATERIAL).orElseThrow()
+                                .get(trim.material()).orElseThrow(),
+                        Main.server().registryAccess().lookup(Registries.TRIM_PATTERN).orElseThrow()
+                                .get(trim.pattern()).orElseThrow()
+                ));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {

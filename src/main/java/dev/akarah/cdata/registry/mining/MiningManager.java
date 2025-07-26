@@ -135,6 +135,7 @@ public class MiningManager {
                     if(player.level().getBlockEntity(target) instanceof Container container) {
                         for (var itemStack : container) {
                             var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), itemStack);
+                            ee.setTarget(player.getUUID());
                             player.level().addFreshEntity(ee);
                         }
                     }

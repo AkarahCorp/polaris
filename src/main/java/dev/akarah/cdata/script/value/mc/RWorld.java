@@ -6,8 +6,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.entity.EntityTypeTest;
 
 public class RWorld extends RuntimeValue {
     private final ServerLevel inner;
@@ -97,5 +99,19 @@ public class RWorld extends RuntimeValue {
             return RNullable.of(RInventory.of(container, RText.of(Component.literal("Container"))));
         }
         return RNullable.empty();
+    }
+
+    @MethodTypeHint(
+            signature = "(this: world) -> list[entity]",
+            documentation = "Returns the inventory present in the block at the given position. Returns null if the block is not a container."
+    )
+    public static RList entities(RWorld world) {
+        var list = RList.create();
+
+        for(var entity : world.javaValue().getEntities(EntityTypeTest.forClass(Entity.class), _ -> true)) {
+            RList.add(list, REntity.of(entity));
+        }
+        
+        return list;
     }
 }

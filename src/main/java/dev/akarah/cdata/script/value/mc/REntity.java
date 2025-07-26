@@ -5,7 +5,6 @@ import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.entity.VisualEntity;
-import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
@@ -13,20 +12,19 @@ import dev.akarah.cdata.script.value.mc.rt.DynamicContainerMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.numbers.BlankFormat;
-import net.minecraft.network.chat.numbers.NumberFormat;
-import net.minecraft.network.chat.numbers.NumberFormatTypes;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
+import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
@@ -216,6 +214,30 @@ public class REntity extends RuntimeValue {
             so.add(statsObject.javaValue());
             Resources.statManager().set(serverPlayer, so);
         }
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the UUID of the entity.")
+    public static RNullable owner(REntity $this) {
+        if($this.javaValue() instanceof ItemEntity item) {
+            if(item.target == null) {
+                return RNullable.empty();
+            }
+            return RNullable.of(RUuid.of(item.target));
+        }
+        return RNullable.empty();
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> nullable[item]", documentation = "Returns the UUID of the entity.")
+    public static RNullable item(REntity $this) {
+        if($this.javaValue() instanceof ItemEntity item) {
+            return RNullable.of(RItem.of(item.getItem()));
+        }
+        return RNullable.empty();
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> void", documentation = "Returns the UUID of the entity.")
+    public static void remove(REntity $this) {
+        $this.javaValue().remove(Entity.RemovalReason.KILLED);
     }
 
     public static Map<UUID, Scoreboard> scoreboards = Maps.newHashMap();
