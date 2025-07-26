@@ -35,7 +35,7 @@ public class BlockItemMixin {
         var result = Resources.actionManager().performEvents(
                 "player.place_block",
                 REntity.of(blockPlaceContext.getPlayer()),
-                RVector.of(blockPlaceContext.getClickLocation().add(blockPlaceContext.getClickedFace().getUnitVec3()))
+                RVector.of(blockPlaceContext.getClickLocation())
         );
         if(!result) {
             blockPlaceContext.getPlayer().containerMenu.setCarried(blockPlaceContext.getItemInHand());

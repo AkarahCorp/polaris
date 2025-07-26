@@ -41,7 +41,7 @@ public class RList extends RuntimeValue {
         return RBoolean.of($this.inner.contains(value));
     }
 
-    @MethodTypeHint(signature = "<T>(this: list[T], mapper: function(T) -> T) -> list[T]", documentation = "Returns a new list with the result of the mapping function for each element of this list.")
+    @MethodTypeHint(signature = "<T, U>(this: list[T], mapper: function(T) -> U) -> list[U]", documentation = "Returns a new list with the result of the mapping function for each element of this list.")
     public static RList map(RList $this, RFunction function) {
         var newList = RList.create();
         for(var entry : $this.javaValue()) {
@@ -74,6 +74,17 @@ public class RList extends RuntimeValue {
         var list = RList.create();
         for(var element : $this.javaValue()) {
             RList.add(list, element);
+        }
+        return list;
+    }
+
+    @MethodTypeHint(signature = "<T>(this: list[T]) -> list[T]", documentation = "Creates a copy of the provided list with no duplicate entries.")
+    public static RList dedup(RList $this) {
+        var list = RList.create();
+        for(var element : $this.javaValue()) {
+            if(!RList.contains(list, element).javaValue()) {
+                RList.add(list, element);
+            }
         }
         return list;
     }

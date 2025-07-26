@@ -54,6 +54,16 @@ public class RNumber extends RuntimeValue {
         return RNumber.of(Math.ceil(number.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the highest nearest integer.")
+    public static RNumber sqrt(RNumber number) {
+        return RNumber.of(Math.sqrt(number.doubleValue()));
+    }
+
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the highest nearest integer.")
+    public static RNumber cbrt(RNumber number) {
+        return RNumber.of(Math.cbrt(number.doubleValue()));
+    }
+
     @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the nearest integer.")
     public static RNumber round(RNumber number) {
         return RNumber.of(Math.round(number.doubleValue()));

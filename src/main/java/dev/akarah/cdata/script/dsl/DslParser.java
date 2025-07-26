@@ -16,6 +16,7 @@ import dev.akarah.cdata.script.expr.ast.value.*;
 import dev.akarah.cdata.script.expr.ast.operation.*;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.SpannedType;
+import dev.akarah.cdata.script.type.StatsObjectType;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 
@@ -154,6 +155,7 @@ public class DslParser {
                     case "store" -> _ -> new SpannedType<>(Type.store(), identifier.span());
                     case "world" -> _ -> new SpannedType<>(Type.world(), identifier.span());
                     case "uuid" -> _ -> new SpannedType<>(Type.uuid(), identifier.span());
+                    case "stat_obj" -> _ -> new SpannedType<>(new StatsObjectType(), identifier.span());
                     case "nullable" -> {
                         expect(DslToken.OpenBracket.class);
                         var subtype = parseType(typeVariables);

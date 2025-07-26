@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.value.mc;
 
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import net.minecraft.core.component.DataComponents;
@@ -120,5 +121,10 @@ public class RItem extends RuntimeValue {
     @MethodTypeHint(signature = "(item: item) -> number", documentation = "Returns the amount of items in the item stack.")
     public static RNumber amount(RItem $this) {
         return RNumber.of($this.javaValue().getCount());
+    }
+
+    @MethodTypeHint(signature = "(item: item) -> stat_obj", documentation = "Returns the amount of items in the item stack.")
+    public static RStatsObject stats(RItem $this) {
+        return RStatsObject.of(CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::stats).orElse(StatsObject.EMPTY));
     }
 }

@@ -5,6 +5,7 @@ import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.entity.VisualEntity;
+import dev.akarah.cdata.registry.stat.StatManager;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
@@ -206,6 +207,15 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity) -> uuid", documentation = "Returns the UUID of the entity.")
     public static RUuid uuid(REntity $this) {
         return RUuid.of($this.inner.getUUID());
+    }
+
+    @MethodTypeHint(signature = "(this: entity, stats: stat_obj) -> void", documentation = "Returns the UUID of the entity.")
+    public static void add_stats(REntity $this, RStatsObject statsObject) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            var so = Resources.statManager().lookup(serverPlayer);
+            so.add(statsObject.javaValue());
+            Resources.statManager().set(serverPlayer, so);
+        }
     }
 
     public static Map<UUID, Scoreboard> scoreboards = Maps.newHashMap();

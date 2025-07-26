@@ -5,6 +5,7 @@ import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
+import dev.akarah.cdata.script.value.RStatsObject;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
@@ -50,16 +51,19 @@ public class StatManager {
             stats.add(Resources.config().baseStats());
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
+                StatsObject finalStats = stats;
                 CustomItem.itemOf(item).ifPresent(customItem -> {
                     customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
                         if(slot.equals(equippableData.slot())) {
-                            stats.add(customItem.stats().orElse(StatsObject.EMPTY));
+                            finalStats.add(customItem.stats().orElse(StatsObject.EMPTY));
                         }
                     });
                 });
             }
 
-            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player));
+            Resources.statManager().set(player, stats);
+            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), RStatsObject.of(stats));
+            stats = Resources.statManager().lookup(player);
             this.set(player, stats.performFinalCalculations());
             Resources.actionManager().performEvents("player.tick", REntity.of(player));
 
