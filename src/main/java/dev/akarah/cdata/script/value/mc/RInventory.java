@@ -73,6 +73,30 @@ public class RInventory extends RuntimeValue {
         $this.inner.setItem(slot.intValue(), item.javaValue());
     }
 
+    @MethodTypeHint(signature = "(this: inventory, item: item) -> boolean", documentation = "Adds a new item to the inventory if there is room for it.")
+    public static RBoolean has_room_for(RInventory $this, RItem item) {
+        for(int i = 0; i < $this.inner.getContainerSize(); i++) {
+            if($this.inner.getItem(i).is(Items.AIR)) {
+                $this.inner.setItem(i, item.javaValue());
+                return RBoolean.of(true);
+            }
+            if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
+                var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+
+                var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
+                if(maxCount == null) {
+                    maxCount = 1;
+                }
+
+                if(sumCounts <= maxCount) {
+                    $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+                    return RBoolean.of(true);
+                }
+            }
+        }
+        return RBoolean.of(false);
+    }
+
     @MethodTypeHint(signature = "(this: inventory, item: item) -> void", documentation = "Adds a new item to the inventory if there is room for it.")
     public static void add_item(RInventory $this, RItem item) {
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
@@ -94,7 +118,6 @@ public class RInventory extends RuntimeValue {
                 }
                 continue;
             }
-
         }
     }
 

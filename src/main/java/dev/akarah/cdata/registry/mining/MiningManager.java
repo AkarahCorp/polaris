@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Block;
@@ -90,6 +91,19 @@ public class MiningManager {
                 var miningSpeed = Resources.statManager().lookup(player).get(status.appliedRule().speedStat());
                 var currentTicks = status.progress().addAndGet(1);
                 var targetTicks = (30 * status.appliedRule().toughness()) / miningSpeed;
+
+                if(Math.floor(currentTicks) % 4 == 1) {
+                    var block = player.level().getBlockState(status.target());
+                    player.level().playSound(
+                            null,
+                            status.target,
+                            block.getSoundType().getHitSound(),
+                            SoundSource.BLOCKS,
+                            1f,
+                            1f
+                    );
+                }
+
                 if(currentTicks > targetTicks) {
                     var spread = Resources.statManager().lookup(player).get(status.appliedRule().spreadStat());
                     recursiveBreaking(player, status.appliedRule(), spread, status.target(), (int) targetTicks);
@@ -129,9 +143,18 @@ public class MiningManager {
         Resources.scheduler().schedule(
                 depth,
                 () -> {
-                    if(player.level().getBlockState(target).getBlock().equals(Blocks.AIR)) {
+                    var block = player.level().getBlockState(target);
+                    if(block.getBlock().equals(Blocks.AIR)) {
                         return;
                     }
+                    player.level().playSound(
+                            null,
+                            target,
+                            block.getSoundType().getBreakSound(),
+                            SoundSource.BLOCKS,
+                            1f,
+                            1f
+                    );
                     if(player.level().getBlockEntity(target) instanceof Container container) {
                         for (var itemStack : container) {
                             var ee = new ItemEntity(player.level(), target.getX(), target.getY(), target.getZ(), itemStack);
@@ -144,6 +167,7 @@ public class MiningManager {
                             REntity.of(player),
                             RVector.of(target.getCenter())
                     );
+
                     player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
                 }
