@@ -8,9 +8,6 @@ import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.params.ParameterNode;
 import dev.akarah.cdata.script.type.Type;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 public record RequiredParameter(
         String name,
         Type<?> typePattern

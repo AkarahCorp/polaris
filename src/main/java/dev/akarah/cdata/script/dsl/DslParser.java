@@ -28,6 +28,7 @@ import java.util.function.Function;
 import dev.akarah.cdata.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.value.RBoolean;
+import net.minecraft.client.renderer.texture.Stitcher;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -49,11 +50,11 @@ public class DslParser {
         return parser.parseSchema();
     }
 
-    public static ExpressionTypeSet parseExpressionTypeSet(List<DslToken> tokens) {
+    public static ExpressionTypeSet parseExpressionTypeSet(List<DslToken> tokens, String functionName) {
         var parser = new DslParser();
         parser.tokens = tokens;
 
-        return parser.parseTypeSet();
+        return parser.parseTypeSet(functionName);
     }
 
     public static Type<?> parseTopLevelType(List<DslToken> tokens) {
@@ -228,8 +229,8 @@ public class DslParser {
         };
     }
 
-    public ExpressionTypeSet parseTypeSet() {
-        var ts = ExpressionTypeSet.builder();
+    public ExpressionTypeSet parseTypeSet(String functionName) {
+        var ts = ExpressionTypeSet.builder(functionName);
 
         var typeParameters = new ArrayList<String>();
         if(peek() instanceof DslToken.LessThanSymbol) {

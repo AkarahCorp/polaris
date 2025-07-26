@@ -35,12 +35,12 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint(signature = "(x: number, y: number, z: number) -> vector", documentation = "Creates a new vector from X, Y, and Z components.")
-    public static RVector vec(RNumber x, RNumber y, RNumber z) {
+    public static RVector vector__create(RNumber x, RNumber y, RNumber z) {
         return RVector.of(new Vec3(x.doubleValue(), y.doubleValue(), z.doubleValue()));
     }
 
     @MethodTypeHint(signature = "(v: any) -> text", documentation = "Creates a new text from the given value converted to a string.")
-    public static RText text(RuntimeValue runtimeValue) {
+    public static RText text__create(RuntimeValue runtimeValue) {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
     }
 
@@ -49,7 +49,7 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint(signature = "(namespace: string, path: string) -> identifier", documentation = "Returns a new identifier from the namespace and path provided.")
-    public static RIdentifier id(RString namespace, RString path) {
+    public static RIdentifier identifier__create(RString namespace, RString path) {
         return RIdentifier.of(ResourceLocation.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
     }
 

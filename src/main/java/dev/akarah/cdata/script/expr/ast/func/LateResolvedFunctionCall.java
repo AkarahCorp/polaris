@@ -164,7 +164,8 @@ public class LateResolvedFunctionCall implements Expression {
 
         var typeSet = DslParser.parseExpressionTypeSet(
                 DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.signature())
-                        .getOrThrow()
+                        .getOrThrow(),
+                method.getName()
         );
         var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));
 
@@ -267,7 +268,7 @@ public class LateResolvedFunctionCall implements Expression {
                                 + this.functionName
                                 + "`. Tried possibilities: "
                                 + tries
-                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).map(x -> x.verboseTypeName()).toList(),
+                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).map(Type::verboseTypeName).toList(),
                         this.span()
                 ));
     }

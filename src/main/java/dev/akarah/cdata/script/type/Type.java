@@ -81,37 +81,29 @@ public interface Type<T> {
      * @param typeSet The type set to write variable modifications to.
      * @return The new variant of `incomingMatch`, with type variables sufficiently replaced.
      */
-    default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet, SpanData fallbackSpan) {
+    default Type<?> resolveTypeVariables(Type<?> incomingMatch, ExpressionTypeSet typeSet, SpanData expressionSpan) {
         var this2 = this.flatten();
-        incomingMatch = incomingMatch.flatten();
 
-        SpanData span = null;
-        if(this instanceof SpannedType<?> spannedType) {
-            span = spannedType.span();
-        } else if(incomingMatch instanceof SpannedType<?> spannedType) {
-            span = spannedType.span();
-        } else {
-            span = fallbackSpan;
-        }
+        incomingMatch = incomingMatch.flatten();
 
         switch (incomingMatch) {
             case VariableType matchingVarType -> {
-                typeSet.resolveTypeVariable(matchingVarType.variableName(), this2, span);
+                typeSet.resolveTypeVariable(matchingVarType.variableName(), this2, expressionSpan);
             }
             case ListType matchListType -> {
                 if(this2 instanceof ListType(Type<?> subtype)) {
-                    subtype.resolveTypeVariables(matchListType.subtype(), typeSet, fallbackSpan);
+                    subtype.resolveTypeVariables(matchListType.subtype(), typeSet, expressionSpan);
                 }
             }
             case DictionaryType matchDictType -> {
                 if(this2 instanceof DictionaryType(Type<?> keyType, Type<?> valueType)) {
-                    keyType.resolveTypeVariables(matchDictType.keyType(), typeSet, fallbackSpan);
-                    valueType.resolveTypeVariables(matchDictType.valueType(), typeSet, fallbackSpan);
+                    keyType.resolveTypeVariables(matchDictType.keyType(), typeSet, expressionSpan);
+                    valueType.resolveTypeVariables(matchDictType.valueType(), typeSet, expressionSpan);
                 }
             }
             case NullableType matchNullableType -> {
                 if(this2 instanceof NullableType(Type<?> subtype)) {
-                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, fallbackSpan);
+                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, expressionSpan);
                 }
             }
             default -> {}

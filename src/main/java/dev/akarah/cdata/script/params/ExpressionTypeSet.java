@@ -21,9 +21,10 @@ public class ExpressionTypeSet {
     List<ParameterNode> parameters;
     Type<?> returnType;
     Map<String, Type<?>> typeVariables = Maps.newHashMap();
+    String functionName;
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(String functionName) {
+        return new Builder(functionName);
     }
 
     public List<Expression> typecheck(CodegenContext ctx, ExpressionStream stream) {
@@ -55,7 +56,8 @@ public class ExpressionTypeSet {
                             + this.typeVariables.get(variableName).verboseTypeName()
                             + "`, got value of type `"
                             + hint.verboseTypeName()
-                            + "`",
+                            + "` for function `"
+                            + this.functionName + "`",
                     fallbackSpan
             );
         }
@@ -64,6 +66,11 @@ public class ExpressionTypeSet {
     public static class Builder {
         List<Function<ExpressionTypeSet, ParameterNode>> parameters = Lists.newArrayList();
         Function<ExpressionTypeSet, Type<?>> returnType = _ -> Type.void_();
+        String functionName;
+
+        public Builder(String functionName) {
+            this.functionName = functionName;
+        }
 
         public ExpressionTypeSet build() {
             var s = new ExpressionTypeSet();
@@ -72,6 +79,7 @@ public class ExpressionTypeSet {
                     .map(x -> x.apply(s))
                     .toList();
             s.returnType = this.returnType.apply(s);
+            s.functionName = this.functionName;
             return s;
         }
 
