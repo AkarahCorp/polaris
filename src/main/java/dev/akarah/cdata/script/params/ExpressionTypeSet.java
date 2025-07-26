@@ -33,7 +33,14 @@ public class ExpressionTypeSet {
         for(var parameter : this.parameters) {
             output.add(parameter.makeTypeSafeExpression(ctx, stream, this));
         }
+        if(stream.peek() != null) {
+            throw new ParsingException("Too many arguments!", stream.peek().span());
+        }
         return output;
+    }
+
+    public List<ParameterNode> parameters() {
+        return this.parameters;
     }
 
     public Type<?> returns() {

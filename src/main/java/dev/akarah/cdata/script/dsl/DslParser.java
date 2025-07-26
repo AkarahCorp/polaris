@@ -66,56 +66,18 @@ public class DslParser {
 
     public SchemaExpression parseSchema() {
         var kw = expect(DslToken.FunctionKeyword.class);
-        expect(DslToken.OpenParen.class);
-
-        var parameters = new ArrayList<Pair<String, Type<?>>>();
-        while(!(peek() instanceof DslToken.CloseParen)) {
-            var name = expect(DslToken.Identifier.class);
-            expect(DslToken.Colon.class);
-            var type = parseType();
-            parameters.add(Pair.of(name.identifier(), type));
-            if(!(peek() instanceof DslToken.CloseParen)) {
-                expect(DslToken.Comma.class);
-            }
-        }
-        expect(DslToken.CloseParen.class);
-
-        Type<?> returnType = Type.void_();
-        if(peek() instanceof DslToken.ArrowSymbol) {
-            expect(DslToken.ArrowSymbol.class);
-            returnType = parseType();
-        }
-
+        var typeSet = parseTypeSet("user_func");
         var body = parseBlock();
-        return new SchemaExpression(parameters, returnType, body, Optional.empty(), kw.span());
+        return new SchemaExpression(typeSet, body, Optional.empty(), kw.span());
     }
 
     // TODO: merge with parseSchema
     public SchemaExpression parseEvent() {
         var kw = expect(DslToken.EventKeyword.class);
         var eventName = expect(DslToken.Identifier.class);
-        expect(DslToken.OpenParen.class);
-
-        var parameters = new ArrayList<Pair<String, Type<?>>>();
-        while(!(peek() instanceof DslToken.CloseParen)) {
-            var name = expect(DslToken.Identifier.class);
-            expect(DslToken.Colon.class);
-            var type = parseType();
-            parameters.add(Pair.of(name.identifier(), type));
-            if(!(peek() instanceof DslToken.CloseParen)) {
-                expect(DslToken.Comma.class);
-            }
-        }
-        expect(DslToken.CloseParen.class);
-
-        Type<?> returnType = Type.void_();
-        if(peek() instanceof DslToken.ArrowSymbol) {
-            expect(DslToken.ArrowSymbol.class);
-            returnType = parseType();
-        }
-
+        var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(parameters, returnType, body, Optional.of(eventName.identifier()), kw.span());
+        return new SchemaExpression(typeSet, body, Optional.of(eventName.identifier()), kw.span());
     }
 
     public Type<?> parseType() {

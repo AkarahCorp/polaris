@@ -8,6 +8,8 @@ import dev.akarah.cdata.script.expr.ast.AllOfAction;
 import dev.akarah.cdata.script.expr.ast.SchemaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
+import dev.akarah.cdata.script.params.ParameterNode;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.value.RFunction;
 import dev.akarah.cdata.script.value.RuntimeValue;
@@ -24,8 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public record LambdaExpression(
-        List<Pair<String, Type<?>>> parameters,
-        Type<?> returnType,
+        ExpressionTypeSet typeSet,
         AllOfAction body,
         SpanData keywordSpan
 ) implements Expression {
@@ -67,28 +68,28 @@ public record LambdaExpression(
     @Override
     public Type<?> type(CodegenContext ctx) {
         return Type.function(
-                this.returnType,
-                this.parameters.stream().map(Pair::getSecond).toList()
+                this.typeSet().returns(),
+                this.typeSet().parameters().stream().map(ParameterNode::typePattern).toList()
         );
     }
 
     public MethodType methodType(CodegenContext ctx) {
         if(ctx.highestLocal() == -1) {
             return MethodType.methodType(
-                    this.returnType.typeClass(),
-                    this.parameters.stream()
-                            .map(Pair::getSecond)
+                    this.typeSet().returns().typeClass(),
+                    this.typeSet().parameters().stream()
+                            .map(ParameterNode::typePattern)
                             .map(Type::typeClass)
                             .toArray(Class[]::new)
             );
         }
         return MethodType.methodType(
-                this.returnType.typeClass(),
+                this.typeSet().returns().typeClass(),
                 Stream.concat(
                         IntStream.rangeClosed(0, ctx.highestLocal())
                                 .mapToObj(_ -> Object.class),
-                        this.parameters.stream()
-                                .map(Pair::getSecond)
+                        this.typeSet().parameters().stream()
+                                .map(ParameterNode::typePattern)
                                 .map(Type::typeClass)
                 )
                         .toArray(Class[]::new)
@@ -97,22 +98,19 @@ public record LambdaExpression(
 
     public String name() {
         var hash = Objects.hash(
-                this.parameters,
-                this.returnType,
+                this.typeSet(),
                 this.body
         );
         var hash2 = Objects.hash(
                 this.body,
-                this.parameters,
-                this.returnType
+                this.typeSet()
         );
         return "fn_" + Math.abs(hash) + "$" + Math.abs(hash * hash2);
     }
 
     public SchemaExpression asSchema() {
         return new SchemaExpression(
-                this.parameters,
-                this.returnType,
+                this.typeSet(),
                 this.body,
                 Optional.empty(),
                 this.keywordSpan

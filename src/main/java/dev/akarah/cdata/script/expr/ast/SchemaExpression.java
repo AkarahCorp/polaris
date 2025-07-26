@@ -6,6 +6,8 @@ import dev.akarah.cdata.script.exception.SpanData;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.func.LambdaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
+import dev.akarah.cdata.script.params.ParameterNode;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.type.VoidType;
 import dev.akarah.cdata.script.value.RuntimeValue;
@@ -15,8 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record SchemaExpression(
-        List<Pair<String, Type<?>>> parameters,
-        Type<?> returnType,
+        ExpressionTypeSet typeSet,
         AllOfAction body,
         Optional<String> eventName,
         SpanData keywordSpan
@@ -24,8 +25,8 @@ public record SchemaExpression(
     @Override
     public void compile(CodegenContext ctx) {
         this.body().compile(ctx);
-        if(!this.returnType.typeEquals(Type.void_())) {
-            var result = this.body.validateReturnOnAllBranches(ctx, this.returnType);
+        if(!this.typeSet().returns().typeEquals(Type.void_())) {
+            var result = this.body.validateReturnOnAllBranches(ctx, this.typeSet().returns());
             if (!result) {
                 throw new ParsingException("Not all control flows have a return statement!", keywordSpan);
             }
@@ -34,14 +35,14 @@ public record SchemaExpression(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return this.returnType;
+        return this.typeSet().returns();
     }
 
     public MethodType methodType() {
         return MethodType.methodType(
-                this.returnType.flatten() instanceof VoidType ? void.class : RuntimeValue.class,
-                this.parameters.stream()
-                        .map(Pair::getSecond)
+                this.typeSet().returns().flatten() instanceof VoidType ? void.class : RuntimeValue.class,
+                this.typeSet.parameters().stream()
+                        .map(ParameterNode::typePattern)
                         .map(Type::typeClass)
                         .toArray(Class[]::new)
         );
@@ -49,8 +50,7 @@ public record SchemaExpression(
 
     public LambdaExpression asLambdaExpression() {
         return new LambdaExpression(
-                this.parameters,
-                this.returnType,
+                this.typeSet(),
                 this.body,
                 this.keywordSpan
         );

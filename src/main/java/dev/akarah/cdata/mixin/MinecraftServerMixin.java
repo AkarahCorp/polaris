@@ -2,6 +2,7 @@ package dev.akarah.cdata.mixin;
 
 import com.mojang.datafixers.DataFixer;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.db.persistence.DbPersistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.Proxy;
 import java.time.Instant;
@@ -83,6 +85,15 @@ public class MinecraftServerMixin {
             );
         }
 
+        System.out.println("Saving persistent data to file system...");
+        var start = Instant.now().toEpochMilli();
+        DbPersistence.savePersistentDb(Main.SERVER.registryAccess()).join();
+        var end = Instant.now().toEpochMilli();
+        System.out.println("All done! Finished in " + (end - start) + "ms");
+    }
+
+    @Inject(method = "saveEverything", at = @At("TAIL"))
+    public void save(boolean bl, boolean bl2, boolean bl3, CallbackInfoReturnable<Boolean> cir) {
         System.out.println("Saving persistent data to file system...");
         var start = Instant.now().toEpochMilli();
         DbPersistence.savePersistentDb(Main.SERVER.registryAccess()).join();

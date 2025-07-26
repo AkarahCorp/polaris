@@ -210,13 +210,13 @@ public class CodegenContext {
      * @return This.
      */
     public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
-        var returnType = action.returnType().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
+        var returnType = action.typeSet().returns().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
             parameters.add(CodegenUtil.ofClass(Object.class));
         }
-        for(var parameter : action.parameters()) {
-            parameters.add(parameter.getSecond().classDescType());
+        for(var parameter : action.typeSet().parameters()) {
+            parameters.add(parameter.typePattern().classDescType());
         }
 
         return this.classBuilder.withMethod(
@@ -240,14 +240,14 @@ public class CodegenContext {
                         if(freeLocals == -1) {
                             idx = 0;
                         }
-                        for(var parameter : action.parameters()) {
-                            this.stackFrames.getLast().methodLocals.put(parameter.getFirst(), idx);
-                            this.stackFrames.getLast().methodLocalTypes.put(parameter.getFirst(), parameter.getSecond());
+                        for(var parameter : action.typeSet().parameters()) {
+                            this.stackFrames.getLast().methodLocals.put(parameter.name(), idx);
+                            this.stackFrames.getLast().methodLocalTypes.put(parameter.name(), parameter.typePattern());
 
                             codeBuilder.localVariable(
                                     idx,
-                                    parameter.getFirst(),
-                                    parameter.getSecond().classDescType(),
+                                    parameter.name(),
+                                    parameter.typePattern().classDescType(),
                                     startLabel,
                                     endLabel
                             );

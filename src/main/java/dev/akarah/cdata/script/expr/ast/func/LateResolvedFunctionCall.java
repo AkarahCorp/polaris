@@ -209,39 +209,25 @@ public class LateResolvedFunctionCall implements Expression {
         }
 
         if(functionSchema != null) {
-            var returnType = functionSchema.returnType().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
-            var typeParameters = new ArrayList<ClassDesc>();
-            for(var parameter : functionSchema.parameters()) {
-                typeParameters.add(parameter.getSecond().classDescType());
-            }
+            var typeSet = functionSchema.typeSet();
+            var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));
 
-            if(this.parameters.size() != functionSchema.parameters().size()) {
-                throw new ParsingException(
-                        "Argument count mismatch, expected " + functionSchema.parameters().size() + ", got " + this.parameters.size(),
-                        this.spanData
-                );
+            var rt = typeSet.returns();
+            for(int i = 0; i < 10; i++) {
+                rt = rt.fixTypeVariables(typeSet);
+                if(rt == null) {
+                    throw new ParsingException("Unable to infer return type, something went wrong", this.spanData);
+                }
             }
-
-            Streams.zip(this.parameters.stream(), functionSchema.parameters().stream(), Pair::of)
-                    .forEach(pair -> {
-                        if(!ctx.getTypeOf(pair.getFirst()).typeEquals(pair.getSecond().getSecond())) {
-                            throw new ParsingException(
-                                    "Expected type of "
-                                            + pair.getSecond().getSecond().verboseTypeName()
-                                            + " for parameter "
-                                            + pair.getSecond().getFirst()
-                                            + ", got "
-                                            + ctx.getTypeOf(pair.getFirst()).verboseTypeName(),
-                                    pair.getFirst().span()
-                            );
-                        }
-                    });
 
             return Optional.of(new UserFunctionAction(
                     functionName,
                     MethodTypeDesc.of(
-                            CodegenUtil.ofClass(returnType),
-                            typeParameters
+                            CodegenUtil.ofClass(rt.flatten() instanceof VoidType ? void.class : RuntimeValue.class),
+                            typeSet.parameters().stream()
+                                    .map(x -> x.typePattern().typeClass())
+                                    .map(CodegenUtil::ofClass)
+                                    .toList()
                     ),
                     this.parameters
             ));
