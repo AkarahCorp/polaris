@@ -7,6 +7,7 @@ import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.mining.MiningManager;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
+import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -67,8 +68,17 @@ public class ServerPlayerGameModeMixin {
         }
     }
 
-    @Inject(method = "useItemOn", at = @At("HEAD"))
-    public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
+    public void useItemOn(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        var result = Resources.actionManager().performEvents(
+                "player.right_click_block",
+                REntity.of(serverPlayer),
+                RVector.of(blockHitResult.getLocation())
+        );
+        if(!result) {
+            cir.setReturnValue(InteractionResult.FAIL);
+            cir.cancel();
+        }
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
             Resources.actionManager().performEvents(
                     "item.right_click",

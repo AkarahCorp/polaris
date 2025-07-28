@@ -9,6 +9,7 @@ import dev.akarah.cdata.script.expr.ast.TypeExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.value.RBoolean;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -78,8 +79,8 @@ public class DslActionManager {
         var mh = methodHandleByLocation(name);
         try {
             var result = mh.invokeWithArguments((Object[]) arguments);
-            if(result instanceof Boolean a) {
-                return a;
+            if(result instanceof RBoolean a) {
+                return a.javaValue();
             }
             return true;
         } catch (Throwable e) {
