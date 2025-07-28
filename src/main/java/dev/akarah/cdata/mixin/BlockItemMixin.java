@@ -3,6 +3,7 @@ package dev.akarah.cdata.mixin;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RVector;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -16,16 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockItemMixin {
     @Inject(
             method = "place",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/Block;setPlacedBy(" +
-                            "Lnet/minecraft/world/level/Level;" +
-                            "Lnet/minecraft/core/BlockPos;" +
-                            "Lnet/minecraft/world/level/block/state/BlockState;" +
-                            "Lnet/minecraft/world/entity/LivingEntity;" +
-                            "Lnet/minecraft/world/item/ItemStack;" +
-                            ")V"
-            ),
+            at = @At("HEAD"),
             cancellable = true
     )
     public void placeEvent(BlockPlaceContext blockPlaceContext, CallbackInfoReturnable<InteractionResult> cir) {
@@ -38,8 +30,14 @@ public class BlockItemMixin {
                 RVector.of(blockPlaceContext.getClickLocation())
         );
         if(!result) {
-            blockPlaceContext.getPlayer().containerMenu.setCarried(blockPlaceContext.getItemInHand());
+            var player = blockPlaceContext.getPlayer();
+            player.getInventory().setSelectedItem(blockPlaceContext.getItemInHand());
+            player.getInventory().setChanged();
+            ((ServerPlayer) player).connection.send(
+                    player.getInventory().createInventoryUpdatePacket(player.getInventory().getSelectedSlot())
+            );
             cir.setReturnValue(InteractionResult.FAIL);
+            cir.cancel();
         }
     }
 }
