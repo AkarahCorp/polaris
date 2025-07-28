@@ -10,6 +10,7 @@ import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -73,7 +74,7 @@ public class ServerPlayerGameModeMixin {
         var result = Resources.actionManager().performEvents(
                 "player.right_click_block",
                 REntity.of(serverPlayer),
-                RVector.of(blockHitResult.getLocation())
+                RVector.of(blockHitResult.getBlockPos().getCenter())
         );
         if(!result) {
             cir.setReturnValue(InteractionResult.FAIL);
