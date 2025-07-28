@@ -1,6 +1,7 @@
 package dev.akarah.cdata.mixin;
 
 import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.script.value.RCell;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.RNumber;
 import net.fabricmc.fabric.api.entity.FakePlayer;
@@ -22,17 +23,32 @@ public abstract class ServerPlayerMixin {
         }
     }
 
-    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    @Inject(
+            method = "hurtServer",
+            at = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/world/entity/player/Player;" +
+                    "hurtServer(" +
+                    "Lnet/minecraft/server/level/ServerLevel;" +
+                    "Lnet/minecraft/world/damagesource/DamageSource;" +
+                    "F" +
+                    ")Z"
+            ),
+            cancellable = true
+    )
     public void damageEvent(ServerLevel serverLevel, DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
         var e = (ServerPlayer) (Object) this;
         if(!(e instanceof FakePlayer)) {
+            var cell = RCell.create(RNumber.of(f));
+
             var result = Resources.actionManager().performEvents(
                     "player.hurt",
-                    REntity.of(e), RNumber.of(f)
+                    REntity.of(e), cell
             );
             if(!result) {
-                cir.setReturnValue(false);
+                cir.setReturnValue(true);
             }
+            f = ((Double) (cell.javaValue())).floatValue();
         }
     }
 }

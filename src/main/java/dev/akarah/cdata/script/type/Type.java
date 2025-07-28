@@ -30,7 +30,8 @@ public interface Type<T> {
                 Type.inventory(),
                 Type.itemStack(),
                 Type.text(),
-                Type.uuid()
+                Type.uuid(),
+                new CellType(Type.any())
         );
     }
 
@@ -93,6 +94,11 @@ public interface Type<T> {
             case ListType matchListType -> {
                 if(this2 instanceof ListType(Type<?> subtype)) {
                     subtype.resolveTypeVariables(matchListType.subtype(), typeSet, expressionSpan);
+                }
+            }
+            case CellType matchCellType -> {
+                if(this2 instanceof CellType(Type<?> subtype)) {
+                    subtype.resolveTypeVariables(matchCellType.subtype(), typeSet, expressionSpan);
                 }
             }
             case DictionaryType matchDictType -> {

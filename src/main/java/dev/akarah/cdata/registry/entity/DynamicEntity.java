@@ -3,6 +3,8 @@ package dev.akarah.cdata.registry.entity;
 import com.google.common.collect.Maps;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.script.value.RCell;
+import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -107,10 +109,12 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         if(this.base().invulnerable()) {
             return false;
         }
-        var result = super.hurtServer(serverLevel, damageSource, f);
-        if(result) {
-            Resources.actionManager().performEvents("entity.take_damage", REntity.of(this));
 
+        var cell = RCell.create(RNumber.of(f));
+        Resources.actionManager().performEvents("entity.take_damage", REntity.of(this), cell);
+
+        var result = super.hurtServer(serverLevel, damageSource,  ((Double) (cell.javaValue())).floatValue());
+        if(result) {
             if(this.getHealth() <= 0.0) {
                 Resources.actionManager().performEvents("entity.die", REntity.of(this));
             }
@@ -124,7 +128,6 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
             }
         }
         return result;
-
     }
 
     @Override

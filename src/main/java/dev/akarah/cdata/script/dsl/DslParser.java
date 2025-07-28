@@ -15,10 +15,7 @@ import dev.akarah.cdata.script.expr.ast.func.LateResolvedFunctionCall;
 import dev.akarah.cdata.script.expr.ast.value.*;
 import dev.akarah.cdata.script.expr.ast.operation.*;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
-import dev.akarah.cdata.script.type.SpannedType;
-import dev.akarah.cdata.script.type.StatsObjectType;
-import dev.akarah.cdata.script.type.StructType;
-import dev.akarah.cdata.script.type.Type;
+import dev.akarah.cdata.script.type.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +164,12 @@ public class DslParser {
                         var subtype = parseType(typeVariables);
                         expect(DslToken.CloseBracket.class);
                         yield e -> new SpannedType<>(Type.list(subtype.apply(e)), identifier.span());
+                    }
+                    case "cell" -> {
+                        expect(DslToken.OpenBracket.class);
+                        var subtype = parseType(typeVariables);
+                        expect(DslToken.CloseBracket.class);
+                        yield e -> new SpannedType<>(new CellType(subtype.apply(e)), identifier.span());
                     }
                     case "dict" -> {
                         expect(DslToken.OpenBracket.class);

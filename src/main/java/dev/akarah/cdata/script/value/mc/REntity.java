@@ -187,6 +187,9 @@ public class REntity extends RuntimeValue {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             return RNumber.of(Resources.statManager().lookup(serverPlayer).get(key.javaValue()));
         }
+        if($this.inner instanceof DynamicEntity dynamicEntity) {
+            return RNumber.of(dynamicEntity.base().stats().map(x -> x.get(key.javaValue())).orElse(0.0));
+        }
         return RNumber.of(0.0);
     }
 
@@ -195,6 +198,9 @@ public class REntity extends RuntimeValue {
         if($this.inner instanceof LivingEntity le) {
             BuiltInRegistries.ATTRIBUTE.get(key.javaValue()).ifPresent(attributeReference -> {
                 var attr = le.getAttribute(attributeReference);
+                if(le instanceof DynamicEntity dynamicEntity && key.toString().equals("minecraft:scale")) {
+                    attr = dynamicEntity.visual.getAttribute(attributeReference);
+                }
                 if(attr != null) {
                     attr.setBaseValue(value.doubleValue());
                 }
