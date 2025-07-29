@@ -39,4 +39,12 @@ public class DynamicContainerMenu extends ChestMenu {
         }
         super.clicked(slot, j, clickType, player);
     }
+
+    @Override
+    public void removed(Player player) {
+        Resources.actionManager().performEvents(
+                "player.close_inventory",
+                REntity.of(player)
+        );
+    }
 }

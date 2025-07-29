@@ -89,12 +89,4 @@ public class ServerGamePacketListenerMixin {
             );
         }
     }
-
-    @Inject(method = "handleContainerClose", at = @At("HEAD"))
-    public void handleContainerClose(ServerboundContainerClosePacket serverboundContainerClosePacket, CallbackInfo ci) {
-        Resources.actionManager().performEvents(
-                "player.close_inventory",
-                REntity.of(this.player)
-        );
-    }
 }
