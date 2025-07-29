@@ -1,10 +1,13 @@
 package dev.akarah.cdata.mixin;
 
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.value.RCell;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.RNumber;
+import dev.akarah.cdata.script.value.mc.RIdentifier;
 import net.fabricmc.fabric.api.entity.FakePlayer;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,9 +44,12 @@ public abstract class ServerPlayerMixin {
         if(!(e instanceof FakePlayer)) {
             var cell = RCell.create(RNumber.of(f));
 
+            var id = Main.server().registryAccess().lookup(Registries.DAMAGE_TYPE).orElseThrow()
+                    .getKey(damageSource.type());
+
             var result = Resources.actionManager().performEvents(
                     "player.hurt",
-                    REntity.of(e), cell
+                    REntity.of(e), cell, RIdentifier.of(id)
             );
             if(!result) {
                 cir.setReturnValue(true);
