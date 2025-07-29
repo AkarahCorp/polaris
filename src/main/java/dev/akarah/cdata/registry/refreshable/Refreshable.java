@@ -1,5 +1,6 @@
 package dev.akarah.cdata.registry.refreshable;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.Main;
@@ -16,18 +17,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import java.util.List;
 
 public record Refreshable(
         ResourceLocation world,
-        ResourceLocation structure,
+        List<ResourceLocation> structures,
         List<BlockPos> positions,
         int frequency
 ) {
     public static Codec<Refreshable> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("world").forGetter(Refreshable::world),
-            ResourceLocation.CODEC.fieldOf("structure").forGetter(Refreshable::structure),
+            ResourceLocation.CODEC.listOf().fieldOf("structures").forGetter(Refreshable::structures),
             BlockPos.CODEC.listOf().fieldOf("positions").forGetter(Refreshable::positions),
             Codec.INT.fieldOf("frequency").forGetter(Refreshable::frequency)
     ).apply(instance, Refreshable::new)));
@@ -37,10 +39,15 @@ public record Refreshable(
             if(Main.server() == null) {
                 return;
             }
+            var world = Main.server().getLevel(ResourceKey.create(Registries.DIMENSION, this.world));
+            assert world != null;
+
+            var structures = Lists.<StructureTemplate>newArrayList();
+            for(var structure : this.structures) {
+                structures.add(world.getStructureManager().get(structure).orElseThrow());
+            }
             if(Main.server().getTickCount() % frequency == 5) {
-                var world = Main.server().getLevel(ResourceKey.create(Registries.DIMENSION, this.world));
-                assert world != null;
-                var structure = world.getStructureManager().get(this.structure).orElseThrow();
+                var structure = structures.get((int) (Math.random() * (structures.size() - 1)));
                 for(var position : this.positions) {
                     var half = new BlockPos(
                             structure.getSize().getX() / -2,
