@@ -1,5 +1,6 @@
 package dev.akarah.cdata.registry.mining;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.akarah.cdata.Main;
@@ -121,14 +122,28 @@ public class MiningManager {
         }
     }
 
-    public static List<BlockPos> VECTORS = new ArrayList<>(List.of(
-            BlockPos.ZERO.above(),
-            BlockPos.ZERO.below(),
-            BlockPos.ZERO.north(),
-            BlockPos.ZERO.south(),
-            BlockPos.ZERO.east(),
-            BlockPos.ZERO.west()
-    ));
+    public static List<BlockPos> VECTORS_INNER = null;
+
+    public static List<BlockPos> vectors() {
+        if(VECTORS_INNER != null) {
+            return VECTORS_INNER;
+        }
+
+        var list = Lists.<BlockPos>newArrayList();
+
+        for(int x = -1; x<=1; x++) {
+            for(int y = -1; y<=1; y++) {
+                for(int z = -1; z<=1; z++) {
+                    list.add(BlockPos.ZERO.offset(x, y, z));
+                }
+            }
+        }
+
+        VECTORS_INNER = list;
+        return VECTORS_INNER;
+    }
+
+
 
 
     public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int tickTime) {
@@ -173,10 +188,10 @@ public class MiningManager {
                 }
         );
 
-        Collections.shuffle(VECTORS);
+        Collections.shuffle(vectors());
 
         var nearbyIsSafe = new ArrayList<BlockPos>();
-        for(var vector : VECTORS) {
+        for(var vector : vectors()) {
             var randomAdjacent = target.offset(vector);
             if(
                     rule.materials().contains(player.level().getBlockState(randomAdjacent).getBlock())
