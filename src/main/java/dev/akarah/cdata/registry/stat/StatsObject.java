@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
@@ -16,7 +17,7 @@ public class StatsObject {
 
     public static StatsObject EMPTY = new StatsObject();
 
-    Map<String, Double> values = new HashMap<>();
+    Map<String, Double> values = new ConcurrentHashMap<>();
 
     private StatsObject() {
 

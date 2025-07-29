@@ -89,7 +89,6 @@ public class RInventory extends RuntimeValue {
                 }
 
                 if(sumCounts <= maxCount) {
-                    $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
                     return RBoolean.of(true);
                 }
             }
