@@ -77,7 +77,6 @@ public class RInventory extends RuntimeValue {
     public static RBoolean has_room_for(RInventory $this, RItem item) {
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
             if($this.inner.getItem(i).is(Items.AIR)) {
-                $this.inner.setItem(i, item.javaValue());
                 return RBoolean.of(true);
             }
             if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
