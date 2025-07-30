@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.value.RCell;
+import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.chat.Component;
@@ -73,7 +74,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
 
         for(var equipment : this.base().equipment().entrySet()) {
             CustomItem.byId(equipment.getValue()).ifPresent(customItem -> {
-                this.equipment.set(equipment.getKey(), customItem.toItemStack());
+                this.equipment.set(equipment.getKey(), customItem.toItemStack(RNullable.of(REntity.of(this))));
             });
         }
 

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class Main implements ModInitializer {
                 root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
                     try {
                         if(ctx.getSource().getEntity() instanceof Player p) {
-                            p.addItem(element.value().toItemStack());
+                            p.addItem(element.value().toItemStack(RNullable.of(REntity.of(p))));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -6,7 +6,12 @@ import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
 import dev.akarah.cdata.registry.stat.StatsObject;
+import dev.akarah.cdata.script.value.RCell;
+import dev.akarah.cdata.script.value.RNullable;
+import dev.akarah.cdata.script.value.RStatsObject;
 import dev.akarah.cdata.script.value.RuntimeValue;
+import dev.akarah.cdata.script.value.mc.REntity;
+import dev.akarah.cdata.script.value.mc.RIdentifier;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
@@ -18,6 +23,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -57,11 +63,11 @@ public record CustomItem(
                 .getKey(this);
     }
 
-    public ItemStack toItemStack() {
-        return this.toItemStack(this.itemTemplate.orElse(null));
+    public ItemStack toItemStack(RNullable entity) {
+        return this.toItemStack(this.itemTemplate.orElse(null), entity);
     }
 
-    public ItemStack toItemStack(ResourceLocation itemTemplate) {
+    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity) {
         var item = Items.MUSIC_DISC_CAT;
 
         var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
@@ -101,7 +107,11 @@ public record CustomItem(
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {
             try {
-                Resources.actionManager().executeVoid(itemTemplate, RItem.of(is));
+                Resources.actionManager().executeVoid(
+                        itemTemplate,
+                        RItem.of(is),
+                        entity
+                );
             } catch (Throwable _) {
 
             }
@@ -129,5 +139,20 @@ public record CustomItem(
 
     public static Optional<CustomItem> byId(ResourceLocation id) {
         return Resources.customItem().registry().get(id).map(Holder.Reference::value);
+    }
+
+    public Optional<StatsObject> modifiedStats(RNullable entity) {
+        var stats = this.stats;
+        if(stats.isPresent()) {
+            var so = RCell.create(RStatsObject.of(stats.orElseThrow()));
+            Resources.actionManager().performEvents(
+                    "item.get_stats",
+                    RIdentifier.of(this.id()),
+                    entity,
+                    so
+            );
+            return Optional.of((StatsObject) so.javaValue());
+        }
+        return stats;
     }
 }

@@ -24,11 +24,6 @@ public class RNumber extends RuntimeValue {
 
     public int intValue() { return (int) this.inner; }
 
-    @Override
-    public String toString() {
-        return Double.toString(this.inner);
-    }
-
     @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the sine of this number.")
     public static RNumber sin(RNumber number) {
         return RNumber.of(Math.sin(number.doubleValue()));
@@ -98,5 +93,14 @@ public class RNumber extends RuntimeValue {
     @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
     public static RNumber rem(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() % rhs.doubleValue());
+    }
+
+    @Override
+    public String toString() {
+        var strOut = Double.toString(this.inner);
+        if(strOut.endsWith(".0")) {
+            strOut = strOut.replace(".0", "");
+        }
+        return strOut;
     }
 }

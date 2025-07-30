@@ -5,6 +5,8 @@ import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.item.value.CustomComponents;
+import dev.akarah.cdata.script.value.RCell;
+import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RStatsObject;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -55,7 +57,7 @@ public class StatManager {
                 CustomItem.itemOf(item).ifPresent(customItem -> {
                     customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
                         if(slot.equals(equippableData.slot())) {
-                            finalStats.add(customItem.stats().orElse(StatsObject.EMPTY));
+                            finalStats.add(customItem.modifiedStats(RNullable.of(REntity.of(player))).orElse(StatsObject.EMPTY));
                         }
                     });
                 });
@@ -98,7 +100,7 @@ public class StatManager {
                 CustomItem.itemOf(item).ifPresent(customItem -> {
                     var amount = item.getCount();
 
-                    var newItem = customItem.toItemStack();
+                    var newItem = customItem.toItemStack(RNullable.of(REntity.of(player)));
                     newItem.setCount(amount);
 
                     player.getInventory().setItem(finalSlot, newItem);

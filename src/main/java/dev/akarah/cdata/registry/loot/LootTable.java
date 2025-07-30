@@ -3,6 +3,8 @@ package dev.akarah.cdata.registry.loot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.script.value.RNullable;
+import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -76,8 +78,7 @@ public record LootTable(
                     }
                 }
 
-
-                var generated = customItem.value().toItemStack();
+                var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
                 generated.setCount(guaranteed.amount().sample(rs));
 
                 for(int i = 0; i<times; i++) {
@@ -121,7 +122,7 @@ public record LootTable(
                             }
                         }
 
-                        var generated = customItem.value().toItemStack();
+                        var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
                         generated.setCount(entry.amount().sample(rs));
 
                         for(int i2 = 0; i2 < times; i2++) {

@@ -52,14 +52,6 @@ public class RItem extends RuntimeValue {
                 .orElse($this.javaValue().getItemName().getString()));
     }
 
-    @MethodTypeHint(signature = "(item: item, stat: string) -> number", documentation = "Gets the value of the stat provided associated with this item.")
-    public static RNumber stat(RItem $this, RString stat) {
-        return RNumber.of(CustomItem.itemOf($this.javaValue())
-                .flatMap(CustomItem::stats)
-                .map(x -> x.get(stat.javaValue()))
-                .orElse(-1.0));
-    }
-
     @MethodTypeHint(signature = "(item: item, key: string) -> nullable[any]", documentation = "Gets a custom item tag from the item, based on the key provided.")
     public static RNullable tag(RItem $this, RString keyTag) {
         return RNullable.of(
@@ -123,8 +115,12 @@ public class RItem extends RuntimeValue {
         return RNumber.of($this.javaValue().getCount());
     }
 
-    @MethodTypeHint(signature = "(item: item) -> stat_obj", documentation = "Returns the amount of items in the item stack.")
-    public static RStatsObject stats(RItem $this) {
-        return RStatsObject.of(CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::stats).orElse(StatsObject.EMPTY));
+    @MethodTypeHint(signature = "(item: item, entity: nullable[entity]) -> stat_obj", documentation = "Returns the amount of items in the item stack.")
+    public static RStatsObject stats(RItem $this, RNullable entity) {
+        return RStatsObject.of(
+                CustomItem.itemOf($this.javaValue())
+                        .flatMap(x -> x.modifiedStats(entity))
+                        .orElse(StatsObject.EMPTY)
+        );
     }
 }

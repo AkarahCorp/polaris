@@ -27,6 +27,10 @@ public class RCell extends RuntimeValue {
         $this.inner = value;
     }
 
+    public RuntimeValue inner() {
+        return this.inner;
+    }
+
     @Override
     public Object javaValue() {
         return this.inner.javaValue();

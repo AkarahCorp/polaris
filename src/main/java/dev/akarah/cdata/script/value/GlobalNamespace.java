@@ -7,11 +7,8 @@ import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.expr.ast.operation.OperationUtil;
-import dev.akarah.cdata.script.value.mc.RVector;
+import dev.akarah.cdata.script.value.mc.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
-import dev.akarah.cdata.script.value.mc.RIdentifier;
-import dev.akarah.cdata.script.value.mc.RInventory;
-import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +36,11 @@ public class GlobalNamespace {
         return RVector.of(new Vec3(x.doubleValue(), y.doubleValue(), z.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(v: any) -> string", documentation = "Creates a new string from the given value converted to a string.")
+    public static RString string__create(RuntimeValue runtimeValue) {
+        return RString.of(runtimeValue.toString());
+    }
+
     @MethodTypeHint(signature = "(v: any) -> text", documentation = "Creates a new text from the given value converted to a string.")
     public static RText text__create(RuntimeValue runtimeValue) {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
@@ -54,17 +56,17 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint(
-            signature = "(item_id: identifier, application?: function(item) -> void) -> item",
+            signature = "(item_id: identifier, entity?: entity, application?: function(item) -> void) -> item",
             documentation = "Creates a new custom item, based on the identifier provided. " +
                     "If present, the application function will be invoked on the item after creation before returning the value."
     )
-    public static RItem item__create(RIdentifier id, RFunction function) {
+    public static RItem item__create(RIdentifier id, REntity entity, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
-                .map(CustomItem::toItemStack)
+                .map(x -> x.toItemStack(RNullable.of(entity)))
                 .orElse(ItemStack.EMPTY));
         if(function != null) {
             try {
-                function.javaValue().invoke(item);
+                function.javaValue().invoke(item, entity);
             } catch (Throwable _) {
                 
             }
@@ -73,17 +75,17 @@ public class GlobalNamespace {
     }
 
     @MethodTypeHint(
-            signature = "(item_id: identifier, template: identifier, application?: function(item) -> void) -> item",
+            signature = "(item_id: identifier, template: identifier, entity?: entity, application?: function(item) -> void) -> item",
             documentation = "Creates a new custom item, based on the identifier provided, using the given item template. "
                     + "If present, the application function will be invoked on the item after creation before returning the value."
     )
-    public static RItem item__templated(RIdentifier id, RIdentifier template, RFunction function) {
+    public static RItem item__templated(RIdentifier id, RIdentifier template, REntity entity, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
-                .map(x -> x.toItemStack(template.javaValue()))
+                .map(x -> x.toItemStack(template.javaValue(), RNullable.of(entity)))
                 .orElse(ItemStack.EMPTY));
         if(function != null) {
             try {
-                function.javaValue().invoke(item);
+                function.javaValue().invoke(item, entity);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

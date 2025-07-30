@@ -3,6 +3,7 @@ package dev.akarah.cdata.db.persistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.script.value.*;
+import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RIdentifier;
 import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
@@ -132,7 +133,7 @@ public class DbCodecs {
                         var itemId = buf.readResourceLocation();
                         var itemSize = buf.readVarInt();
                         return RItem.of(Resources.customItem().registry().get(itemId)
-                                .map(x -> x.value().toItemStack().copyWithCount(itemSize))
+                                .map(x -> x.value().toItemStack(RNullable.empty()).copyWithCount(itemSize))
                                 .orElse(ItemStack.EMPTY));
                     }
                     case 9 -> {

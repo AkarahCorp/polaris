@@ -46,6 +46,11 @@ public class RString extends RuntimeValue {
         return list;
     }
 
+    @MethodTypeHint(signature = "(this: string, content: string) -> boolean", documentation = "Splits a string into a list, each entry is delimited based on the content.")
+    public static RBoolean starts_with(RString $this, RString content) {
+        return RBoolean.of($this.inner.startsWith(content.javaValue()));
+    }
+
     @MethodTypeHint(signature = "(base: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
     public static RString add(RString base, RuntimeValue convert) {
         return RString.of(base.javaValue() + convert.toString());
