@@ -144,6 +144,11 @@ public class GlobalNamespace {
         System.out.println(value.toString());
     }
 
+    @MethodTypeHint(signature = "() -> number", documentation = "Returns a random number between 0 and 1.")
+    public static RNumber number__random() {
+        return RNumber.of(Math.random());
+    }
+
     @MethodTypeHint(signature = "(delay: number, runnable: function() -> void) -> void", documentation = "Logs a string to the console.")
     public static void run_delayed(RNumber delay, RFunction runnable) {
         Resources.scheduler().schedule(delay.intValue(), () -> {

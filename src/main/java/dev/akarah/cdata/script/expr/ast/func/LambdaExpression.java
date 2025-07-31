@@ -40,7 +40,12 @@ public record LambdaExpression(
         ));
         var lastHighestLocal = ctx.highestLocal();
         for(int i = 0; i <= lastHighestLocal; i++) {
-            ctx.aload(i).invokeVirtual(
+            if(ctx.frameLocals().contains(i)) {
+                ctx.aload(i);
+            } else {
+                ctx.constant(null);
+            }
+            ctx.invokeVirtual(
                     CodegenUtil.ofClass(MethodHandle.class),
                     "bindTo",
                     MethodTypeDesc.of(

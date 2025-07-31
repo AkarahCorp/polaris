@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.jvm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
@@ -201,6 +202,14 @@ public class CodegenContext {
             }
         }
         return i;
+    }
+
+    public Set<Integer> frameLocals() {
+        var list = Sets.<Integer>newHashSet();
+        for(var frame : this.stackFrames) {
+            list.addAll(frame.methodLocals.values());
+        }
+        return list;
     }
 
     /**

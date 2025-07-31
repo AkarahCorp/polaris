@@ -39,6 +39,7 @@ public record IfAction(
                         () -> ctx.pushValue(this.then),
                         () -> orElse.map(ctx::pushValue).orElse(ctx)
                 )
+                .popFrame()
                 .bytecodeUnsafe(cb -> cb.labelBinding(exitLabel));
     }
 
