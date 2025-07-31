@@ -183,7 +183,7 @@ public class MiningManager {
                             RVector.of(target.getCenter())
                     );
 
-                    player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+                    player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
                 }
         );

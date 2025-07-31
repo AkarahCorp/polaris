@@ -55,7 +55,7 @@ public class RWorld extends RuntimeValue {
         world.javaValue().setBlock(
                 vector.asBlockPos(),
                 state,
-                Block.UPDATE_ALL_IMMEDIATE
+                Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS
         );
     }
 
