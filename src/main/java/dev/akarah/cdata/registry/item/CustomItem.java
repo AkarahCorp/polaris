@@ -10,27 +10,21 @@ import dev.akarah.cdata.script.value.RCell;
 import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RStatsObject;
 import dev.akarah.cdata.script.value.RuntimeValue;
-import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RIdentifier;
 import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderOwner;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
-import net.minecraft.world.item.equipment.trim.TrimMaterials;
-import net.minecraft.world.item.equipment.trim.TrimPattern;
 
 import java.util.List;
 import java.util.Map;
@@ -92,7 +86,8 @@ public record CustomItem(
         });
         this.components().flatMap(CustomComponents::color).ifPresent(dyedItemColor -> {
             is.set(DataComponents.DYED_COLOR, dyedItemColor);
-        });this.components().flatMap(CustomComponents::trim).ifPresent(trim -> {
+        });
+        this.components().flatMap(CustomComponents::trim).ifPresent(trim -> {
             try {
                 is.set(DataComponents.TRIM, new ArmorTrim(
                         Main.server().registryAccess().lookup(Registries.TRIM_MATERIAL).orElseThrow()
@@ -102,6 +97,12 @@ public record CustomItem(
                 ));
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        });
+        this.components().flatMap(CustomComponents::playerSkin).ifPresent(playerSkinUuid -> {
+            var gp = Resources.GAME_PROFILES.get(playerSkinUuid);
+            if(gp != null) {
+                is.set(DataComponents.PROFILE, new ResolvableProfile(gp));
             }
         });
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));

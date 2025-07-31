@@ -29,7 +29,6 @@ public record CustomEntity(
         UUID playerSkinName
 ) {
     public static List<FakePlayer> FAKE_PLAYERS = Lists.newArrayList();
-    public static Map<UUID, GameProfile> GAME_PROFILES = Maps.newHashMap();
 
     public static Codec<CustomEntity> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
             EntityType.CODEC.fieldOf("type").forGetter(CustomEntity::entityType),

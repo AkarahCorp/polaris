@@ -6,6 +6,7 @@ import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.db.persistence.DbPersistence;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.registry.item.value.CustomComponents;
 import dev.akarah.cdata.script.value.mc.REntity;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
@@ -41,14 +42,22 @@ public class MinecraftServerMixin {
 
     @Inject(at = @At("HEAD"), method = "tickChildren")
     public void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
-        if(this.tickCount == 1) {
+        if(!Resources.addedGameProfiles) {
             for(var entity : Resources.customEntity().registry().entrySet()) {
-                System.out.println("Fetching game profile for " + entity.getValue().playerSkinName());
                 SkullBlockEntity.fetchGameProfile(entity.getValue().playerSkinName()).thenApply(Optional::orElseThrow).thenAccept(gp -> {
-                    CustomEntity.GAME_PROFILES.put(entity.getValue().playerSkinName(), gp);
+                    Resources.GAME_PROFILES.put(entity.getValue().playerSkinName(), gp);
                 }).join();
             }
+            for(var item : Resources.customItem().registry().entrySet()) {
+                item.getValue().components().flatMap(CustomComponents::playerSkin).ifPresent(uuid -> {
+                    SkullBlockEntity.fetchGameProfile(uuid).thenApply(Optional::orElseThrow).thenAccept(gp -> {
+                        Resources.GAME_PROFILES.put(uuid, gp);
+                    }).join();
+                });
+            }
+            Resources.addedGameProfiles = true;
         }
+
         Resources.statManager().loopPlayers();
         Resources.miningManager().tickPlayers();
         if(this.tickCount % 200 == 0) {

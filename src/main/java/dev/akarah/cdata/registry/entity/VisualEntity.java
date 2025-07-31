@@ -3,6 +3,7 @@ package dev.akarah.cdata.registry.entity;
 import com.mojang.authlib.GameProfile;
 import com.mojang.math.Transformation;
 import dev.akarah.cdata.Main;
+import dev.akarah.cdata.registry.Resources;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -44,7 +45,7 @@ public class VisualEntity extends LivingEntity {
         DynamicEntity.FAKED_TYPES.put(this.getId(), this.dynamic.base().entityType());
 
         if(this.dynamic.base().entityType().equals(EntityType.PLAYER)) {
-            var gameProfile = CustomEntity.GAME_PROFILES.get(this.dynamic().base().playerSkinName());
+            var gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName());
 
             var newProfile = new GameProfile(this.uuid, "");
             gameProfile.getProperties().forEach((k, p) -> newProfile.getProperties().put(k, p));

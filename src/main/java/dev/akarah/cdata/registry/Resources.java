@@ -1,6 +1,8 @@
 package dev.akarah.cdata.registry;
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.cdata.EngineConfig;
 import dev.akarah.cdata.Main;
@@ -19,6 +21,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -34,7 +38,8 @@ public class Resources {
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
-
+    public static Map<UUID, GameProfile> GAME_PROFILES = Maps.newHashMap();
+    public static boolean addedGameProfiles = false;
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -94,6 +99,8 @@ public class Resources {
     }
 
     public static void reset() {
+        Resources.addedGameProfiles = false;
+        Resources.GAME_PROFILES.clear();
         var engineConfigPath = Paths.get("./engine.json");
         if(Files.exists(engineConfigPath)) {
             var json = JsonParser.parseString(Util.sneakyThrows(() -> Files.readString(engineConfigPath)));

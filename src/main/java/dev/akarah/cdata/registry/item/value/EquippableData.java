@@ -22,6 +22,7 @@ public record EquippableData(
     public Equippable component() {
         var builder = Equippable.builder(slot);
         assetId.ifPresent(id -> builder.setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, id)));
+        builder.setSwappable(false);
         return builder.build();
     }
 }
