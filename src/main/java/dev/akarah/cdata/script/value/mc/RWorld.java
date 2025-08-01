@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
+import net.minecraft.Optionull;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +11,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.entity.EntityTypeTest;
+
+import java.util.Objects;
 
 public class RWorld extends RuntimeValue {
     private final ServerLevel inner;
@@ -28,12 +31,12 @@ public class RWorld extends RuntimeValue {
     }
 
     @MethodTypeHint(
-            signature = "(this: world, position: vector, block_type: identifier, block_state?: dict[string, any]) -> void",
+            signature = "(this: world, position: vector, block_type: identifier, block_state?: dict[string, any], update?: boolean) -> void",
             documentation = "Sets a block in this world of the given type. "
             + "If no state is provided, the default state will be used."
     )
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static void set_block(RWorld world, RVector vector, RIdentifier blockId, RDict stateDict) {
+    public static void set_block(RWorld world, RVector vector, RIdentifier blockId, RDict stateDict, RBoolean update) {
         var block = BuiltInRegistries.BLOCK.get(blockId.javaValue()).orElseThrow().value();
         var definition = block.getStateDefinition();
         var state = block.defaultBlockState();
@@ -55,7 +58,7 @@ public class RWorld extends RuntimeValue {
         world.javaValue().setBlock(
                 vector.asBlockPos(),
                 state,
-                Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS
+                Objects.requireNonNullElse(update, RBoolean.of(true)).javaValue() ? Block.UPDATE_ALL_IMMEDIATE : Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS
         );
     }
 
