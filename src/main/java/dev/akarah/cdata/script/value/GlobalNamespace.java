@@ -139,6 +139,15 @@ public class GlobalNamespace {
         return RNumber.of(Main.server().getTickCount());
     }
 
+    @MethodTypeHint(signature = "() -> list[entity]", documentation = "Returns the number of ticks the server has been up.")
+    public static RList server__players() {
+        var list = RList.create();
+        for(var player : Main.server().getPlayerList().getPlayers()) {
+            list.javaValue().add(REntity.of(player));
+        }
+        return list;
+    }
+
     @MethodTypeHint(signature = "(s: any) -> void", documentation = "Logs a string to the console.")
     public static void debug__log(RuntimeValue value) {
         System.out.println(value.toString());

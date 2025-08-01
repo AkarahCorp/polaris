@@ -6,12 +6,12 @@ import dev.akarah.cdata.registry.entity.EntityEvents;
 import dev.akarah.cdata.registry.entity.EntityUtil;
 import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.script.value.RString;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
-import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
@@ -87,6 +87,18 @@ public class ServerGamePacketListenerMixin {
                     REntity.of(this.player),
                     RItem.of(item)
             );
+        }
+    }
+
+    @Inject(method = "handleChat", at = @At("HEAD"), cancellable = true)
+    public void chat(ServerboundChatPacket serverboundChatPacket, CallbackInfo ci) {
+        var result = Resources.actionManager().performEvents(
+                "player.send_chat_message",
+                REntity.of(this.player),
+                RString.of(serverboundChatPacket.message())
+        );
+        if(!result) {
+            ci.cancel();
         }
     }
 }
