@@ -55,7 +55,18 @@ public class Main implements ModInitializer {
             Main.SERVER = server;
         });
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, context, _) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
+            Resources.command().registry().listElements().forEach(element -> {
+                var baseId = element.key().location().toString();
+
+                var root = Commands.literal(baseId);
+                element.value().dispatch(root);
+
+                System.out.println(root.build());
+                dispatcher.register(root);
+            });
+
+
             var root = Commands.literal("engine").requires(x -> x.hasPermission(4));
 
             root.then(Commands.literal("give"));

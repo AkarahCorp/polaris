@@ -8,6 +8,7 @@ import dev.akarah.cdata.EngineConfig;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.Util;
+import dev.akarah.cdata.registry.command.CommandBuilderNode;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.entity.MobSpawnRule;
 import dev.akarah.cdata.registry.item.CustomItem;
@@ -38,6 +39,7 @@ public class Resources {
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
+    static ReloadableJsonManager<CommandBuilderNode> COMMAND_NODES;
     public static Map<UUID, GameProfile> GAME_PROFILES = Maps.newHashMap();
     public static boolean addedGameProfiles = false;
 
@@ -81,6 +83,10 @@ public class Resources {
         return REFRESHABLES;
     }
 
+    public static ReloadableJsonManager<CommandBuilderNode> command() {
+        return COMMAND_NODES;
+    }
+
     public static void reloadEverything(ResourceManager resourceManager) {
         Resources.reset();
 
@@ -91,7 +97,8 @@ public class Resources {
                     Resources.customEntity().reloadWithManager(resourceManager, executor),
                     Resources.mobSpawnRule().reloadWithManager(resourceManager, executor),
                     Resources.miningRule().reloadWithManager(resourceManager, executor),
-                    Resources.refreshable().reloadWithManager(resourceManager, executor)
+                    Resources.refreshable().reloadWithManager(resourceManager, executor),
+                    Resources.command().reloadWithManager(resourceManager, executor)
             ).get();
         } catch (ExecutionException | InterruptedException e) {
             Main.handleError(e);
@@ -123,5 +130,6 @@ public class Resources {
         Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
         Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
         Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
+        Resources.COMMAND_NODES = ReloadableJsonManager.of("command", CommandBuilderNode.CODEC);
     }
 }
