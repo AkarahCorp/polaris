@@ -26,7 +26,6 @@ import java.util.function.Function;
 import dev.akarah.cdata.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.value.RBoolean;
-import net.minecraft.client.renderer.texture.Stitcher;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -555,6 +554,8 @@ public class DslParser {
             }
             case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
             case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());
+            case DslToken.NamespacedIdentifierExpr identifierExpr ->
+                    new SpannedExpression<>(new IdentifierExpression(identifierExpr.namespace(), identifierExpr.path()), identifierExpr.span());
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") ->
                     new SpannedExpression<>(new BooleanExpression(true), span);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") ->
