@@ -54,7 +54,15 @@ public class DslTokenizer {
                         DataResult.success(new DslToken.StringExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
                 case '$' -> {
                     this.stringReader.expect('$');
-                    yield DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+
+                    if(stringReader.peek() == '"') {
+                        yield DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+                    } else {
+                        var namespace = this.readIdentifier();
+                        this.stringReader.expect(':');
+                        var path = this.readPath();
+                        yield DataResult.success(new DslToken.NamespacedIdentifierExpr(namespace, path, this.createSpan(start)));
+                    }
                 }
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
                         DataResult.success(new DslToken.NumberExpr(this.stringReader.readDouble(), this.createSpan(start)));
@@ -158,9 +166,24 @@ public class DslTokenizer {
                 || c == '_' || c == '.';
     }
 
+    public static boolean isAllowedInPath(final char c) {
+        return c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '_' || c == '.' || c == '/';
+    }
+
     public String readIdentifier() {
         final int start = this.stringReader.getCursor();
         while (this.stringReader.canRead() && isAllowedInIdentifier(this.stringReader.peek())) {
+            this.stringReader.skip();
+        }
+        return this.stringReader.getString().substring(start, this.stringReader.getCursor());
+    }
+
+    public String readPath() {
+        final int start = this.stringReader.getCursor();
+        while (this.stringReader.canRead() && isAllowedInPath(this.stringReader.peek())) {
             this.stringReader.skip();
         }
         return this.stringReader.getString().substring(start, this.stringReader.getCursor());

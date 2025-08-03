@@ -17,6 +17,10 @@ public interface DslToken {
 
     }
 
+    record NamespacedIdentifierExpr(String namespace, String path, SpanData span) implements DslToken {
+
+    }
+
     record NumberExpr(double value, SpanData span) implements DslToken {
 
     }

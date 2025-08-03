@@ -14,6 +14,10 @@ public class RIdentifier extends RuntimeValue {
         return new RIdentifier(value);
     }
 
+    public static RIdentifier of(String namespace, String path) {
+        return new RIdentifier(ResourceLocation.fromNamespaceAndPath(namespace, path));
+    }
+
     @Override
     public ResourceLocation javaValue() {
         return this.inner;
