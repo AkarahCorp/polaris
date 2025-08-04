@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class Resources {
     static StatManager STAT_MANAGER;
@@ -92,8 +93,8 @@ public class Resources {
 
         try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             CompletableFuture.allOf(
-                    Resources.customItem().reloadWithManager(resourceManager, executor),
                     Resources.actionManager().reloadWithManager(resourceManager, executor),
+                    Resources.customItem().reloadWithManager(resourceManager, executor),
                     Resources.customEntity().reloadWithManager(resourceManager, executor),
                     Resources.mobSpawnRule().reloadWithManager(resourceManager, executor),
                     Resources.miningRule().reloadWithManager(resourceManager, executor),

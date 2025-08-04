@@ -44,9 +44,12 @@ public class MinecraftServerMixin {
     public void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
         if(!Resources.addedGameProfiles) {
             for(var entity : Resources.customEntity().registry().entrySet()) {
-                SkullBlockEntity.fetchGameProfile(entity.getValue().playerSkinName()).thenApply(Optional::orElseThrow).thenAccept(gp -> {
-                    Resources.GAME_PROFILES.put(entity.getValue().playerSkinName(), gp);
-                }).join();
+                entity.getValue().playerSkinName().ifPresent(uuid -> {
+                    SkullBlockEntity.fetchGameProfile(uuid).thenApply(Optional::orElseThrow).thenAccept(gp -> {
+                        Resources.GAME_PROFILES.put(uuid, gp);
+                    }).join();
+                });
+
             }
             for(var item : Resources.customItem().registry().entrySet()) {
                 item.getValue().components().flatMap(CustomComponents::playerSkin).ifPresent(uuid -> {

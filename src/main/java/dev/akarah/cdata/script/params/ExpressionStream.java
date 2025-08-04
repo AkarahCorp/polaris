@@ -22,19 +22,17 @@ public class ExpressionStream {
     }
 
     public Expression peek() {
-        try {
-            return this.parameters.get(index);
-        } catch (IndexOutOfBoundsException exception) {
+        if(index >= this.parameters.size()) {
             return null;
         }
+        return this.parameters.get(index);
     }
 
     public Expression read() {
-        try {
-            return this.parameters.get(index++);
-        } catch (IndexOutOfBoundsException exception) {
+        if(index >= this.parameters.size()) {
             return null;
         }
+        return this.parameters.get(index++);
     }
 
     public SpanData span() {

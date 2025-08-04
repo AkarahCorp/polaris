@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.expr.ast.func;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.registry.Resources;
@@ -12,6 +13,7 @@ import dev.akarah.cdata.script.expr.ast.value.CdExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.jvm.CodegenUtil;
 import dev.akarah.cdata.script.params.ExpressionStream;
+import dev.akarah.cdata.script.params.ExpressionTypeSet;
 import dev.akarah.cdata.script.type.StructType;
 import dev.akarah.cdata.script.type.Type;
 import dev.akarah.cdata.script.type.VariableType;
@@ -138,6 +140,8 @@ public class LateResolvedFunctionCall implements Expression {
         return Optional.empty();
     }
 
+    static Map<String, ExpressionTypeSet> TYPE_SET_CACHE = Maps.newHashMap();
+
     public Optional<Expression> resolveJvmAction(CodegenContext ctx) {
         Method method = null;
         for(var pair : this.functionLookupPossibilities(ctx)) {
@@ -162,11 +166,20 @@ public class LateResolvedFunctionCall implements Expression {
             return Optional.empty();
         }
 
-        var typeSet = DslParser.parseExpressionTypeSet(
-                DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.signature())
-                        .getOrThrow(),
-                method.getName()
-        );
+
+        ExpressionTypeSet typeSet = null;
+
+        if(TYPE_SET_CACHE.containsKey(methodTypeHint.signature())) {
+            typeSet = TYPE_SET_CACHE.get(methodTypeHint.signature());
+        } else {
+            typeSet = DslParser.parseExpressionTypeSet(
+                    DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.signature())
+                            .getOrThrow(),
+                    method.getName()
+            );
+            TYPE_SET_CACHE.put(methodTypeHint.signature(), typeSet);
+        }
+
         var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));
 
         var rt = typeSet.returns();
@@ -236,15 +249,6 @@ public class LateResolvedFunctionCall implements Expression {
     }
 
     public Expression resolve(CodegenContext ctx) {
-        var tries = Arrays.stream(this.functionLookupPossibilities(ctx))
-                .map(Pair::getSecond)
-                .map(x -> x
-                        .replaceFirst("\\$_", "[")
-                        .replaceFirst("_\\$", "]")
-                        .replace("__", "."))
-                .map(x -> "fn " + x)
-                .toList()
-                .toString();
         return this.resolveFromCache()
                 .or(() -> this.resolveStructGetter(ctx))
                 .or(() -> this.resolveJvmAction(ctx))
@@ -252,9 +256,7 @@ public class LateResolvedFunctionCall implements Expression {
                 .orElseThrow(() -> new ParsingException(
                         "Can not resolve function `"
                                 + this.functionName
-                                + "`. Tried possibilities: "
-                                + tries
-                                + " of type " + this.parameters.stream().map(ctx::getTypeOf).map(Type::verboseTypeName).toList(),
+                                + "`",
                         this.span()
                 ));
     }

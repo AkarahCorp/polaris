@@ -169,6 +169,11 @@ public class GlobalNamespace {
         });
     }
 
+    @MethodTypeHint(signature = "<T>(value: T) -> cell[T]", documentation = "Wraps a value in a cell.")
+    public static RCell cell__create(RuntimeValue value) {
+        return RCell.create(value);
+    }
+
 
     @MethodTypeHint(signature = "<T, U>(lhs: T, rhs: U) -> T", documentation = "Adds two values together.")
     public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {

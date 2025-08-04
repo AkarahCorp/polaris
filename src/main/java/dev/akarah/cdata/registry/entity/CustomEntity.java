@@ -26,7 +26,7 @@ public record CustomEntity(
         Optional<List<PrioritizedTask>> targetGoals,
         Map<EquipmentSlot, ResourceLocation> equipment,
         boolean invulnerable,
-        UUID playerSkinName
+        Optional<UUID> playerSkinName
 ) {
     public static List<FakePlayer> FAKE_PLAYERS = Lists.newArrayList();
 
@@ -38,7 +38,7 @@ public record CustomEntity(
             PrioritizedTask.CODEC.listOf().optionalFieldOf("target_goals").forGetter(CustomEntity::targetGoals),
             Codec.unboundedMap(EquipmentSlot.CODEC, ResourceLocation.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
             Codec.BOOL.optionalFieldOf("invulnerable", false).forGetter(CustomEntity::invulnerable),
-            UUIDUtil.CODEC.optionalFieldOf("player_skin", UUID.fromString("092f1802-e1ad-4f3a-a129-da32eb2227de")).forGetter(CustomEntity::playerSkinName)
+            UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomEntity::playerSkinName)
     ).apply(instance, CustomEntity::new)));
 
     public ResourceLocation id() {

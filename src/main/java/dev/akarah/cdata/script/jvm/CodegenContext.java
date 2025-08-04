@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -125,7 +126,9 @@ public class CodegenContext {
                     cc.classBuilder = classBuilder;
                     cc.userTypes = userTypes;
 
-                    refs.forEach(entry -> cc.classBuilder = cc.compileAction(entry.getFirst(), entry.getSecond(), -1, Lists.newArrayList()));
+                    refs.forEach(entry -> {
+                        cc.compileAction(entry.getFirst(), entry.getSecond(), -1, Lists.newArrayList());
+                    });
                     while(!cc.requestedSchemas.isEmpty()) {
                         var oldSchemas = cc.requestedSchemas.stream().toList();
                         cc.requestedSchemas.clear();
@@ -233,6 +236,8 @@ public class CodegenContext {
                 MethodTypeDesc.of(CodegenUtil.ofClass(returnType), parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
+                    System.out.println("Compiling function `" + name + "`");
+
                     this.stackFrames = frames;
 
                     this.methodBuilder = methodBuilder;
@@ -272,6 +277,8 @@ public class CodegenContext {
                         codeBuilder.labelBinding(endLabel);
                         this.codeBuilder.return_();
                     });
+
+                    System.out.println("Done!");
                 }
         );
     }
