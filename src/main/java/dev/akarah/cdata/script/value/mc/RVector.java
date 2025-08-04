@@ -63,6 +63,11 @@ public class RVector extends RuntimeValue {
         return RVector.of(vector.javaValue().with(Direction.Axis.Z, value.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> number", documentation = "Returns the distance between this and another vector.")
+    public static RNumber distance(RVector lhs, RVector rhs) {
+        return RNumber.of(lhs.javaValue().distanceTo(rhs.javaValue()));
+    }
+
     public BlockPos asBlockPos() {
         return new BlockPos((int) Math.floor(this.inner.x), (int) Math.floor(this.inner.y), (int) Math.floor(this.inner.z));
     }
