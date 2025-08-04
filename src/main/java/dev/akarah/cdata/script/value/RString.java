@@ -55,4 +55,9 @@ public class RString extends RuntimeValue {
     public static RString add(RString base, RuntimeValue convert) {
         return RString.of(base.javaValue() + convert.toString());
     }
+
+    @MethodTypeHint(signature = "(base: string) -> number", documentation = "Returns the length of the string.")
+    public static RNumber size(RString base) {
+        return RNumber.of(base.javaValue().length());
+    }
 }
