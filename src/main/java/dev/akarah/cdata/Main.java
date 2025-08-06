@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RuntimeValue;
 import org.slf4j.Logger;
@@ -82,6 +83,20 @@ public class Main implements ModInitializer {
                     }
                     return 0;
                 })));
+                root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).then(
+                        Commands.argument("count", IntegerArgumentType.integer()).executes(ctx -> {
+                            try {
+                                if(ctx.getSource().getEntity() instanceof Player p) {
+                                    var is = element.value().toItemStack(RNullable.of(REntity.of(p)));
+                                    is.setCount(ctx.getArgument("count", Integer.class));
+                                    p.addItem(is);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return 0;
+                        })
+                )));
             });
 
             Resources.customEntity().registry().listElements().forEach(element -> {

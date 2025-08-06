@@ -305,4 +305,12 @@ public class REntity extends RuntimeValue {
             }
         }
     }
+
+    @MethodTypeHint(signature = "(this: entity) -> number", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static RNumber selected_slot(REntity $this) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            return RNumber.of(serverPlayer.getInventory().getSelectedSlot());
+        }
+        return RNumber.of(0);
+    }
 }

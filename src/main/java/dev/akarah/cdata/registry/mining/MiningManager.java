@@ -158,8 +158,19 @@ public class MiningManager {
         Resources.scheduler().schedule(
                 depth,
                 () -> {
+
                     var block = player.level().getBlockState(target);
                     if(block.getBlock().equals(Blocks.AIR)) {
+                        return;
+                    }
+
+                    var result = Resources.actionManager().performEvents(
+                            "player.break_block",
+                            REntity.of(player),
+                            RVector.of(target.getCenter())
+                    );
+
+                    if(!result) {
                         return;
                     }
                     player.level().playSound(
@@ -177,11 +188,6 @@ public class MiningManager {
                             player.level().addFreshEntity(ee);
                         }
                     }
-                    Resources.actionManager().performEvents(
-                            "player.break_block",
-                            REntity.of(player),
-                            RVector.of(target.getCenter())
-                    );
 
                     player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));

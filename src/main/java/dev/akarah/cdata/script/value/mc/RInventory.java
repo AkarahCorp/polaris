@@ -27,12 +27,12 @@ public class RInventory extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint(signature = "(this: inventory, slot: number) -> nullable[item]", documentation = "Returns the item provided in the given slot of this inventory.")
-    public static RNullable get_slot(RInventory $this, RNumber slot) {
+    @MethodTypeHint(signature = "(this: inventory, slot: number) -> item", documentation = "Returns the item provided in the given slot of this inventory.")
+    public static RItem get_slot(RInventory $this, RNumber slot) {
         try {
-            return RNullable.of(RItem.of($this.inner.getItem(slot.intValue())));
+            return RItem.of($this.inner.getItem(slot.intValue()));
         } catch (Exception e) {
-            return RNullable.empty();
+            return RItem.of(ItemStack.EMPTY);
         }
     }
 
