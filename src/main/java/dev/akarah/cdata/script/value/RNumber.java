@@ -2,6 +2,9 @@ package dev.akarah.cdata.script.value;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 public class RNumber extends RuntimeValue {
     private final double inner;
 
@@ -97,10 +100,13 @@ public class RNumber extends RuntimeValue {
 
     @Override
     public String toString() {
-        var strOut = Double.toString(this.inner);
-        if(strOut.endsWith(".0")) {
-            strOut = strOut.replace(".0", "");
+        var df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+
+        var value =  df.format(this.inner);
+        if(value.endsWith(".0")) {
+            value = value.replace(".0", "");
         }
-        return strOut;
+        return value;
     }
 }

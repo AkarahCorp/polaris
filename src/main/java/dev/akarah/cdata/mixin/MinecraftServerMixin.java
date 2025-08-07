@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.net.Proxy;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
@@ -79,15 +80,6 @@ public class MinecraftServerMixin {
         Resources.scheduler().tick();
     }
 
-    @Inject(at = @At("HEAD"), method = "runServer")
-    public void onRun(CallbackInfo ci) {
-        System.out.println("Loading persistent data from file system...");
-        var start = Instant.now().toEpochMilli();
-        DbPersistence.loadPersistentDb(Main.SERVER.registryAccess()).join();
-        var end = Instant.now().toEpochMilli();
-        System.out.println("All done! Finished in " + (end - start) + "ms");
-    }
-
     @Inject(at = @At("HEAD"), method = "stopServer")
     public void stopServer(CallbackInfo ci) {
         for(var p : Main.server().getPlayerList().getPlayers()) {
@@ -109,6 +101,15 @@ public class MinecraftServerMixin {
         System.out.println("Saving persistent data to file system...");
         var start = Instant.now().toEpochMilli();
         DbPersistence.savePersistentDb(Main.SERVER.registryAccess()).join();
+        var end = Instant.now().toEpochMilli();
+        System.out.println("All done! Finished in " + (end - start) + "ms");
+    }
+
+    @Inject(at = @At("HEAD"), method = "runServer")
+    public void onRun(CallbackInfo ci) {
+        System.out.println("Loading persistent data from file system...");
+        var start = Instant.now().toEpochMilli();
+        DbPersistence.loadPersistentDb(Main.SERVER.registryAccess()).join();
         var end = Instant.now().toEpochMilli();
         System.out.println("All done! Finished in " + (end - start) + "ms");
     }

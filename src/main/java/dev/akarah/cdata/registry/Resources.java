@@ -8,6 +8,7 @@ import dev.akarah.cdata.config.EngineConfig;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.Util;
+import dev.akarah.cdata.db.persistence.DbPersistence;
 import dev.akarah.cdata.registry.command.CommandBuilderNode;
 import dev.akarah.cdata.registry.entity.CustomEntity;
 import dev.akarah.cdata.registry.entity.MobSpawnRule;
@@ -22,6 +23,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -89,9 +91,9 @@ public class Resources {
     }
 
     public static void reloadEverything(ResourceManager resourceManager) {
-        Resources.reset();
 
         try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Resources.reset();
             CompletableFuture.allOf(
                     Resources.actionManager().reloadWithManager(resourceManager, executor),
                     Resources.customItem().reloadWithManager(resourceManager, executor),
@@ -103,7 +105,7 @@ public class Resources {
             ).get();
 
             Resources.statManager().refreshPlayerInventories();
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             Main.handleError(e);
         }
     }

@@ -94,23 +94,27 @@ public class StatManager {
     }
 
     public void refreshPlayerInventories() {
-        for(var player : Main.server().getPlayerList().getPlayers()) {
-            for(int slot = 0; slot < 40; slot++) {
-                var item = player.getInventory().getItem(slot);
-                var customData = item.get(DataComponents.CUSTOM_DATA);
+        try {
+            for(var player : Main.server().getPlayerList().getPlayers()) {
+                for(int slot = 0; slot < 40; slot++) {
+                    var item = player.getInventory().getItem(slot);
+                    var customData = item.get(DataComponents.CUSTOM_DATA);
 
-                int finalSlot = slot;
-                CustomItem.itemOf(item).ifPresent(customItem -> {
-                    var amount = item.getCount();
+                    int finalSlot = slot;
+                    CustomItem.itemOf(item).ifPresent(customItem -> {
+                        var amount = item.getCount();
 
-                    var newItem = customItem.toItemStack(RNullable.of(REntity.of(player)), customData);
-                    newItem.setCount(amount);
+                        var newItem = customItem.toItemStack(RNullable.of(REntity.of(player)), customData);
+                        newItem.setCount(amount);
 
-                    newItem.set(DataComponents.CUSTOM_DATA, customData);
+                        newItem.set(DataComponents.CUSTOM_DATA, customData);
 
-                    player.getInventory().setItem(finalSlot, newItem);
-                });
+                        player.getInventory().setItem(finalSlot, newItem);
+                    });
+                }
             }
+        } catch (NullPointerException ignored) {
+
         }
     }
 }

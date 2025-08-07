@@ -5,6 +5,7 @@ import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.item.CustomItem;
+import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.expr.ast.operation.OperationUtil;
 import dev.akarah.cdata.script.value.mc.*;
@@ -172,6 +173,15 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "<T>(value: T) -> cell[T]", documentation = "Wraps a value in a cell.")
     public static RCell cell__create(RuntimeValue value) {
         return RCell.create(value);
+    }
+
+    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj", documentation = "Wraps a value in a cell.")
+    public static RStatsObject stat_obj__create(RDict dict) {
+        var so = StatsObject.of();
+        for(var entry : dict.javaValue().entrySet()) {
+            so.set(entry.getKey().toString(), (Double) entry.getValue().javaValue());
+        }
+        return RStatsObject.of(so);
     }
 
 

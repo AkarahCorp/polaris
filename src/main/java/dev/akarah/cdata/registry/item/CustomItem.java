@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 import java.util.List;
@@ -89,6 +90,12 @@ public record CustomItem(
         is.setCount(1);
 
         is.set(DataComponents.ITEM_MODEL, this.model());
+        is.set(
+                DataComponents.TOOLTIP_DISPLAY,
+                TooltipDisplay.DEFAULT
+                        .withHidden(DataComponents.TRIM, true)
+                        .withHidden(DataComponents.DYED_COLOR, true)
+        );
         this.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });

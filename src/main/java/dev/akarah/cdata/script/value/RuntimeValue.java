@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value;
 
+import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -30,6 +31,12 @@ public abstract class RuntimeValue {
                     if(bool.isSuccess()) {
                         return num;
                     }
+                    var struct = ops.getMap(input).map(x -> {
+                        var name = ops.getStringValue(x.get("polaris:struct/type")).getOrThrow();
+
+                        var rStruct = RStruct.create(name, (int) (x.entries().count() - 1));
+                        return Pair.of(rStruct, input);
+                    });
                     return DataResult.error(() -> "Expected a string, number, or boolean.");
                 }
 
@@ -59,6 +66,9 @@ public abstract class RuntimeValue {
 
     @Override
     public String toString() {
+        if(this instanceof RNumber number) {
+            return number.toString();
+        }
         return this.javaValue().toString();
     }
 

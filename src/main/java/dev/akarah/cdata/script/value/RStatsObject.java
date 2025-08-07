@@ -32,6 +32,12 @@ public class RStatsObject extends RuntimeValue {
         object.javaValue().set(key.javaValue(), finalValue);
     }
 
+    @MethodTypeHint(signature = "(object: stat_obj, other: stat_obj) -> void", documentation = "?")
+    public static void add_all(RStatsObject object, RStatsObject other) {
+        object.inner = object.inner.copy();
+        object.javaValue().add(other.javaValue());
+    }
+
     @MethodTypeHint(signature = "(object: stat_obj, value: number) -> void", documentation = "?")
     public static void multiply(RStatsObject object, RNumber number) {
         object.inner = object.inner.copy();

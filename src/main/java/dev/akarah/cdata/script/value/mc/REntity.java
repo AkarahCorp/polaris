@@ -5,6 +5,7 @@ import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.entity.VisualEntity;
+import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
@@ -18,6 +19,8 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -193,6 +196,17 @@ public class REntity extends RuntimeValue {
         return RNumber.of(0.0);
     }
 
+    @MethodTypeHint(signature = "(this: entity) -> stat_obj", documentation = "Gets the stat key for the given player, returning 0.0 as a default.")
+    public static RStatsObject stats(REntity $this) {
+        if($this.inner instanceof ServerPlayer serverPlayer) {
+            return RStatsObject.of(Resources.statManager().lookup(serverPlayer));
+        }
+        if($this.inner instanceof DynamicEntity dynamicEntity) {
+            return RStatsObject.of(dynamicEntity.base().stats().orElse(StatsObject.of()));
+        }
+        return RStatsObject.of(StatsObject.of());
+    }
+
     @MethodTypeHint(signature = "(this: entity, attribute: identifier, value: number) -> void", documentation = "Sets the base value of the given attribute on the entity.")
     public static void set_attribute(REntity $this, RIdentifier key, RNumber value) {
         if($this.inner instanceof LivingEntity le) {
@@ -319,5 +333,19 @@ public class REntity extends RuntimeValue {
         var ie = new ItemEntity($this.javaValue().level(), 0, 0, 0, item.javaValue());
         ie.teleportTo(vector.javaValue().x, vector.javaValue().y, vector.javaValue().z);
         $this.javaValue().level().addFreshEntity(ie);
+    }
+
+    @MethodTypeHint(signature = "(this: entity, sound: identifier) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static void play_sound(REntity $this, RIdentifier sound) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            serverPlayer.level().playSound(
+                    null,
+                    serverPlayer.blockPosition(),
+                    SoundEvent.createVariableRangeEvent(sound.javaValue()),
+                    SoundSource.MASTER,
+                    1f,
+                    1f
+            );
+        }
     }
 }

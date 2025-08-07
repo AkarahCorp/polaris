@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value.mc;
 
+import com.google.common.collect.Lists;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
@@ -43,7 +44,10 @@ public class RInventory extends RuntimeValue {
             if($this.inner.getItem(i).is(Items.AIR)) {
                 continue;
             }
-            if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
+
+            var id1 = RItem.id(RItem.of($this.inner.getItem(i)));
+            var id2 = RItem.id(RItem.of(item.javaValue()));
+            if(id1.equals(id2)) {
                 counted += $this.inner.getItem(i).getCount();
             }
         }
@@ -58,7 +62,9 @@ public class RInventory extends RuntimeValue {
             if(subitem.is(Items.AIR)) {
                 continue;
             }
-            if(ItemStack.isSameItemSameComponents(subitem, item.javaValue())) {
+            var id1 = RItem.id(RItem.of(subitem));
+            var id2 = RItem.id(RItem.of(item.javaValue()));
+            if(id1.equals(id2)) {
                 counted -= subitem.getCount();
                 $this.inner.setItem(i, subitem.copyWithCount(Math.max(counted * -1, 0)));
             }
@@ -66,6 +72,30 @@ public class RInventory extends RuntimeValue {
                 return;
             }
         }
+        return;
+    }
+
+    @MethodTypeHint(signature = "(this: inventory, slot: item) -> list[item]", documentation = "")
+    public static RList remove_with_results(RInventory $this, RItem item) {
+        var removed = RList.create();
+        int counted = item.javaValue().getCount();
+        for(int i = 0; i < $this.inner.getContainerSize(); i++) {
+            var subitem = $this.inner.getItem(i);
+            if(subitem.is(Items.AIR)) {
+                continue;
+            }
+            var id1 = RItem.id(RItem.of(subitem));
+            var id2 = RItem.id(RItem.of(item.javaValue()));
+            if(id1.equals(id2)) {
+                counted -= subitem.getCount();
+                removed.javaValue().add(RItem.of(subitem));
+                $this.inner.setItem(i, subitem.copyWithCount(Math.max(counted * -1, 0)));
+            }
+            if(counted <= 0) {
+                return removed;
+            }
+        }
+        return removed;
     }
 
     @MethodTypeHint(signature = "(this: inventory, slot: number, item: item) -> void", documentation = "Sets the item provided in the given slot of this inventory.")

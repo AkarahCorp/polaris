@@ -22,6 +22,7 @@ import java.lang.invoke.MethodType;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 public class DslActionManager {
@@ -96,10 +97,12 @@ public class DslActionManager {
         }
     }
 
-    Map<String, List<ResourceLocation>> eventInterning = Maps.newHashMap();
+    ConcurrentMap<String, List<ResourceLocation>> eventInterning = Maps.newConcurrentMap();
 
     public void internEventTypes() {
-        eventInterning.clear();
+        if(!eventInterning.isEmpty()) {
+            return;
+        }
         for(var function : this.dslExpressions.entrySet()) {
             function.getValue().eventName().ifPresent(eventName -> {
                 if(eventInterning.containsKey(eventName)) {

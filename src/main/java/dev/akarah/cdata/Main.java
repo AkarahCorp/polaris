@@ -88,7 +88,6 @@ public class Main implements ModInitializer {
                 dispatcher.register(root);
             });
 
-
             var root = Commands.literal("engine").requires(x -> x.hasPermission(4));
 
             root.then(Commands.literal("give"));
