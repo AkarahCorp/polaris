@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class RItem extends RuntimeValue {
-    private final ItemStack inner;
+    private ItemStack inner;
 
     private RItem(ItemStack inner) {
         this.inner = inner;
@@ -119,8 +119,25 @@ public class RItem extends RuntimeValue {
     public static RStatsObject stats(RItem $this, RNullable entity) {
         return RStatsObject.of(
                 CustomItem.itemOf($this.javaValue())
-                        .flatMap(x -> x.modifiedStats(entity))
-                        .orElse(StatsObject.EMPTY)
+                        .map(x -> x.modifiedStats(entity, $this.javaValue().copy()))
+                        .orElse(StatsObject.of())
         );
+    }
+
+    @MethodTypeHint(signature = "(item: item, context: nullable[entity]) -> void", documentation = "Returns the amount of items in the item stack.")
+    public static void update(RItem $this, RNullable contextEntity) {
+        var item = $this.javaValue();
+        var customData = item.get(DataComponents.CUSTOM_DATA);
+
+        CustomItem.itemOf(item).ifPresent(customItem -> {
+            var amount = item.getCount();
+
+            var newItem = customItem.toItemStack(contextEntity, customData);
+            newItem.setCount(amount);
+
+            newItem.set(DataComponents.CUSTOM_DATA, customData);
+
+            $this.inner = newItem;
+        });
     }
 }

@@ -8,3 +8,4 @@ mutable field net/minecraft/network/protocol/game/ClientboundAddEntityPacket typ
 accessible method net/minecraft/network/syncher/SynchedEntityData <init> (Lnet/minecraft/network/syncher/SyncedDataHolder;[Lnet/minecraft/network/syncher/SynchedEntityData$DataItem;)V
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
+accessible field net/minecraft/world/entity/projectile/FishingHook nibble I

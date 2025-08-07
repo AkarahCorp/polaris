@@ -313,4 +313,11 @@ public class REntity extends RuntimeValue {
         }
         return RNumber.of(0);
     }
+
+    @MethodTypeHint(signature = "(this: entity, item: item, position: vector) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static void spawn_owned_item(REntity $this, RItem item, RVector vector) {
+        var ie = new ItemEntity($this.javaValue().level(), 0, 0, 0, item.javaValue());
+        ie.teleportTo(vector.javaValue().x, vector.javaValue().y, vector.javaValue().z);
+        $this.javaValue().level().addFreshEntity(ie);
+    }
 }

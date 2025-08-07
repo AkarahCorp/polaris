@@ -9,6 +9,7 @@ import dev.akarah.cdata.script.value.RCell;
 import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RStatsObject;
 import dev.akarah.cdata.script.value.mc.REntity;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,11 +23,11 @@ public class StatManager {
     private final Map<UUID, StatsObject> playerStats = new HashMap<>();
 
     public StatsObject lookup(ServerPlayer serverPlayer) {
-        return this.playerStats.getOrDefault(serverPlayer.getUUID(), StatsObject.EMPTY);
+        return this.playerStats.getOrDefault(serverPlayer.getUUID(), StatsObject.of());
     }
 
     public StatsObject lookup(UUID uuid) {
-        return this.playerStats.getOrDefault(uuid, StatsObject.EMPTY);
+        return this.playerStats.getOrDefault(uuid, StatsObject.of());
     }
 
     public void set(ServerPlayer serverPlayer, StatsObject statsObject) {
@@ -57,7 +58,8 @@ public class StatManager {
                 CustomItem.itemOf(item).ifPresent(customItem -> {
                     customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
                         if(slot.equals(equippableData.slot())) {
-                            finalStats.add(customItem.modifiedStats(RNullable.of(REntity.of(player))).orElse(StatsObject.EMPTY));
+                            var addedStats = customItem.modifiedStats(RNullable.of(REntity.of(player)), item.copy());
+                            finalStats.add(addedStats);
                         }
                     });
                 });
@@ -95,13 +97,16 @@ public class StatManager {
         for(var player : Main.server().getPlayerList().getPlayers()) {
             for(int slot = 0; slot < 40; slot++) {
                 var item = player.getInventory().getItem(slot);
+                var customData = item.get(DataComponents.CUSTOM_DATA);
 
                 int finalSlot = slot;
                 CustomItem.itemOf(item).ifPresent(customItem -> {
                     var amount = item.getCount();
 
-                    var newItem = customItem.toItemStack(RNullable.of(REntity.of(player)));
+                    var newItem = customItem.toItemStack(RNullable.of(REntity.of(player)), customData);
                     newItem.setCount(amount);
+
+                    newItem.set(DataComponents.CUSTOM_DATA, customData);
 
                     player.getInventory().setItem(finalSlot, newItem);
                 });

@@ -5,7 +5,7 @@ import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import net.minecraft.network.chat.Component;
 
 public class RStatsObject extends RuntimeValue {
-    private final StatsObject inner;
+    private StatsObject inner;
 
     private RStatsObject(StatsObject inner) {
         this.inner = inner;
@@ -25,12 +25,18 @@ public class RStatsObject extends RuntimeValue {
         return RNumber.of(object.javaValue().get(key.javaValue()));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, value: number) -> stat_obj", documentation = "?")
-    public static RStatsObject multiply(RStatsObject object, RNumber number) {
-        var so = StatsObject.of();
+    @MethodTypeHint(signature = "(object: stat_obj, key: string, value: number) -> void", documentation = "?")
+    public static void add(RStatsObject object, RString key, RNumber value) {
+        object.inner = object.inner.copy();
+        var finalValue = object.javaValue().get(key.javaValue()) + value.doubleValue();
+        object.javaValue().set(key.javaValue(), finalValue);
+    }
+
+    @MethodTypeHint(signature = "(object: stat_obj, value: number) -> void", documentation = "?")
+    public static void multiply(RStatsObject object, RNumber number) {
+        object.inner = object.inner.copy();
         for(var entry : object.javaValue().keySet()) {
-            so.set(entry, object.javaValue().get(entry) * number.doubleValue());
+            object.javaValue().set(entry, object.javaValue().get(entry) * number.doubleValue());
         }
-        return RStatsObject.of(so);
     }
 }

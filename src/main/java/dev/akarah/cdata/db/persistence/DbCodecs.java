@@ -10,10 +10,12 @@ import dev.akarah.cdata.script.value.mc.RVector;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
@@ -68,7 +70,13 @@ public class DbCodecs {
                     }
                     case RItem item -> CustomItem.itemOf(item.javaValue()).ifPresentOrElse(
                             customItem -> {
-                                buf.writeVarInt(8);
+                                var cd = item.javaValue().get(DataComponents.CUSTOM_DATA);
+                                if(cd == null) {
+                                    buf.writeVarInt(8);
+                                } else {
+                                    buf.writeVarInt(13);
+                                    ByteBufCodecs.COMPOUND_TAG.encode(buf, cd.copyTag());
+                                }
                                 buf.writeResourceLocation(customItem.id());
                                 buf.writeVarInt(item.javaValue().getCount());
                             },
@@ -147,6 +155,14 @@ public class DbCodecs {
                     }
                     case 12 -> {
                         return RBoolean.of(false);
+                    }
+                    case 13 -> {
+                        var customData = ByteBufCodecs.COMPOUND_TAG.decode(buf);
+                        var itemId = buf.readResourceLocation();
+                        var itemSize = buf.readVarInt();
+                        return RItem.of(Resources.customItem().registry().get(itemId)
+                                .map(x -> x.value().toItemStack(RNullable.empty(), CustomData.of(customData)).copyWithCount(itemSize))
+                                .orElse(ItemStack.EMPTY));
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }

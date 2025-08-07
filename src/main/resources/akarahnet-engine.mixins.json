@@ -7,6 +7,8 @@
     "BlockItemMixin",
     "BuiltInRegistriesMixin",
     "CommandContextMixin",
+    "FishingHookMixin",
+    "FishingRodItemMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",
     "RegistryDataLoaderMixin",

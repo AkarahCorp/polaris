@@ -9,6 +9,10 @@ import java.util.Objects;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RuntimeValue;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +58,23 @@ public class Main implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             Main.SERVER = server;
+        });
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            server.getCommands().performCommand(
+                    server.getCommands().getDispatcher().parse("reload", new CommandSourceStack(
+                            CommandSource.NULL,
+                            Vec3.ZERO,
+                            Vec2.ZERO,
+                            server.overworld(),
+                            4,
+                            "console",
+                            Component.literal("console"),
+                            server,
+                            null
+                    )),
+                    "reload"
+            );
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
-import dev.akarah.cdata.EngineConfig;
+import dev.akarah.cdata.config.EngineConfig;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.Scheduler;
 import dev.akarah.cdata.Util;
@@ -23,11 +23,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 public class Resources {
     static StatManager STAT_MANAGER;
@@ -101,6 +101,8 @@ public class Resources {
                     Resources.refreshable().reloadWithManager(resourceManager, executor),
                     Resources.command().reloadWithManager(resourceManager, executor)
             ).get();
+
+            Resources.statManager().refreshPlayerInventories();
         } catch (ExecutionException | InterruptedException e) {
             Main.handleError(e);
         }
@@ -116,7 +118,7 @@ public class Resources {
         } else {
             Util.sneakyThrows(() -> {
                 Files.createFile(engineConfigPath);
-                Resources.CONFIG = new EngineConfig(StatsObject.of());
+                Resources.CONFIG = new EngineConfig(StatsObject.of(), Optional.empty());
                 var json = EngineConfig.CODEC.encodeStart(JsonOps.INSTANCE, Resources.CONFIG).getOrThrow();
                 Files.writeString(engineConfigPath, json.toString());
                 return null;

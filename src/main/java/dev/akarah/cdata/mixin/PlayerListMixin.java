@@ -16,6 +16,7 @@ public class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     public void playerJoinEvent(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         Resources.actionManager().performEvents("player.join", REntity.of(serverPlayer));
+        Resources.statManager().refreshPlayerInventories();
     }
 
     @Inject(method = "remove", at = @At("TAIL"))

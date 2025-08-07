@@ -1,5 +1,6 @@
 package dev.akarah.cdata.registry.loot;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.Resources;
@@ -54,11 +55,12 @@ public record LootTable(
             IntProvider.CODEC.optionalFieldOf("weighted_rolls", ConstantInt.of(1)).forGetter(LootTable::weightRolls)
     ).apply(instance, LootTable::new));
 
-    public void execute(ServerLevel level, Vec3 position) {
-        execute(level, position, null);
+    public List<ItemEntity> execute(ServerLevel level, Vec3 position) {
+        return execute(level, position, null);
     }
 
-    public void execute(ServerLevel level, Vec3 position, ServerPlayer player) {
+    public List<ItemEntity> execute(ServerLevel level, Vec3 position, ServerPlayer player) {
+        var entities = Lists.<ItemEntity>newArrayList();
         final RandomSource rs;
         if(player != null) {
             rs = player.getRandom();
@@ -89,6 +91,7 @@ public record LootTable(
                     }
 
                     level.addFreshEntity(ie);
+                    entities.add(ie);
                 }
             });
         }
@@ -99,7 +102,7 @@ public record LootTable(
         }
 
         if(weightSum == 0) {
-            return;
+            return entities;
         }
 
         var weightRolls = this.weightRolls().sample(rs);
@@ -128,11 +131,13 @@ public record LootTable(
                         for(int i2 = 0; i2 < times; i2++) {
                             var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
                             level.addFreshEntity(ie);
+                            entities.add(ie);
                         }
                     });
                     break;
                 }
             }
         }
+        return entities;
     }
 }

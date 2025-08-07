@@ -58,10 +58,14 @@ public record CustomItem(
     }
 
     public ItemStack toItemStack(RNullable entity) {
-        return this.toItemStack(this.itemTemplate.orElse(null), entity);
+        return this.toItemStack(this.itemTemplate.orElse(null), entity, null);
     }
 
-    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity) {
+    public ItemStack toItemStack(RNullable entity, CustomData customData) {
+        return this.toItemStack(this.itemTemplate.orElse(null), entity, customData);
+    }
+
+    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData) {
         var item = Items.MUSIC_DISC_CAT;
 
         var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
@@ -77,6 +81,10 @@ public record CustomItem(
 
         var cdata = new CompoundTag();
         cdata.put("id", StringTag.valueOf(this.id().toString()));
+
+        if(customData != null) {
+            cdata.merge(customData.getUnsafe());
+        }
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
         is.setCount(1);
 
@@ -142,18 +150,14 @@ public record CustomItem(
         return Resources.customItem().registry().get(id).map(Holder.Reference::value);
     }
 
-    public Optional<StatsObject> modifiedStats(RNullable entity) {
-        var stats = this.stats;
-        if(stats.isPresent()) {
-            var so = RCell.create(RStatsObject.of(stats.orElseThrow()));
-            Resources.actionManager().performEvents(
-                    "item.get_stats",
-                    RIdentifier.of(this.id()),
-                    entity,
-                    so
-            );
-            return Optional.of((StatsObject) so.javaValue());
-        }
-        return stats;
+    public StatsObject modifiedStats(RNullable entity, ItemStack itemStack) {
+        var so = RStatsObject.of(this.stats.orElse(StatsObject.of()).copy());
+        Resources.actionManager().performEvents(
+                "item.get_stats",
+                RItem.of(itemStack),
+                entity,
+                so
+        );
+        return so.javaValue();
     }
 }
