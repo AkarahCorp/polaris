@@ -1,5 +1,6 @@
 package dev.akarah.cdata.mixin;
 
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.entity.EntityEvents;
@@ -100,5 +101,15 @@ public class ServerGamePacketListenerMixin {
         if(!result) {
             ci.cancel();
         }
+    }
+
+    @Inject(method = "handleContainerClick", at = @At("TAIL"))
+    public void click(ServerboundContainerClickPacket serverboundContainerClickPacket, CallbackInfo ci) {
+        Resources.statManager().refreshPlayerInventory(this.player);
+    }
+
+    @Inject(method = "handleContainerClose", at = @At("TAIL"))
+    public void close(ServerboundContainerClosePacket serverboundContainerClosePacket, CallbackInfo ci) {
+        Resources.statManager().refreshPlayerInventory(this.player);
     }
 }

@@ -1,7 +1,10 @@
 package dev.akarah.cdata.script.value;
 
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.cdata.script.value.mc.RItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 
 public class RText extends RuntimeValue {
     private final Component inner;
@@ -22,6 +25,13 @@ public class RText extends RuntimeValue {
     @MethodTypeHint(signature = "(this: text, color: string) -> text", documentation = "Changes the color of the text to the hex code provided.")
     public static RText color(RText $this, RString color) {
         return RText.of($this.javaValue().copy().withColor(Integer.parseInt(color.javaValue(), 16)));
+    }
+
+    @MethodTypeHint(signature = "(this: text, hover_item: item) -> text", documentation = "Changes the color of the text to the hex code provided.")
+    public static RText hover_item(RText $this, RItem item) {
+        return RText.of($this.javaValue().copy().withStyle(style -> style.withHoverEvent(
+                new HoverEvent.ShowItem(item.javaValue())
+        )));
     }
 
     @MethodTypeHint(signature = "(this: text) -> string", documentation = "Returns the action content of the text component.")

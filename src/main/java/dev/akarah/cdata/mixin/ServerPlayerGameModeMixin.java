@@ -77,7 +77,7 @@ public class ServerPlayerGameModeMixin {
                 RVector.of(blockHitResult.getBlockPos().getCenter())
         );
         if(!result) {
-            cir.setReturnValue(InteractionResult.FAIL);
+            cir.setReturnValue(InteractionResult.SUCCESS);
             cir.cancel();
         }
         for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {

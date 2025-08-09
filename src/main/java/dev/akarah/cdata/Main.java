@@ -6,11 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.akarah.cdata.script.value.RNullable;
+import dev.akarah.cdata.script.value.RNumber;
+import dev.akarah.cdata.script.value.RString;
 import dev.akarah.cdata.script.value.RuntimeValue;
+import dev.akarah.cdata.script.value.mc.RItem;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -79,7 +85,7 @@ public class Main implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
             Resources.command().registry().listElements().forEach(element -> {
-                var baseId = element.key().location().toString();
+                var baseId = element.key().location().getPath();
 
                 var root = Commands.literal(baseId);
                 element.value().dispatch(root);
@@ -190,6 +196,43 @@ public class Main implements ModInitializer {
                 }
                 return 0;
             }));
+
+            root.then(
+                    Commands.literal("set_tag").then(
+                            Commands.argument("key", StringArgumentType.string()).then(
+                                    Commands.argument("number", DoubleArgumentType.doubleArg()).executes(ctx -> {
+                                        if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                            var itemInHand = serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND);
+                                            var rItem = RItem.of(itemInHand);
+                                            RItem.set_tag(
+                                                    rItem,
+                                                    RString.of(ctx.getArgument("key", String.class)),
+                                                    RNumber.of(ctx.getArgument("number", Double.class))
+                                            );
+                                            RItem.update(rItem, RNullable.of(REntity.of(serverPlayer)));
+                                            Resources.statManager().refreshPlayerInventories();
+                                        }
+                                        return 0;
+                                    })
+                            ).then(
+                                    Commands.argument("string", StringArgumentType.string()).executes(ctx -> {
+                                        if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                            var itemInHand = serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND);
+                                            var rItem = RItem.of(itemInHand);
+                                            RItem.set_tag(
+                                                    rItem,
+                                                    RString.of(ctx.getArgument("key", String.class)),
+                                                    RString.of(ctx.getArgument("string", String.class))
+                                            );
+                                            RItem.update(rItem, RNullable.of(REntity.of(serverPlayer)));
+                                            serverPlayer.setItemSlot(EquipmentSlot.MAINHAND, rItem.javaValue());
+                                            Resources.statManager().refreshPlayerInventories();
+                                        }
+                                        return 0;
+                                    })
+                            )
+                    )
+            );
 
             dispatcher.register(root);
         });

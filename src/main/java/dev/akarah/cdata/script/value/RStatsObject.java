@@ -45,4 +45,9 @@ public class RStatsObject extends RuntimeValue {
             object.javaValue().set(entry, object.javaValue().get(entry) * number.doubleValue());
         }
     }
+
+    @MethodTypeHint(signature = "(object: stat_obj) -> stat_obj", documentation = "?")
+    public static RStatsObject copy(RStatsObject object) {
+        return RStatsObject.of(object.javaValue().copy());
+    }
 }

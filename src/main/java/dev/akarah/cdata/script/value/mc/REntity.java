@@ -335,17 +335,23 @@ public class REntity extends RuntimeValue {
         $this.javaValue().level().addFreshEntity(ie);
     }
 
-    @MethodTypeHint(signature = "(this: entity, sound: identifier) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
-    public static void play_sound(REntity $this, RIdentifier sound) {
+    @MethodTypeHint(signature = "(this: entity, sound: identifier, pitch?: number, volume?: number) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static void play_sound(REntity $this, RIdentifier sound, RNumber pitch, RNumber volume) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             serverPlayer.level().playSound(
                     null,
                     serverPlayer.blockPosition(),
                     SoundEvent.createVariableRangeEvent(sound.javaValue()),
                     SoundSource.MASTER,
-                    1f,
-                    1f
+                    volume == null ? 1.0f : volume.javaValue().floatValue(),
+                    pitch == null ? 1.0f : pitch.javaValue().floatValue()
             );
         }
+    }
+
+    @MethodTypeHint(signature = "(this: entity, velocity: vector) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static void set_velocity(REntity $this, RVector velocity) {
+        $this.javaValue().setDeltaMovement(velocity.javaValue());
+        $this.javaValue().hurtMarked = true;
     }
 }

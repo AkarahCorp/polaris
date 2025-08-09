@@ -132,7 +132,7 @@ public class RItem extends RuntimeValue {
         CustomItem.itemOf(item).ifPresent(customItem -> {
             var amount = item.getCount();
 
-            var newItem = customItem.toItemStack(contextEntity, customData);
+            var newItem = customItem.toItemStack(contextEntity, customData, amount);
             newItem.setCount(amount);
 
             newItem.set(DataComponents.CUSTOM_DATA, customData);

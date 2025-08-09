@@ -33,7 +33,7 @@ public record IfAction(
                 );
         var exitLabel = ctx.bytecodeUnsafe().newLabel();
         ctx
-                .pushFrame(exitLabel, exitLabel)
+                .pushFrame(exitLabel, ctx.getFrame().breakLabel())
                 .ifThenElse(
                         Opcode.IFNE,
                         () -> ctx.pushValue(this.then),

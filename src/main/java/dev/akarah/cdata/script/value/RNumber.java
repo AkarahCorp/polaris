@@ -100,7 +100,7 @@ public class RNumber extends RuntimeValue {
 
     @Override
     public String toString() {
-        var df = new DecimalFormat("#.###");
+        var df = new DecimalFormat("###,###,###,###,###,###,###,###,###,###.###");
         df.setRoundingMode(RoundingMode.HALF_UP);
 
         var value =  df.format(this.inner);

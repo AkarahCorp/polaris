@@ -25,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 import java.util.List;
@@ -59,14 +60,14 @@ public record CustomItem(
     }
 
     public ItemStack toItemStack(RNullable entity) {
-        return this.toItemStack(this.itemTemplate.orElse(null), entity, null);
+        return this.toItemStack(this.itemTemplate.orElse(null), entity, null, 1);
     }
 
-    public ItemStack toItemStack(RNullable entity, CustomData customData) {
-        return this.toItemStack(this.itemTemplate.orElse(null), entity, customData);
+    public ItemStack toItemStack(RNullable entity, CustomData customData, int amount) {
+        return this.toItemStack(this.itemTemplate.orElse(null), entity, customData, amount);
     }
 
-    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData) {
+    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
         var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
@@ -75,6 +76,7 @@ public record CustomItem(
             item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
         }
         var is = new ItemStack(Holder.direct(item));
+        is.setCount(amount);
         is.remove(DataComponents.JUKEBOX_PLAYABLE);
         is.remove(DataComponents.ITEM_MODEL);
         is.remove(DataComponents.ITEM_MODEL);
@@ -87,7 +89,6 @@ public record CustomItem(
             cdata.merge(customData.getUnsafe());
         }
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
-        is.setCount(1);
 
         is.set(DataComponents.ITEM_MODEL, this.model());
         is.set(
@@ -119,6 +120,10 @@ public record CustomItem(
             if(gp != null) {
                 is.set(DataComponents.PROFILE, new ResolvableProfile(gp));
             }
+        });
+        this.components().flatMap(CustomComponents::blocksAttacks).ifPresent(blocksAttacks -> {
+            is.set(DataComponents.BLOCKS_ATTACKS, blocksAttacks);
+            is.set(DataComponents.WEAPON, new Weapon(0, 0));
         });
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {

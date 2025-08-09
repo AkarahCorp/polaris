@@ -82,7 +82,7 @@ public class GlobalNamespace {
     )
     public static RItem item__templated(RIdentifier id, RIdentifier template, REntity entity, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
-                .map(x -> x.toItemStack(template.javaValue(), RNullable.of(entity), null))
+                .map(x -> x.toItemStack(template.javaValue(), RNullable.of(entity), null, 1))
                 .orElse(ItemStack.EMPTY));
         if(function != null) {
             try {

@@ -130,6 +130,11 @@ public record LootTable(
 
                         for(int i2 = 0; i2 < times; i2++) {
                             var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+
+                            if(player != null) {
+                                ie.setTarget(player.getUUID());
+                            }
+
                             level.addFreshEntity(ie);
                             entities.add(ie);
                         }

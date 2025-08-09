@@ -147,10 +147,10 @@ public class MiningManager {
 
 
     public void recursiveBreaking(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int tickTime) {
-        recursiveBreakingInner(player, rule, remainingSpread, target, 0, tickTime);
+        recursiveBreakingInner(player, rule, remainingSpread, target, 0, tickTime, Lists.newArrayList());
     }
 
-    public void recursiveBreakingInner(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int depth, int tickTime) {
+    public void recursiveBreakingInner(ServerPlayer player, MiningRule rule, double remainingSpread, BlockPos target, int depth, int tickTime, List<BlockPos> minedBlocks) {
         if(!rule.materials().contains(player.level().getBlockState(target).getBlock())) {
             return;
         }
@@ -200,17 +200,19 @@ public class MiningManager {
         for(var vector : vectors()) {
             var randomAdjacent = target.offset(vector);
             if(
-                    rule.materials().contains(player.level().getBlockState(randomAdjacent).getBlock())
+                    !minedBlocks.contains(randomAdjacent)
+                            && rule.materials().contains(player.level().getBlockState(randomAdjacent).getBlock())
                             && ruleForMaterial(player.level().getBlockState(randomAdjacent), randomAdjacent).map(x -> x.equals(rule)).orElse(false)
                             && Math.random() < remainingSpread
             ) {
                 remainingSpread -= 1;
                 nearbyIsSafe.add(randomAdjacent);
+                minedBlocks.add(randomAdjacent);
             }
         }
 
         for(var safe : nearbyIsSafe) {
-            recursiveBreakingInner(player, rule, remainingSpread, safe, depth + 1, tickTime);
+            recursiveBreakingInner(player, rule, remainingSpread, safe, depth + 1, tickTime, minedBlocks);
         }
     }
 }

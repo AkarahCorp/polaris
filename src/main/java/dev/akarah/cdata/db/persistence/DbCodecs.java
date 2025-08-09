@@ -161,7 +161,7 @@ public class DbCodecs {
                         var itemId = buf.readResourceLocation();
                         var itemSize = buf.readVarInt();
                         return RItem.of(Resources.customItem().registry().get(itemId)
-                                .map(x -> x.value().toItemStack(RNullable.empty(), CustomData.of(customData)).copyWithCount(itemSize))
+                                .map(x -> x.value().toItemStack(RNullable.empty(), CustomData.of(customData), 1).copyWithCount(itemSize))
                                 .orElse(ItemStack.EMPTY));
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
