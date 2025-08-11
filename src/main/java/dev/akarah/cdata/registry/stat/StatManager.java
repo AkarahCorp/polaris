@@ -54,21 +54,18 @@ public class StatManager {
             stats.add(Resources.config().baseStats());
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
-                StatsObject finalStats = stats;
-                CustomItem.itemOf(item).ifPresent(customItem -> {
-                    customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
-                        if(slot.equals(equippableData.slot())) {
-                            var addedStats = customItem.modifiedStats(RNullable.of(REntity.of(player)), item.copy());
-                            finalStats.add(addedStats);
-                        }
-                    });
-                });
+                CustomItem.itemOf(item).ifPresent(customItem -> customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
+                    if(slot.equals(equippableData.slot())) {
+                        var addedStats = customItem.modifiedStats(RNullable.of(REntity.of(player)), item.copy());
+                        stats.add(addedStats);
+                    }
+                }));
             }
 
-            Resources.statManager().set(player, stats);
-            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), RStatsObject.of(stats));
-            stats = Resources.statManager().lookup(player);
-            this.set(player, stats.performFinalCalculations());
+            var so = RStatsObject.of(stats);
+            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), so);
+
+            this.set(player, so.javaValue().performFinalCalculations());
             Resources.actionManager().performEvents("player.tick", REntity.of(player));
 
 
