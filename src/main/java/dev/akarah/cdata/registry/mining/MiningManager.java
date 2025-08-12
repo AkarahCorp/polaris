@@ -10,6 +10,7 @@ import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -107,6 +108,11 @@ public class MiningManager {
 
                 if(currentTicks > targetTicks) {
                     var spread = Resources.statManager().lookup(player).get(status.appliedRule().spreadStat());
+
+                    if(status.appliedRule().spreadToughness() > 0.0) {
+                        spread = Math.sqrt(spread) / (status.appliedRule().spreadToughness() / 100);
+                    }
+
                     recursiveBreaking(player, status.appliedRule(), spread, status.target(), (int) targetTicks);
                     clearStatus(player);
                 } else {

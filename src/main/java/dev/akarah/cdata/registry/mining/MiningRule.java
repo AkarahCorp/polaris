@@ -19,7 +19,8 @@ public record MiningRule(
         double toughness,
         String speedStat,
         String spreadStat,
-        Optional<LootTable> lootTable
+        Optional<LootTable> lootTable,
+        double spreadToughness
 ) {
     public static Codec<MiningRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BuiltInRegistries.BLOCK.byNameCodec().listOf().fieldOf("materials").forGetter(MiningRule::materials),
@@ -30,6 +31,7 @@ public record MiningRule(
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),
             Codec.STRING.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
             Codec.STRING.optionalFieldOf("spread_stat", "?").forGetter(MiningRule::spreadStat),
-            LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable)
+            LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
+            Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness)
     ).apply(instance, MiningRule::new));
 }
