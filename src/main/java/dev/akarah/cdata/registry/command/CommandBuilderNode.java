@@ -1,13 +1,11 @@
 package dev.akarah.cdata.registry.command;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.cdata.registry.ExtBuiltInRegistries;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 
 public interface CommandBuilderNode {
     public static Codec<CommandBuilderNode> CODEC = Codec.lazyInitialized(() ->
@@ -20,9 +18,11 @@ public interface CommandBuilderNode {
 
     MapCodec<? extends CommandBuilderNode> codec();
 
-    static Object bootstrap(Registry<MapCodec<? extends CommandBuilderNode>> registry) {
+    static Object bootStrap(Registry<MapCodec<? extends CommandBuilderNode>> registry) {
         Registry.register(registry, "literal", LiteralCommandNode.CODEC);
         Registry.register(registry, "executes", ExecutesCommandNode.CODEC);
+        Registry.register(registry, "argument", ArgumentCommandNode.CODEC);
+        Registry.register(registry, "any_of", AnyOfCommandNode.CODEC);
         return LiteralCommandNode.CODEC;
     }
 }

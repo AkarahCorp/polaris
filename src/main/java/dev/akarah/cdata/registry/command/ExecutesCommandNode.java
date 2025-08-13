@@ -7,13 +7,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.Main;
 import dev.akarah.cdata.mixin.CommandContextMixin;
 import dev.akarah.cdata.registry.Resources;
-import dev.akarah.cdata.script.value.RBoolean;
-import dev.akarah.cdata.script.value.RDict;
-import dev.akarah.cdata.script.value.RNumber;
-import dev.akarah.cdata.script.value.RString;
+import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.REntity;
+import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public record ExecutesCommandNode(ResourceLocation action) implements CommandBuilderNode {
     public static MapCodec<ExecutesCommandNode> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -25,15 +25,7 @@ public record ExecutesCommandNode(ResourceLocation action) implements CommandBui
         return node.executes(ctx -> {
             var obj = RDict.create();
             for(var argument : ((CommandContextMixin) ctx).arguments().entrySet()) {
-                switch (argument.getValue().getResult()) {
-                    case String value ->
-                            obj.javaValue().put(RString.of(argument.getKey()), RString.of(value));
-                    case Double value ->
-                            obj.javaValue().put(RString.of(argument.getKey()), RNumber.of(value));
-                    case Boolean value ->
-                            obj.javaValue().put(RString.of(argument.getKey()), RBoolean.of(value));
-                    default -> {}
-                }
+                RDict.put(obj, RString.of(argument.getKey()), RuntimeValue.from(argument.getValue().getResult()));
             }
             var returns = Resources.actionManager().executeBoolean(action, REntity.of(ctx.getSource().getEntityOrException()), obj);
             return returns ? 1 : 0;

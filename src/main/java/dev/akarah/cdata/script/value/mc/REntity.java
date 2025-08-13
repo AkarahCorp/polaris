@@ -304,7 +304,14 @@ public class REntity extends RuntimeValue {
                     objective
             ));
 
-            for(int score = 0; score < list.javaValue().size() - 1; score++) {
+            for(int score = 0; score < 48; score++) {
+                serverPlayer.connection.send(new ClientboundResetScorePacket(
+                        String.valueOf(score),
+                        "polaris-sidebar"
+                ));
+            }
+
+            for(int score = 0; score < (list.javaValue().size() - 1); score++) {
                 serverPlayer.connection.send(new ClientboundResetScorePacket(String.valueOf(score), "polaris-sidebar"));
 
                 var line = list.javaValue().reversed().get(score);

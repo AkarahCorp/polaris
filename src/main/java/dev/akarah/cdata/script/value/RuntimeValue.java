@@ -6,10 +6,14 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.function.Function;
 
 public abstract class RuntimeValue {
     public abstract Object javaValue();
@@ -96,5 +100,16 @@ public abstract class RuntimeValue {
             return this.javaValue().equals(runtimeValue.javaValue());
         }
         return this.javaValue().equals(other);
+    }
+
+    public static <T> RuntimeValue from(T originalValue) {
+        return switch (originalValue) {
+            case String value -> RString.of(value);
+            case Double value -> RNumber.of(value);
+            case Boolean value -> RBoolean.of(value);
+            case Vec3 value -> RVector.of(value);
+            case Entity value -> REntity.of(value);
+            default -> RuntimeValue.number(0.0);
+        };
     }
 }
