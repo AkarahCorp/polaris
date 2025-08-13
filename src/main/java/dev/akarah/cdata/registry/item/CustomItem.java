@@ -125,6 +125,9 @@ public record CustomItem(
             is.set(DataComponents.BLOCKS_ATTACKS, blocksAttacks);
             is.set(DataComponents.WEAPON, new Weapon(0, 0));
         });
+        this.components().flatMap(CustomComponents::customModelData).ifPresent(customModelData -> {
+            is.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
+        });
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
         if(itemTemplate != null) {
             try {

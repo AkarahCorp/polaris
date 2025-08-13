@@ -7,6 +7,7 @@ import dev.akarah.cdata.registry.entity.CustomEntity;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.component.BlocksAttacks;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
@@ -21,7 +22,8 @@ public record CustomComponents(
         Optional<DyedItemColor> color,
         Optional<TrimComponent> trim,
         Optional<UUID> playerSkin,
-        Optional<BlocksAttacks> blocksAttacks
+        Optional<BlocksAttacks> blocksAttacks,
+        Optional<CustomModelData> customModelData
 ) {
     public static Codec<CustomComponents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomComponents::equippable),
@@ -32,6 +34,7 @@ public record CustomComponents(
             DyedItemColor.CODEC.optionalFieldOf("color").forGetter(CustomComponents::color),
             TrimComponent.CODEC.optionalFieldOf("armor_trim").forGetter(CustomComponents::trim),
             UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomComponents::playerSkin),
-            BlocksAttacks.CODEC.optionalFieldOf("blocks_attacks").forGetter(CustomComponents::blocksAttacks)
+            BlocksAttacks.CODEC.optionalFieldOf("blocks_attacks").forGetter(CustomComponents::blocksAttacks),
+            CustomModelData.CODEC.optionalFieldOf("custom_model_data").forGetter(CustomComponents::customModelData)
     ).apply(instance, CustomComponents::new));
 }

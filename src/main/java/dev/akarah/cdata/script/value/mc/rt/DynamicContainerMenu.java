@@ -12,6 +12,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class DynamicContainerMenu extends ChestMenu {
     public RText name;
@@ -24,7 +27,18 @@ public class DynamicContainerMenu extends ChestMenu {
     @Override
     public void clicked(int slot, int j, ClickType clickType, Player player) {
         if(this.getContainer() instanceof DynamicContainer dynamicContainer) {
-            var item = dynamicContainer.getItem(slot);
+            ItemStack item = null;
+            if(this.isValidSlotIndex(slot)) {
+                item = this.getContainer().getItem(slot);
+            } else {
+                var newSlot = slot - this.getContainer().getContainerSize() + 9;
+                if(player.inventoryMenu.isValidSlotIndex(newSlot)) {
+                    item = player.inventoryMenu.getSlot(newSlot).getItem();
+                } else {
+                    item = player.inventoryMenu.getSlot(slot - this.getContainer().getContainerSize()).getItem();
+                }
+            }
+
             var p = (ServerPlayer) player;
 
             var result = Resources.actionManager().performEvents(

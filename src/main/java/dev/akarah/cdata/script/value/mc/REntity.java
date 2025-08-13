@@ -26,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
@@ -353,5 +354,21 @@ public class REntity extends RuntimeValue {
     public static void set_velocity(REntity $this, RVector velocity) {
         $this.javaValue().setDeltaMovement(velocity.javaValue());
         $this.javaValue().hurtMarked = true;
+    }
+
+    @MethodTypeHint(signature = "(this: entity, item: item) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static void set_cursor_item(REntity $this, RItem item) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            serverPlayer.containerMenu.setCarried(item.javaValue());
+            serverPlayer.containerMenu.sendAllDataToRemote();
+        }
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> item", documentation = "Returns the selected slot in the hotbar of the entity.")
+    public static RItem cursor_item(REntity $this) {
+        if($this.javaValue() instanceof ServerPlayer serverPlayer) {
+            return RItem.of(serverPlayer.containerMenu.getCarried());
+        }
+        return RItem.of(ItemStack.EMPTY);
     }
 }
