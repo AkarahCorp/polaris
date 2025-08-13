@@ -31,6 +31,8 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+    modImplementation("com.github.luben:zstd-jni:1.5.7-4")
+    include("com.github.luben:zstd-jni:1.5.7-4")
 }
 
 tasks.processResources {

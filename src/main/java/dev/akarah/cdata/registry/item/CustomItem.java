@@ -67,6 +67,28 @@ public record CustomItem(
         return this.toItemStack(this.itemTemplate.orElse(null), entity, customData, amount);
     }
 
+    public ItemStack toMinimalItemStack(CustomData customData, int amount) {
+        var item = Items.MUSIC_DISC_CAT;
+
+        var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+
+        if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
+            item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
+        }
+        var is = new ItemStack(Holder.direct(item));
+        is.setCount(amount);
+
+        var cdata = new CompoundTag();
+        cdata.put("id", StringTag.valueOf(this.id().toString()));
+
+        if(customData != null) {
+            cdata.merge(customData.getUnsafe());
+        }
+        is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
+        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
+        return is;
+    }
+
     public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
