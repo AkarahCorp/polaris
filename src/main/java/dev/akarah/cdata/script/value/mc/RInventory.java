@@ -127,29 +127,50 @@ public class RInventory extends RuntimeValue {
 
     @MethodTypeHint(signature = "(this: inventory, item: item) -> void", documentation = "Adds a new item to the inventory if there is room for it.")
     public static void add_item(RInventory $this, RItem item) {
-        for(int i = 0; i < $this.inner.getContainerSize(); i++) {
-            if($this.inner.getItem(i).is(Items.AIR)) {
-                $this.inner.setItem(i, item.javaValue());
-                return;
-            }
-            if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
-                var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+        addItemInner($this, item, 0);
+    }
 
-                var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
-                if(maxCount == null) {
-                    maxCount = 1;
-                }
+    public static void addItemInner(RInventory $this, RItem item, int slot) {
+        try {
+            for(int i = slot; i < $this.inner.getContainerSize(); i++) {
+                if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
+                    var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
 
-                if(sumCounts <= maxCount) {
-                    $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+                    var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
+                    if(maxCount == null) {
+                        maxCount = 1;
+                    }
+
+                    if(sumCounts <= maxCount) {
+                        $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+                    } else {
+                        $this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
+                        addItemInner($this, RItem.of(item.javaValue().copyWithCount(sumCounts - maxCount)), i + 1);
+                    }
                     return;
-                } else if(sumCounts > maxCount) {
-                	$this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
-                	add_item($this, item.amount(sumCounts-maxCount));
-                	return;
                 }
-                continue;
             }
+
+            for(int i = slot; i < $this.inner.getContainerSize(); i++) {
+                if($this.inner.getItem(i).is(Items.AIR)) {
+                    var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+
+                    var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
+                    if(maxCount == null) {
+                        maxCount = 1;
+                    }
+
+                    if(sumCounts <= maxCount) {
+                        $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+                    } else {
+                        $this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
+                        addItemInner($this, RItem.of(item.javaValue().copyWithCount(sumCounts - maxCount)), i + 1);
+                    }
+                    return;
+                }
+            }
+        } catch (StackOverflowError ignored) {
+
         }
     }
 
