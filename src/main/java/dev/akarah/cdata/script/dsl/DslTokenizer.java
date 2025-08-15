@@ -110,7 +110,7 @@ public class DslTokenizer {
                 }
                 case ';' -> token(';', () -> new DslToken.Semicolon(this.createSpan(start)));
                 case ':' -> token(':', () -> new DslToken.Colon(this.createSpan(start)));
-                case '=' -> tokenWithEquals('!', () -> new DslToken.EqualSymbol(this.createSpan(start)), () -> new DslToken.DoubleEqualSymbol(this.createSpan(start)));
+                case '=' -> tokenWithEquals('=', () -> new DslToken.EqualSymbol(this.createSpan(start)), () -> new DslToken.DoubleEqualSymbol(this.createSpan(start)));
                 case '(' -> token('(', () -> new DslToken.OpenParen(this.createSpan(start)));
                 case ')' -> token(')', () -> new DslToken.CloseParen(this.createSpan(start)));
                 case '{' -> token('{', () -> new DslToken.OpenBrace(this.createSpan(start)));
