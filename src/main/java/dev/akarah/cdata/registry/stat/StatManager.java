@@ -86,8 +86,6 @@ public class StatManager {
                 );
             }
         }
-
-        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 
     public void refreshPlayerInventories() {

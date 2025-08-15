@@ -27,7 +27,7 @@ public class RDict extends RuntimeValue {
         return RNullable.unwrap(RNullable.of(dict.inner.get(key)));
     }
 
-    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V], key: K, value: V) -> V", documentation = "Inserts a value into the dictionary.")
+    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V], key: K, value: V) -> void", documentation = "Inserts a value into the dictionary.")
     public static void put(RDict dict, RuntimeValue key, RuntimeValue value) {
         dict.inner.put(key, value);
     }

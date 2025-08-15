@@ -25,7 +25,7 @@ public record ExecutesCommandNode(ResourceLocation action) implements CommandBui
         return node.executes(ctx -> {
             var obj = RDict.create();
             for(var argument : ((CommandContextMixin) ctx).arguments().entrySet()) {
-                RDict.put(obj, RString.of(argument.getKey()), RuntimeValue.from(argument.getValue().getResult()));
+                RDict.put(obj, RString.of(argument.getKey()), RuntimeValue.from(argument.getValue().getResult(), ctx.getSource()));
             }
             var returns = Resources.actionManager().executeBoolean(action, REntity.of(ctx.getSource().getEntityOrException()), obj);
             return returns ? 1 : 0;

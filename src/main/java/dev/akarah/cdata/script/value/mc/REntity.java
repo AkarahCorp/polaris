@@ -1,16 +1,23 @@
 package dev.akarah.cdata.script.value.mc;
 
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
 import dev.akarah.cdata.registry.entity.VisualEntity;
+import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainerMenu;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.numbers.BlankFormat;
 import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
@@ -27,12 +34,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,6 +82,27 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity) -> vector", documentation = "Returns the direction of this entity, in the form of an X/Y/Z vector.")
     public static RVector direction(REntity $this) {
         return RVector.of($this.inner.getLookAngle());
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> number", documentation = "Returns the direction of this entity, in the form of an X/Y/Z vector.")
+    public static RNumber pitch(REntity $this) {
+        return RNumber.of($this.inner.getYRot());
+    }
+
+    @MethodTypeHint(signature = "(this: entity) -> number", documentation = "Returns the direction of this entity, in the form of an X/Y/Z vector.")
+    public static RNumber yaw(REntity $this) {
+        return RNumber.of($this.inner.getXRot());
+    }
+
+    @MethodTypeHint(signature = "(this: entity, pitch: number, yaw: number) -> void", documentation = "Returns the direction of this entity, in the form of an X/Y/Z vector.")
+    public static void set_direction(REntity $this, RNumber pitch, RNumber yaw) {
+        $this.inner.setXRot(yaw.javaValue().floatValue());
+        $this.inner.setYRot(pitch.javaValue().floatValue());
+    }
+
+    @MethodTypeHint(signature = "(this: entity, time: number) -> void", documentation = "Returns the direction of this entity, in the form of an X/Y/Z vector.")
+    public static void set_invulnerable_time(REntity $this, RNumber time) {
+        $this.javaValue().invulnerableTime = time.intValue();
     }
 
     @MethodTypeHint(signature = "(this: entity, position: vector) -> void", documentation = "Teleports the entity to the given position.")
@@ -377,5 +407,31 @@ public class REntity extends RuntimeValue {
             return RItem.of(serverPlayer.containerMenu.getCarried());
         }
         return RItem.of(ItemStack.EMPTY);
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, key: string) -> nullable[any]", documentation = "Gets a custom item tag from the item, based on the key provided.")
+    public static RNullable tag(REntity $this, RString keyTag) {
+        return RNullable.of(
+                Optional.<RuntimeValue>empty()
+                        .or(() -> Optional.ofNullable($this.javaValue().get(DataComponents.CUSTOM_DATA))
+                                .flatMap(x -> Optional.ofNullable(x.getUnsafe().get(keyTag.javaValue())))
+                                .flatMap(x -> RuntimeValue.CODEC.decode(NbtOps.INSTANCE, x).result().map(Pair::getFirst)))
+                        .orElse(null)
+        );
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, key: string, value: any) -> void", documentation = "Sets an item tag on the item, held with the key provided.")
+    public static void set_tag(REntity $this, RString keyTag, RuntimeValue keyValue) {
+        if($this.javaValue().get(DataComponents.CUSTOM_DATA) == null) {
+            $this.javaValue().setComponent(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
+        }
+
+        $this.javaValue().setComponent(
+                DataComponents.CUSTOM_DATA,
+                Objects.requireNonNull($this.javaValue().get(DataComponents.CUSTOM_DATA)).update(tag -> tag.put(
+                        keyTag.javaValue(),
+                        RuntimeValue.CODEC.encodeStart(NbtOps.INSTANCE, keyValue).result().orElse(DoubleTag.valueOf(0.0))
+                ))
+        );
     }
 }

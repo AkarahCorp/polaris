@@ -25,7 +25,7 @@ public record MiningRule(
     public static Codec<MiningRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BuiltInRegistries.BLOCK.byNameCodec().listOf().fieldOf("materials").forGetter(MiningRule::materials),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("block_state", Map.of()).forGetter(MiningRule::stateRequirements),
-            Codec.pair(BlockPos.CODEC, BlockPos.CODEC)
+            Codec.pair(BlockPos.CODEC.fieldOf("min").codec(), BlockPos.CODEC.fieldOf("max").codec())
                     .optionalFieldOf("area", Pair.of(new BlockPos(-30000000, -30000000, -30000000), new BlockPos(30000000, 30000000, 30000000)))
                     .forGetter(MiningRule::area),
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),

@@ -45,7 +45,7 @@ public class VisualEntity extends LivingEntity {
         DynamicEntity.FAKED_TYPES.put(this.getId(), this.dynamic.base().entityType());
 
         if(this.dynamic.base().entityType().equals(EntityType.PLAYER)) {
-            var gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName());
+            var gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName().orElseThrow());
 
             var newProfile = new GameProfile(this.uuid, "");
             gameProfile.getProperties().forEach((k, p) -> newProfile.getProperties().put(k, p));

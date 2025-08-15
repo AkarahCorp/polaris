@@ -2,10 +2,9 @@ package dev.akarah.cdata.script.expr;
 
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
-import dev.akarah.cdata.script.expr.ast.AllOfAction;
-import dev.akarah.cdata.script.expr.ast.IfAction;
-import dev.akarah.cdata.script.expr.ast.RepeatTimesAction;
-import dev.akarah.cdata.script.expr.ast.ReturnAction;
+import dev.akarah.cdata.script.exception.SpannedException;
+import dev.akarah.cdata.script.exception.ValidationException;
+import dev.akarah.cdata.script.expr.ast.*;
 import dev.akarah.cdata.script.expr.ast.value.StringExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
 import dev.akarah.cdata.script.params.ExpressionTypeSet;
@@ -44,33 +43,41 @@ public interface Expression {
     }
 
     default boolean validateReturnOnAllBranches(CodegenContext ctx, Type<?> type) {
-        return switch (this.flatten()) {
-            case AllOfAction allOfAction -> {
-                for(var action : allOfAction.actions()) {
-                    if(action.flatten() instanceof ReturnAction) {
-                        yield action.flatten().validateReturnOnAllBranches(ctx, type);
+        try {
+            return switch (this.flatten()) {
+                case AllOfAction allOfAction -> {
+                    for(var action : allOfAction.actions()) {
+                        action.flatten().validateReturnOnAllBranches(ctx, type);
+                    }
+
+                    var last = allOfAction.actions().getLast();
+                    if(last != null) {
+                        yield last.validateReturnOnAllBranches(ctx, type);
+                    }
+                    yield true;
+                }
+                case ReturnAction returnAction -> {
+                    var foundType = ctx.getTypeOf(returnAction.value());
+                    if(foundType.typeEquals(type)) {
+                        yield true;
+                    } else {
+                        throw new ValidationException(
+                                "Expected type " + type.verboseTypeName() + ", found type " + foundType.verboseTypeName(),
+                                returnAction.value().span()
+                        );
                     }
                 }
-                yield false;
-            }
-            case ReturnAction returnAction -> {
-                var foundType = ctx.getTypeOf(returnAction.value());
-                if(foundType.typeEquals(type)) {
-                    yield true;
-                } else {
-                    throw new ParsingException(
-                            "Expected type " + type + ", found type " + foundType,
-                            returnAction.value().span()
-                    );
+                case IfAction ifAction -> {
+                    yield ifAction.then().validateReturnOnAllBranches(ctx, type)
+                            && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
                 }
-            }
-            case IfAction ifAction -> {
-                yield ifAction.then().validateReturnOnAllBranches(ctx, type)
-                        && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
-            }
-            case RepeatTimesAction repeatTimesAction -> repeatTimesAction.perform().validateReturnOnAllBranches(ctx, type);
-            default -> false;
-        };
+                case RepeatTimesAction repeatTimesAction -> repeatTimesAction.perform().validateReturnOnAllBranches(ctx, type);
+                case ForEachAction forEachAction -> forEachAction.block().validateReturnOnAllBranches(ctx, type);
+                default -> false;
+            };
+        } catch (ParsingException exception) {
+            return true;
+        }
     }
 
     static Object bootStrap(Registry<Class<? extends Expression>> actions) {

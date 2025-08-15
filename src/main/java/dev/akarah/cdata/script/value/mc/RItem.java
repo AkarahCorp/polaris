@@ -80,6 +80,20 @@ public class RItem extends RuntimeValue {
         );
     }
 
+    @MethodTypeHint(signature = "(item: item, key: string) -> void", documentation = "Removes the item tag on the item with the key provided.")
+    public static void remove_tag(RItem $this, RString keyTag) {
+        if(!$this.javaValue().has(DataComponents.CUSTOM_DATA)) {
+            $this.javaValue().set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
+        }
+
+        $this.javaValue().set(
+                DataComponents.CUSTOM_DATA,
+                Objects.requireNonNull(
+                        $this.javaValue().get(DataComponents.CUSTOM_DATA)).update(tag -> tag.remove(keyTag.javaValue())
+                )
+        );
+    }
+
     @MethodTypeHint(signature = "(item: item) -> list[text]", documentation = "Gets the current lore of the item stack.")
     public static RList lore(RItem $this) {
         var list = RList.create();

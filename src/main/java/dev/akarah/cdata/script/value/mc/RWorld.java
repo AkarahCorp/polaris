@@ -1,5 +1,6 @@
 package dev.akarah.cdata.script.value.mc;
 
+import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import net.minecraft.Optionull;
@@ -7,7 +8,11 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -116,5 +121,41 @@ public class RWorld extends RuntimeValue {
         }
         
         return list;
+    }
+
+    @MethodTypeHint(
+            signature = "(this: world, position: vector, text: text) -> entity",
+            documentation = "Returns the inventory present in the block at the given position. Returns null if the block is not a container."
+    )
+    public static REntity spawn_hologram(RWorld world, RVector position, RText text) {
+        var textEntity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world.javaValue());
+
+        textEntity.setText(text.javaValue());
+        textEntity.teleportTo(position.javaValue().x, position.javaValue().y, position.javaValue().z);
+        textEntity.setBillboardConstraints(Display.BillboardConstraints.CENTER);
+        textEntity.setTextOpacity((byte) 255);
+
+        world.javaValue().addFreshEntity(textEntity);
+
+        return REntity.of(textEntity);
+    }
+
+
+
+    @MethodTypeHint(signature = "(world: world, type: identifier, position: vector) -> entity", documentation = "Sets an item tag on the item, held with the key provided.")
+    public static REntity spawn_entity(RWorld world, RIdentifier entity_type, RVector vector) {
+        var entityBase = Resources.customEntity().registry().get(entity_type.javaValue());
+
+        if(entityBase.isEmpty()) {
+            var entityType = BuiltInRegistries.ENTITY_TYPE.get(entity_type.javaValue()).orElseThrow().value();
+            var entity = entityType.create(world.javaValue(), EntitySpawnReason.COMMAND);
+            assert entity != null;
+            entity.teleportTo(vector.javaValue().x, vector.javaValue().y, vector.javaValue().z);
+            world.javaValue().addFreshEntity(entity);
+
+            return REntity.of(entity);
+        }
+
+        return REntity.of(entityBase.orElseThrow().value().spawn(world.javaValue(), vector.javaValue()));
     }
 }

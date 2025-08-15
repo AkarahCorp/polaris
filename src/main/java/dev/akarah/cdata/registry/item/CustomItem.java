@@ -113,11 +113,16 @@ public record CustomItem(
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
 
         is.set(DataComponents.ITEM_MODEL, this.model());
+
+        var display = TooltipDisplay.DEFAULT
+                .withHidden(DataComponents.TRIM, true)
+                .withHidden(DataComponents.DYED_COLOR, true);
+        if(this.components().map(CustomComponents::hideTooltip).orElse(false)) {
+            display = new TooltipDisplay(true, display.hiddenComponents());
+        }
         is.set(
                 DataComponents.TOOLTIP_DISPLAY,
-                TooltipDisplay.DEFAULT
-                        .withHidden(DataComponents.TRIM, true)
-                        .withHidden(DataComponents.DYED_COLOR, true)
+                display
         );
         this.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
@@ -151,6 +156,7 @@ public record CustomItem(
             is.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
         });
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
+        is.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, this.components.map(CustomComponents::overrideEnchantmentGlint).orElse(false));
         if(itemTemplate != null) {
             try {
                 Resources.actionManager().executeVoid(

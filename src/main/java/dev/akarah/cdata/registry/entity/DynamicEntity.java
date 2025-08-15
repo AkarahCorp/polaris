@@ -7,6 +7,9 @@ import dev.akarah.cdata.script.value.RCell;
 import dev.akarah.cdata.script.value.RNullable;
 import dev.akarah.cdata.script.value.RNumber;
 import dev.akarah.cdata.script.value.mc.REntity;
+import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -14,10 +17,17 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +75,8 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     ) {
         super(entityType, level);
         this.base = base;
-        Objects.requireNonNull(this.getAttribute(Attributes.SCALE)).setBaseValue(0.01);
+        Objects.requireNonNull(this.getAttribute(Attributes.SCALE)).setBaseValue(1);
+        this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         this.visual = new VisualEntity(entityType, level, this);
 
         FAKED_TYPES.put(this.getId(), base.entityType());
@@ -111,24 +122,48 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
             return false;
         }
 
+        if (this.isInvulnerableTo(serverLevel, damageSource)) {
+            return false;
+        } else if (this.isDeadOrDying()) {
+            return false;
+        } else if (damageSource.is(DamageTypeTags.IS_FIRE) && this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+            return false;
+        } else if (this.invulnerableTime > 0) {
+            return false;
+        }
+
         var cell = RCell.create(RNumber.of(f));
-        Resources.actionManager().performEvents("entity.take_damage", REntity.of(this), cell);
+        var proceed = Resources.actionManager().performEvents("entity.take_damage", REntity.of(this), cell);
 
-        var result = super.hurtServer(serverLevel, damageSource,  ((Double) (cell.javaValue())).floatValue());
-        if(result) {
-            if(this.getHealth() <= 0.0) {
-                Resources.actionManager().performEvents("entity.die", REntity.of(this));
-            }
+        if((this.getHealth() - ((Double) RCell.get(cell).javaValue())) <= 0.0) {
+            proceed = proceed && Resources.actionManager().performEvents("entity.die", REntity.of(this), cell);
+        }
 
-            if(damageSource.getEntity() instanceof ServerPlayer attacker) {
-                Resources.actionManager().performEvents("player.attack_entity", REntity.of(attacker), REntity.of(this));
+        if(damageSource.getEntity() instanceof ServerPlayer attacker) {
+            proceed = proceed && Resources.actionManager().performEvents("player.attack_entity", REntity.of(attacker), REntity.of(this), cell);
 
-                if(this.getHealth() <= 0.0) {
-                    Resources.actionManager().performEvents("player.kill_entity", REntity.of(attacker), REntity.of(this));
-                }
+            if((this.getHealth() - ((Double) RCell.get(cell).javaValue())) <= 0.0) {
+                proceed = proceed && Resources.actionManager().performEvents("player.kill_entity", REntity.of(attacker), REntity.of(this), cell);
             }
         }
-        return result;
+
+        if(damageSource.getEntity() instanceof Projectile projectile) {
+            proceed = proceed && Resources.actionManager().performEvents("projectile.attack_entity", REntity.of(projectile), REntity.of(this), cell);
+
+            if((this.getHealth() - ((Double) RCell.get(cell).javaValue())) <= 0.0) {
+                proceed = proceed && Resources.actionManager().performEvents("projectile.kill_entity", REntity.of(projectile), REntity.of(this), cell);
+            }
+        }
+
+        if(proceed) {
+            var result = super.hurtServer(serverLevel, damageSource,  ((Double) (cell.javaValue())).floatValue());
+
+            serverLevel.broadcastDamageEvent(this.visual, damageSource);
+            Resources.actionManager().performEvents("entity.take_damage.after", REntity.of(this), cell);
+            return result;
+        }
+
+        return true;
     }
 
     @Override

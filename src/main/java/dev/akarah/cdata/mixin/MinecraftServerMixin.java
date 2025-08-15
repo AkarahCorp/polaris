@@ -73,6 +73,8 @@ public class MinecraftServerMixin {
         for(var refreshable : Resources.refreshable().registry().entrySet()) {
             refreshable.getValue().execute();
         }
+
+        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")

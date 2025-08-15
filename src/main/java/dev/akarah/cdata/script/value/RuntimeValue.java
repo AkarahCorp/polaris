@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.value;
 
 import com.google.common.collect.Maps;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -9,6 +10,8 @@ import com.mojang.serialization.DynamicOps;
 import dev.akarah.cdata.script.value.mc.REntity;
 import dev.akarah.cdata.script.value.mc.RItem;
 import dev.akarah.cdata.script.value.mc.RVector;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -102,13 +105,24 @@ public abstract class RuntimeValue {
         return this.javaValue().equals(other);
     }
 
-    public static <T> RuntimeValue from(T originalValue) {
+    public static <T> RuntimeValue from(T originalValue, CommandSourceStack stack) {
         return switch (originalValue) {
             case String value -> RString.of(value);
             case Double value -> RNumber.of(value);
             case Boolean value -> RBoolean.of(value);
             case Vec3 value -> RVector.of(value);
             case Entity value -> REntity.of(value);
+            case EntitySelector entitySelector -> {
+                var list = RList.create();
+                try {
+                    for(var entity : entitySelector.findEntities(stack)) {
+                        RList.add(list, REntity.of(entity));
+                    }
+                } catch (CommandSyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+                yield list;
+            }
             default -> RuntimeValue.number(0.0);
         };
     }

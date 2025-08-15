@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.cdata.registry.entity.CustomEntity;
+import dev.akarah.cdata.registry.mining.MiningRule;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.component.BlocksAttacks;
@@ -23,7 +24,9 @@ public record CustomComponents(
         Optional<TrimComponent> trim,
         Optional<UUID> playerSkin,
         Optional<BlocksAttacks> blocksAttacks,
-        Optional<CustomModelData> customModelData
+        Optional<CustomModelData> customModelData,
+        boolean overrideEnchantmentGlint,
+        boolean hideTooltip
 ) {
     public static Codec<CustomComponents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomComponents::equippable),
@@ -35,6 +38,8 @@ public record CustomComponents(
             TrimComponent.CODEC.optionalFieldOf("armor_trim").forGetter(CustomComponents::trim),
             UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomComponents::playerSkin),
             BlocksAttacks.CODEC.optionalFieldOf("blocks_attacks").forGetter(CustomComponents::blocksAttacks),
-            CustomModelData.CODEC.optionalFieldOf("custom_model_data").forGetter(CustomComponents::customModelData)
+            CustomModelData.CODEC.optionalFieldOf("custom_model_data").forGetter(CustomComponents::customModelData),
+            Codec.BOOL.optionalFieldOf("enchantment_glint_override", false).forGetter(CustomComponents::overrideEnchantmentGlint),
+            Codec.BOOL.optionalFieldOf("hide_tooltip", false).forGetter(CustomComponents::hideTooltip)
     ).apply(instance, CustomComponents::new));
 }

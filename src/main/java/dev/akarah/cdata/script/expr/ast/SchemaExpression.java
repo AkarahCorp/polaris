@@ -3,6 +3,7 @@ package dev.akarah.cdata.script.expr.ast;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.cdata.script.exception.ParsingException;
 import dev.akarah.cdata.script.exception.SpanData;
+import dev.akarah.cdata.script.exception.ValidationException;
 import dev.akarah.cdata.script.expr.Expression;
 import dev.akarah.cdata.script.expr.ast.func.LambdaExpression;
 import dev.akarah.cdata.script.jvm.CodegenContext;
@@ -25,12 +26,8 @@ public record SchemaExpression(
     @Override
     public void compile(CodegenContext ctx) {
         this.body().compile(ctx);
-        if(!this.typeSet().returns().typeEquals(Type.void_())) {
-            var result = this.body.validateReturnOnAllBranches(ctx, this.typeSet().returns());
-            if (!result) {
-                throw new ParsingException("Not all control flows have a return statement!", keywordSpan);
-            }
-        }
+
+        this.body.validateReturnOnAllBranches(ctx, this.typeSet().returns());
     }
 
     @Override

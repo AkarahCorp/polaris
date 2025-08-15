@@ -18,6 +18,13 @@ public record AllOfAction(
         for(var action : this.actions) {
             try {
                 ctx.pushValue(action);
+
+                if(!ctx.getTypeOf(action).typeEquals(Type.void_())) {
+                    throw new SpannedException(
+                            "All values here must be void. Try using `_ =` at the start to ignore the value.",
+                            action.span()
+                    );
+                }
             } catch (SpannedException e) {
                 exceptions.add(e);
             }
