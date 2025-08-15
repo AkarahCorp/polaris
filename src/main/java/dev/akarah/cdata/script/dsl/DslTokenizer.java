@@ -110,15 +110,7 @@ public class DslTokenizer {
                 }
                 case ';' -> token(';', () -> new DslToken.Semicolon(this.createSpan(start)));
                 case ':' -> token(':', () -> new DslToken.Colon(this.createSpan(start)));
-                case '=' -> {
-                    stringReader.expect('=');
-                    if(stringReader.peek() == '=') {
-                        stringReader.expect('=');
-                        yield DataResult.success(new DslToken.DoubleEqualSymbol(this.createSpan(start)));
-                    } else {
-                        yield DataResult.success(new DslToken.EqualSymbol(this.createSpan(start)));
-                    }
-                }
+                case '=' -> tokenWithEquals('!', () -> new DslToken.EqualSymbol(this.createSpan(start)), () -> new DslToken.DoubleEqualSymbol(this.createSpan(start)));
                 case '(' -> token('(', () -> new DslToken.OpenParen(this.createSpan(start)));
                 case ')' -> token(')', () -> new DslToken.CloseParen(this.createSpan(start)));
                 case '{' -> token('{', () -> new DslToken.OpenBrace(this.createSpan(start)));
@@ -129,11 +121,11 @@ public class DslTokenizer {
                 case '+' -> token('+', () -> new DslToken.PlusSymbol(this.createSpan(start)));
                 case '*' -> token('*', () -> new DslToken.StarSymbol(this.createSpan(start)));
                 case '/' -> token('/', () -> new DslToken.SlashSymbol(this.createSpan(start)));
-                case '>' -> token('>', () -> new DslToken.GreaterThanSymbol(this.createSpan(start)));
-                case '<' -> token('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)));
+                case '>' -> tokenWithEquals('>', () -> new DslToken.GreaterThanSymbol(this.createSpan(start)), () -> new DslToken.GreaterThanOrEqualSymbol(this.createSpan(start)));
+                case '<' -> tokenWithEquals('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)), () -> new DslToken.LessThanOrEqualSymbol(this.createSpan(start)));
                 case '?' -> token('?', () -> new DslToken.QuestionMark(this.createSpan(start)));
                 case '%' -> token('%', () -> new DslToken.Percent(this.createSpan(start)));
-                case '!' -> token('!', () -> new DslToken.ExclamationMark(this.createSpan(start)));
+                case '!' -> tokenWithEquals('!', () -> new DslToken.ExclamationMark(this.createSpan(start)), () -> new DslToken.NotEqualSymbol(this.createSpan(start)));
                 default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             };
         } catch (CommandSyntaxException exception) {
@@ -188,5 +180,15 @@ public class DslTokenizer {
             this.stringReader.skip();
         }
         return this.stringReader.getString().substring(start, this.stringReader.getCursor());
+    }
+
+    public DataResult<DslToken> tokenWithEquals(char symbol, Supplier<DslToken> token, Supplier<DslToken> tokenWithEquals) throws CommandSyntaxException {
+        stringReader.expect(symbol);
+        if(stringReader.peek() == '=') {
+            stringReader.expect('=');
+            return DataResult.success(tokenWithEquals.get());
+        } else {
+            return DataResult.success(token.get());
+        }
     }
 }
