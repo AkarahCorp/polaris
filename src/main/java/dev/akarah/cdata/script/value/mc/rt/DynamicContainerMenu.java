@@ -60,5 +60,6 @@ public class DynamicContainerMenu extends ChestMenu {
                 "player.close_inventory",
                 REntity.of(player)
         );
+        super.removed(player);
     }
 }
