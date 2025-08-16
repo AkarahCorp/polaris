@@ -54,9 +54,12 @@ public class RParticle extends RuntimeValue {
     }
 
     @SuppressWarnings("unchecked")
-    @MethodTypeHint(signature = "(particle: particle, color: string) -> particle", documentation = "")
+    @MethodTypeHint(signature = "(particle: particle, color: string) -> particle",
+                    documentation = "Colors the particle with an [A]RGB hexadecimal string.")
     public static RParticle colored(RParticle particle, RString colorString) {
-        var color = Integer.parseInt(colorString.javaValue(), 16);
+        var str = colorString.javaValue();
+        if (str.startsWith("#")) {str = str.substring(1);}
+        var color = Integer.parseInt(str, 16);
         return new RParticle(ColorParticleOption.create(
                 (ParticleType<ColorParticleOption>) particle.particleOptions().getType(),
                 color)

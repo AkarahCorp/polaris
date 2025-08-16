@@ -185,7 +185,7 @@ public class GlobalNamespace {
         return RCell.create(value);
     }
 
-    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj", documentation = "Wraps a value in a cell.")
+    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj")
     public static RStatsObject stat_obj__create(RDict dict) {
         var so = StatsObject.of();
         for(var entry : dict.javaValue().entrySet()) {
@@ -194,7 +194,7 @@ public class GlobalNamespace {
         return RStatsObject.of(so);
     }
 
-    @MethodTypeHint(signature = "(type: identifier) -> particle", documentation = "Wraps a value in a cell.")
+    @MethodTypeHint(signature = "(type: identifier) -> particle", documentation = "Creates a new particle from an identifier.")
     public static RParticle particle__create(RIdentifier type) {
         return RParticle.of(RParticle.OPTIONS.get(type.javaValue()));
     }

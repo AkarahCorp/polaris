@@ -6,5 +6,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MethodTypeHint {
     String signature();
-    String documentation();
+    String documentation() default "No documentation written yet.";
 }
