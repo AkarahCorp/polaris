@@ -5,6 +5,7 @@ import dev.akarah.polaris.db.Database;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.registry.stat.StatsObject;
+import dev.akarah.polaris.script.expr.ast.func.ClassDocumentation;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.expr.ast.operation.OperationUtil;
 import dev.akarah.polaris.script.value.mc.*;
@@ -14,6 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+@ClassDocumentation(prettifiedName = "Global Namespace",
+        details = "The global namespace. All functions here are available everywhere.")
 public class GlobalNamespace {
     @MethodTypeHint(signature = "(min: number, max: number) -> list[number]", documentation = "Returns a list of numbers from the minimum to the maximum, inclusive.")
     public static RList range(RNumber min, RNumber max) {
