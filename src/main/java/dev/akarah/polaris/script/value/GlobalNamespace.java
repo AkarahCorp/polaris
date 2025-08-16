@@ -166,7 +166,7 @@ public class GlobalNamespace {
             try {
                 runnable.javaValue().invoke();
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         });
     }

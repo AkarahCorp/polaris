@@ -9,3 +9,5 @@ accessible method net/minecraft/network/syncher/SynchedEntityData <init> (Lnet/m
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
 accessible field net/minecraft/world/entity/projectile/FishingHook nibble I
+accessible field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D
+mutable field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D

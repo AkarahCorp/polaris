@@ -17,6 +17,8 @@ import dev.akarah.polaris.script.value.mc.RItem;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -46,6 +48,7 @@ public class Main implements ModInitializer {
         RuntimeValue.dict();
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            ((RangedAttribute) Attributes.MAX_HEALTH.value()).maxValue = Double.MAX_VALUE;
             Main.SERVER = server;
         });
 
