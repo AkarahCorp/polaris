@@ -129,6 +129,10 @@ public interface DslToken {
 
     }
 
+    record NotEqualSymbol(SpanData span) implements DslToken {
+
+    }
+
     record ArrowSymbol(SpanData span) implements DslToken {
 
     }
@@ -154,6 +158,14 @@ public interface DslToken {
     }
 
     record LessThanSymbol(SpanData span) implements DslToken {
+
+    }
+
+    record GreaterThanOrEqualSymbol(SpanData span) implements DslToken {
+
+    }
+
+    record LessThanOrEqualSymbol(SpanData span) implements DslToken {
 
     }
 
