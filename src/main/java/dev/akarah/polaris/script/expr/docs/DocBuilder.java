@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.GlobalNamespace;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DocBuilder {
     List<Document> documents = Lists.newArrayList();
@@ -23,15 +23,11 @@ public class DocBuilder {
                         .map(Document::fromType)
                         .toList()
         );
-        this.documents.add(Document.fromClass(GlobalNamespace.class, "Global Namespace"));
+        this.documents.add(Document.fromClass(GlobalNamespace.class, "GlobalNamespace"));
         return this;
     }
 
-    public String build() {
-        return this.documents
-                .stream()
-                .map(Document::toString)
-                .map(x -> x + "\n\n\n")
-                .collect(Collectors.joining());
+    public List<Document> build() {
+        return new ArrayList<>(this.documents);
     }
 }

@@ -19,12 +19,12 @@ public class RStore extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint(signature = "(this: store, key: string, value: any) -> void", documentation = "Gets the value associated with the key inside of this data store.")
+    @MethodTypeHint(signature = "(this: store, key: string, value: any) -> void", documentation = "Sets the value associated with the key inside of this data store.")
     public static void set(RStore store, RString key, RuntimeValue value) {
         store.javaValue().put(key.javaValue(), value);
     }
 
-    @MethodTypeHint(signature = "(this: store, key: string) -> nullable[any]", documentation = "Sets the value associated with the key inside of this data store.")
+    @MethodTypeHint(signature = "(this: store, key: string) -> nullable[any]", documentation = "Gets the value associated with the key inside of this data store.")
     public static RNullable get(RStore store, RString key) {
         return RNullable.of(store.javaValue().get(key.javaValue()));
     }

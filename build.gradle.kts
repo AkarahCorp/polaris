@@ -78,6 +78,12 @@ tasks.jar {
     }
 }
 
+tasks.register("buildDocs", JavaExec::class) {
+    group = "polarisCustomTasks"
+    mainClass = "dev.akarah.polaris.GenerateDocs"
+    classpath = java.sourceSets["main"].runtimeClasspath
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
