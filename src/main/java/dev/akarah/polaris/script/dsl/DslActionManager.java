@@ -143,13 +143,13 @@ public class DslActionManager {
         return CompletableFuture.runAsync(
                 () -> {
                     Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-                    for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".aka")).entrySet()) {
+                    for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".pol")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();
                             var string = new String(bytes);
 
                             var key = resourceEntry.getKey().withPath(s ->
-                                    s.replace(".aka", "")
+                                    s.replace(".pol", "")
                                             .replace("engine/dsl/", ""));
                             var methodName = CodegenContext.resourceLocationToMethodName(key);
                             this.resourceNames.put(methodName, key);
