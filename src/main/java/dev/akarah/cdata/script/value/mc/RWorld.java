@@ -3,19 +3,14 @@ package dev.akarah.cdata.script.value.mc;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
-import net.minecraft.Optionull;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.ScalableParticleOptionsBase;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -162,7 +157,8 @@ public class RWorld extends RuntimeValue {
         return REntity.of(entityBase.orElseThrow().value().spawn(world.javaValue(), vector.javaValue()));
     }
 
-    @MethodTypeHint(signature = "(world: world, particle: particle, position: vector) -> void", documentation = "?")
+    @MethodTypeHint(signature = "(world: world, particle: particle, position: vector) -> void",
+                    documentation = "Creates a singular particle in the position provided.")
     public static void particle__single(RWorld world, RParticle particle, RVector position) {
         world.javaValue().sendParticles(
                 particle.particleOptions(),
@@ -177,11 +173,13 @@ public class RWorld extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint(signature = "(world: world, particle: particle, position1: vector, position2: vector) -> void", documentation = "?")
-    public static void particle__line(RWorld world, RParticle particle, RVector pos1, RVector pos2) {
-        var step = pos1.javaValue().subtract(pos2.javaValue()).normalize().multiply(0.5, 0.5, 0.5);
+    @MethodTypeHint(signature = "(world: world, particle: particle, position1: vector, position2: vector, step: number?) -> void",
+            documentation = "Creates a line of particles between the two positions provided. By default, the step is half a block.")
+    public static void particle__line(RWorld world, RParticle particle, RVector pos1, RVector pos2, RNumber step) {
+        if (step == null) {step = RNumber.of(0.5);}
+        var velocity = pos1.javaValue().subtract(pos2.javaValue()).normalize().multiply(step.doubleValue(), step.doubleValue(), step.doubleValue());
         for(int i = 0; i < pos1.javaValue().distanceTo(pos2.javaValue()) * 2; i++) {
-            var position = pos1.javaValue().add(step.multiply(-i, -i, -i));
+            var position = pos1.javaValue().add(velocity.multiply(-i, -i, -i));
             world.javaValue().sendParticles(
                     particle.particleOptions(),
                     position.x,
