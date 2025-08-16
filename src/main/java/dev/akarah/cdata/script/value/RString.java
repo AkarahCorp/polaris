@@ -28,7 +28,7 @@ public class RString extends RuntimeValue {
         return RString.of($this.javaValue().trim());
     }
 
-    @MethodTypeHint(signature = "(this: string) -> nullable[number]", documentation = "Attempts to parsing.")
+    @MethodTypeHint(signature = "(this: string) -> nullable[number]", documentation = "Attempts to parse a string into a number.")
     public static RNullable parse_number(RString $this) {
         try {
             return RNullable.of(RNumber.of(Double.parseDouble($this.javaValue())));
@@ -37,7 +37,7 @@ public class RString extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: string, regex: string) -> list[string]", documentation = "Splits a string into a list, each entry is delimited based on the regex.")
+    @MethodTypeHint(signature = "(this: string, regex: string) -> list[string]", documentation = "Splits a string into a list, delimited based on the regex.")
     public static RList split(RString $this, RString regex) {
         var list = RList.create();
         for(var entry : $this.javaValue().split(regex.javaValue())) {
@@ -46,18 +46,18 @@ public class RString extends RuntimeValue {
         return list;
     }
 
-    @MethodTypeHint(signature = "(this: string, content: string) -> boolean", documentation = "Splits a string into a list, each entry is delimited based on the content.")
+    @MethodTypeHint(signature = "(this: string, content: string) -> boolean", documentation = "Checks if a string starts with a substring.")
     public static RBoolean starts_with(RString $this, RString content) {
         return RBoolean.of($this.inner.startsWith(content.javaValue()));
     }
 
-    @MethodTypeHint(signature = "(base: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
-    public static RString add(RString base, RuntimeValue convert) {
-        return RString.of(base.javaValue() + convert.toString());
+    @MethodTypeHint(signature = "(this: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
+    public static RString add(RString $this, RuntimeValue convert) {
+        return RString.of($this.javaValue() + convert.toString());
     }
 
-    @MethodTypeHint(signature = "(base: string) -> number", documentation = "Returns the length of the string.")
-    public static RNumber size(RString base) {
-        return RNumber.of(base.javaValue().length());
+    @MethodTypeHint(signature = "(this: string) -> number", documentation = "Returns the length of the string.")
+    public static RNumber size(RString $this) {
+        return RNumber.of($this.javaValue().length());
     }
 }

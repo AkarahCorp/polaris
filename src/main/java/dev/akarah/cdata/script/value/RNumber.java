@@ -52,12 +52,12 @@ public class RNumber extends RuntimeValue {
         return RNumber.of(Math.ceil(number.doubleValue()));
     }
 
-    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the highest nearest integer.")
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the square root of this number.")
     public static RNumber sqrt(RNumber number) {
         return RNumber.of(Math.sqrt(number.doubleValue()));
     }
 
-    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the highest nearest integer.")
+    @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the cube root of this number.")
     public static RNumber cbrt(RNumber number) {
         return RNumber.of(Math.cbrt(number.doubleValue()));
     }
@@ -78,22 +78,22 @@ public class RNumber extends RuntimeValue {
         return RNumber.of(lhs.doubleValue() + rhs.doubleValue());
     }
 
-    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the difference of two numbers.")
     public static RNumber sub(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() - rhs.doubleValue());
     }
 
-    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the product of two numbers.")
     public static RNumber mul(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() * rhs.doubleValue());
     }
 
-    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the quotient of two numbers.")
     public static RNumber div(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() / rhs.doubleValue());
     }
 
-    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the sum of two numbers.")
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the remainder of two numbers.")
     public static RNumber rem(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() % rhs.doubleValue());
     }

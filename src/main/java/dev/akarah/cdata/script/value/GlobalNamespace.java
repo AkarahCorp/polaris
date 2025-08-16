@@ -61,7 +61,9 @@ public class GlobalNamespace {
         return RText.of(Component.literal(runtimeValue.toString()).withStyle(s -> s.withItalic(false)));
     }
 
-    @MethodTypeHint(signature = "(namespace: string, path: string) -> identifier", documentation = "Returns a new identifier from the namespace and path provided.")
+    @MethodTypeHint(signature = "(namespace: string, path: string) -> identifier",
+            documentation = "Returns a new identifier from the namespace and path provided. " +
+                            "You may want to use the language builtin $identifier:path instead if the identifier is static.")
     public static RIdentifier identifier__create(RString namespace, RString path) {
         return RIdentifier.of(ResourceLocation.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
     }
@@ -150,7 +152,7 @@ public class GlobalNamespace {
         return RNumber.of(Main.server().getTickCount());
     }
 
-    @MethodTypeHint(signature = "() -> list[entity]", documentation = "Returns the number of ticks the server has been up.")
+    @MethodTypeHint(signature = "() -> list[entity]", documentation = "Returns all players on the server.")
     public static RList server__players() {
         var list = RList.create();
         for(var player : Main.server().getPlayerList().getPlayers()) {
@@ -169,7 +171,7 @@ public class GlobalNamespace {
         return RNumber.of(Math.random());
     }
 
-    @MethodTypeHint(signature = "(delay: number, runnable: function() -> void) -> void", documentation = "Logs a string to the console.")
+    @MethodTypeHint(signature = "(delay: number, runnable: function() -> void) -> void", documentation = "Runs a function, delayed by the amount of ticks provided.")
     public static void run_delayed(RNumber delay, RFunction runnable) {
         Resources.scheduler().schedule(delay.intValue(), () -> {
             try {
@@ -185,7 +187,7 @@ public class GlobalNamespace {
         return RCell.create(value);
     }
 
-    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj")
+    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj", documentation = "Creates a new stats object from the provided dictionary.")
     public static RStatsObject stat_obj__create(RDict dict) {
         var so = StatsObject.of();
         for(var entry : dict.javaValue().entrySet()) {

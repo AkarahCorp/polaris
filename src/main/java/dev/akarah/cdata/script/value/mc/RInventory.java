@@ -37,7 +37,7 @@ public class RInventory extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: inventory, slot: item) -> boolean", documentation = "")
+    @MethodTypeHint(signature = "(this: inventory, item: item) -> boolean", documentation = "Returns if the inventory has the item provided.")
     public static RBoolean has(RInventory $this, RItem item) {
         int counted = 0;
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
@@ -54,7 +54,7 @@ public class RInventory extends RuntimeValue {
         return RBoolean.of(counted >= item.javaValue().getCount());
     }
 
-    @MethodTypeHint(signature = "(this: inventory, slot: item) -> void", documentation = "")
+    @MethodTypeHint(signature = "(this: inventory, slot: item) -> void", documentation = "Removes the item provided. The item count is used as the amount to remove.")
     public static void remove(RInventory $this, RItem item) {
         int counted = item.javaValue().getCount();
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
@@ -75,7 +75,7 @@ public class RInventory extends RuntimeValue {
         return;
     }
 
-    @MethodTypeHint(signature = "(this: inventory, slot: item) -> list[item]", documentation = "")
+    @MethodTypeHint(signature = "(this: inventory, slot: item) -> list[item]", documentation = "Removes the item provided, and creates a list of items removed.")
     public static RList remove_with_results(RInventory $this, RItem item) {
         var removed = RList.create();
         int counted = item.javaValue().getCount();
@@ -103,7 +103,7 @@ public class RInventory extends RuntimeValue {
         $this.inner.setItem(slot.intValue(), item.javaValue());
     }
 
-    @MethodTypeHint(signature = "(this: inventory, item: item) -> boolean", documentation = "Adds a new item to the inventory if there is room for it.")
+    @MethodTypeHint(signature = "(this: inventory, item: item) -> boolean", documentation = "Checks if a player has room for an item.")
     public static RBoolean has_room_for(RInventory $this, RItem item) {
         for(int i = 0; i < $this.inner.getContainerSize(); i++) {
             if($this.inner.getItem(i).is(Items.AIR)) {

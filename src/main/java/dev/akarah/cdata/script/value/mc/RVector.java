@@ -63,7 +63,7 @@ public class RVector extends RuntimeValue {
         return RVector.of(vector.javaValue().with(Direction.Axis.Z, value.doubleValue()));
     }
 
-    @MethodTypeHint(signature = "(vec: vector) -> vector", documentation = "Returns a new copy of this vector, with the new Z component specified.")
+    @MethodTypeHint(signature = "(vec: vector) -> vector", documentation = "Returns a normalized copy of this vector.")
     public static RVector normalize(RVector vector) {
         return RVector.of(vector.javaValue().normalize());
     }

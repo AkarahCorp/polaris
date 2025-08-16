@@ -129,7 +129,7 @@ public class RItem extends RuntimeValue {
         return RNumber.of($this.javaValue().getCount());
     }
 
-    @MethodTypeHint(signature = "(item: item, entity: nullable[entity]) -> stat_obj", documentation = "Returns the amount of items in the item stack.")
+    @MethodTypeHint(signature = "(item: item, entity: nullable[entity]) -> stat_obj", documentation = "Returns the stats associated with this item.")
     public static RStatsObject stats(RItem $this, RNullable entity) {
         return RStatsObject.of(
                 CustomItem.itemOf($this.javaValue())
@@ -138,7 +138,7 @@ public class RItem extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint(signature = "(item: item, context: nullable[entity]) -> void", documentation = "Returns the amount of items in the item stack.")
+    @MethodTypeHint(signature = "(item: item, context: nullable[entity]) -> void", documentation = "Reinstantiates the item, optionally with the entity as context.")
     public static void update(RItem $this, RNullable contextEntity) {
         var item = $this.javaValue();
         var customData = item.get(DataComponents.CUSTOM_DATA);
