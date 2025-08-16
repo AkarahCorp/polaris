@@ -19,7 +19,7 @@ repositories {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/akarahnet-engine.accesswidener")
+    accessWidenerPath = file("src/main/resources/polaris.accesswidener")
 }
 
 dependencies {
