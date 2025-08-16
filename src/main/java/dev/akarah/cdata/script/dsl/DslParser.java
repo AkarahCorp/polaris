@@ -353,8 +353,8 @@ public class DslParser {
     public Expression parseEqualityExpression() {
         var baseExpression = parseComparisonExpression();
         while(true) {
-            if(peek() instanceof DslToken.EqualSymbol) {
-                expect(DslToken.EqualSymbol.class);
+            if(peek() instanceof DslToken.DoubleEqualSymbol) {
+                expect(DslToken.DoubleEqualSymbol.class);
                 baseExpression = new EqualToExpression(baseExpression, parseComparisonExpression());
             } else if(peek() instanceof DslToken.NotEqualSymbol) {
                 expect(DslToken.NotEqualSymbol.class);
