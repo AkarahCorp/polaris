@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "akarahnet-engine",
+  "id": "polaris",
   "version": "${version}",
-  "name": "akarahnet-engine",
-  "description": "",
+  "name": "Polaris",
+  "description": "The datapack-driven game engine for Minecraft",
   "authors": [],
   "contact": {},
   "environment": "server",
   "entrypoints": {
     "main": [
-      "dev.akarah.cdata.Main"
+      "dev.akarah.polaris.Main"
     ]
   },
   "mixins": [
-    "akarahnet-engine.mixins.json"
+    "polaris.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
   },
-  "accessWidener": "akarahnet-engine.accesswidener"
+  "accessWidener": "polaris.accesswidener"
 }
