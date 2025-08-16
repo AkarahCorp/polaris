@@ -65,6 +65,12 @@ public class StatsObject {
         }
     }
 
+    public void multiply(double other) {
+        for(var key : this.keySet()) {
+            this.set(key, this.get(key) * other);
+        }
+    }
+
     public StatsObject copy() {
         var so = StatsObject.of();
         for(var entry : this.values.entrySet()) {
