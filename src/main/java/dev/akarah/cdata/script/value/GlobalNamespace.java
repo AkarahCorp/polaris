@@ -8,12 +8,22 @@ import dev.akarah.cdata.registry.item.CustomItem;
 import dev.akarah.cdata.registry.stat.StatsObject;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.expr.ast.operation.OperationUtil;
+import dev.akarah.cdata.script.type.ParticleType;
 import dev.akarah.cdata.script.value.mc.*;
 import dev.akarah.cdata.script.value.mc.rt.DynamicContainer;
+import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
 
 public class GlobalNamespace {
     @MethodTypeHint(signature = "(min: number, max: number) -> list[number]", documentation = "Returns a list of numbers from the minimum to the maximum, inclusive.")
@@ -184,6 +194,10 @@ public class GlobalNamespace {
         return RStatsObject.of(so);
     }
 
+    @MethodTypeHint(signature = "(type: identifier) -> particle", documentation = "Wraps a value in a cell.")
+    public static RParticle particle__create(RIdentifier type) {
+        return RParticle.of(RParticle.OPTIONS.get(type.javaValue()));
+    }
 
     @MethodTypeHint(signature = "<T, U>(lhs: T, rhs: U) -> T", documentation = "Adds two values together.")
     public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {

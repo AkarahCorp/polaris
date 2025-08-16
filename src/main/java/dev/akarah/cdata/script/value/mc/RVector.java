@@ -63,6 +63,11 @@ public class RVector extends RuntimeValue {
         return RVector.of(vector.javaValue().with(Direction.Axis.Z, value.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(vec: vector) -> vector", documentation = "Returns a new copy of this vector, with the new Z component specified.")
+    public static RVector normalize(RVector vector) {
+        return RVector.of(vector.javaValue().normalize());
+    }
+
     @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> number", documentation = "Returns the distance between this and another vector.")
     public static RNumber distance(RVector lhs, RVector rhs) {
         return RNumber.of(lhs.javaValue().distanceTo(rhs.javaValue()));
