@@ -89,7 +89,7 @@ public class RList extends RuntimeValue {
         return list;
     }
 
-    @MethodTypeHint(signature = "<T>(this: list[T]) -> number", documentation = "Creates a copy of the provided list with no duplicate entries.")
+    @MethodTypeHint(signature = "<T>(this: list[T]) -> number", documentation = "Returns the length of the list.")
     public static RNumber size(RList $this) {
         return RNumber.of($this.inner.size());
     }

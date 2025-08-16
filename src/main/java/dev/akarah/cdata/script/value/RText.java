@@ -27,7 +27,7 @@ public class RText extends RuntimeValue {
         return RText.of($this.javaValue().copy().withColor(Integer.parseInt(color.javaValue(), 16)));
     }
 
-    @MethodTypeHint(signature = "(this: text, hover_item: item) -> text", documentation = "Changes the color of the text to the hex code provided.")
+    @MethodTypeHint(signature = "(this: text, hover_item: item) -> text", documentation = "Shows the item as a tooltip on hover.")
     public static RText hover_item(RText $this, RItem item) {
         return RText.of($this.javaValue().copy().withStyle(style -> style.withHoverEvent(
                 new HoverEvent.ShowItem(item.javaValue())

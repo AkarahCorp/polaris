@@ -277,7 +277,7 @@ public class REntity extends RuntimeValue {
         return RUuid.of($this.inner.getUUID());
     }
 
-    @MethodTypeHint(signature = "(this: entity, stats: stat_obj) -> void", documentation = "Returns the UUID of the entity.")
+    @MethodTypeHint(signature = "(this: entity, stats: stat_obj) -> void", documentation = "Adds the stats in the stat object to a player entity.")
     public static void add_stats(REntity $this, RStatsObject statsObject) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             var so = Resources.statManager().lookup(serverPlayer);
@@ -286,7 +286,7 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the UUID of the entity.")
+    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the owner of the entity if it is an item entity. Could still be null if the item entity has no owner.")
     public static RNullable owner(REntity $this) {
         if($this.javaValue() instanceof ItemEntity item) {
             if(item.target == null) {
@@ -297,7 +297,7 @@ public class REntity extends RuntimeValue {
         return RNullable.empty();
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> nullable[item]", documentation = "Returns the UUID of the entity.")
+    @MethodTypeHint(signature = "(this: entity) -> nullable[item]", documentation = "Returns the item of this entity if it is an item entity.")
     public static RNullable item(REntity $this) {
         if($this.javaValue() instanceof ItemEntity item) {
             return RNullable.of(RItem.of(item.getItem()));
@@ -305,7 +305,7 @@ public class REntity extends RuntimeValue {
         return RNullable.empty();
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> void", documentation = "Returns the UUID of the entity.")
+    @MethodTypeHint(signature = "(this: entity) -> void", documentation = "Removes the entity.")
     public static void remove(REntity $this) {
         $this.javaValue().remove(Entity.RemovalReason.KILLED);
     }
@@ -313,7 +313,7 @@ public class REntity extends RuntimeValue {
     public static Map<UUID, Scoreboard> scoreboards = Maps.newHashMap();
     public static Map<UUID, Objective> objectives = Maps.newHashMap();
 
-    @MethodTypeHint(signature = "(this: entity, lines: list[text]) -> void", documentation = "Sets the line of the sidebar of the given player.")
+    @MethodTypeHint(signature = "(this: entity, lines: list[text]) -> void", documentation = "Sets the lines of the sidebar of the given player.")
     public static void set_sidebar(REntity $this, RList list) {
         if(list.javaValue().isEmpty()) {
             return;
@@ -385,14 +385,14 @@ public class REntity extends RuntimeValue {
         return RNumber.of(0);
     }
 
-    @MethodTypeHint(signature = "(this: entity, item: item, position: vector) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    @MethodTypeHint(signature = "(this: entity, item: item, position: vector) -> void", documentation = "Creates a new item entity owned by this entity, with specified item and position.")
     public static void spawn_owned_item(REntity $this, RItem item, RVector vector) {
         var ie = new ItemEntity($this.javaValue().level(), 0, 0, 0, item.javaValue());
         ie.teleportTo(vector.javaValue().x, vector.javaValue().y, vector.javaValue().z);
         $this.javaValue().level().addFreshEntity(ie);
     }
 
-    @MethodTypeHint(signature = "(this: entity, sound: identifier, pitch?: number, volume?: number) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    @MethodTypeHint(signature = "(this: entity, sound: identifier, pitch?: number, volume?: number) -> void", documentation = "Play a sound to a player.")
     public static void play_sound(REntity $this, RIdentifier sound, RNumber pitch, RNumber volume) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             serverPlayer.level().playSound(
@@ -406,7 +406,7 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity, velocity: vector) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
+    @MethodTypeHint(signature = "(this: entity, velocity: vector) -> void", documentation = "Sets the velocity of the player to the velocity provided.")
     public static void set_velocity(REntity $this, RVector velocity) {
         $this.javaValue().setDeltaMovement(velocity.javaValue());
         $this.javaValue().hurtMarked = true;
@@ -420,7 +420,7 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> item", documentation = "Returns the selected slot in the hotbar of the entity.")
+    @MethodTypeHint(signature = "(this: entity) -> item", documentation = "Get the item on the player's inventory cursor, if present.")
     public static RItem cursor_item(REntity $this) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             return RItem.of(serverPlayer.containerMenu.getCarried());
