@@ -1,6 +1,7 @@
 package dev.akarah.cdata.script.value.mc;
 
 import dev.akarah.cdata.registry.Resources;
+import dev.akarah.cdata.registry.entity.VisualEntity;
 import dev.akarah.cdata.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.cdata.script.value.*;
 import net.minecraft.Optionull;
@@ -120,7 +121,9 @@ public class RWorld extends RuntimeValue {
         var list = RList.create();
 
         for(var entity : world.javaValue().getEntities(EntityTypeTest.forClass(Entity.class), _ -> true)) {
-            RList.add(list, REntity.of(entity));
+            if(!(entity instanceof VisualEntity visual)) {
+                RList.add(list, REntity.of(entity));
+            }
         }
         
         return list;

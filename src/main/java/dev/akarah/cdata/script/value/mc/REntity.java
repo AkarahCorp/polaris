@@ -2,6 +2,7 @@ package dev.akarah.cdata.script.value.mc;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.cdata.Main;
 import dev.akarah.cdata.db.Database;
 import dev.akarah.cdata.registry.Resources;
 import dev.akarah.cdata.registry.entity.DynamicEntity;
@@ -15,6 +16,7 @@ import dev.akarah.cdata.script.value.mc.rt.DynamicContainerMenu;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NbtOps;
@@ -24,11 +26,15 @@ import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -160,6 +166,19 @@ public class REntity extends RuntimeValue {
     public static void set_health(REntity $this, RNumber number) {
         if($this.inner instanceof LivingEntity le) {
             le.setHealth((float) number.doubleValue());
+        }
+    }
+
+    @MethodTypeHint(signature = "(this: entity, health: number) -> void", documentation = "Sets the health of the entity.")
+    public static void damage(REntity $this, RNumber number) {
+        if($this.inner instanceof LivingEntity le) {
+            var ds = new DamageSource(
+                    le.level().registryAccess().lookup(Registries.DAMAGE_TYPE)
+                            .orElseThrow()
+                            .get(DamageTypes.GENERIC)
+                            .orElseThrow()
+            );
+            le.hurtServer((ServerLevel) le.level(), ds, number.javaValue().floatValue());
         }
     }
 
