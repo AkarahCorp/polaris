@@ -352,9 +352,16 @@ public class DslParser {
 
     public Expression parseEqualityExpression() {
         var baseExpression = parseComparisonExpression();
-        while(peek() instanceof DslToken.DoubleEqualSymbol) {
-            expect(DslToken.DoubleEqualSymbol.class);
-            baseExpression = new EqualToExpression(baseExpression, parseEqualityExpression());
+        while(true) {
+            if(peek() instanceof DslToken.EqualSymbol) {
+                expect(DslToken.EqualSymbol.class);
+                baseExpression = new EqualToExpression(baseExpression, parseComparisonExpression());
+            } else if(peek() instanceof DslToken.NotEqualSymbol) {
+                expect(DslToken.NotEqualSymbol.class);
+                baseExpression = new NotEqualToExpression(baseExpression, parseComparisonExpression());
+            } else {
+                break;
+            }
         }
         return baseExpression;
     }
@@ -364,20 +371,16 @@ public class DslParser {
         while(true) {
             if(peek() instanceof DslToken.GreaterThanSymbol) {
                 expect(DslToken.GreaterThanSymbol.class);
-                if(peek() instanceof DslToken.EqualSymbol) {
-                    expect(DslToken.EqualSymbol.class);
-                    throw new RuntimeException("TODO");
-                } else {
-                    baseExpression = new GreaterThanExpression(baseExpression, parseComparisonExpression());
-                }
+                baseExpression = new GreaterThanExpression(baseExpression, parseComparisonExpression());
             } else if(peek() instanceof DslToken.LessThanSymbol) {
                 expect(DslToken.LessThanSymbol.class);
-                if(peek() instanceof DslToken.EqualSymbol) {
-                    expect(DslToken.EqualSymbol.class);
-                    throw new RuntimeException("TODO");
-                } else {
-                    baseExpression = new LessThanExpression(baseExpression, parseComparisonExpression());
-                }
+                baseExpression = new LessThanExpression(baseExpression, parseComparisonExpression());
+            } else if(peek() instanceof DslToken.GreaterThanOrEqualSymbol) {
+                expect(DslToken.GreaterThanOrEqualSymbol.class);
+                baseExpression = new GreaterThanOrEqualExpression(baseExpression, parseComparisonExpression());
+            } else if(peek() instanceof DslToken.LessThanOrEqualSymbol) {
+                expect(DslToken.LessThanOrEqualSymbol.class);
+                baseExpression = new LessThanOrEqualExpression(baseExpression, parseComparisonExpression());
             } else {
                 break;
             }
