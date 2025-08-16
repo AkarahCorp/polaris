@@ -176,7 +176,7 @@ public class RWorld extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint(signature = "(world: world, particle: particle, position1: vector, position2: vector, step: number?) -> void",
+    @MethodTypeHint(signature = "(world: world, particle: particle, position1: vector, position2: vector, step?: number) -> void",
             documentation = "Creates a line of particles between the two positions provided. By default, the step is half a block.")
     public static void particle__line(RWorld world, RParticle particle, RVector pos1, RVector pos2, RNumber step) {
         if (step == null) {step = RNumber.of(0.5);}
