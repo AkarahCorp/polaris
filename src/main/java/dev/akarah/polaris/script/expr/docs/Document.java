@@ -54,6 +54,8 @@ public record Document(
         return new Document(className, methods);
     }
 
+
+
     @Override
     public @NotNull String toString() {
         var sb = new StringBuilder();

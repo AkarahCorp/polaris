@@ -45,22 +45,27 @@ public class Main implements ModInitializer {
     public void onInitialize() {
         RuntimeValue.dict();
 
+
         var docs = DocBuilder.builder().addAllTypes().build();
 
-        var path = Paths.get("./DOCS.md");
-
+        var dir = Paths.get("./docs");
         try {
-            Files.deleteIfExists(path);
-            Files.createFile(path);
+            Files.createDirectories(dir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        try {
-            Files.writeString(path, docs);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (var doc : docs) {
+            var filename = doc.className() + ".md";
+            var path = dir.resolve(filename);
+
+            try {
+                Files.writeString(path, doc.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             Main.SERVER = server;
