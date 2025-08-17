@@ -80,6 +80,7 @@ public record LootTable(
                     }
                 }
 
+
                 var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
                 generated.setCount(guaranteed.amount().sample(rs));
 

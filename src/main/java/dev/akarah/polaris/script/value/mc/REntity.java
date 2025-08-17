@@ -54,6 +54,9 @@ public class REntity extends RuntimeValue {
     }
 
     public static REntity of(Entity value) {
+        if(value == null) {
+            return null;
+        }
         return new REntity(value);
     }
 

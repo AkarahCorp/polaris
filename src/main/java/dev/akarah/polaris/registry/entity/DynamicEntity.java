@@ -195,4 +195,14 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         this.visual.setCustomName(component);
         this.visual.setCustomNameVisible(true);
     }
+
+    @Override
+    public void die(DamageSource damageSource) {
+
+
+        this.base().lootTable().ifPresent(lootTable -> {
+            lootTable.execute((ServerLevel) this.level(), this.position());
+        });
+        super.die(damageSource);
+    }
 }
