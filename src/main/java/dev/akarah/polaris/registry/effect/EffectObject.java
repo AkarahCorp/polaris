@@ -14,7 +14,7 @@ public class EffectObject {
 
     public EffectObject(Holder<CustomEffect> effect, int level, int durationRemainingTicks) {
         this.effect = effect;
-        this.level = level;
+        this.level = Math.min(level, effect.value().maxLevel());
         this.durationRemainingTicks = durationRemainingTicks;
     }
 
@@ -30,6 +30,6 @@ public class EffectObject {
         durationRemainingTicks -= 1;
         if(durationRemainingTicks <= 0) {return;}
         if(effect.value().tickingFunction().isEmpty()) {return;}
-        Resources.actionManager().executeVoid(effect.value().tickingFunction().get(), RNumber.of((double) level), REntity.of(player));
+        Resources.actionManager().executeVoid(effect.value().tickingFunction().get(), RNumber.of(level), REntity.of(player));
     };
 }
