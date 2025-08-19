@@ -142,4 +142,21 @@ public class Resources {
         Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
         Resources.COMMAND_NODES = ReloadableJsonManager.of("command", CommandBuilderNode.CODEC);
     }
+
+    public static void loopPlayers() {
+        var server = Main.server();
+        statManager().tickPlayers();
+        miningManager().tickPlayers();
+        if(server.getTickCount() % 200 == 0) {
+            Resources.statManager().refreshPlayerInventories();
+        }
+
+        Resources.actionManager().performEvents("server.tick");
+
+        for(var refreshable : Resources.refreshable().registry().entrySet()) {
+            refreshable.getValue().execute();
+        }
+
+        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
+    }
 }

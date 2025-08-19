@@ -29,10 +29,6 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-    @Shadow private int tickCount;
-
-    @Shadow @Nullable private ServerStatus status;
-
     @Inject(at = @At("CTOR_HEAD"), method = "<init>")
     private void getInstanceAndStartWork(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
         Main.SERVER = (MinecraftServer) (Object) this;
@@ -59,19 +55,7 @@ public class MinecraftServerMixin {
             Resources.addedGameProfiles = true;
         }
 
-        Resources.statManager().loopPlayers();
-        Resources.miningManager().tickPlayers();
-        if(this.tickCount % 200 == 0) {
-            Resources.statManager().refreshPlayerInventories();
-        }
-
-        Resources.actionManager().performEvents("server.tick");
-
-        for(var refreshable : Resources.refreshable().registry().entrySet()) {
-            refreshable.getValue().execute();
-        }
-
-        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
+        Resources.loopPlayers();
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")
