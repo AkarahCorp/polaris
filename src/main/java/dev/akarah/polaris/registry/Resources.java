@@ -10,6 +10,7 @@ import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.Util;
 import dev.akarah.polaris.registry.command.CommandBuilderNode;
 import dev.akarah.polaris.registry.effect.CustomEffect;
+import dev.akarah.polaris.registry.effect.EffectManager;
 import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.entity.MobSpawnRule;
 import dev.akarah.polaris.registry.item.CustomItem;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 
 public class Resources {
     static StatManager STAT_MANAGER;
+    static EffectManager EFFECT_MANAGER;
     static EngineConfig CONFIG;
     static DslActionManager ACTION_MANAGER;
     static MiningManager MINING_MANAGER;
@@ -51,6 +53,10 @@ public class Resources {
 
     public static DslActionManager actionManager() {
         return ACTION_MANAGER;
+    }
+
+    public static EffectManager effectManager() {
+        return EFFECT_MANAGER;
     }
 
     public static MiningManager miningManager() {
@@ -132,6 +138,7 @@ public class Resources {
         }
 
         Resources.STAT_MANAGER = new StatManager();
+        Resources.EFFECT_MANAGER = new EffectManager();
         Resources.ACTION_MANAGER = new DslActionManager();
         Resources.MINING_MANAGER = new MiningManager();
         Resources.CUSTOM_ITEM = ReloadableJsonManager.of("item", CustomItem.CODEC);
@@ -145,6 +152,7 @@ public class Resources {
 
     public static void loopPlayers() {
         var server = Main.server();
+        effectManager().tickPlayers();
         statManager().tickPlayers();
         miningManager().tickPlayers();
         if(server.getTickCount() % 200 == 0) {

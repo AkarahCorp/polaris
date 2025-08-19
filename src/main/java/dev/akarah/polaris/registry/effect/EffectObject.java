@@ -3,18 +3,17 @@ package dev.akarah.polaris.registry.effect;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.value.RNumber;
+import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class EffectObject {
     public Holder<CustomEffect> effect;
-    public ResourceLocation identifier;
     public int level;
     public int durationRemainingTicks;
 
-    public EffectObject(Holder<CustomEffect> effect, ResourceLocation identifier, int level, int durationRemainingTicks) {
+    public EffectObject(Holder<CustomEffect> effect, int level, int durationRemainingTicks) {
         this.effect = effect;
-        this.identifier = identifier;
         this.level = level;
         this.durationRemainingTicks = durationRemainingTicks;
     }
@@ -27,8 +26,10 @@ public class EffectObject {
         return baseStats;
     }
 
-    public void tick(){
+    public void tick(Player player){
+        durationRemainingTicks -= 1;
+        if(durationRemainingTicks <= 0) {return;}
         if(effect.value().tickingFunction().isEmpty()) {return;}
-        Resources.actionManager().executeVoid(effect.value().tickingFunction().get(), RNumber.of((double) level));
+        Resources.actionManager().executeVoid(effect.value().tickingFunction().get(), RNumber.of((double) level), REntity.of(player));
     };
 }
