@@ -56,11 +56,11 @@ public class RItem extends RuntimeValue {
     public static RNullable tag(RItem $this, RString keyTag) {
         return RNullable.of(
                 Optional.<RuntimeValue>empty()
-                        .or(() -> CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::customData)
-                                .flatMap(x -> Optional.ofNullable(x.get(keyTag.javaValue()))))
                         .or(() -> Optional.ofNullable($this.javaValue().get(DataComponents.CUSTOM_DATA))
                                 .flatMap(x -> Optional.ofNullable(x.getUnsafe().get(keyTag.javaValue())))
                                 .flatMap(x -> RuntimeValue.CODEC.decode(NbtOps.INSTANCE, x).result().map(Pair::getFirst)))
+                        .or(() -> CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::customData)
+                                .flatMap(x -> Optional.ofNullable(x.get(keyTag.javaValue()))))
                         .orElse(null)
         );
     }
@@ -70,7 +70,7 @@ public class RItem extends RuntimeValue {
         if(!$this.javaValue().has(DataComponents.CUSTOM_DATA)) {
             $this.javaValue().set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
         }
-
+Ppl
         $this.javaValue().set(
                 DataComponents.CUSTOM_DATA,
                 Objects.requireNonNull($this.javaValue().get(DataComponents.CUSTOM_DATA)).update(tag -> tag.put(

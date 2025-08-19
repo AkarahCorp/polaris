@@ -4,6 +4,7 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -31,11 +32,19 @@ public class BlockItemMixin {
         );
         if(!result) {
             var player = blockPlaceContext.getPlayer();
-            player.getInventory().setSelectedItem(blockPlaceContext.getItemInHand());
-            player.getInventory().setChanged();
-            ((ServerPlayer) player).connection.send(
-                    player.getInventory().createInventoryUpdatePacket(player.getInventory().getSelectedSlot())
-            );
+            if(blockPlaceContext.getHand() == InteractionHand.MAIN_HAND) {
+                player.getInventory().setSelectedItem(blockPlaceContext.getItemInHand());
+                player.getInventory().setChanged();
+                ((ServerPlayer) player).connection.send(
+                        player.getInventory().createInventoryUpdatePacket(player.getInventory().getSelectedSlot())
+                );
+            } else {
+                player.getInventory().setSelectedItem(blockPlaceContext.getItemInHand());
+                player.getInventory().setChanged();
+                ((ServerPlayer) player).connection.send(
+                        player.getInventory().createInventoryUpdatePacket(45)
+                );
+            }
             cir.setReturnValue(InteractionResult.FAIL);
             cir.cancel();
         }
