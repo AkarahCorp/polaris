@@ -150,6 +150,7 @@ public class RInventory extends RuntimeValue {
 
 		for(int i = 0; i < $this.inner.getContainerSize(); i++) {
 			if($this.inner.getItem(i).is(Items.AIR)) {
+                var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
 				$this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
 				return;
 			}
