@@ -157,6 +157,10 @@ public interface Type<T> {
         return new TextType();
     }
 
+    static TimestampType timestamp() {
+        return new TimestampType();
+    }
+
     static VoidType void_() {
         return new VoidType();
     }
