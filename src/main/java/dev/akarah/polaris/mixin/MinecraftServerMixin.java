@@ -61,7 +61,7 @@ public class MinecraftServerMixin {
 
         Resources.statManager().loopPlayers();
         Resources.miningManager().tickPlayers();
-        if(this.tickCount % 200 == 0) {
+        if(this.tickCount % 200 == 5) {
             Resources.statManager().refreshPlayerInventories();
         }
 

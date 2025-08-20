@@ -15,6 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 @ClassDocumentation(prettifiedName = "Global Namespace",
         details = "The global namespace. All functions here are available everywhere.")
 public class GlobalNamespace {
@@ -151,6 +153,19 @@ public class GlobalNamespace {
             list.javaValue().add(REntity.of(player));
         }
         return list;
+    }
+
+    @MethodTypeHint(signature = "() -> uuid", documentation = "Returns a random UUID.")
+    public static RUuid uuid__random() {
+        return RUuid.of(UUID.randomUUID());
+    }
+
+    @MethodTypeHint(signature = "(value: any) -> string", documentation = "Gets the basic name of this type.")
+    public static RString type(RuntimeValue $this) {
+        if($this instanceof RStatsObject statsObject) {
+            return RString.of("stat_obj");
+        }
+        return RString.of($this.getClass().getSimpleName().replaceFirst("R", "").toLowerCase());
     }
 
     @MethodTypeHint(signature = "(s: any) -> void", documentation = "Logs a string to the console.")
