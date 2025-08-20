@@ -193,6 +193,16 @@ public class GlobalNamespace {
         return RParticle.of(RParticle.OPTIONS.get(type.javaValue()));
     }
 
+    @MethodTypeHint(signature = "() -> timestamp", documentation = "Gets the current time as a timestamp.")
+    public static RTimestamp timestamp__now() {
+        return RTimestamp.of();
+    }
+
+    @MethodTypeHint(signature = "(seconds: number) -> timestamp", documentation = "Gets a timestamp from the amount of seconds since 1970, to the nearest millisecond.")
+    public static RTimestamp timestamp__from_seconds(RNumber seconds) {
+        return RTimestamp.of(seconds);
+    }
+
     @MethodTypeHint(signature = "<T, U>(lhs: T, rhs: U) -> T", documentation = "Adds two values together.")
     public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {
         return OperationUtil.add(lhs, rhs);
