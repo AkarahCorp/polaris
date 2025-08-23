@@ -76,6 +76,11 @@ public class DslTokenizer {
                         yield DataResult.success(new DslToken.NamespacedIdentifierExpr(namespace, path, this.createSpan(start)));
                     }
                 }
+                case '@' -> {
+                    this.stringReader.expect('@');
+                    var annotation = this.readIdentifier();
+                    yield DataResult.success(new DslToken.Annotation(annotation, this.createSpan(start)));
+                }
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
                         DataResult.success(new DslToken.NumberExpr(this.stringReader.readDouble(), this.createSpan(start)));
                 case '-' -> {
