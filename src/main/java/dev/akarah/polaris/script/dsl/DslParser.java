@@ -324,7 +324,11 @@ public class DslParser {
         var orElse = Optional.<Expression>empty();
         if(peek() instanceof DslToken.ElseKeyword) {
             expect(DslToken.ElseKeyword.class);
-            orElse = Optional.of(parseBlock());
+            if(peek() instanceof DslToken.IfKeyword) {
+                orElse = Optional.of(parseIf());
+            } else {
+                orElse = Optional.of(parseBlock());
+            }
         }
 
         return new SpannedExpression<>(new IfAction(times, block, orElse), kw.span());
