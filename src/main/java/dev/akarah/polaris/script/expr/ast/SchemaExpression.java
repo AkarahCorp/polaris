@@ -9,6 +9,7 @@ import dev.akarah.polaris.script.params.ParameterNode;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.type.VoidType;
 import dev.akarah.polaris.script.value.RuntimeValue;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.invoke.MethodType;
 import java.util.Optional;
@@ -17,7 +18,8 @@ public record SchemaExpression(
         ExpressionTypeSet typeSet,
         AllOfAction body,
         Optional<String> eventName,
-        SpanData keywordSpan
+        SpanData keywordSpan,
+        ResourceLocation location
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

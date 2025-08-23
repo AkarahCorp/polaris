@@ -11,9 +11,11 @@ import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.SpannedExpression;
 import dev.akarah.polaris.script.expr.ast.*;
+import dev.akarah.polaris.script.expr.ast.func.LambdaExpression;
 import dev.akarah.polaris.script.expr.ast.func.LateResolvedFunctionCall;
 import dev.akarah.polaris.script.expr.ast.value.*;
 import dev.akarah.polaris.script.expr.ast.operation.*;
+import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import dev.akarah.polaris.script.type.*;
 
@@ -26,25 +28,41 @@ import java.util.function.Function;
 import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.animal.Cod;
 
 public class DslParser {
     List<DslToken> tokens;
-    Map<String, StructType> userTypes = Maps.newHashMap();
+    Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
     int index;
 
-    public static Expression parseTopLevelExpression(List<DslToken> tokens, Map<String, StructType> userTypes) {
+    public static List<Expression> parseTopLevelExpression(List<DslToken> tokens, Map<ResourceLocation, StructType> userTypes) {
         var parser = new DslParser();
         parser.tokens = tokens;
         parser.userTypes = userTypes;
 
-        if(parser.peek() instanceof DslToken.StructKeyword) {
-            var outputType = (StructType) parser.parseType().flatten();
-            return new TypeExpression(outputType);
+        var entries = Lists.<Expression>newArrayList();
+        while(true) {
+            if(parser.peek() instanceof DslToken.EOF) {
+                return entries;
+            }
+            entries.add(parser.parseSingleTopLevelExpression());
         }
-        if(parser.peek() instanceof DslToken.EventKeyword) {
-            return parser.parseEvent();
+
+    }
+
+    public Expression parseSingleTopLevelExpression() {
+        if(peek() instanceof DslToken.StructKeyword) {
+            expect(DslToken.StructKeyword.class);
+            var name = expect(DslToken.NamespacedIdentifierExpr.class);
+            index -= 2;
+            var outputType = (StructType) parseType().flatten();
+            return new TypeExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), outputType);
         }
-        return parser.parseSchema();
+        if(peek() instanceof DslToken.EventKeyword) {
+            return parseEvent();
+        }
+        return parseFunction();
     }
 
     public static ExpressionTypeSet parseExpressionTypeSet(List<DslToken> tokens, String functionName) {
@@ -61,11 +79,20 @@ public class DslParser {
         return parser.parseType();
     }
 
-    public SchemaExpression parseSchema() {
+    public SchemaExpression parseFunction() {
+        var kw = expect(DslToken.FunctionKeyword.class);
+        var name = expect(DslToken.NamespacedIdentifierExpr.class);
+        var location = ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path());
+        var typeSet = parseTypeSet("user_func");
+        var body = parseBlock();
+        return new SchemaExpression(typeSet, body, Optional.empty(), kw.span(), location);
+    }
+
+    public LambdaExpression parseLambda() {
         var kw = expect(DslToken.FunctionKeyword.class);
         var typeSet = parseTypeSet("user_func");
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.empty(), kw.span());
+        return new LambdaExpression(typeSet, body, kw.span());
     }
 
     // TODO: merge with parseSchema
@@ -74,7 +101,7 @@ public class DslParser {
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.of(eventName.identifier()), kw.span());
+        return new SchemaExpression(typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName()));
     }
 
     public Type<?> parseType() {
@@ -107,6 +134,9 @@ public class DslParser {
             }
             case DslToken.StructKeyword structKeyword -> e -> {
                 expect(DslToken.StructKeyword.class);
+                if(peek() instanceof DslToken.NamespacedIdentifierExpr expr) {
+                    read();
+                }
                 expect(DslToken.OpenBrace.class);
                 var fields = Lists.<StructType.Field>newArrayList();
                 while(!(peek() instanceof DslToken.CloseBrace)) {
@@ -132,6 +162,20 @@ public class DslParser {
                                 fields
                         ),
                         structKeyword.span()
+                );
+            };
+            case DslToken.NamespacedIdentifierExpr namespacedIdentifierExpr -> _ -> {
+                expect(DslToken.NamespacedIdentifierExpr.class);
+                return new SpannedType<>(
+                        new UnresolvedUserType(
+                                this.userTypes,
+                                ResourceLocation.fromNamespaceAndPath(
+                                        namespacedIdentifierExpr.namespace(),
+                                        namespacedIdentifierExpr.path()
+                                ),
+                                namespacedIdentifierExpr.span()
+                        ),
+                        namespacedIdentifierExpr.span()
                 );
             };
             default -> {
@@ -183,15 +227,7 @@ public class DslParser {
                     case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
                     case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
                     case "identifier" -> _ -> new SpannedType<>(Type.identifier(), identifier.span());
-                    default -> _ -> {
-                        if(this.userTypes.containsKey(identifier.identifier().replace(".", "_"))) {
-                            return new SpannedType<>(
-                                    this.userTypes.get(identifier.identifier().replace(".", "_")),
-                                    identifier.span()
-                            );
-                        }
-                        throw new ParsingException("`" + identifier.identifier() + "` is not a valid type.", identifier.span());
-                    };
+                    default -> _ -> { throw new ParsingException("Not a valid built-in type", identifier.span()); };
                 };
             }
         };
@@ -565,10 +601,10 @@ public class DslParser {
         return switch (tok) {
             case DslToken.FunctionKeyword _ -> {
                 this.index -= 1;
-                yield this.parseSchema().asLambdaExpression();
+                yield this.parseLambda();
             }
             case DslToken.NewKeyword kw -> {
-                var name = expect(DslToken.Identifier.class);
+                var name = expect(DslToken.NamespacedIdentifierExpr.class);
                 var openBrace = expect(DslToken.OpenBrace.class);
                 var map = Lists.<Pair<String, Expression>>newArrayList();
                 while(!(peek() instanceof DslToken.CloseBrace)) {
@@ -582,7 +618,7 @@ public class DslParser {
                 }
                 var closeBrace = expect(DslToken.CloseBrace.class);
 
-                yield new InlineStructExpression(name.identifier(), map, SpanData.merge(openBrace.span(), closeBrace.span()));
+                yield new InlineStructExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
             case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
             case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());

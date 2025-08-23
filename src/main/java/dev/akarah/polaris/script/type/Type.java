@@ -2,12 +2,16 @@ package dev.akarah.polaris.script.type;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.realmsclient.gui.RealmsWorldSlotButton;
+import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.util.List;
+import java.util.Map;
 
 public interface Type<T> {
     String typeName();
@@ -38,6 +42,9 @@ public interface Type<T> {
     default Type<?> flatten() {
         if(this instanceof SpannedType<?> spannedType) {
             return spannedType.type().flatten();
+        }
+        if(this instanceof UnresolvedUserType(Map<ResourceLocation, StructType> userTypes, ResourceLocation name, SpanData spanData)) {
+            return userTypes.get(name).flatten();
         }
         return this;
     }

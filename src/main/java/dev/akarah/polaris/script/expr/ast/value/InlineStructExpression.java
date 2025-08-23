@@ -10,18 +10,19 @@ import dev.akarah.polaris.script.type.SpannedType;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.RStruct;
 import dev.akarah.polaris.script.value.RuntimeValue;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record InlineStructExpression(
-        String name,
+        ResourceLocation name,
         List<Pair<String, Expression>> expressions,
         SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        ctx.constant(this.name()).constant(this.expressions.size()).invokeStatic(
+        ctx.constant(this.name.toString()).constant(this.expressions.size()).invokeStatic(
                 CodegenUtil.ofClass(RStruct.class),
                 "create",
                 MethodTypeDesc.of(
@@ -35,7 +36,7 @@ public record InlineStructExpression(
         // todo: add field validation checks
 
 
-        var type = ctx.userTypes.get(name.replace(".", "_"));
+        var type = ctx.userTypes.get(name);
         if(type == null) {
             throw new ParsingException("Type `" + name + "` does not exist.", this.span);
         }
@@ -82,11 +83,11 @@ public record InlineStructExpression(
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        if(!ctx.userTypes.containsKey(this.name.replace(".", "_"))) {
+        if(!ctx.userTypes.containsKey(this.name)) {
             throw new ParsingException("Structure `" + this.name + "` does not exist!", this.span);
         }
         return new SpannedType<>(
-                ctx.userTypes.get(this.name.replace(".", "_")),
+                ctx.userTypes.get(this.name),
                 this.span()
         );
     }
