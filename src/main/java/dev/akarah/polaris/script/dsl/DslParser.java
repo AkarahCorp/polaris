@@ -245,6 +245,9 @@ public class DslParser {
     }
 
     public Expression parseStatement() {
+        if(this.peek() instanceof DslToken.SwitchKeyword) {
+            return parseSwitch();
+        }
         if(this.peek() instanceof DslToken.RepeatKeyword) {
             return parseRepeat();
         }
@@ -270,6 +273,26 @@ public class DslParser {
             return new ReturnAction(parseValue());
         }
         return parseStorage();
+    }
+
+    public SwitchAction parseSwitch() {
+        var kw = expect(DslToken.SwitchKeyword.class);
+        var baseValue = parseValue();
+        var switchCases = Lists.<SwitchAction.Case>newArrayList();
+        expect(DslToken.OpenBrace.class);
+        while(!(peek() instanceof DslToken.CloseBrace)) {
+            expect(DslToken.CaseKeyword.class);
+            var condition = parseValue();
+            var whereValue = Optional.<Expression>empty();
+            if(peek() instanceof DslToken.WhereKeyword) {
+                expect(DslToken.WhereKeyword.class);
+                whereValue = Optional.of(parseValue());
+            }
+            var block = parseBlock();
+            switchCases.add(new SwitchAction.Case(condition, block, whereValue));
+        }
+        expect(DslToken.CloseBrace.class);
+        return new SwitchAction(baseValue, switchCases);
     }
 
     public ForEachAction parseForEach() {

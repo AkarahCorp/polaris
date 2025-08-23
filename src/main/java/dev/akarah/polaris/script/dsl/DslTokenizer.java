@@ -105,6 +105,9 @@ public class DslTokenizer {
                         case "new" -> new DslToken.NewKeyword(this.createSpan(start));
                         case "event" -> new DslToken.EventKeyword(this.createSpan(start));
                         case "as" -> new DslToken.AsKeyword(this.createSpan(start));
+                        case "switch" -> new DslToken.SwitchKeyword(this.createSpan(start));
+                        case "case" -> new DslToken.CaseKeyword(this.createSpan(start));
+                        case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }
