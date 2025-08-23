@@ -2,6 +2,8 @@ package dev.akarah.polaris.script.value;
 
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 
+import java.util.Objects;
+
 public class RString extends RuntimeValue {
     private final String inner;
 
@@ -53,7 +55,7 @@ public class RString extends RuntimeValue {
 
     @MethodTypeHint(signature = "(this: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
     public static RString add(RString $this, RuntimeValue convert) {
-        return RString.of($this.javaValue() + convert.toString());
+        return RString.of($this.javaValue() + convert);
     }
 
     @MethodTypeHint(signature = "(this: string) -> number", documentation = "Returns the length of the string.")

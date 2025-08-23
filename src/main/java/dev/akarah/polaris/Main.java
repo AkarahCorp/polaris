@@ -77,7 +77,6 @@ public class Main implements ModInitializer {
                 var root = Commands.literal(baseId);
                 element.value().dispatch(root);
 
-                System.out.println(root.build());
                 dispatcher.register(root);
             });
 

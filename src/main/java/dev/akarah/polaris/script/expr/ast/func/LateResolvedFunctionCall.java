@@ -58,7 +58,6 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Type.any();
         }
-        System.out.println("ct: " + this.parameters.getFirst().type(ctx));
         return this.parameters.getFirst().type(ctx);
     }
 
@@ -72,11 +71,10 @@ public class LateResolvedFunctionCall implements Expression {
 
     public String alternateWithNormalTypeName(CodegenContext ctx) {
         var virtualType = this.virtualType(ctx).typeName();
-        System.out.println("Vtype: " + virtualType);
         if(virtualType.contains(":")) {
             return virtualType + "/" + this.functionName.replace(".", "/");
         } else {
-            return virtualType + ":" + this.functionName;
+            return virtualType + ":" + this.functionName.replace(".", "/");
         }
     }
 
@@ -203,11 +201,10 @@ public class LateResolvedFunctionCall implements Expression {
     public static String filterNameToMethodName(String input) {
         return input
                 .replaceFirst("\\.", ":")
-                .replace("\\.", "/");
+                .replace(".", "/");
     }
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
-        System.out.println("fn: " + this.functionName);
         var functionName = filterNameToMethodName(this.functionName);
         var functionSchema = Resources.actionManager().expressions().get(ResourceLocation.parse(functionName));
         if(functionSchema == null) {

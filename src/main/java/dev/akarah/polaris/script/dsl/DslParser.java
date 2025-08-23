@@ -261,7 +261,6 @@ public class DslParser {
                 expect(DslToken.QuestionMark.class);
             }
             expect(DslToken.Colon.class);
-            System.out.println(peek());
             var type = parseType(typeParameters);
 
 
@@ -270,8 +269,6 @@ public class DslParser {
             } else {
                 ts.optional(name.identifier(), type);
             }
-
-            System.out.println(peek());
 
             if(!(peek() instanceof DslToken.CloseParen)) {
                 expect(DslToken.Comma.class);
@@ -320,20 +317,27 @@ public class DslParser {
         var kw = expect(DslToken.SwitchKeyword.class);
         var baseValue = parseValue();
         var switchCases = Lists.<SwitchAction.Case>newArrayList();
+        var fallback = Optional.<Expression>empty();
         expect(DslToken.OpenBrace.class);
         while(!(peek() instanceof DslToken.CloseBrace)) {
-            expect(DslToken.CaseKeyword.class);
-            var condition = parseValue();
-            var whereValue = Optional.<Expression>empty();
-            if(peek() instanceof DslToken.WhereKeyword) {
-                expect(DslToken.WhereKeyword.class);
-                whereValue = Optional.of(parseValue());
+            if(peek() instanceof DslToken.CaseKeyword) {
+                expect(DslToken.CaseKeyword.class);
+                var condition = parseValue();
+                var whereValue = Optional.<Expression>empty();
+                if(peek() instanceof DslToken.WhereKeyword) {
+                    expect(DslToken.WhereKeyword.class);
+                    whereValue = Optional.of(parseValue());
+                }
+                var block = parseBlock();
+                switchCases.add(new SwitchAction.Case(condition, block, whereValue));
             }
-            var block = parseBlock();
-            switchCases.add(new SwitchAction.Case(condition, block, whereValue));
+            if(peek() instanceof DslToken.ElseKeyword) {
+                expect(DslToken.ElseKeyword.class);
+                fallback = Optional.of(parseBlock());
+            }
         }
         expect(DslToken.CloseBrace.class);
-        return new SwitchAction(baseValue, switchCases);
+        return new SwitchAction(baseValue, switchCases, fallback);
     }
 
     public ForEachAction parseForEach() {

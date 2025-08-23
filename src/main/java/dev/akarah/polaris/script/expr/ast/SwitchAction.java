@@ -14,7 +14,8 @@ import java.util.Optional;
 
 public record SwitchAction(
         Expression value,
-        List<Case> cases
+        List<Case> cases,
+        Optional<Expression> fallback
 ) implements Expression {
     public record Case(Expression comparison, Expression block, Optional<Expression> where) {
 
@@ -53,6 +54,7 @@ public record SwitchAction(
                     )
                     .popFrame();
         }
+        this.fallback().ifPresent(ctx::pushValue);
         ctx.bytecodeUnsafe(cb -> cb.labelBinding(exitLabel));
     }
 

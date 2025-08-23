@@ -73,6 +73,7 @@ public class DslActionManager {
             return true;
         } catch (Throwable e) {
             if(e.getMessage() == null) {
+                System.out.println("Error executing script `" + name + "`: " + e);
                 return true;
             }
             if(e.getMessage().contains("because \"mh\" is null")) {
@@ -157,8 +158,6 @@ public class DslActionManager {
                             this.dslTypes.clear();
                             throw new RuntimeException(e);
                         }
-
-                        System.out.println(this.dslExpressions.keySet());
                     }
 
                     this.codeClass = CodegenContext.initializeCompilation(

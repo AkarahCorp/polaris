@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.realmsclient.gui.RealmsWorldSlotButton;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +45,11 @@ public interface Type<T> {
             return spannedType.type().flatten();
         }
         if(this instanceof UnresolvedUserType(Map<ResourceLocation, StructType> userTypes, ResourceLocation name, SpanData spanData)) {
-            return userTypes.get(name).flatten();
+            try {
+                return userTypes.get(name).flatten();
+            } catch (Exception e) {
+                throw new ParsingException("Type `" + name + "` does not exist.", spanData);
+            }
         }
         return this;
     }
