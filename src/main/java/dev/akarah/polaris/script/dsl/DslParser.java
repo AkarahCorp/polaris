@@ -134,6 +134,7 @@ public class DslParser {
             }
             case DslToken.StructKeyword structKeyword -> e -> {
                 expect(DslToken.StructKeyword.class);
+                var name2 = expect(DslToken.NamespacedIdentifierExpr.class);
                 if(peek() instanceof DslToken.NamespacedIdentifierExpr expr) {
                     read();
                 }
@@ -156,17 +157,18 @@ public class DslParser {
                 expect(DslToken.CloseBrace.class);
                 return new SpannedType<>(
                         Type.struct(
-                                structKeyword.span().fileName().toString()
-                                        .replace(":", ".")
-                                        .replace("/", "."),
+                                ResourceLocation.fromNamespaceAndPath(
+                                        name2.namespace(),
+                                        name2.path()
+                                ),
                                 fields
                         ),
                         structKeyword.span()
                 );
             };
-            case DslToken.NamespacedIdentifierExpr namespacedIdentifierExpr -> _ -> {
-                expect(DslToken.NamespacedIdentifierExpr.class);
-                return new SpannedType<>(
+            case DslToken.NamespacedIdentifierExpr namespacedIdentifierExpr -> {
+                read();
+                yield _ -> new SpannedType<>(
                         new UnresolvedUserType(
                                 this.userTypes,
                                 ResourceLocation.fromNamespaceAndPath(
@@ -177,7 +179,7 @@ public class DslParser {
                         ),
                         namespacedIdentifierExpr.span()
                 );
-            };
+            }
             default -> {
                 var identifier = expect(DslToken.Identifier.class);
                 if(typeVariables.contains(identifier.identifier())) {
@@ -259,6 +261,7 @@ public class DslParser {
                 expect(DslToken.QuestionMark.class);
             }
             expect(DslToken.Colon.class);
+            System.out.println(peek());
             var type = parseType(typeParameters);
 
 
@@ -267,6 +270,8 @@ public class DslParser {
             } else {
                 ts.optional(name.identifier(), type);
             }
+
+            System.out.println(peek());
 
             if(!(peek() instanceof DslToken.CloseParen)) {
                 expect(DslToken.Comma.class);

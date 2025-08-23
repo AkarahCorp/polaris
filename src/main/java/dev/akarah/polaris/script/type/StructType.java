@@ -3,12 +3,13 @@ package dev.akarah.polaris.script.type;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RStruct;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.constant.ClassDesc;
 import java.util.List;
 
-public record StructType(String name, List<Field> fields) implements Type<RStruct> {
+public record StructType(ResourceLocation name, List<Field> fields) implements Type<RStruct> {
     public record Field(
             String name,
             Type<?> type,
@@ -22,7 +23,7 @@ public record StructType(String name, List<Field> fields) implements Type<RStruc
 
     @Override
     public String typeName() {
-        return this.name;
+        return this.name.toString();
     }
 
     @Override
@@ -37,6 +38,6 @@ public record StructType(String name, List<Field> fields) implements Type<RStruc
 
     @Override
     public String verboseTypeName() {
-        return this.name;
+        return this.name.toString();
     }
 }

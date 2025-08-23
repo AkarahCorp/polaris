@@ -224,7 +224,7 @@ public interface Type<T> {
         return new FunctionType(returnType, parameters);
     }
 
-    static StructType struct(String name, List<StructType.Field> fields) {
+    static StructType struct(ResourceLocation name, List<StructType.Field> fields) {
         return new StructType(name, fields);
     }
 

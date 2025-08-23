@@ -4,13 +4,14 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.Type;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 public record UserFunctionAction(
-        String name,
+        ResourceLocation name,
         MethodTypeDesc methodTypeDesc,
         List<Expression> parameters
 ) implements Expression {
@@ -28,7 +29,7 @@ public record UserFunctionAction(
         }
         ctx.invokeStatic(
                 CodegenContext.ACTION_CLASS_DESC,
-                name,
+                CodegenContext.resourceLocationToMethodName(name),
                 methodTypeDesc
         );
     }
