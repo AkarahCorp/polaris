@@ -34,6 +34,18 @@ public class DslTokenizer {
     public DataResult<List<DslToken>> tokenizeLoop() {
         var list = new ArrayList<DslToken>();
         while(true) {
+            try {
+                stringReader.skipWhitespace();
+                if(stringReader.peek(0) == '/' && stringReader.peek(1) == '/') {
+                    while(stringReader.peek() != '\n') {
+                        stringReader.read();
+                    }
+                    stringReader.read();
+                }
+            } catch (Exception _) {
+
+            }
+            stringReader.skipWhitespace();
             DataResult<DslToken> token = tokenizeOnce();
             if(token.isError()) {
                 return DataResult.error(() -> token.error().orElseThrow().message(), list);
