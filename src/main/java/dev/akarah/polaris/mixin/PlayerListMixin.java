@@ -3,19 +3,24 @@ package dev.akarah.polaris.mixin;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
-public class PlayerListMixin {
+public abstract class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     public void playerJoinEvent(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        Resources.actionManager().performEvents("player.join", REntity.of(serverPlayer));
+        var result = Resources.actionManager().performEvents("player.join", REntity.of(serverPlayer));
+        if (!result) {
+            serverPlayer.connection.disconnect(Component.literal("You are banned from this server."));
+        }
         Resources.statManager().refreshPlayerInventories();
     }
 
