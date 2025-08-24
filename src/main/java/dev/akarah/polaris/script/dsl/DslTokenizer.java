@@ -104,6 +104,7 @@ public class DslTokenizer {
                     var string = this.readIdentifier();
                     yield DataResult.success(switch (string) {
                         case "if" -> new DslToken.IfKeyword(this.createSpan(start));
+                        case "unless" -> new DslToken.UnlessKeyword(this.createSpan(start));
                         case "else" -> new DslToken.ElseKeyword(this.createSpan(start));
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));

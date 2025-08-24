@@ -89,8 +89,11 @@ public interface DslToken {
 
     }
 
-
     record IfKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record UnlessKeyword(SpanData span) implements DslToken {
 
     }
 
