@@ -35,7 +35,6 @@ public class FishingRodItemMixin {
                 cir.setReturnValue(InteractionResult.SUCCESS);
                 cir.cancel();
 
-                System.out.println(player.fishing.nibble);
                 if(player.fishing.nibble > 0) {
                     var entities = fishingConfig.lootTable().execute((ServerLevel) player.level(), pos, (ServerPlayer) player);
                     for(var entity : entities) {

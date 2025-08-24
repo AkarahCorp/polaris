@@ -15,6 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 @ClassDocumentation(prettifiedName = "Global Namespace",
         details = "The global namespace. All functions here are available everywhere.")
 public class GlobalNamespace {
@@ -153,6 +155,19 @@ public class GlobalNamespace {
         return list;
     }
 
+    @MethodTypeHint(signature = "() -> uuid", documentation = "Returns a random UUID.")
+    public static RUuid uuid__random() {
+        return RUuid.of(UUID.randomUUID());
+    }
+
+    @MethodTypeHint(signature = "(value: any) -> string", documentation = "Gets the basic name of this type.")
+    public static RString type(RuntimeValue $this) {
+        if($this instanceof RStatsObject statsObject) {
+            return RString.of("stat_obj");
+        }
+        return RString.of($this.getClass().getSimpleName().replaceFirst("R", "").toLowerCase());
+    }
+
     @MethodTypeHint(signature = "(s: any) -> void", documentation = "Logs a string to the console.")
     public static void debug__log(RuntimeValue value) {
         System.out.println(value.toString());
@@ -191,6 +206,16 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "(type: identifier) -> particle", documentation = "Creates a new particle from an identifier.")
     public static RParticle particle__create(RIdentifier type) {
         return RParticle.of(RParticle.OPTIONS.get(type.javaValue()));
+    }
+
+    @MethodTypeHint(signature = "() -> timestamp", documentation = "Gets the current time as a timestamp.")
+    public static RTimestamp timestamp__now() {
+        return RTimestamp.of();
+    }
+
+    @MethodTypeHint(signature = "(seconds: number) -> timestamp", documentation = "Gets a timestamp from the amount of seconds since 1970, to the nearest millisecond.")
+    public static RTimestamp timestamp__from_seconds(RNumber seconds) {
+        return RTimestamp.of(seconds);
     }
 
     @MethodTypeHint(signature = "<T, U>(lhs: T, rhs: U) -> T", documentation = "Adds two values together.")

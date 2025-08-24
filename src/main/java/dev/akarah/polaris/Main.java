@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RString;
@@ -76,7 +77,6 @@ public class Main implements ModInitializer {
                 var root = Commands.literal(baseId);
                 element.value().dispatch(root);
 
-                System.out.println(root.build());
                 dispatcher.register(root);
             });
 
@@ -136,13 +136,12 @@ public class Main implements ModInitializer {
                     methodHandle.invoke();
                     elements.forEach(element -> {
                         try {
-                            var resourceName = Resources.actionManager().resourceNames().get(element.getFirst());
-                            var method = Resources.actionManager().methodHandleByLocation(resourceName);
+                            var method = Resources.actionManager().methodHandleByLocation(element.getFirst());
                             if(method.type().parameterCount() != 1 && method.type().parameterType(0).equals(REntity.class)) {
                                 return;
                             }
                             root.then(Commands.literal("run").then(
-                                    Commands.literal(resourceName.toString()).executes(ctx -> {
+                                    Commands.literal(element.getFirst().toString()).executes(ctx -> {
                                         if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
                                             try {
                                                 var start = System.nanoTime()/1000000.0;
@@ -151,7 +150,7 @@ public class Main implements ModInitializer {
                                                 ctx.getSource().sendSuccess(() -> Component.literal("Script execution took " + (end - start) + "ms"), true);
                                             } catch (Throwable e) {
                                                 if(e instanceof WrongMethodTypeException) {
-                                                    ctx.getSource().sendFailure(Component.literal("Method " + resourceName + " must take 1 parameter of type `entity`!"));
+                                                    ctx.getSource().sendFailure(Component.literal("Method " + element.getFirst() + " must take 1 parameter of type `entity`!"));
                                                 } else {
                                                     e.printStackTrace();
                                                 }

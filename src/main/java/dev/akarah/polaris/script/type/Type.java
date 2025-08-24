@@ -2,12 +2,17 @@ package dev.akarah.polaris.script.type;
 
 import com.google.common.collect.Streams;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.realmsclient.gui.RealmsWorldSlotButton;
+import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.util.List;
+import java.util.Map;
 
 public interface Type<T> {
     String typeName();
@@ -38,6 +43,13 @@ public interface Type<T> {
     default Type<?> flatten() {
         if(this instanceof SpannedType<?> spannedType) {
             return spannedType.type().flatten();
+        }
+        if(this instanceof UnresolvedUserType(Map<ResourceLocation, StructType> userTypes, ResourceLocation name, SpanData spanData)) {
+            try {
+                return userTypes.get(name).flatten();
+            } catch (Exception e) {
+                throw new ParsingException("Type `" + name + "` does not exist.", spanData);
+            }
         }
         return this;
     }
@@ -157,6 +169,10 @@ public interface Type<T> {
         return new TextType();
     }
 
+    static TimestampType timestamp() {
+        return new TimestampType();
+    }
+
     static VoidType void_() {
         return new VoidType();
     }
@@ -213,7 +229,7 @@ public interface Type<T> {
         return new FunctionType(returnType, parameters);
     }
 
-    static StructType struct(String name, List<StructType.Field> fields) {
+    static StructType struct(ResourceLocation name, List<StructType.Field> fields) {
         return new StructType(name, fields);
     }
 

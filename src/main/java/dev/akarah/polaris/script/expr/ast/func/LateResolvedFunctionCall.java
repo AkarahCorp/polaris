@@ -64,29 +64,25 @@ public class LateResolvedFunctionCall implements Expression {
     @SuppressWarnings("unchecked")
     public Pair<Class<?>, String>[] functionLookupPossibilities(CodegenContext ctx) {
         return new Pair[]{
-                Pair.of(this.virtualType(ctx).typeClass(), this.alternateWithVerboseTypeName(ctx)),
                 Pair.of(this.virtualType(ctx).typeClass(), this.functionName.replace(".", "__")),
                 Pair.of(GlobalNamespace.class, this.functionName.replace(".", "__")),
         };
     }
 
     public String alternateWithNormalTypeName(CodegenContext ctx) {
-        return this.virtualType(ctx).typeName() + "_" + this.functionName.replace(".", "_");
-    }
-
-    public String alternateWithVerboseTypeName(CodegenContext ctx) {
-        return (this.virtualType(ctx).verboseTypeName() + "__" + this.functionName)
-                .replace("[", "$_")
-                .replace("]", "_$")
-                .replace(",", "_")
-                .replace(".", "__");
+        var virtualType = this.virtualType(ctx).typeName();
+        if(virtualType.contains(":")) {
+            return virtualType + "/" + this.functionName.replace(".", "/");
+        } else {
+            return virtualType + ":" + this.functionName.replace(".", "/");
+        }
     }
 
     public Optional<Expression> resolveStructGetter(CodegenContext ctx) {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
-        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(String name, List<StructType.Field> fields))) {
+        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(ResourceLocation name, List<StructType.Field> fields))) {
             return Optional.empty();
         }
         for(var field : fields) {
@@ -204,18 +200,16 @@ public class LateResolvedFunctionCall implements Expression {
 
     public static String filterNameToMethodName(String input) {
         return input
-                .replace('/', '_')
-                .replace(':', '_')
-                .replace('.', '_')
-                .replace("-", "_");
+                .replaceFirst("\\.", ":")
+                .replace(".", "/");
     }
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
-        var functionSchema = Resources.actionManager().expressions().get(functionName);
+        var functionSchema = Resources.actionManager().expressions().get(ResourceLocation.parse(functionName));
         if(functionSchema == null) {
             functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));
-            functionSchema = Resources.actionManager().expressions().get(functionName);
+            functionSchema = Resources.actionManager().expressions().get(ResourceLocation.parse(functionName));
         }
 
         if(functionSchema != null) {
@@ -231,7 +225,7 @@ public class LateResolvedFunctionCall implements Expression {
             }
 
             return Optional.of(new UserFunctionAction(
-                    functionName,
+                    ResourceLocation.parse(functionName),
                     MethodTypeDesc.of(
                             CodegenUtil.ofClass(rt.flatten() instanceof VoidType ? void.class : RuntimeValue.class),
                             typeSet.parameters().stream()

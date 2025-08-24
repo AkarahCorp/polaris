@@ -39,10 +39,10 @@ public class BlockItemMixin {
                         player.getInventory().createInventoryUpdatePacket(player.getInventory().getSelectedSlot())
                 );
             } else {
-                player.getInventory().setSelectedItem(blockPlaceContext.getItemInHand());
+                player.getInventory().setItem(40, blockPlaceContext.getItemInHand());
                 player.getInventory().setChanged();
                 ((ServerPlayer) player).connection.send(
-                        player.getInventory().createInventoryUpdatePacket(45)
+                        player.getInventory().createInventoryUpdatePacket(40)
                 );
             }
             cir.setReturnValue(InteractionResult.FAIL);

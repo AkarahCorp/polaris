@@ -77,6 +77,19 @@ public interface DslToken {
 
     }
 
+    record SwitchKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record CaseKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record WhereKeyword(SpanData span) implements DslToken {
+
+    }
+
+
     record IfKeyword(SpanData span) implements DslToken {
 
     }

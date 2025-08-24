@@ -11,6 +11,7 @@ import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import dev.akarah.polaris.script.params.ParameterNode;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.RFunction;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.DirectMethodHandleDesc;
 import java.lang.constant.MethodHandleDesc;
@@ -116,7 +117,8 @@ public record LambdaExpression(
                 this.typeSet(),
                 this.body,
                 Optional.empty(),
-                this.keywordSpan
+                this.keywordSpan,
+                ResourceLocation.fromNamespaceAndPath("minecraft", this.name().replace("$", "/"))
         );
     }
 }

@@ -56,6 +56,19 @@ public class MinecraftServerMixin {
         }
 
         Resources.loopPlayers();
+        Resources.statManager().loopPlayers();
+        Resources.miningManager().tickPlayers();
+        if(this.tickCount % 200 == 5) {
+            Resources.statManager().refreshPlayerInventories();
+        }
+
+        Resources.actionManager().performEvents("server.tick");
+
+        for(var refreshable : Resources.refreshable().registry().entrySet()) {
+            refreshable.getValue().execute();
+        }
+
+        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")

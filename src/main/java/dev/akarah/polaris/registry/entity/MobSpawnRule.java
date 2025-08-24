@@ -63,6 +63,9 @@ public record MobSpawnRule(
 
             while (level.isEmptyBlock(pos)) {
                 pos = pos.below();
+                if(pos.getY() < -1000) {
+                    break;
+                }
             }
             pos = pos.above();
             var entityBase = Resources.customEntity().registry().get(this.entityType).orElseThrow().value();

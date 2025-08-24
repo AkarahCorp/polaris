@@ -130,48 +130,35 @@ public class RInventory extends RuntimeValue {
     }
 
     public static void addItemInner(RInventory $this, RItem item, int slot) {
-        try {
-            for(int i = slot; i < $this.inner.getContainerSize(); i++) {
-                if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
-                    var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+	try {
+		for(int i = slot; i < $this.inner.getContainerSize(); i++) {
+			if(ItemStack.isSameItemSameComponents($this.inner.getItem(i), item.javaValue())) {
+				var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
 
-                    var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
-                    if(maxCount == null) {
-                        maxCount = 1;
-                    }
+				var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
+				if(maxCount == null || $this.inner.getItem(i).getCount() == maxCount) continue;
 
-                    if(sumCounts <= maxCount) {
-                        $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
-                    } else {
-                        $this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
-                        addItemInner($this, RItem.of(item.javaValue().copyWithCount(sumCounts - maxCount)), i + 1);
-                    }
-                    return;
-                }
-            }
+				if(sumCounts <= maxCount) {
+					$this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+				} else {
+					$this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
+					addItemInner($this, RItem.of(item.javaValue().copyWithCount(sumCounts - maxCount)), i + 1);
+				}
+				return;
+			}
+		}
 
-            for(int i = slot; i < $this.inner.getContainerSize(); i++) {
-                if($this.inner.getItem(i).is(Items.AIR)) {
-                    var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+		for(int i = 0; i < $this.inner.getContainerSize(); i++) {
+			if($this.inner.getItem(i).is(Items.AIR)) {
+                var sumCounts = $this.inner.getItem(i).getCount() + item.javaValue().getCount();
+				$this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
+				return;
+			}
+		}
+	} catch (StackOverflowError ignored) {
 
-                    var maxCount = item.javaValue().get(DataComponents.MAX_STACK_SIZE);
-                    if(maxCount == null) {
-                        maxCount = 1;
-                    }
-
-                    if(sumCounts <= maxCount) {
-                        $this.inner.setItem(i, item.javaValue().copyWithCount(sumCounts));
-                    } else {
-                        $this.inner.setItem(i, item.javaValue().copyWithCount(maxCount));
-                        addItemInner($this, RItem.of(item.javaValue().copyWithCount(sumCounts - maxCount)), i + 1);
-                    }
-                    return;
-                }
-            }
-        } catch (StackOverflowError ignored) {
-
-        }
-    }
+	}
+}
 
     @MethodTypeHint(signature = "(this: inventory) -> void", documentation = "If this is a custom inventory, this will no longer be able to be manipulated by players.")
     public static void cancel_clicks(RInventory $this) {

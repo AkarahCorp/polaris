@@ -28,4 +28,13 @@ public class RStore extends RuntimeValue {
     public static RNullable get(RStore store, RString key) {
         return RNullable.of(store.javaValue().get(key.javaValue()));
     }
+
+    @MethodTypeHint(signature = "(this: store) -> list[string]", documentation = "Returns a list of all keys in this data store.")
+    public static RList keys(RStore store) {
+        var list = RList.create();
+        for(var key : store.inner.map().keySet()) {
+            list.javaValue().add(RString.of(key));
+        }
+        return list;
+    }
 }

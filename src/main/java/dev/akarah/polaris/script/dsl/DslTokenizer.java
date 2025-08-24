@@ -34,6 +34,18 @@ public class DslTokenizer {
     public DataResult<List<DslToken>> tokenizeLoop() {
         var list = new ArrayList<DslToken>();
         while(true) {
+            try {
+                stringReader.skipWhitespace();
+                if(stringReader.peek(0) == '/' && stringReader.peek(1) == '/') {
+                    while(stringReader.peek() != '\n') {
+                        stringReader.read();
+                    }
+                    stringReader.read();
+                }
+            } catch (Exception _) {
+
+            }
+            stringReader.skipWhitespace();
             DataResult<DslToken> token = tokenizeOnce();
             if(token.isError()) {
                 return DataResult.error(() -> token.error().orElseThrow().message(), list);
@@ -105,6 +117,9 @@ public class DslTokenizer {
                         case "new" -> new DslToken.NewKeyword(this.createSpan(start));
                         case "event" -> new DslToken.EventKeyword(this.createSpan(start));
                         case "as" -> new DslToken.AsKeyword(this.createSpan(start));
+                        case "switch" -> new DslToken.SwitchKeyword(this.createSpan(start));
+                        case "case" -> new DslToken.CaseKeyword(this.createSpan(start));
+                        case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

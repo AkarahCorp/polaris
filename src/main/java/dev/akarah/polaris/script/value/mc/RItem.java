@@ -70,7 +70,6 @@ public class RItem extends RuntimeValue {
         if(!$this.javaValue().has(DataComponents.CUSTOM_DATA)) {
             $this.javaValue().set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
         }
-Ppl
         $this.javaValue().set(
                 DataComponents.CUSTOM_DATA,
                 Objects.requireNonNull($this.javaValue().get(DataComponents.CUSTOM_DATA)).update(tag -> tag.put(

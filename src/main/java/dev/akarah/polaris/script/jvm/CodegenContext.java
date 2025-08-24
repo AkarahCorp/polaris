@@ -41,7 +41,7 @@ public class CodegenContext {
     MethodBuilder methodBuilder;
     CodeBuilder codeBuilder;
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
-    public Map<String, StructType> userTypes = Maps.newHashMap();
+    public Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
@@ -73,7 +73,7 @@ public class CodegenContext {
      * @param refs The list of expressions to compile.
      * @return The created class.
      */
-    public static Class<?> initializeCompilation(List<Pair<String, SchemaExpression>> refs, Map<String, StructType> userTypes) {
+    public static Class<?> initializeCompilation(List<Pair<ResourceLocation, SchemaExpression>> refs, Map<ResourceLocation, StructType> userTypes) {
         var bytes = CodegenContext.compileClassBytecode(refs, userTypes);
         try {
             Files.createDirectories(Path.of("./build/"));
@@ -108,7 +108,7 @@ public class CodegenContext {
      * @param refs The references to include in the transformation.
      * @return The raw bytes of the new class created.
      */
-    private static byte[] compileClassBytecode(List<Pair<String, SchemaExpression>> refs, Map<String, StructType> userTypes) {
+    private static byte[] compileClassBytecode(List<Pair<ResourceLocation, SchemaExpression>> refs, Map<ResourceLocation, StructType> userTypes) {
         var classFile = ClassFile.of();
 
         classFile = classFile.withOptions(
@@ -125,7 +125,7 @@ public class CodegenContext {
                     cc.userTypes = userTypes;
 
                     refs.forEach(entry -> {
-                        cc.compileAction(entry.getFirst(), entry.getSecond(), -1, Lists.newArrayList());
+                        cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
                     });
                     while(!cc.requestedSchemas.isEmpty()) {
                         var oldSchemas = cc.requestedSchemas.stream().toList();
@@ -361,7 +361,7 @@ public class CodegenContext {
      * Generates a random name for a static variable.
      * @return This.
      */
-    public String randomName() {
+    public static String randomName() {
         return "static_" + UUID.randomUUID().toString().replace("-", "_");
     }
 
@@ -370,7 +370,7 @@ public class CodegenContext {
      * Generates a random name for a static variable, with a specified prefix.
      * @return This.
      */
-    public String randomName(String base) {
+    public static String randomName(String base) {
         return base + "_" + randomName();
     }
 
