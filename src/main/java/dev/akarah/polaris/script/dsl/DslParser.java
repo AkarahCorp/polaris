@@ -432,11 +432,11 @@ public class DslParser {
     public Expression parseBooleanOperands() {
         var base = parseEqualityExpression();
         while(true) {
-            if(peek() instanceof DslToken.DoubleAmpersand) {
-                expect(DslToken.DoubleAmpersand.class);
+            if(peek() instanceof DslToken.LogicalAnd) {
+                expect(DslToken.LogicalAnd.class);
                 base = new AndExpression(base, parseEqualityExpression());
-            } else if(peek() instanceof DslToken.DoubleLine) {
-                expect(DslToken.DoubleLine.class);
+            } else if(peek() instanceof DslToken.LogicalOr) {
+                expect(DslToken.LogicalOr.class);
                 base = new OrExpression(base, parseEqualityExpression());
             } else {
                 break;

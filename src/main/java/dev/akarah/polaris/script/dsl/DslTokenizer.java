@@ -86,16 +86,6 @@ public class DslTokenizer {
                     }
                     yield DataResult.success(new DslToken.MinusSymbol(this.createSpan(start)));
                 }
-                case '|' -> {
-                    this.stringReader.expect('|');
-                    this.stringReader.expect('|');
-                    yield DataResult.success(new DslToken.DoubleLine(this.createSpan(start)));
-                }
-                case '&' -> {
-                    this.stringReader.expect('&');
-                    this.stringReader.expect('&');
-                    yield DataResult.success(new DslToken.DoubleAmpersand(this.createSpan(start)));
-                }
                 case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
@@ -121,6 +111,12 @@ public class DslTokenizer {
                         case "switch" -> new DslToken.SwitchKeyword(this.createSpan(start));
                         case "case" -> new DslToken.CaseKeyword(this.createSpan(start));
                         case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
+                        case "or" -> new DslToken.LogicalOr(this.createSpan(start));
+                        case "and" -> new DslToken.LogicalAnd(this.createSpan(start));
+                        case "with", "while", "until" ->
+                                throw new ParsingException("The keyword '" + string + "' is reserved", this.createSpan(start));
+                        case "foreach" ->
+                                throw new ParsingException("The keyword '" + string + "' is deprecated", this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }

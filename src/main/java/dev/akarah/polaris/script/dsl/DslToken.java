@@ -185,11 +185,11 @@ public interface DslToken {
 
     }
 
-    record DoubleAmpersand(SpanData span) implements DslToken {
+    record LogicalAnd(SpanData span) implements DslToken {
 
     }
 
-    record DoubleLine(SpanData span) implements DslToken {
+    record LogicalOr(SpanData span) implements DslToken {
 
     }
 
