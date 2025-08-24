@@ -600,8 +600,8 @@ public class DslParser {
             negate = true;
         }
         boolean boolNot = false;
-        if(peek() instanceof DslToken.ExclamationMark) {
-            expect(DslToken.ExclamationMark.class);
+        if(peek() instanceof DslToken.LogicalNot) {
+            expect(DslToken.LogicalNot.class);
             boolNot = true;
         }
         var baseExpr = parseBaseExpression();

@@ -193,7 +193,7 @@ public interface DslToken {
 
     }
 
-    record ExclamationMark(SpanData span) implements DslToken {
+    record LogicalNot(SpanData span) implements DslToken {
 
     }
 

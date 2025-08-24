@@ -113,6 +113,7 @@ public class DslTokenizer {
                         case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
                         case "or" -> new DslToken.LogicalOr(this.createSpan(start));
                         case "and" -> new DslToken.LogicalAnd(this.createSpan(start));
+                        case "not" -> new DslToken.LogicalNot(this.createSpan(start));
                         case "with", "while", "until" ->
                                 throw new ParsingException("The keyword '" + string + "' is reserved", this.createSpan(start));
                         case "foreach" ->
@@ -137,7 +138,15 @@ public class DslTokenizer {
                 case '<' -> tokenWithEquals('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)), () -> new DslToken.LessThanOrEqualSymbol(this.createSpan(start)));
                 case '?' -> token('?', () -> new DslToken.QuestionMark(this.createSpan(start)));
                 case '%' -> token('%', () -> new DslToken.Percent(this.createSpan(start)));
-                case '!' -> tokenWithEquals('!', () -> new DslToken.ExclamationMark(this.createSpan(start)), () -> new DslToken.NotEqualSymbol(this.createSpan(start)));
+                case '!' -> {
+                    stringReader.expect('!');
+                    if(stringReader.peek() == '=') {
+                        stringReader.expect('=');
+                        yield DataResult.success(new DslToken.NotEqualSymbol(this.createSpan(start)));
+                    } else {
+                        throw new ParsingException("Exclamation marks must be immediately succeeded with an equals sign", this.createSpan(start));
+                    }
+                }
                 default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             };
         } catch (CommandSyntaxException exception) {
