@@ -29,7 +29,6 @@ import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Cod;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -290,9 +289,12 @@ public class DslParser {
             return parseRepeat();
         }
         if(this.peek() instanceof DslToken.IfKeyword) {
-            return parseIf();
+            return parseIf(false);
         }
-        if(this.peek() instanceof DslToken.ForeachKeyword) {
+        if(this.peek() instanceof DslToken.UnlessKeyword) {
+            return parseIf(true);
+        }
+        if(this.peek() instanceof DslToken.ForKeyword) {
             return parseForEach();
         }
         if(this.peek() instanceof DslToken.BreakKeyword) {
@@ -341,7 +343,7 @@ public class DslParser {
     }
 
     public ForEachAction parseForEach() {
-        var kw = expect(DslToken.ForeachKeyword.class);
+        var kw = expect(DslToken.ForKeyword.class);
         var variableName = expect(DslToken.Identifier.class);
         expect(DslToken.InKeyword.class);
         var listExpr = parseValue();
@@ -361,16 +363,36 @@ public class DslParser {
         return new SpannedExpression<>(new RepeatTimesAction(times, block), kw.span());
     }
 
-    public Expression parseIf() {
-        var kw = expect(DslToken.IfKeyword.class);
+    public Expression parseIf(boolean inverted) {
+        DslToken kw;
+        if (inverted) {
+            kw = expect(DslToken.UnlessKeyword.class);
+        } else {
+            kw = expect(DslToken.IfKeyword.class);
+        }
+
         var times = parseValue();
+        if (inverted) { // Call not on the boolean so it inverts
+            times = new JvmFunctionAction(
+                    CodegenUtil.ofClass(RBoolean.class),
+                    "not",
+                    MethodTypeDesc.of(
+                            CodegenUtil.ofClass(RBoolean.class),
+                            List.of(CodegenUtil.ofClass(RBoolean.class))
+                    ),
+                    List.of(times),
+                    Type.bool()
+            );
+        }
         var block = parseBlock();
 
         var orElse = Optional.<Expression>empty();
         if(peek() instanceof DslToken.ElseKeyword) {
             expect(DslToken.ElseKeyword.class);
             if(peek() instanceof DslToken.IfKeyword) {
-                orElse = Optional.of(parseIf());
+                orElse = Optional.of(parseIf(false));
+            } else if(peek() instanceof DslToken.UnlessKeyword) {
+                orElse = Optional.of(parseIf(true));
             } else {
                 orElse = Optional.of(parseBlock());
             }
@@ -410,11 +432,11 @@ public class DslParser {
     public Expression parseBooleanOperands() {
         var base = parseEqualityExpression();
         while(true) {
-            if(peek() instanceof DslToken.DoubleAmpersand) {
-                expect(DslToken.DoubleAmpersand.class);
+            if(peek() instanceof DslToken.LogicalAnd) {
+                expect(DslToken.LogicalAnd.class);
                 base = new AndExpression(base, parseEqualityExpression());
-            } else if(peek() instanceof DslToken.DoubleLine) {
-                expect(DslToken.DoubleLine.class);
+            } else if(peek() instanceof DslToken.LogicalOr) {
+                expect(DslToken.LogicalOr.class);
                 base = new OrExpression(base, parseEqualityExpression());
             } else {
                 break;
@@ -578,8 +600,8 @@ public class DslParser {
             negate = true;
         }
         boolean boolNot = false;
-        if(peek() instanceof DslToken.ExclamationMark) {
-            expect(DslToken.ExclamationMark.class);
+        if(peek() instanceof DslToken.LogicalNot) {
+            expect(DslToken.LogicalNot.class);
             boolNot = true;
         }
         var baseExpr = parseBaseExpression();

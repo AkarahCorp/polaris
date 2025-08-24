@@ -86,16 +86,6 @@ public class DslTokenizer {
                     }
                     yield DataResult.success(new DslToken.MinusSymbol(this.createSpan(start)));
                 }
-                case '|' -> {
-                    this.stringReader.expect('|');
-                    this.stringReader.expect('|');
-                    yield DataResult.success(new DslToken.DoubleLine(this.createSpan(start)));
-                }
-                case '&' -> {
-                    this.stringReader.expect('&');
-                    this.stringReader.expect('&');
-                    yield DataResult.success(new DslToken.DoubleAmpersand(this.createSpan(start)));
-                }
                 case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
@@ -104,11 +94,12 @@ public class DslTokenizer {
                     var string = this.readIdentifier();
                     yield DataResult.success(switch (string) {
                         case "if" -> new DslToken.IfKeyword(this.createSpan(start));
+                        case "unless" -> new DslToken.UnlessKeyword(this.createSpan(start));
                         case "else" -> new DslToken.ElseKeyword(this.createSpan(start));
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
                         case "function" -> new DslToken.FunctionKeyword(this.createSpan(start));
-                        case "foreach" -> new DslToken.ForeachKeyword(this.createSpan(start));
+                        case "for" -> new DslToken.ForKeyword(this.createSpan(start));
                         case "in" -> new DslToken.InKeyword(this.createSpan(start));
                         case "break" -> new DslToken.BreakKeyword(this.createSpan(start));
                         case "continue" -> new DslToken.ContinueKeyword(this.createSpan(start));
@@ -120,6 +111,13 @@ public class DslTokenizer {
                         case "switch" -> new DslToken.SwitchKeyword(this.createSpan(start));
                         case "case" -> new DslToken.CaseKeyword(this.createSpan(start));
                         case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
+                        case "or" -> new DslToken.LogicalOr(this.createSpan(start));
+                        case "and" -> new DslToken.LogicalAnd(this.createSpan(start));
+                        case "not" -> new DslToken.LogicalNot(this.createSpan(start));
+                        case "with", "while", "until", "is" ->
+                                throw new ParsingException("The keyword '" + string + "' is reserved", this.createSpan(start));
+                        case "foreach" ->
+                                throw new ParsingException("The keyword '" + string + "' is deprecated", this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }
@@ -140,7 +138,15 @@ public class DslTokenizer {
                 case '<' -> tokenWithEquals('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)), () -> new DslToken.LessThanOrEqualSymbol(this.createSpan(start)));
                 case '?' -> token('?', () -> new DslToken.QuestionMark(this.createSpan(start)));
                 case '%' -> token('%', () -> new DslToken.Percent(this.createSpan(start)));
-                case '!' -> tokenWithEquals('!', () -> new DslToken.ExclamationMark(this.createSpan(start)), () -> new DslToken.NotEqualSymbol(this.createSpan(start)));
+                case '!' -> {
+                    stringReader.expect('!');
+                    if(stringReader.peek() == '=') {
+                        stringReader.expect('=');
+                        yield DataResult.success(new DslToken.NotEqualSymbol(this.createSpan(start)));
+                    } else {
+                        throw new ParsingException("Exclamation marks must be immediately succeeded with an equals sign", this.createSpan(start));
+                    }
+                }
                 default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             };
         } catch (CommandSyntaxException exception) {
