@@ -256,13 +256,13 @@ public class CodegenContext {
                             this.stackFrames.getLast().methodLocals.put(parameter.name(), idx);
                             this.stackFrames.getLast().methodLocalTypes.put(parameter.name(), parameter.typePattern());
 
-                            codeBuilder.localVariable(
-                                    idx,
-                                    parameter.name(),
-                                    parameter.typePattern().classDescType(),
-                                    startLabel,
-                                    endLabel
-                            );
+//                            codeBuilder.localVariable(
+//                                    idx,
+//                                    parameter.name(),
+//                                    parameter.typePattern().classDescType(),
+//                                    startLabel,
+//                                    endLabel
+//                            );
 
                             idx += 1;
                         }
@@ -531,13 +531,13 @@ public class CodegenContext {
         var frame = this.stackFrames.getLast();
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
-        this.codeBuilder.localVariable(
-                index,
-                variable,
-                type.classDescType(),
-                frame.startLabel,
-                frame.breakLabel
-        );
+//        this.codeBuilder.localVariable(
+//                index,
+//                variable,
+//                type.classDescType(),
+//                frame.startLabel,
+//                frame.breakLabel
+//        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
@@ -547,13 +547,13 @@ public class CodegenContext {
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
 
-        this.codeBuilder.localVariable(
-                index,
-                variable,
-                type.classDescType(),
-                frame.startLabel,
-                frame.breakLabel
-        );
+//        this.codeBuilder.localVariable(
+//                index,
+//                variable,
+//                type.classDescType(),
+//                frame.startLabel,
+//                frame.breakLabel
+//        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 

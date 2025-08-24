@@ -34,17 +34,6 @@ public class DslTokenizer {
     public DataResult<List<DslToken>> tokenizeLoop() {
         var list = new ArrayList<DslToken>();
         while(true) {
-            try {
-                stringReader.skipWhitespace();
-                if(stringReader.peek(0) == '/' && stringReader.peek(1) == '/') {
-                    while(stringReader.peek() != '\n') {
-                        stringReader.read();
-                    }
-                    stringReader.read();
-                }
-            } catch (Exception _) {
-
-            }
             stringReader.skipWhitespace();
             DataResult<DslToken> token = tokenizeOnce();
             if(token.isError()) {
@@ -57,18 +46,68 @@ public class DslTokenizer {
         }
     }
 
+    public String readQuotedString() throws CommandSyntaxException {
+        if (!this.stringReader.canRead()) {
+            return "";
+        }
+        final char next = this.stringReader.peek();
+        if (!StringReader.isQuotedStringStart(next)) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedStartOfQuote().createWithContext(this.stringReader);
+        }
+        this.stringReader.skip();
+        return readStringUntil(next);
+    }
+
+    public String readStringUntil(char terminator) throws CommandSyntaxException {
+        final StringBuilder result = new StringBuilder();
+        boolean escaped = false;
+        while (this.stringReader.canRead()) {
+            final char c = this.stringReader.read();
+            if (escaped) {
+                if (c == terminator || c == '\\') {
+                    result.append(c);
+                    escaped = false;
+                } else if(c == 'n') {
+                    result.append('\n');
+                    escaped = false;
+                } else {
+                    this.stringReader.setCursor(this.stringReader.getCursor() - 1);
+                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidEscape().createWithContext(this.stringReader, String.valueOf(c));
+                }
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == terminator) {
+                return result.toString();
+            } else {
+                result.append(c);
+            }
+        }
+
+        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedEndOfQuote().createWithContext(this.stringReader);
+    }
+
     public DataResult<DslToken> tokenizeOnce() {
         try {
             stringReader.skipWhitespace();
+
+            while(stringReader.peek() == '#') {
+                System.out.println("rding cmt");
+                while(stringReader.peek() != '\n') {
+                    stringReader.skip();
+                }
+                stringReader.skipWhitespace();
+            }
+            stringReader.skipWhitespace();
+
             var start = this.stringReader.getCursor();
             return switch (stringReader.peek()) {
                 case '"' ->
-                        DataResult.success(new DslToken.StringExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+                        DataResult.success(new DslToken.StringExpr(readQuotedString(), this.createSpan(start)));
                 case '$' -> {
                     this.stringReader.expect('$');
 
                     if(stringReader.peek() == '"') {
-                        yield DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+                        yield DataResult.success(new DslToken.TextExpr(readQuotedString(), this.createSpan(start)));
                     } else {
                         var namespace = this.readIdentifier();
                         this.stringReader.expect(':');

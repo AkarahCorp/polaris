@@ -30,6 +30,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -450,5 +451,12 @@ public class REntity extends RuntimeValue {
                         RuntimeValue.CODEC.encodeStart(NbtOps.INSTANCE, keyValue).result().orElse(DoubleTag.valueOf(0.0))
                 ))
         );
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, text: text) -> void", documentation = "Sets the text on the provided Text Display.")
+    public static void set_text(REntity $this, RText text) {
+        if($this.javaValue() instanceof Display.TextDisplay textDisplay) {
+            textDisplay.setText(text.javaValue());
+        }
     }
 }
