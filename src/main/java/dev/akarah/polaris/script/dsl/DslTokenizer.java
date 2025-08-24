@@ -114,7 +114,7 @@ public class DslTokenizer {
                         case "or" -> new DslToken.LogicalOr(this.createSpan(start));
                         case "and" -> new DslToken.LogicalAnd(this.createSpan(start));
                         case "not" -> new DslToken.LogicalNot(this.createSpan(start));
-                        case "with", "while", "until" ->
+                        case "with", "while", "until", "is" ->
                                 throw new ParsingException("The keyword '" + string + "' is reserved", this.createSpan(start));
                         case "foreach" ->
                                 throw new ParsingException("The keyword '" + string + "' is deprecated", this.createSpan(start));
