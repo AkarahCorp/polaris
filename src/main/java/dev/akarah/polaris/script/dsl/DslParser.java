@@ -29,7 +29,6 @@ import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Cod;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -292,7 +291,7 @@ public class DslParser {
         if(this.peek() instanceof DslToken.IfKeyword) {
             return parseIf();
         }
-        if(this.peek() instanceof DslToken.ForeachKeyword) {
+        if(this.peek() instanceof DslToken.ForKeyword) {
             return parseForEach();
         }
         if(this.peek() instanceof DslToken.BreakKeyword) {
@@ -341,7 +340,7 @@ public class DslParser {
     }
 
     public ForEachAction parseForEach() {
-        var kw = expect(DslToken.ForeachKeyword.class);
+        var kw = expect(DslToken.ForKeyword.class);
         var variableName = expect(DslToken.Identifier.class);
         expect(DslToken.InKeyword.class);
         var listExpr = parseValue();

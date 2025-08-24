@@ -114,7 +114,7 @@ public interface DslToken {
 
     }
 
-    record ForeachKeyword(SpanData span) implements DslToken {
+    record ForKeyword(SpanData span) implements DslToken {
 
     }
 
