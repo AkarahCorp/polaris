@@ -46,7 +46,7 @@ public class StatManager {
             EquipmentSlot.OFFHAND
     );
 
-    public void loopPlayers() {
+    public void tickPlayers() {
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
             var stats = StatsObject.of();
@@ -60,6 +60,7 @@ public class StatManager {
                     }
                 }));
             }
+            stats.add(Resources.effectManager().getPlayerStats(player));
 
             var so = RStatsObject.of(stats);
             Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), so);
