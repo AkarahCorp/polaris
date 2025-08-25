@@ -25,6 +25,10 @@ public interface DslToken {
 
     }
 
+    record Annotation(String annotation, SpanData span) implements DslToken {
+
+    }
+
     record Comma(SpanData span) implements DslToken {
 
     }

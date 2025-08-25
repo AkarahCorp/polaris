@@ -12,9 +12,11 @@ import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.invoke.MethodType;
+import java.util.List;
 import java.util.Optional;
 
 public record SchemaExpression(
+        List<Annotation> annotations,
         ExpressionTypeSet typeSet,
         AllOfAction body,
         Optional<String> eventName,
