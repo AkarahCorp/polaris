@@ -65,6 +65,18 @@ public class RItem extends RuntimeValue {
         );
     }
 
+    @MethodTypeHint(signature = "(item: item, key: string) -> list[string]", documentation = "Gets a list of all custom tags that were specifically applied to this item.")
+    public static RList dynamic_tags(RItem $this) {
+        var list = RList.create();
+        var cdata = $this.javaValue().get(DataComponents.CUSTOM_DATA);
+        if(cdata != null) {
+            for(var entry : cdata.copyTag().entrySet()) {
+                list.javaValue().add(RString.of(entry.getKey()));
+            }
+        }
+        return list;
+    }
+
     @MethodTypeHint(signature = "(item: item, key: string, value: any) -> void", documentation = "Sets an item tag on the item, held with the key provided.")
     public static void set_tag(RItem $this, RString keyTag, RuntimeValue keyValue) {
         if(!$this.javaValue().has(DataComponents.CUSTOM_DATA)) {

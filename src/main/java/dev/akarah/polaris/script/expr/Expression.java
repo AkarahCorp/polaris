@@ -49,11 +49,10 @@ public interface Expression {
                         action.flatten().validateReturnOnAllBranches(ctx, type);
                     }
 
-                    var last = allOfAction.actions().getLast();
-                    if(last != null) {
-                        yield last.validateReturnOnAllBranches(ctx, type);
+                    if(allOfAction.actions().isEmpty()) {
+                        yield type.typeEquals(Type.void_());
                     }
-                    yield true;
+                    yield allOfAction.actions().getLast().validateReturnOnAllBranches(ctx, type);
                 }
                 case ReturnAction returnAction -> {
                     var foundType = ctx.getTypeOf(returnAction.value());
@@ -66,10 +65,8 @@ public interface Expression {
                         );
                     }
                 }
-                case IfAction ifAction -> {
-                    yield ifAction.then().validateReturnOnAllBranches(ctx, type)
-                            && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
-                }
+                case IfAction ifAction -> ifAction.then().validateReturnOnAllBranches(ctx, type)
+                        && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
                 case RepeatTimesAction repeatTimesAction -> repeatTimesAction.perform().validateReturnOnAllBranches(ctx, type);
                 case ForEachAction forEachAction -> forEachAction.block().validateReturnOnAllBranches(ctx, type);
                 default -> false;

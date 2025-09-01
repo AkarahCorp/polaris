@@ -49,6 +49,9 @@ public class DslActionManager {
 
     public void executeVoid(ResourceLocation name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
+        if(mh == null) {
+            return;
+        }
         try {
             mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
@@ -65,6 +68,9 @@ public class DslActionManager {
 
     public boolean executeBoolean(ResourceLocation name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
+        if(mh == null) {
+            return true;
+        }
         try {
             var result = mh.invokeWithArguments((Object[]) arguments);
             if(result instanceof RBoolean a) {
@@ -73,7 +79,6 @@ public class DslActionManager {
             return true;
         } catch (Throwable e) {
             if(e.getMessage() == null) {
-                System.out.println("Error executing script `" + name + "`: " + e);
                 return true;
             }
             if(e.getMessage().contains("because \"mh\" is null")) {
@@ -142,7 +147,12 @@ public class DslActionManager {
                                     s.replace(".pol", "")
                                             .replace("engine/dsl/", ""));
 
-                            var tokens = DslTokenizer.tokenize(key, string).getOrThrow();
+                            var tokens = List.<DslToken>of();
+                            try {
+                                tokens = DslTokenizer.tokenize(key, string).getOrThrow();
+                            } catch (Exception e) {
+                                System.out.println("Error parsing script `" + key + "`: " + e.getMessage());
+                            }
                             var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
 
                             for(var expression : expressions) {
