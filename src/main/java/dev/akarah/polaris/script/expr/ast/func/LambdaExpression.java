@@ -114,6 +114,7 @@ public record LambdaExpression(
 
     public SchemaExpression asSchema() {
         return new SchemaExpression(
+                List.of(),
                 this.typeSet(),
                 this.body,
                 Optional.empty(),
