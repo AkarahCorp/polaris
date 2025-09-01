@@ -78,13 +78,25 @@ public class DslParser {
         return parser.parseType();
     }
 
+    public List<Annotation> parseAnnotations() {
+        List<Annotation> list = new ArrayList<>();
+        while (peek() instanceof DslToken.Annotation token) {
+            expect(DslToken.Annotation.class);
+            ArrayList<Expression> args = new ArrayList<>();
+            if (peek() instanceof DslToken.OpenParen) {args = parseTuple();}
+            list.add(new Annotation(token.annotation(), args));
+        }
+        return list;
+    }
+
     public SchemaExpression parseFunction() {
+        var annotations = parseAnnotations();
         var kw = expect(DslToken.FunctionKeyword.class);
         var name = expect(DslToken.NamespacedIdentifierExpr.class);
         var location = ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path());
         var typeSet = parseTypeSet("user_func");
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.empty(), kw.span(), location);
+        return new SchemaExpression(annotations, typeSet, body, Optional.empty(), kw.span(), location);
     }
 
     public LambdaExpression parseLambda() {
@@ -96,11 +108,12 @@ public class DslParser {
 
     // TODO: merge with parseSchema
     public SchemaExpression parseEvent() {
+        var annotations = parseAnnotations();
         var kw = expect(DslToken.EventKeyword.class);
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName()));
+        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName()));
     }
 
     public Type<?> parseType() {
