@@ -9,6 +9,8 @@ import dev.akarah.polaris.Main;
 import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.Util;
 import dev.akarah.polaris.registry.command.CommandBuilderNode;
+import dev.akarah.polaris.registry.effect.CustomEffect;
+import dev.akarah.polaris.registry.effect.EffectManager;
 import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.entity.MobSpawnRule;
 import dev.akarah.polaris.registry.item.CustomItem;
@@ -30,12 +32,14 @@ import java.util.concurrent.Executors;
 
 public class Resources {
     static StatManager STAT_MANAGER;
+    static EffectManager EFFECT_MANAGER;
     static EngineConfig CONFIG;
     static DslActionManager ACTION_MANAGER;
     static MiningManager MINING_MANAGER;
     static Scheduler SCHEDULER = new Scheduler();
     static ReloadableJsonManager<CustomItem> CUSTOM_ITEM;
     static ReloadableJsonManager<CustomEntity> CUSTOM_ENTITY;
+    static ReloadableJsonManager<CustomEffect> CUSTOM_EFFECT;
     static ReloadableJsonManager<MobSpawnRule> MOB_SPAWN_RULE;
     static ReloadableJsonManager<MiningRule> MINING_RULE;
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
@@ -49,6 +53,10 @@ public class Resources {
 
     public static DslActionManager actionManager() {
         return ACTION_MANAGER;
+    }
+
+    public static EffectManager effectManager() {
+        return EFFECT_MANAGER;
     }
 
     public static MiningManager miningManager() {
@@ -69,6 +77,10 @@ public class Resources {
 
     public static ReloadableJsonManager<CustomEntity> customEntity() {
         return CUSTOM_ENTITY;
+    }
+
+    public static ReloadableJsonManager<CustomEffect> customEffect() {
+        return CUSTOM_EFFECT;
     }
 
     public static ReloadableJsonManager<MobSpawnRule> mobSpawnRule() {
@@ -95,6 +107,7 @@ public class Resources {
                     Resources.actionManager().reloadWithManager(resourceManager, executor),
                     Resources.customItem().reloadWithManager(resourceManager, executor),
                     Resources.customEntity().reloadWithManager(resourceManager, executor),
+                    Resources.customEffect().reloadWithManager(resourceManager, executor),
                     Resources.mobSpawnRule().reloadWithManager(resourceManager, executor),
                     Resources.miningRule().reloadWithManager(resourceManager, executor),
                     Resources.refreshable().reloadWithManager(resourceManager, executor),
@@ -125,13 +138,33 @@ public class Resources {
         }
 
         Resources.STAT_MANAGER = new StatManager();
+        Resources.EFFECT_MANAGER = new EffectManager();
         Resources.ACTION_MANAGER = new DslActionManager();
         Resources.MINING_MANAGER = new MiningManager();
         Resources.CUSTOM_ITEM = ReloadableJsonManager.of("item", CustomItem.CODEC);
         Resources.CUSTOM_ENTITY = ReloadableJsonManager.of("entity", CustomEntity.CODEC);
+        Resources.CUSTOM_EFFECT = ReloadableJsonManager.of("effect", CustomEffect.CODEC);
         Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
         Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
         Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
         Resources.COMMAND_NODES = ReloadableJsonManager.of("command", CommandBuilderNode.CODEC);
+    }
+
+    public static void loopPlayers() {
+        var server = Main.server();
+        effectManager().tickPlayers();
+        statManager().tickPlayers();
+        miningManager().tickPlayers();
+        if(server.getTickCount() % 200 == 0) {
+            Resources.statManager().refreshPlayerInventories();
+        }
+
+        Resources.actionManager().performEvents("server.tick");
+
+        for(var refreshable : Resources.refreshable().registry().entrySet()) {
+            refreshable.getValue().execute();
+        }
+
+        Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
     }
 }
