@@ -136,7 +136,7 @@ public record CustomItem(
                                 .get(trim.pattern()).orElseThrow()
                 ));
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         });
         this.components().flatMap(CustomComponents::playerSkin).ifPresent(playerSkinUuid -> {

@@ -1,6 +1,7 @@
 package dev.akarah.polaris;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.invoke.WrongMethodTypeException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,6 +10,8 @@ import java.util.Objects;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import dev.akarah.polaris.io.ExceptionPrinter;
+import dev.akarah.polaris.io.PlayerWriter;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
@@ -91,7 +94,7 @@ public class Main implements ModInitializer {
                             p.addItem(element.value().toItemStack(RNullable.of(REntity.of(p))));
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        ExceptionPrinter.writeException(ctx.getSource().getPlayer(), e);
                     }
                     return 0;
                 })));
@@ -104,7 +107,7 @@ public class Main implements ModInitializer {
                                     p.addItem(is);
                                 }
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                ExceptionPrinter.writeException(ctx.getSource().getPlayerOrException(), e);
                             }
                             return 0;
                         })
@@ -152,7 +155,7 @@ public class Main implements ModInitializer {
                                                 if(e instanceof WrongMethodTypeException) {
                                                     ctx.getSource().sendFailure(Component.literal("Method " + element.getFirst() + " must take 1 parameter of type `entity`!"));
                                                 } else {
-                                                    e.printStackTrace();
+                                                    ExceptionPrinter.writeException(ctx.getSource().getPlayerOrException(), e);
                                                 }
                                             }
                                         }
@@ -242,9 +245,8 @@ public class Main implements ModInitializer {
                 + "\n";
 
         LOGGER.error(sb);
-        if(Objects.equals(System.getenv("POLARIS_PRINT_STACKTRACE_ON_COMPILE_FAIL"), "1")) {
-            e.printStackTrace();
-        }
+
+        ExceptionPrinter.writeExceptionToOps(e);
 
         if(SERVER == null) {
             System.exit(1);

@@ -1,6 +1,7 @@
 package dev.akarah.polaris.script.expr.ast.func;
 
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.Type;
@@ -13,7 +14,8 @@ import java.util.List;
 public record UserFunctionAction(
         ResourceLocation name,
         MethodTypeDesc methodTypeDesc,
-        List<Expression> parameters
+        List<Expression> parameters,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

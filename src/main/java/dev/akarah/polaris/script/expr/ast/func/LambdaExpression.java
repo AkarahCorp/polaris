@@ -122,4 +122,9 @@ public record LambdaExpression(
                 ResourceLocation.fromNamespaceAndPath("minecraft", this.name().replace("$", "/"))
         );
     }
+
+    @Override
+    public SpanData span() {
+        return this.body.span();
+    }
 }

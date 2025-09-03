@@ -3,9 +3,12 @@ package dev.akarah.polaris.script.dsl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.exception.MultiException;
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.exception.SpannedException;
+import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.SchemaExpression;
 import dev.akarah.polaris.script.expr.ast.TypeExpression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
@@ -63,8 +66,7 @@ public class DslActionManager {
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return;
             }
-            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionPrinter.writeExceptionToOps(e, name);
         }
     }
 
@@ -86,8 +88,7 @@ public class DslActionManager {
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return true;
             }
-            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionPrinter.writeExceptionToOps(e, name);
             return true;
         }
     }
@@ -162,7 +163,7 @@ public class DslActionManager {
                                 var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
 
                                 for(var expression : expressions) {
-                                    if (expression instanceof TypeExpression(ResourceLocation name, StructType alias)) {
+                                    if (expression instanceof TypeExpression(ResourceLocation name, StructType alias, SpanData spanData)) {
                                         this.dslTypes.put(name, alias);
                                     }
                                     if(expression instanceof SchemaExpression schemaExpression) {

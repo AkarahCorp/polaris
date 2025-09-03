@@ -2,6 +2,7 @@ package dev.akarah.polaris.script.expr.ast;
 
 import com.google.common.collect.Lists;
 import dev.akarah.polaris.script.exception.MultiException;
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
@@ -10,6 +11,7 @@ import dev.akarah.polaris.script.type.Type;
 import java.util.List;
 
 public record AllOfAction(
+        SpanData span,
         List<Expression> actions
 ) implements Expression {
     @Override

@@ -46,6 +46,7 @@ public class CodegenContext {
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
     public Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
+    public Map<String, SchemaExpression> actions = Maps.newHashMap();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
@@ -243,6 +244,8 @@ public class CodegenContext {
      * @return This.
      */
     public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
+        this.actions.put(name, action);
+
         var returnType = action.typeSet().returns().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
@@ -356,6 +359,7 @@ public class CodegenContext {
             this.codeBuilder.aconst_null();
             return this;
         }
+        this.classBuilder.with(SourceFileAttribute.of("user-code"));
         this.codeBuilder.lineNumber(expression.span().debugInfo().line());
         expression.compile(this);
         return this;
@@ -556,13 +560,7 @@ public class CodegenContext {
         var frame = this.stackFrames.getLast();
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
-//        this.codeBuilder.localVariable(
-//                index,
-//                variable,
-//                type.classDescType(),
-//                frame.startLabel,
-//                frame.breakLabel
-//        );
+
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
@@ -572,13 +570,6 @@ public class CodegenContext {
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
 
-//        this.codeBuilder.localVariable(
-//                index,
-//                variable,
-//                type.classDescType(),
-//                frame.startLabel,
-//                frame.breakLabel
-//        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 

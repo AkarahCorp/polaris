@@ -1,5 +1,6 @@
 package dev.akarah.polaris.script.expr.ast.operation;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
@@ -14,7 +15,8 @@ import java.util.List;
 
 public record LessThanOrEqualExpression(
         Expression lhs,
-        Expression rhs
+        Expression rhs,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

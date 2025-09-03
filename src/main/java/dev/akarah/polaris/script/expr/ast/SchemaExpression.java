@@ -20,7 +20,7 @@ public record SchemaExpression(
         ExpressionTypeSet typeSet,
         AllOfAction body,
         Optional<String> eventName,
-        SpanData keywordSpan,
+        SpanData span,
         ResourceLocation location
 ) implements Expression {
     @Override
@@ -52,7 +52,7 @@ public record SchemaExpression(
         return new LambdaExpression(
                 this.typeSet(),
                 this.body,
-                this.keywordSpan
+                this.span
         );
     }
 }

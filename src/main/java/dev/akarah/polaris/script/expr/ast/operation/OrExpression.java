@@ -3,6 +3,7 @@ package dev.akarah.polaris.script.expr.ast.operation;
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
@@ -12,7 +13,8 @@ import dev.akarah.polaris.script.value.RuntimeValue;
 
 public record OrExpression(
         Expression lhs,
-        Expression rhs
+        Expression rhs,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

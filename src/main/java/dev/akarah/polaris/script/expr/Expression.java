@@ -19,9 +19,6 @@ public interface Expression {
     void compile(CodegenContext ctx);
 
     default Expression flatten() {
-        if(this instanceof SpannedExpression<?> expression) {
-            return expression.expression();
-        }
         return this;
     }
 
@@ -36,10 +33,12 @@ public interface Expression {
         }
     }
 
-    default SpanData span() {
-        // System.out.println("[Internal Warning, please report this if you see this!] " + this + " has no span data.");
-        return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
-    }
+    SpanData span();
+
+    // default SpanData span() {
+    //    System.out.println("[Internal Warning, please report this if you see this!] " + this + " has no span data.");
+    //    return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
+    // }
 
     default boolean validateReturnOnAllBranches(CodegenContext ctx, Type<?> type) {
         try {

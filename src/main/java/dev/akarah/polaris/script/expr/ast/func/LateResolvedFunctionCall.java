@@ -104,15 +104,16 @@ public class LateResolvedFunctionCall implements Expression {
                                         CodegenUtil.ofClass(RuntimeValue.class)
                                 )
                         ),
-                        List.of(this.parameters.getFirst(), new CdExpression(field.name()), this.parameters.get(1)),
-                        Type.void_()
+                        List.of(this.parameters.getFirst(), new CdExpression(field.name(), this.spanData), this.parameters.get(1)),
+                        Type.void_(),
+                        this.spanData
                 ));
             }
 
             if(this.functionName.equals(field.name()) && this.parameters.size() == 1) {
                 var fb = field.fallback();
                 if(fb == null) {
-                    fb = new CdExpression(null);
+                    fb = new CdExpression(null, this.spanData);
                 }
                 return Optional.of(new JvmFunctionAction(
                         CodegenUtil.ofClass(RStruct.class),
@@ -125,8 +126,9 @@ public class LateResolvedFunctionCall implements Expression {
                                         CodegenUtil.ofClass(RuntimeValue.class)
                                 )
                         ),
-                        List.of(this.parameters.getFirst(), new CdExpression(field.name()), fb),
-                        field.type()
+                        List.of(this.parameters.getFirst(), new CdExpression(field.name(), this.spanData), fb),
+                        field.type(),
+                        this.spanData
                 ));
             }
         }
@@ -193,7 +195,8 @@ public class LateResolvedFunctionCall implements Expression {
                                 .toList()
                 ),
                 newParameters,
-                typeSet.returns().fixTypeVariables(typeSet)
+                typeSet.returns().fixTypeVariables(typeSet),
+                this.spanData
         ));
     }
 
@@ -233,7 +236,8 @@ public class LateResolvedFunctionCall implements Expression {
                                     .map(CodegenUtil::ofClass)
                                     .toList()
                     ),
-                    this.parameters
+                    this.parameters,
+                    this.spanData
             ));
         }
         return Optional.empty();

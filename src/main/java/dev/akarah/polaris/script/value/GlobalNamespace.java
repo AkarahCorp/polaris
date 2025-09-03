@@ -2,6 +2,7 @@ package dev.akarah.polaris.script.value;
 
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.db.Database;
+import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.registry.stat.StatsObject;
@@ -184,7 +185,7 @@ public class GlobalNamespace {
             try {
                 runnable.javaValue().invoke();
             } catch (Throwable e) {
-                e.printStackTrace();
+                ExceptionPrinter.writeExceptionToOps(e);
             }
         });
     }

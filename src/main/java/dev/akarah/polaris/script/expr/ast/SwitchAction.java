@@ -1,5 +1,6 @@
 package dev.akarah.polaris.script.expr.ast;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
@@ -15,7 +16,8 @@ import java.util.Optional;
 public record SwitchAction(
         Expression value,
         List<Case> cases,
-        Optional<Expression> fallback
+        Optional<Expression> fallback,
+        SpanData span
 ) implements Expression {
     public record Case(Expression comparison, Expression block, Optional<Expression> where) {
 
