@@ -20,8 +20,8 @@ import java.util.UUID;
 @ClassDocumentation(prettifiedName = "Global Namespace",
         details = "The global namespace. All functions here are available everywhere.")
 public class GlobalNamespace {
-    @MethodTypeHint(signature = "(min: number, max: number) -> list[number]", documentation = "Returns a list of numbers from the minimum to the maximum, inclusive.")
-    public static RList range(RNumber min, RNumber max) {
+    @MethodTypeHint(signature = "(min: number, max: number, step?: number) -> list[number]", documentation = "Returns a list of numbers from the minimum to the maximum, inclusive.")
+    public static RList range(RNumber min, RNumber max, RNumber step) {
         var list = RList.create();
 
         var newMin = min.javaValue();
@@ -31,7 +31,7 @@ public class GlobalNamespace {
         double idx = minIsLower ? newMin : newMax;
         while(idx <= (minIsLower ? newMax : newMin)) {
             RList.add(list, RNumber.of(idx));
-            idx += 1;
+            idx += (step == null ? 1 : step.doubleValue());
         }
         return list;
     }
@@ -194,11 +194,16 @@ public class GlobalNamespace {
         return RCell.create(value);
     }
 
-    @MethodTypeHint(signature = "(value: dict[string, number]) -> stat_obj", documentation = "Creates a new stats object from the provided dictionary.")
+    @MethodTypeHint(signature = "(value: dict[identifier, number]) -> stat_obj", documentation = "Creates a new stats object from the provided dictionary.")
     public static RStatsObject stat_obj__create(RDict dict) {
         var so = StatsObject.of();
         for(var entry : dict.javaValue().entrySet()) {
-            so.set(entry.getKey().toString(), (Double) entry.getValue().javaValue());
+            so.add(new StatsObject.SourceEntry(
+                    Component.empty(),
+                    (ResourceLocation) entry.getKey().javaValue(),
+                    StatsObject.SourceOperation.ADD,
+                    (Double) entry.getValue().javaValue()
+            ));
         }
         return RStatsObject.of(so);
     }

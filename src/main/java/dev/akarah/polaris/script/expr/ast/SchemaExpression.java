@@ -25,7 +25,10 @@ public record SchemaExpression(
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        this.body().compile(ctx);
+
+        ctx.pushValue(this.body);
+
+
 
         this.body.validateReturnOnAllBranches(ctx, this.typeSet().returns());
     }

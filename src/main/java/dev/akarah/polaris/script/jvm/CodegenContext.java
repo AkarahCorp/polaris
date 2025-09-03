@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.script.exception.MultiException;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
+import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.SchemaExpression;
 import dev.akarah.polaris.script.type.StructType;
@@ -18,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.classfile.*;
+import java.lang.classfile.attribute.SourceFileAttribute;
 import java.lang.constant.*;
 import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
@@ -120,17 +123,37 @@ public class CodegenContext {
                 ACTION_CLASS_DESC,
                 classBuilder -> {
                     var cc = new CodegenContext();
+
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
                     cc.userTypes = userTypes;
 
+                    var panicking = Lists.<SpannedException>newArrayList();
+
                     refs.forEach(entry -> {
-                        cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
+                        try {
+                            cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
+                        } catch (SpannedException e) {
+                            panicking.add(e);
+                        }
                     });
+
+                    if(!panicking.isEmpty()) {
+                        throw new MultiException(panicking);
+                    }
                     while(!cc.requestedSchemas.isEmpty()) {
                         var oldSchemas = cc.requestedSchemas.stream().toList();
                         cc.requestedSchemas.clear();
-                        oldSchemas.forEach(entry -> cc.classBuilder = cc.compileAction(entry.name(), entry.schema(), entry.freeLocals(), entry.stackFrames()));
+                        oldSchemas.forEach(entry -> {
+                            try {
+                                cc.classBuilder = cc.compileAction(entry.name(), entry.schema(), entry.freeLocals(), entry.stackFrames());
+                            } catch (SpannedException e) {
+                                panicking.add(e);
+                            }
+                        });
+                    }
+                    if(!panicking.isEmpty()) {
+                        throw new MultiException(panicking);
                     }
 
                     for(var field : cc.staticClasses.entrySet()) {
@@ -241,6 +264,7 @@ public class CodegenContext {
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
 
+
                         this.codeBuilder = codeBuilder;
 
                         var startLabel = codeBuilder.newLabel();
@@ -271,7 +295,7 @@ public class CodegenContext {
 
 
                         codeBuilder.labelBinding(startLabel);
-                        action.compile(this);
+                        this.pushValue(action);
                         codeBuilder.labelBinding(endLabel);
                         this.codeBuilder.return_();
                     });
@@ -332,6 +356,7 @@ public class CodegenContext {
             this.codeBuilder.aconst_null();
             return this;
         }
+        this.codeBuilder.lineNumber(expression.span().debugInfo().line());
         expression.compile(this);
         return this;
     }

@@ -16,6 +16,7 @@ import dev.akarah.polaris.registry.mining.MiningManager;
 import dev.akarah.polaris.registry.mining.MiningRule;
 import dev.akarah.polaris.registry.refreshable.Refreshable;
 import dev.akarah.polaris.registry.stat.StatManager;
+import dev.akarah.polaris.registry.stat.StatType;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.dsl.DslActionManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -40,6 +41,7 @@ public class Resources {
     static ReloadableJsonManager<MiningRule> MINING_RULE;
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
     static ReloadableJsonManager<CommandBuilderNode> COMMAND_NODES;
+    static ReloadableJsonManager<StatType> STAT_TYPE;
     public static Map<UUID, GameProfile> GAME_PROFILES = Maps.newHashMap();
     public static boolean addedGameProfiles = false;
 
@@ -71,6 +73,10 @@ public class Resources {
         return CUSTOM_ENTITY;
     }
 
+    public static ReloadableJsonManager<StatType> statType() {
+        return STAT_TYPE;
+    }
+
     public static ReloadableJsonManager<MobSpawnRule> mobSpawnRule() {
         return MOB_SPAWN_RULE;
     }
@@ -98,7 +104,8 @@ public class Resources {
                     Resources.mobSpawnRule().reloadWithManager(resourceManager, executor),
                     Resources.miningRule().reloadWithManager(resourceManager, executor),
                     Resources.refreshable().reloadWithManager(resourceManager, executor),
-                    Resources.command().reloadWithManager(resourceManager, executor)
+                    Resources.command().reloadWithManager(resourceManager, executor),
+                    Resources.statType().reloadWithManager(resourceManager, executor)
             ).get();
 
             Resources.statManager().refreshPlayerInventories();
@@ -133,5 +140,6 @@ public class Resources {
         Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
         Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
         Resources.COMMAND_NODES = ReloadableJsonManager.of("command", CommandBuilderNode.CODEC);
+        Resources.STAT_TYPE = ReloadableJsonManager.of("stat", StatType.CODEC);
     }
 }

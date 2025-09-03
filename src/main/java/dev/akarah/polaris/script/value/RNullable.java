@@ -5,7 +5,7 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import java.util.Optional;
 
 public class RNullable extends RuntimeValue {
-    private final RuntimeValue inner;
+    private RuntimeValue inner;
 
     private RNullable(RuntimeValue inner) {
         this.inner = inner;
@@ -19,6 +19,11 @@ public class RNullable extends RuntimeValue {
     @MethodTypeHint(signature = "<T>(value: T) -> nullable[T]", documentation = "Creates a nullable instance with a value inside.")
     public static RNullable of(RuntimeValue value) {
         return new RNullable(value);
+    }
+
+    @MethodTypeHint(signature = "<T>(wrapper: nullable[T], value: T) -> void", documentation = "Sets the value inside of the nullable instance.")
+    public static void set(RNullable nullable, RuntimeValue value) {
+        nullable.inner = value;
     }
 
     @MethodTypeHint(signature = "(value: nullable[any]) -> boolean", documentation = "Returns true if the value inside is null.")

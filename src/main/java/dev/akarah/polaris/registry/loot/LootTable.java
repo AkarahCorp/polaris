@@ -26,12 +26,12 @@ public record LootTable(
     record GuaranteedEntry(
             ResourceLocation item,
             IntProvider amount,
-            Optional<String> fortuneStat
+            Optional<ResourceLocation> fortuneStat
     ) {
         public static Codec<GuaranteedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("item").forGetter(GuaranteedEntry::item),
                 IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(GuaranteedEntry::amount),
-                Codec.STRING.optionalFieldOf("fortune_stat").forGetter(GuaranteedEntry::fortuneStat)
+                ResourceLocation.CODEC.optionalFieldOf("fortune_stat").forGetter(GuaranteedEntry::fortuneStat)
         ).apply(instance, GuaranteedEntry::new));
     }
 
@@ -39,13 +39,13 @@ public record LootTable(
             int weight,
             ResourceLocation item,
             IntProvider amount,
-            Optional<String> fortuneStat
+            Optional<ResourceLocation> fortuneStat
     ) {
         public static Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("weight").forGetter(WeightedEntry::weight),
                 ResourceLocation.CODEC.fieldOf("item").forGetter(WeightedEntry::item),
                 IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(WeightedEntry::amount),
-                Codec.STRING.optionalFieldOf("fortune_stat").forGetter(WeightedEntry::fortuneStat)
+                ResourceLocation.CODEC.optionalFieldOf("fortune_stat").forGetter(WeightedEntry::fortuneStat)
         ).apply(instance, WeightedEntry::new));
     }
 

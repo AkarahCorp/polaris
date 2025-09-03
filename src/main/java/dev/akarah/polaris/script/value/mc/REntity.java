@@ -234,8 +234,8 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity, stat: string) -> number", documentation = "Gets the stat key for the given player, returning 0.0 as a default.")
-    public static RNumber stat(REntity $this, RString key) {
+    @MethodTypeHint(signature = "(this: entity, stat: identifier) -> number", documentation = "Gets the stat key for the given player, returning 0.0 as a default.")
+    public static RNumber stat(REntity $this, RIdentifier key) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             return RNumber.of(Resources.statManager().lookup(serverPlayer).get(key.javaValue()));
         }

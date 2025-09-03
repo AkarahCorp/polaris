@@ -191,7 +191,8 @@ public record CustomItem(
     }
 
     public StatsObject modifiedStats(RNullable entity, ItemStack itemStack) {
-        var so = RStatsObject.of(this.stats.orElse(StatsObject.of()).copy());
+        var so = RStatsObject.of(this.stats.orElse(StatsObject.of()).copy().withRenamedSources(itemStack.getDisplayName()));
+
         Resources.actionManager().performEvents(
                 "item.get_stats",
                 RItem.of(itemStack),

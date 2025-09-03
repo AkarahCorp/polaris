@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.exception.MultiException;
+import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.expr.ast.SchemaExpression;
 import dev.akarah.polaris.script.expr.ast.TypeExpression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
@@ -138,6 +140,7 @@ public class DslActionManager {
         return CompletableFuture.runAsync(
                 () -> {
                     Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+                    var panicking = Lists.<SpannedException>newArrayList();
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".pol")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();
@@ -150,24 +153,38 @@ public class DslActionManager {
                             var tokens = List.<DslToken>of();
                             try {
                                 tokens = DslTokenizer.tokenize(key, string).getOrThrow();
+                            } catch (SpannedException e) {
+                                panicking.add(e);
                             } catch (Exception e) {
                                 System.out.println("Error parsing script `" + key + "`: " + e.getMessage());
                             }
-                            var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
+                            try {
+                                var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
 
-                            for(var expression : expressions) {
-                                if (expression instanceof TypeExpression(ResourceLocation name, StructType alias)) {
-                                    this.dslTypes.put(name, alias);
+                                for(var expression : expressions) {
+                                    if (expression instanceof TypeExpression(ResourceLocation name, StructType alias)) {
+                                        this.dslTypes.put(name, alias);
+                                    }
+                                    if(expression instanceof SchemaExpression schemaExpression) {
+                                        this.dslExpressions.put(schemaExpression.location(), schemaExpression);
+                                    }
                                 }
-                                if(expression instanceof SchemaExpression schemaExpression) {
-                                    this.dslExpressions.put(schemaExpression.location(), schemaExpression);
-                                }
+                            } catch (SpannedException e) {
+                                panicking.add(e);
                             }
+
+
                         } catch (IOException e) {
                             this.dslExpressions.clear();
                             this.dslTypes.clear();
                             throw new RuntimeException(e);
                         }
+                    }
+
+                    if(!panicking.isEmpty()) {
+                        this.dslExpressions.clear();
+                        this.dslTypes.clear();
+                        throw new MultiException(panicking);
                     }
 
                     this.codeClass = CodegenContext.initializeCompilation(

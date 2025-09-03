@@ -1,5 +1,6 @@
 package dev.akarah.polaris.registry.stat;
 
+import com.google.common.collect.Lists;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.CustomEntity;
@@ -7,8 +8,10 @@ import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.registry.item.value.CustomComponents;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RStatsObject;
+import dev.akarah.polaris.script.value.RText;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.*;
+import java.util.List;
 
 public class StatManager {
     private final Map<UUID, StatsObject> playerStats = new HashMap<>();
@@ -49,22 +53,29 @@ public class StatManager {
     public void loopPlayers() {
 
         for(var player : Main.server().getPlayerList().getPlayers()) {
-            var stats = StatsObject.of();
-            stats.add(Resources.config().baseStats());
+            var sources = StatsObject.of();
+
+            Resources.statType().registry().entrySet().forEach(entry -> {
+                sources.add(new StatsObject.SourceEntry(
+                        Component.literal("Base Stat"),
+                        entry.getKey().location(),
+                        StatsObject.SourceOperation.ADD,
+                        entry.getValue().baseValue()
+                ));
+            });
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
                 CustomItem.itemOf(item).ifPresent(customItem -> customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
                     if(slot.equals(equippableData.slot())) {
                         var addedStats = customItem.modifiedStats(RNullable.of(REntity.of(player)), item.copy());
-                        stats.add(addedStats);
+                        sources.add(addedStats);
                     }
                 }));
             }
 
-            var so = RStatsObject.of(stats);
-            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), so);
+            Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), RStatsObject.of(sources));
 
-            this.set(player, so.javaValue().performFinalCalculations());
+            this.set(player, sources.performFinalCalculations());
             Resources.actionManager().performEvents("player.tick", REntity.of(player));
 
 

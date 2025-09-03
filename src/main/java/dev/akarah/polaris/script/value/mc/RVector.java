@@ -1,6 +1,7 @@
 package dev.akarah.polaris.script.value.mc;
 
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.polaris.script.value.RBoolean;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,11 @@ public class RVector extends RuntimeValue {
     @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Adds two vectors together, returning a new one with the sum.")
     public static RVector add(RVector lhs, RVector rhs) {
         return RVector.of(lhs.javaValue().add(rhs.javaValue()));
+    }
+
+    @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Subtracts two vectors together, returning a new one with the difference.")
+    public static RVector sub(RVector lhs, RVector rhs) {
+        return RVector.of(lhs.javaValue().subtract(rhs.javaValue()));
     }
 
     @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Multiplies two vectors together element-wise, returning a new vector.")
@@ -68,9 +74,27 @@ public class RVector extends RuntimeValue {
         return RVector.of(vector.javaValue().normalize());
     }
 
+    @MethodTypeHint(signature = "(vec: vector) -> vector", documentation = "Centers all values in the vector.")
+    public static RVector center(RVector vector) {
+        return RVector.of(vector.asBlockPos().getCenter());
+    }
+
     @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> number", documentation = "Returns the distance between this and another vector.")
     public static RNumber distance(RVector lhs, RVector rhs) {
         return RNumber.of(lhs.javaValue().distanceTo(rhs.javaValue()));
+    }
+
+    @MethodTypeHint(signature = "(vec: vector, corner1: vector, corner2: vector) -> boolean", documentation = "Returns whether the provided vector is in between the two other vectors.")
+    public static RBoolean is_within(RVector vector, RVector c1, RVector c2) {
+        var vo = vector.javaValue();
+        var v1 = c1.javaValue();;
+        var v2 = c2.javaValue();
+
+        return RBoolean.of(
+                ((v1.x < v2.x) ? (vo.x >= v1.x && vo.x <= v2.x) : (vo.x <= v1.x && vo.x >= v2.x))
+                && ((v1.y < v2.y) ? (vo.y >= v1.y && vo.y <= v2.y) : (vo.y <= v1.y && vo.y >= v2.y))
+                && ((v1.z < v2.z) ? (vo.z >= v1.z && vo.z <= v2.z) : (vo.z <= v1.z && vo.z >= v2.z))
+        );
     }
 
     public BlockPos asBlockPos() {

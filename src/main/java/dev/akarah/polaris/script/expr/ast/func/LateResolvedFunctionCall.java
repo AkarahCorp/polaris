@@ -42,7 +42,7 @@ public class LateResolvedFunctionCall implements Expression {
 
     @Override
     public void compile(CodegenContext ctx) {
-        this.resolve(ctx).compile(ctx);
+        ctx.pushValue(this.resolve(ctx));
     }
 
     @Override
