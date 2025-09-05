@@ -13,6 +13,7 @@
     "PlayerListMixin",
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
+    "ServerCommonPacketListenerImplMixin",
     "ServerEntityMixin",
     "ServerGamePacketListenerMixin",
     "ServerPlayerGameModeMixin",
