@@ -98,6 +98,24 @@ public class RNumber extends RuntimeValue {
         return RNumber.of(lhs.doubleValue() % rhs.doubleValue());
     }
 
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean greater_than(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() > rhs.doubleValue());
+    }
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean greater_than_or_equal_to(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() >= rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean less_than(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() < rhs.doubleValue());
+    }
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean less_than_or_equal_to(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() <= rhs.doubleValue());
+    }
+
     @Override
     public String toString() {
         var df = new DecimalFormat("###,###,###,###,###,###,###,###,###,###.###");

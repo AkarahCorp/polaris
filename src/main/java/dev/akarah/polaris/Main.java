@@ -246,9 +246,14 @@ public class Main implements ModInitializer {
 
         LOGGER.error(sb);
 
-        ExceptionPrinter.writeExceptionToOps(e);
+        try {
+            ExceptionPrinter.writeExceptionToOps(e);
+        } catch (Exception ignored) {
+
+        }
 
         if(SERVER == null) {
+            e.printStackTrace();
             System.exit(1);
         }
     }

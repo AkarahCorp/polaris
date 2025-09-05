@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 
 
-public class RTimestamp implements Comparable<RTimestamp> {
+public class RTimestamp extends RuntimeValue implements Comparable<RTimestamp> {
     private final Instant inner;
 
     public RTimestamp(Instant inner) {
@@ -32,5 +32,10 @@ public class RTimestamp implements Comparable<RTimestamp> {
     @MethodTypeHint(signature = "(this: timestamp, seconds: number) -> timestamp", documentation = "Returns a new timestamp, with the time adjusted by a number of seconds.")
     public static RTimestamp adjust_seconds(RTimestamp $this, RNumber seconds) {
         return RTimestamp.of($this.inner.plusMillis((long) (seconds.doubleValue() * 1000L)));
+    }
+
+    @Override
+    public Instant javaValue() {
+        return this.inner;
     }
 }

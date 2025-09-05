@@ -476,16 +476,32 @@ public class DslParser {
         while(true) {
             if(peek() instanceof DslToken.GreaterThanSymbol) {
                 var tok = expect(DslToken.GreaterThanSymbol.class);
-                baseExpression = new GreaterThanExpression(baseExpression, parseComparisonExpression(), tok.span());
+                baseExpression = new LateResolvedFunctionCall(
+                        "greater_than",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.LessThanSymbol) {
                 var tok = expect(DslToken.LessThanSymbol.class);
-                baseExpression = new LessThanExpression(baseExpression, parseComparisonExpression(), tok.span());
+                baseExpression = new LateResolvedFunctionCall(
+                        "less_than",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.GreaterThanOrEqualSymbol) {
                 var tok = expect(DslToken.GreaterThanOrEqualSymbol.class);
-                baseExpression = new GreaterThanOrEqualExpression(baseExpression, parseComparisonExpression(), tok.span());
+                baseExpression = new LateResolvedFunctionCall(
+                        "greater_than_or_equal_to",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.LessThanOrEqualSymbol) {
                 var tok = expect(DslToken.LessThanOrEqualSymbol.class);
-                baseExpression = new LessThanOrEqualExpression(baseExpression, parseComparisonExpression(), tok.span());
+                baseExpression = new LateResolvedFunctionCall(
+                        "less_than_or_equal_to",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else {
                 break;
             }

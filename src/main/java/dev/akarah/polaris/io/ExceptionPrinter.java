@@ -37,6 +37,8 @@ public class ExceptionPrinter {
                         .withColor(ARGB.color(255, 0, 0))
         );
 
+        System.out.println("An error has occurred!");
+        System.out.println(t.getMessage());
         player.sendSystemMessage(Component.literal(t.getMessage()).withColor(ARGB.color(200, 200, 200)));
 
         for(StackTraceElement element : t.getStackTrace()) {

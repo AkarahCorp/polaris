@@ -58,7 +58,7 @@ public class RString extends RuntimeValue {
         return RBoolean.of($this.inner.contains(content.javaValue()));
     }
 
-    @MethodTypeHint(signature = "(this: string, content: string) -> string", documentation = "Checks if a string contains a substring.")
+    @MethodTypeHint(signature = "(this: string, start: number, end: number) -> string", documentation = "Checks if a string contains a substring.")
     public static RString substring(RString $this, RNumber start, RNumber end) {
         assert end.doubleValue() >= start.doubleValue();
         assert start.doubleValue() >= 0;
