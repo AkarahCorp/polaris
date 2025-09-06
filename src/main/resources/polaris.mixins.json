@@ -10,6 +10,7 @@
     "FishingHookMixin",
     "FishingRodItemMixin",
     "MinecraftServerMixin",
+    "MixinFarmlandBlock",
     "PlayerListMixin",
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
