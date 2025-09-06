@@ -90,12 +90,12 @@ public record LambdaExpression(
         return MethodType.methodType(
                 this.typeSet().returns().typeClass(),
                 Stream.concat(
-                        IntStream.rangeClosed(0, ctx.highestLocal())
-                                .mapToObj(_ -> Object.class),
-                        this.typeSet().parameters().stream()
-                                .map(ParameterNode::typePattern)
-                                .map(Type::typeClass)
-                )
+                                IntStream.rangeClosed(0, ctx.highestLocal())
+                                        .mapToObj(_ -> Object.class),
+                                this.typeSet().parameters().stream()
+                                        .map(ParameterNode::typePattern)
+                                        .map(Type::typeClass)
+                        )
                         .toArray(Class[]::new)
         );
     }

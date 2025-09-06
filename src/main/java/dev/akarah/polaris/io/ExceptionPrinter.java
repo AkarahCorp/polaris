@@ -38,7 +38,12 @@ public class ExceptionPrinter {
         );
 
         System.out.println("An error has occurred!");
+
+        if(t instanceof IllegalAccessException illegalAccessException) {
+            illegalAccessException.printStackTrace();
+        }
         System.out.println(t.getMessage());
+        player.sendSystemMessage(Component.literal(t.getClass().getName()).withColor(ARGB.color(200, 200, 200)));
         player.sendSystemMessage(Component.literal(t.getMessage()).withColor(ARGB.color(200, 200, 200)));
 
         for(StackTraceElement element : t.getStackTrace()) {

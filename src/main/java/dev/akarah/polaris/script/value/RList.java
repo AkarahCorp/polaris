@@ -101,16 +101,23 @@ public class RList extends RuntimeValue {
                 new ArrayList<>(
                         $this.javaValue()
                             .stream()
-                            .sorted(Comparator.comparing((RuntimeValue a) -> {
+                            .sorted((a, b) -> {
                                 try {
-                                    return ((Integer) sortBy.javaValue().invoke(a));
+                                    var aa = ((RNumber) sortBy.javaValue().invoke(a));
+                                    var bb = ((RNumber) sortBy.javaValue().invoke(b));
+                                    return aa.compareTo(bb);
                                 } catch (Throwable e) {
                                     return 0;
                                 }
-                            }))
+                            })
                             .toList()
                 )
         );
+    }
+
+    @MethodTypeHint(signature = "<T>(this: list[T], value: T) -> void", documentation = "Removes instances of the provided value from the list.")
+    public static void remove(RList $this, RuntimeValue value) {
+        $this.javaValue().remove(value);
     }
 
     @MethodTypeHint(signature = "<T>(this: list[T]) -> number", documentation = "Returns the length of the list.")

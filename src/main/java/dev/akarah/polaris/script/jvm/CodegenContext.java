@@ -390,17 +390,8 @@ public class CodegenContext {
      * Generates a random name for a static variable.
      * @return This.
      */
-    public static String randomName() {
-        return "static_" + UUID.randomUUID().toString().replace("-", "_");
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * Generates a random name for a static variable, with a specified prefix.
-     * @return This.
-     */
-    public static String randomName(String base) {
-        return base + "_" + randomName();
+    public static String randomName(String baseName) {
+        return "static_" + baseName + "_" + UUID.randomUUID().toString().replace("-", "_");
     }
 
     /**

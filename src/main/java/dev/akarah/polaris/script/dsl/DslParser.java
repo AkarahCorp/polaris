@@ -28,6 +28,7 @@ import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.effects.AllOf;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -112,7 +113,9 @@ public class DslParser {
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName()));
+        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName(
+                eventName.identifier().replace("-", "_").replace(".", "_")
+        )));
     }
 
     public Type<?> parseType() {

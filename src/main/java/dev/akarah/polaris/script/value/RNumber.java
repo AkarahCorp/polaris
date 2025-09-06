@@ -1,11 +1,12 @@
 package dev.akarah.polaris.script.value;
 
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-public class RNumber extends RuntimeValue {
+public class RNumber extends RuntimeValue implements Comparable<RNumber> {
     private final double inner;
 
     private RNumber(double inner) {
@@ -126,5 +127,10 @@ public class RNumber extends RuntimeValue {
             value = value.replace(".0", "");
         }
         return value;
+    }
+
+    @Override
+    public int compareTo(@NotNull RNumber rNumber) {
+        return Double.compare(this.inner, rNumber.inner);
     }
 }
