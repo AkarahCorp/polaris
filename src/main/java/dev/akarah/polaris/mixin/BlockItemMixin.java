@@ -29,7 +29,7 @@ public class BlockItemMixin {
                 "player.place_block",
                 REntity.of(blockPlaceContext.getPlayer()),
                 RVector.of(
-                        blockPlaceContext.getClickedPos().offset(blockPlaceContext.getClickedFace().getUnitVec3i()).getCenter()
+                        blockPlaceContext.getClickedPos().getCenter()
                 )
         );
         if(!result) {
