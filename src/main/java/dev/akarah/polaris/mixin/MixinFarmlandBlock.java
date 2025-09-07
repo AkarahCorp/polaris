@@ -23,4 +23,9 @@ public class MixinFarmlandBlock {
     public void randomTick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, RandomSource randomSource, CallbackInfo ci) {
         ci.cancel();
     }
+
+    @Inject(at = @At("HEAD"), method = "turnToDirt", cancellable = true)
+    private static void turnToDirt(Entity entity, BlockState blockState, Level level, BlockPos blockPos, CallbackInfo ci) {
+        ci.cancel();
+    }
 }

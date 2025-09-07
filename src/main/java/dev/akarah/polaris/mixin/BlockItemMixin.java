@@ -28,7 +28,9 @@ public class BlockItemMixin {
         var result = Resources.actionManager().performEvents(
                 "player.place_block",
                 REntity.of(blockPlaceContext.getPlayer()),
-                RVector.of(blockPlaceContext.getClickLocation().add(blockPlaceContext.getClickedFace().getUnitVec3().multiply(0.5, 0.5, 0.5)))
+                RVector.of(
+                        blockPlaceContext.getClickedPos().offset(blockPlaceContext.getClickedFace().getUnitVec3i()).getCenter()
+                )
         );
         if(!result) {
             var player = blockPlaceContext.getPlayer();
