@@ -26,7 +26,7 @@ public class RTimestamp extends RuntimeValue implements Comparable<RTimestamp> {
 
     @MethodTypeHint(signature = "(this: timestamp) -> number", documentation = "Returns the seconds since 1970, with millisecond precision.")
     public static RNumber in_epoch_seconds(RTimestamp $this) {
-        return RNumber.of($this.inner.toEpochMilli() * 1000L);
+        return RNumber.of((double) $this.inner.toEpochMilli() / 1000.0);
     }
 
     @MethodTypeHint(signature = "(this: timestamp, seconds: number) -> timestamp", documentation = "Returns a new timestamp, with the time adjusted by a number of seconds.")
