@@ -1,6 +1,9 @@
 package dev.akarah.polaris.script.value.mc;
 
+import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.RuntimeValue;
+import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
 import net.minecraft.resources.ResourceLocation;
 
 public class RIdentifier extends RuntimeValue {
@@ -16,6 +19,11 @@ public class RIdentifier extends RuntimeValue {
 
     public static RIdentifier of(String namespace, String path) {
         return new RIdentifier(ResourceLocation.fromNamespaceAndPath(namespace, path));
+    }
+
+    @MethodTypeHint(signature = "(this: identifier, append: string) -> identifier", documentation = "Returns a new resource location, with the string appended to the end.")
+    public static RIdentifier add(RIdentifier $this, RString append) {
+        return RIdentifier.of(ResourceLocation.parse($this.toString() + append));
     }
 
     @Override

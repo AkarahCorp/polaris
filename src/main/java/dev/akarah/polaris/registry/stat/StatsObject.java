@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
-            .unboundedMap(Codec.STRING, Codec.DOUBLE)
+            .unboundedMap(ResourceLocation.CODEC, Codec.DOUBLE)
             .xmap(StatsObject::new, _ -> {
                 throw new RuntimeException("Encoding statsobjects not supported.. sorry :(");
             });
@@ -105,6 +105,31 @@ public class StatsObject {
         return result;
     }
 
+    public @NotNull Map<@NotNull String, @NotNull Double> reconstructOldMap() {
+        this.sortEntries();
+        var map = Maps.<@NotNull String, @NotNull Double>newConcurrentMap();
+        for(var source : this.performFinalCalculations().sources) {
+            switch (source.operation) {
+                case SourceOperation.ADD -> map.compute(source.stat.toString(), (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.PERCENTAGE -> map.compute(source.stat + "/percent", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MULTIPLY -> map.compute(source.stat + "/multiply", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MINIMUM -> map.compute(source.stat + "/min", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MAXIMUM -> map.compute(source.stat + "/max", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+            }
+        }
+        return map;
+    }
+
     public @NotNull Map<@NotNull ResourceLocation, @NotNull Double> values() {
         this.sortEntries();
         var map = Maps.<@NotNull ResourceLocation, @NotNull Double>newConcurrentMap();
@@ -112,6 +137,9 @@ public class StatsObject {
             switch (source.operation) {
                 case SourceOperation.ADD -> map.compute(source.stat, (_, value) ->
                         (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.PERCENTAGE -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) * (1 + source.value / 100)
                 );
                 case SourceOperation.MULTIPLY -> map.compute(source.stat, (_, value) ->
                         (value == null ? 0 : value) * (1 + source.value)
@@ -138,14 +166,16 @@ public class StatsObject {
         this.sources = map;
     }
 
-    private StatsObject(Map<String, Double> map) {
+    private StatsObject(Map<ResourceLocation, Double> map) {
         for(var entry : map.entrySet()) {
-            var rawKey = entry.getKey().replace("%", "").replace("*", "");
+            var rawKey = entry.getKey().toString().replace("/percent", "").replace("/multiply", "");
             this.sources.add(new SourceEntry(
                     Component.empty(),
                     ResourceLocation.parse(rawKey),
-                    entry.getKey().endsWith("%") ? SourceOperation.PERCENTAGE
-                    : entry.getKey().endsWith("*") ? SourceOperation.MULTIPLY
+                    entry.getKey().toString().endsWith("/percent") ? SourceOperation.PERCENTAGE
+                    : entry.getKey().toString().endsWith("/multiply") ? SourceOperation.MULTIPLY
+                    : entry.getKey().toString().endsWith("/min") ? SourceOperation.MINIMUM
+                    : entry.getKey().toString().endsWith("/max") ? SourceOperation.MAXIMUM
                     : SourceOperation.ADD,
                     entry.getValue()
             ));
@@ -169,7 +199,7 @@ public class StatsObject {
             this.sources.add(new StatsObject.SourceEntry(
                     name,
                     source.stat(),
-                    StatsObject.SourceOperation.ADD,
+                    source.operation(),
                     source.value()
             ));
         }

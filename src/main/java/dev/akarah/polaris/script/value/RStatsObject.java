@@ -21,9 +21,14 @@ public class RStatsObject extends RuntimeValue {
         return this.inner;
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, key: identifier) -> number", documentation = "Get the value of a stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, key: identifier) -> number", documentation = "Get the final value of a stat in this stat object.")
     public static RNumber get(RStatsObject object, RIdentifier key) {
         return RNumber.of(object.javaValue().get(key.javaValue()));
+    }
+
+    @MethodTypeHint(signature = "(object: stat_obj, key: identifier) -> number", documentation = "Get the raw value of a stat in this stat object.")
+    public static RNumber get_raw(RStatsObject object, RIdentifier key) {
+        return RNumber.of(object.javaValue().reconstructOldMap().getOrDefault(key.javaValue().toString(), 0.0));
     }
 
     @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
