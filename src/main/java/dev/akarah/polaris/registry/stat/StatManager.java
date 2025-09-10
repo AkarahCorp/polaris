@@ -72,7 +72,8 @@ public class StatManager {
                     }
                 }));
             }
-            stats.add(Resources.effectManager().getPlayerStats(player));
+
+            sources.add(Resources.effectManager().getPlayerStats(player));
 
             Resources.actionManager().performEvents("player.stat_tick", REntity.of(player), RStatsObject.of(sources));
 

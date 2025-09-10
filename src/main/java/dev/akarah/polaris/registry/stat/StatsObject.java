@@ -3,14 +3,11 @@ package dev.akarah.polaris.registry.stat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.Optionull;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
@@ -213,16 +210,25 @@ public class StatsObject {
         this.sources.add(other);
     }
 
-    public void multiply(double other) {
-        for(var key : this.keySet()) {
-            this.set(key, this.get(key) * other);
-        }
-    }
-
     public StatsObject copy() {
         var so = StatsObject.of();
         so.add(this);
         return so;
+    }
+
+    public void multiply(double multiplier) {
+        var sources = Lists.<StatsObject.SourceEntry>newArrayList();
+
+        for(var source : this.sources) {
+            sources.add(new StatsObject.SourceEntry(
+                    source.title(),
+                    source.stat(),
+                    source.operation(),
+                    source.value() * multiplier
+            ));
+        }
+
+        this.sources = sources;
     }
 
     public StatsObject withRenamedSources(Component newName) {

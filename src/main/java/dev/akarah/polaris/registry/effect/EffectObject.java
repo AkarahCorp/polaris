@@ -5,6 +5,7 @@ import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class EffectObject {
@@ -22,7 +23,7 @@ public class EffectObject {
         var baseStats = effect.value().stats().orElse(CustomEffect.EffectStats.EMPTY).base().orElse(StatsObject.EMPTY);
         var perLevelStats = effect.value().stats().orElse(CustomEffect.EffectStats.EMPTY).perLevel().orElse(StatsObject.EMPTY);
         perLevelStats.multiply(level-1);
-        baseStats.add(perLevelStats);
+        baseStats.addAllUnderName(perLevelStats, Component.literal(""));
         return baseStats;
     }
 
