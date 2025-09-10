@@ -1,5 +1,6 @@
 package dev.akarah.polaris.commands;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -29,14 +30,23 @@ import java.util.function.BiConsumer;
 
 public class CommandEventHandler {
 
-    public static List<BiConsumer<CommandDispatcher<CommandSourceStack>, LiteralArgumentBuilder<CommandSourceStack>>> COMMAND_SOURCES = List.of(
-            CommandEventHandler::registerCustomCommands,
-            CommandEventHandler::giveCommand,
-            CommandEventHandler::setTagCommand,
-            CommandEventHandler::myStatsCommand,
-            CommandEventHandler::summonCommand,
-            CommandEventHandler::runCommand
-    );
+    public static List<BiConsumer<CommandDispatcher<CommandSourceStack>, LiteralArgumentBuilder<CommandSourceStack>>> commandSources() {
+        var list = Lists.<BiConsumer<CommandDispatcher<CommandSourceStack>, LiteralArgumentBuilder<CommandSourceStack>>>newArrayList();
+        list.addAll(CommandEventHandler.engineCommands());
+        list.addAll(GitManager.gitCommands());
+        return list;
+    }
+
+    public static List<BiConsumer<CommandDispatcher<CommandSourceStack>, LiteralArgumentBuilder<CommandSourceStack>>> engineCommands() {
+        return List.of(
+                CommandEventHandler::registerCustomCommands,
+                CommandEventHandler::giveCommand,
+                CommandEventHandler::setTagCommand,
+                CommandEventHandler::myStatsCommand,
+                CommandEventHandler::summonCommand,
+                CommandEventHandler::runCommand
+        );
+    }
 
     public static void registerCustomCommands(CommandDispatcher<CommandSourceStack> dispatcher, LiteralArgumentBuilder<CommandSourceStack> root) {
         Resources.command().registry().listElements().forEach(element -> {
@@ -198,7 +208,7 @@ public class CommandEventHandler {
         CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
             var root = Commands.literal("engine").requires(x -> x.hasPermission(4));
 
-            for(var source : COMMAND_SOURCES) {
+            for(var source : CommandEventHandler.commandSources()) {
                 source.accept(dispatcher, root);
             }
 
