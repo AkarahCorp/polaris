@@ -51,9 +51,10 @@ public class EffectManager {
         return getPlayerStats(player.getUUID());
     }
 
-    public void tickPlayers(){
-        for (Player player : Main.server().getPlayerList().getPlayers()) {
-            var iterator = playerEffects.get(player.getUUID()).entrySet().iterator();
+    public void tickPlayers() {
+        for(var playerUuid : playerEffects.keySet()) {
+            var player = Main.server().getPlayerList().getPlayer(playerUuid);
+            var iterator = playerEffects.get(playerUuid).entrySet().iterator();
             while (iterator.hasNext()) {
                 EffectObject effect = iterator.next().getValue();
                 effect.tick(player);
