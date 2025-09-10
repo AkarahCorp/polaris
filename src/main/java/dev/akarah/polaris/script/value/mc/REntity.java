@@ -2,6 +2,8 @@ package dev.akarah.polaris.script.value.mc;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Transformation;
+import dev.akarah.polaris.Main;
 import dev.akarah.polaris.db.Database;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.DynamicEntity;
@@ -30,6 +32,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -40,6 +43,8 @@ import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.Map;
 import java.util.Objects;
@@ -115,14 +120,14 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity, message: text) -> void", documentation = "Sends a message in the chat of the player provided.")
-    public static void send_message(REntity $this, RText message) {
+    public static void player__send_message(REntity $this, RText message) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             serverPlayer.sendSystemMessage(message.javaValue());
         }
     }
 
     @MethodTypeHint(signature = "(this: entity, message: text) -> void", documentation = "Sends a message through the actionbar to the player provided.")
-    public static void send_actionbar(REntity $this, RText message) {
+    public static void player__send_actionbar(REntity $this, RText message) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             serverPlayer.sendSystemMessage(message.javaValue(), true);
         }
@@ -197,7 +202,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity) -> nullable[inventory]", documentation = "Gets the open inventory of the entity.")
-    public static RNullable current_open_inventory(REntity $this) {
+    public static RNullable player__current_open_inventory(REntity $this) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer && serverPlayer.hasContainerOpen()) {
             var inv = RInventory.of(serverPlayer.containerMenu.getSlot(0).container, RText.of(Component.literal("Untitled")));
             if(serverPlayer.containerMenu instanceof DynamicContainerMenu dynamicContainerMenu) {
@@ -209,7 +214,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity, inv: inventory) -> void", documentation = "Opens an inventory for the player.")
-    public static void open_inventory(REntity $this, RInventory inventory) {
+    public static void player__open_inventory(REntity $this, RInventory inventory) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             var mt = switch (inventory.javaValue().getContainerSize()) {
                 case 9 -> MenuType.GENERIC_9x1;
@@ -233,8 +238,8 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity, stat: string) -> number", documentation = "Gets the stat key for the given player, returning 0.0 as a default.")
-    public static RNumber stat(REntity $this, RString key) {
+    @MethodTypeHint(signature = "(this: entity, stat: identifier) -> number", documentation = "Gets the stat key for the given player, returning 0.0 as a default.")
+    public static RNumber stat(REntity $this, RIdentifier key) {
         if($this.inner instanceof ServerPlayer serverPlayer) {
             return RNumber.of(Resources.statManager().lookup(serverPlayer).get(key.javaValue()));
         }
@@ -276,7 +281,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity, stats: stat_obj) -> void", documentation = "Adds the stats in the stat object to a player entity.")
-    public static void add_stats(REntity $this, RStatsObject statsObject) {
+    public static void player__add_stats(REntity $this, RStatsObject statsObject) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             var so = Resources.statManager().lookup(serverPlayer);
             so.add(statsObject.javaValue());
@@ -285,7 +290,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the owner of the entity if it is an item entity. Could still be null if the item entity has no owner.")
-    public static RNullable owner(REntity $this) {
+    public static RNullable item__owner(REntity $this) {
         if($this.javaValue() instanceof ItemEntity item) {
             if(item.target == null) {
                 return RNullable.empty();
@@ -296,7 +301,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity) -> nullable[item]", documentation = "Returns the item of this entity if it is an item entity.")
-    public static RNullable item(REntity $this) {
+    public static RNullable item__get_item(REntity $this) {
         if($this.javaValue() instanceof ItemEntity item) {
             return RNullable.of(RItem.of(item.getItem()));
         }
@@ -312,7 +317,7 @@ public class REntity extends RuntimeValue {
     public static Map<UUID, Objective> objectives = Maps.newHashMap();
 
     @MethodTypeHint(signature = "(this: entity, lines: list[text]) -> void", documentation = "Sets the lines of the sidebar of the given player.")
-    public static void set_sidebar(REntity $this, RList list) {
+    public static void player__set_sidebar(REntity $this, RList list) {
         if(list.javaValue().isEmpty()) {
             return;
         }
@@ -376,7 +381,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity) -> number", documentation = "Returns the selected slot in the hotbar of the entity.")
-    public static RNumber selected_slot(REntity $this) {
+    public static RNumber player__selected_slot(REntity $this) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             return RNumber.of(serverPlayer.getInventory().getSelectedSlot());
         }
@@ -384,14 +389,14 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity, item: item, position: vector) -> void", documentation = "Creates a new item entity owned by this entity, with specified item and position.")
-    public static void spawn_owned_item(REntity $this, RItem item, RVector vector) {
+    public static void player__spawn_owned_item(REntity $this, RItem item, RVector vector) {
         var ie = new ItemEntity($this.javaValue().level(), 0, 0, 0, item.javaValue());
         ie.teleportTo(vector.javaValue().x, vector.javaValue().y, vector.javaValue().z);
         $this.javaValue().level().addFreshEntity(ie);
     }
 
     @MethodTypeHint(signature = "(this: entity, sound: identifier, pitch?: number, volume?: number) -> void", documentation = "Play a sound to a player.")
-    public static void play_sound(REntity $this, RIdentifier sound, RNumber pitch, RNumber volume) {
+    public static void player__play_sound(REntity $this, RIdentifier sound, RNumber pitch, RNumber volume) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             serverPlayer.level().playSound(
                     null,
@@ -411,7 +416,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity, item: item) -> void", documentation = "Returns the selected slot in the hotbar of the entity.")
-    public static void set_cursor_item(REntity $this, RItem item) {
+    public static void player__set_cursor_item(REntity $this, RItem item) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             serverPlayer.containerMenu.setCarried(item.javaValue());
             serverPlayer.containerMenu.sendAllDataToRemote();
@@ -419,7 +424,7 @@ public class REntity extends RuntimeValue {
     }
 
     @MethodTypeHint(signature = "(this: entity) -> item", documentation = "Get the item on the player's inventory cursor, if present.")
-    public static RItem cursor_item(REntity $this) {
+    public static RItem player__cursor_item(REntity $this) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             return RItem.of(serverPlayer.containerMenu.getCarried());
         }
@@ -450,5 +455,40 @@ public class REntity extends RuntimeValue {
                         RuntimeValue.CODEC.encodeStart(NbtOps.INSTANCE, keyValue).result().orElse(DoubleTag.valueOf(0.0))
                 ))
         );
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, text: text) -> void", documentation = "Sets the text on the provided Text Display.")
+    public static void display__set_text(REntity $this, RText text) {
+        if($this.javaValue() instanceof Display.TextDisplay textDisplay) {
+            textDisplay.setText(text.javaValue());
+        }
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, scale: vector) -> void", documentation = "Sets the text on the provided Text Display.")
+    public static void display__set_scale(REntity $this, RVector scale) {
+        if($this.javaValue() instanceof Display display) {
+            var oldTransformation = Display.createTransformation(display.getEntityData());
+            display.setTransformation(
+                    new Transformation(
+                            oldTransformation.getTranslation(),
+                            oldTransformation.getRightRotation(),
+                            scale.javaValue().toVector3f(),
+                            oldTransformation.getLeftRotation()
+                    )
+            );
+        }
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, dialog: identifier) -> void", documentation = "Shows a dialog to the player.")
+    public static void player__show_dialog(REntity $this, RIdentifier dialogId) {
+        if($this.javaValue() instanceof ServerPlayer player) {
+            try {
+                var dialog = player.level().registryAccess().lookup(Registries.DIALOG).orElseThrow()
+                        .get(dialogId.javaValue()).orElseThrow();
+                player.openDialog(dialog);
+            } catch (Exception ignored) {
+
+            }
+        }
     }
 }

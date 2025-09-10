@@ -32,6 +32,25 @@ public class RDict extends RuntimeValue {
         dict.inner.put(key, value);
     }
 
+    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V], key: K) -> void", documentation = "Removes a key from the dictionary.")
+    public static void remove(RDict dict, RuntimeValue key) {
+        dict.inner.remove(key);
+    }
+
+    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V]) -> list[K]", documentation = "Lists all keys from the dictionary.")
+    public static RList keys(RDict dict) {
+        var list = RList.create();
+        for(var key : dict.javaValue().keySet()) {
+            RList.add(list, key);
+        }
+        return list;
+    }
+
+    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V]) -> number", documentation = "Returns the amount of entries in the dictionary.")
+    public static RNumber size(RDict dict) {
+        return RNumber.of(dict.inner.size());
+    }
+
     @Override
     public Map<RuntimeValue, RuntimeValue> javaValue() {
         return this.inner;

@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.script.exception.MultiException;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
+import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.SchemaExpression;
 import dev.akarah.polaris.script.type.StructType;
@@ -18,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.classfile.*;
+import java.lang.classfile.attribute.SourceFileAttribute;
 import java.lang.constant.*;
 import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
@@ -43,6 +46,7 @@ public class CodegenContext {
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
     public Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
+    public Map<String, SchemaExpression> actions = Maps.newHashMap();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
@@ -120,17 +124,37 @@ public class CodegenContext {
                 ACTION_CLASS_DESC,
                 classBuilder -> {
                     var cc = new CodegenContext();
+
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;
                     cc.userTypes = userTypes;
 
+                    var panicking = Lists.<SpannedException>newArrayList();
+
                     refs.forEach(entry -> {
-                        cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
+                        try {
+                            cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
+                        } catch (SpannedException e) {
+                            panicking.add(e);
+                        }
                     });
+
+                    if(!panicking.isEmpty()) {
+                        throw new MultiException(panicking);
+                    }
                     while(!cc.requestedSchemas.isEmpty()) {
                         var oldSchemas = cc.requestedSchemas.stream().toList();
                         cc.requestedSchemas.clear();
-                        oldSchemas.forEach(entry -> cc.classBuilder = cc.compileAction(entry.name(), entry.schema(), entry.freeLocals(), entry.stackFrames()));
+                        oldSchemas.forEach(entry -> {
+                            try {
+                                cc.classBuilder = cc.compileAction(entry.name(), entry.schema(), entry.freeLocals(), entry.stackFrames());
+                            } catch (SpannedException e) {
+                                panicking.add(e);
+                            }
+                        });
+                    }
+                    if(!panicking.isEmpty()) {
+                        throw new MultiException(panicking);
                     }
 
                     for(var field : cc.staticClasses.entrySet()) {
@@ -220,6 +244,8 @@ public class CodegenContext {
      * @return This.
      */
     public ClassBuilder compileAction(String name, SchemaExpression action, int freeLocals, List<StackFrame> frames) {
+        this.actions.put(name, action);
+
         var returnType = action.typeSet().returns().flatten() instanceof VoidType ? void.class : RuntimeValue.class;
         var parameters = new ArrayList<ClassDesc>();
         for(int i = 0; i <= freeLocals; i++) {
@@ -241,6 +267,7 @@ public class CodegenContext {
                     this.methodBuilder = methodBuilder;
                     methodBuilder.withCode(codeBuilder -> {
 
+
                         this.codeBuilder = codeBuilder;
 
                         var startLabel = codeBuilder.newLabel();
@@ -256,13 +283,13 @@ public class CodegenContext {
                             this.stackFrames.getLast().methodLocals.put(parameter.name(), idx);
                             this.stackFrames.getLast().methodLocalTypes.put(parameter.name(), parameter.typePattern());
 
-                            codeBuilder.localVariable(
-                                    idx,
-                                    parameter.name(),
-                                    parameter.typePattern().classDescType(),
-                                    startLabel,
-                                    endLabel
-                            );
+//                            codeBuilder.localVariable(
+//                                    idx,
+//                                    parameter.name(),
+//                                    parameter.typePattern().classDescType(),
+//                                    startLabel,
+//                                    endLabel
+//                            );
 
                             idx += 1;
                         }
@@ -271,7 +298,7 @@ public class CodegenContext {
 
 
                         codeBuilder.labelBinding(startLabel);
-                        action.compile(this);
+                        this.pushValue(action);
                         codeBuilder.labelBinding(endLabel);
                         this.codeBuilder.return_();
                     });
@@ -332,6 +359,8 @@ public class CodegenContext {
             this.codeBuilder.aconst_null();
             return this;
         }
+        this.classBuilder.with(SourceFileAttribute.of("user-code"));
+        this.codeBuilder.lineNumber(expression.span().debugInfo().line());
         expression.compile(this);
         return this;
     }
@@ -361,17 +390,8 @@ public class CodegenContext {
      * Generates a random name for a static variable.
      * @return This.
      */
-    public static String randomName() {
-        return "static_" + UUID.randomUUID().toString().replace("-", "_");
-    }
-
-    /**
-     * Used by {@link Expression#compile(CodegenContext)}.
-     * Generates a random name for a static variable, with a specified prefix.
-     * @return This.
-     */
-    public static String randomName(String base) {
-        return base + "_" + randomName();
+    public static String randomName(String baseName) {
+        return "static_" + baseName + "_" + UUID.randomUUID().toString().replace("-", "_");
     }
 
     /**
@@ -531,13 +551,7 @@ public class CodegenContext {
         var frame = this.stackFrames.getLast();
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
-        this.codeBuilder.localVariable(
-                index,
-                variable,
-                type.classDescType(),
-                frame.startLabel,
-                frame.breakLabel
-        );
+
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 
@@ -547,13 +561,6 @@ public class CodegenContext {
         frame.methodLocals.put(variable, index);
         frame.methodLocalTypes.put(variable, type);
 
-        this.codeBuilder.localVariable(
-                index,
-                variable,
-                type.classDescType(),
-                frame.startLabel,
-                frame.breakLabel
-        );
         return this.bytecodeUnsafe(cb -> cb.storeLocal(type.classFileType(), index));
     }
 

@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.registry.loot.LootTable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public record MiningRule(
         Map<String, String> stateRequirements,
         Pair<BlockPos, BlockPos> area,
         double toughness,
-        String speedStat,
-        String spreadStat,
+        ResourceLocation speedStat,
+        ResourceLocation spreadStat,
         Optional<LootTable> lootTable,
         double spreadToughness
 ) {
@@ -29,8 +30,8 @@ public record MiningRule(
                     .optionalFieldOf("area", Pair.of(new BlockPos(-30000000, -30000000, -30000000), new BlockPos(30000000, 30000000, 30000000)))
                     .forGetter(MiningRule::area),
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),
-            Codec.STRING.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
-            Codec.STRING.optionalFieldOf("spread_stat", "?").forGetter(MiningRule::spreadStat),
+            ResourceLocation.CODEC.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
+            ResourceLocation.CODEC.optionalFieldOf("spread_stat", ResourceLocation.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
             Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness)
     ).apply(instance, MiningRule::new));

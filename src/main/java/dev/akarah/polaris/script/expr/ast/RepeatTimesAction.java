@@ -1,5 +1,6 @@
 package dev.akarah.polaris.script.expr.ast;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.Type;
@@ -9,7 +10,8 @@ import java.lang.classfile.TypeKind;
 
 public record RepeatTimesAction(
         Expression times,
-        Expression perform
+        Expression perform,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

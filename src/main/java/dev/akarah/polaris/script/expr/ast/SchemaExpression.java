@@ -12,18 +12,23 @@ import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.invoke.MethodType;
+import java.util.List;
 import java.util.Optional;
 
 public record SchemaExpression(
+        List<Annotation> annotations,
         ExpressionTypeSet typeSet,
         AllOfAction body,
         Optional<String> eventName,
-        SpanData keywordSpan,
+        SpanData span,
         ResourceLocation location
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {
-        this.body().compile(ctx);
+
+        ctx.pushValue(this.body);
+
+
 
         this.body.validateReturnOnAllBranches(ctx, this.typeSet().returns());
     }
@@ -47,7 +52,7 @@ public record SchemaExpression(
         return new LambdaExpression(
                 this.typeSet(),
                 this.body,
-                this.keywordSpan
+                this.span
         );
     }
 }

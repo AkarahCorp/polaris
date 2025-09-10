@@ -17,6 +17,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 
 public class DbCodecs {
     public static StreamCodec<RegistryFriendlyByteBuf, RuntimeValue> DYNAMIC_CODEC = StreamCodec.recursive(selfCodec -> StreamCodec.of(
@@ -86,6 +87,11 @@ public class DbCodecs {
                         } else {
                             buf.writeVarInt(12);
                         }
+                    }
+                    case RTimestamp timestamp -> {
+                        buf.writeVarInt(14);
+                        buf.writeVarLong(timestamp.javaValue().getEpochSecond());
+                        buf.writeVarLong(timestamp.javaValue().getNano());
                     }
                     default -> throw new RuntimeException("Unable to make a codec out of " + object);
                 }
@@ -157,6 +163,11 @@ public class DbCodecs {
                         return RItem.of(Resources.customItem().registry().get(itemId)
                                 .map(x -> x.value().toMinimalItemStack(CustomData.of(customData), 1).copyWithCount(itemSize))
                                 .orElse(ItemStack.EMPTY));
+                    }
+                    case 14 -> {
+                        var seconds = buf.readVarLong();
+                        var nanos = buf.readVarLong();
+                        return RTimestamp.of(Instant.ofEpochSecond(seconds, nanos));
                     }
                     default -> throw new RuntimeException("Unknown id " + id);
                 }

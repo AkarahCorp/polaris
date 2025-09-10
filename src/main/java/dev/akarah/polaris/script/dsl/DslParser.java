@@ -9,7 +9,6 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
-import dev.akarah.polaris.script.expr.SpannedExpression;
 import dev.akarah.polaris.script.expr.ast.*;
 import dev.akarah.polaris.script.expr.ast.func.LambdaExpression;
 import dev.akarah.polaris.script.expr.ast.func.LateResolvedFunctionCall;
@@ -29,7 +28,7 @@ import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.item.enchantment.effects.AllOf;
 
 public class DslParser {
     List<DslToken> tokens;
@@ -53,11 +52,11 @@ public class DslParser {
 
     public Expression parseSingleTopLevelExpression() {
         if(peek() instanceof DslToken.StructKeyword) {
-            expect(DslToken.StructKeyword.class);
+            var tok = expect(DslToken.StructKeyword.class);
             var name = expect(DslToken.NamespacedIdentifierExpr.class);
             index -= 2;
             var outputType = (StructType) parseType().flatten();
-            return new TypeExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), outputType);
+            return new TypeExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), outputType, tok.span());
         }
         if(peek() instanceof DslToken.EventKeyword) {
             return parseEvent();
@@ -79,13 +78,25 @@ public class DslParser {
         return parser.parseType();
     }
 
+    public List<Annotation> parseAnnotations() {
+        List<Annotation> list = new ArrayList<>();
+        while (peek() instanceof DslToken.Annotation token) {
+            expect(DslToken.Annotation.class);
+            ArrayList<Expression> args = new ArrayList<>();
+            if (peek() instanceof DslToken.OpenParen) {args = parseTuple();}
+            list.add(new Annotation(token.annotation(), args));
+        }
+        return list;
+    }
+
     public SchemaExpression parseFunction() {
+        var annotations = parseAnnotations();
         var kw = expect(DslToken.FunctionKeyword.class);
         var name = expect(DslToken.NamespacedIdentifierExpr.class);
         var location = ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path());
         var typeSet = parseTypeSet("user_func");
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.empty(), kw.span(), location);
+        return new SchemaExpression(annotations, typeSet, body, Optional.empty(), kw.span(), location);
     }
 
     public LambdaExpression parseLambda() {
@@ -97,11 +108,14 @@ public class DslParser {
 
     // TODO: merge with parseSchema
     public SchemaExpression parseEvent() {
+        var annotations = parseAnnotations();
         var kw = expect(DslToken.EventKeyword.class);
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName()));
+        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName(
+                eventName.identifier().replace("-", "_").replace(".", "_")
+        )));
     }
 
     public Type<?> parseType() {
@@ -290,25 +304,28 @@ public class DslParser {
             return parseRepeat();
         }
         if(this.peek() instanceof DslToken.IfKeyword) {
-            return parseIf();
+            return parseIf(false);
         }
-        if(this.peek() instanceof DslToken.ForeachKeyword) {
+        if(this.peek() instanceof DslToken.UnlessKeyword) {
+            return parseIf(true);
+        }
+        if(this.peek() instanceof DslToken.ForKeyword) {
             return parseForEach();
         }
         if(this.peek() instanceof DslToken.BreakKeyword) {
-            expect(DslToken.BreakKeyword.class);
-            return new BreakAction();
+            var tok = expect(DslToken.BreakKeyword.class);
+            return new BreakAction(tok.span());
         }
         if(this.peek() instanceof DslToken.ContinueKeyword) {
-            expect(DslToken.ContinueKeyword.class);
-            return new ContinueAction();
+            var tok = expect(DslToken.ContinueKeyword.class);
+            return new ContinueAction(tok.span());
         }
         if(this.peek() instanceof DslToken.ReturnKeyword) {
-            this.expect(DslToken.ReturnKeyword.class);
+            var tok = this.expect(DslToken.ReturnKeyword.class);
             if(peek() instanceof DslToken.CloseBrace) {
-                return new ReturnAction(null);
+                return new ReturnAction(null, tok.span());
             }
-            return new ReturnAction(parseValue());
+            return new ReturnAction(parseValue(), tok.span());
         }
         return parseStorage();
     }
@@ -337,11 +354,11 @@ public class DslParser {
             }
         }
         expect(DslToken.CloseBrace.class);
-        return new SwitchAction(baseValue, switchCases, fallback);
+        return new SwitchAction(baseValue, switchCases, fallback, kw.span());
     }
 
     public ForEachAction parseForEach() {
-        var kw = expect(DslToken.ForeachKeyword.class);
+        var kw = expect(DslToken.ForKeyword.class);
         var variableName = expect(DslToken.Identifier.class);
         expect(DslToken.InKeyword.class);
         var listExpr = parseValue();
@@ -358,35 +375,56 @@ public class DslParser {
         var times = parseValue();
         var block = parseBlock();
 
-        return new SpannedExpression<>(new RepeatTimesAction(times, block), kw.span());
+        return new RepeatTimesAction(times, block, kw.span());
     }
 
-    public Expression parseIf() {
-        var kw = expect(DslToken.IfKeyword.class);
+    public Expression parseIf(boolean inverted) {
+        DslToken kw;
+        if (inverted) {
+            kw = expect(DslToken.UnlessKeyword.class);
+        } else {
+            kw = expect(DslToken.IfKeyword.class);
+        }
+
         var times = parseValue();
+        if (inverted) { // Call not on the boolean so it inverts
+            times = new JvmFunctionAction(
+                    CodegenUtil.ofClass(RBoolean.class),
+                    "not",
+                    MethodTypeDesc.of(
+                            CodegenUtil.ofClass(RBoolean.class),
+                            List.of(CodegenUtil.ofClass(RBoolean.class))
+                    ),
+                    List.of(times),
+                    Type.bool(),
+                    times.span()
+            );
+        }
         var block = parseBlock();
 
         var orElse = Optional.<Expression>empty();
         if(peek() instanceof DslToken.ElseKeyword) {
             expect(DslToken.ElseKeyword.class);
             if(peek() instanceof DslToken.IfKeyword) {
-                orElse = Optional.of(parseIf());
+                orElse = Optional.of(parseIf(false));
+            } else if(peek() instanceof DslToken.UnlessKeyword) {
+                orElse = Optional.of(parseIf(true));
             } else {
                 orElse = Optional.of(parseBlock());
             }
         }
 
-        return new SpannedExpression<>(new IfAction(times, block, orElse), kw.span());
+        return new IfAction(times, block, orElse, kw.span());
     }
 
     public AllOfAction parseBlock() {
         var statements = new ArrayList<Expression>();
-        expect(DslToken.OpenBrace.class);
+        var ob = expect(DslToken.OpenBrace.class);
         while(!(peek() instanceof DslToken.CloseBrace)) {
             statements.add(parseStatement());
         }
-        expect(DslToken.CloseBrace.class);
-        return new AllOfAction(statements);
+        var cb = expect(DslToken.CloseBrace.class);
+        return new AllOfAction(SpanData.merge(ob.span(), cb.span()), statements);
     }
 
     public Expression parseStorage() {
@@ -399,10 +437,7 @@ public class DslParser {
         while(peek() instanceof DslToken.EqualSymbol
         && baseExpression instanceof GetLocalAction(String variable, SpanData _)) {
             var eq = expect(DslToken.EqualSymbol.class);
-            baseExpression = new SpannedExpression<>(
-                    new SetLocalAction(variable, typeHint, parseValue(), eq.span()),
-                    eq.span()
-            );
+            baseExpression = new SetLocalAction(variable, typeHint, parseValue(), eq.span());
         }
         return baseExpression;
     }
@@ -410,12 +445,12 @@ public class DslParser {
     public Expression parseBooleanOperands() {
         var base = parseEqualityExpression();
         while(true) {
-            if(peek() instanceof DslToken.DoubleAmpersand) {
-                expect(DslToken.DoubleAmpersand.class);
-                base = new AndExpression(base, parseEqualityExpression());
-            } else if(peek() instanceof DslToken.DoubleLine) {
-                expect(DslToken.DoubleLine.class);
-                base = new OrExpression(base, parseEqualityExpression());
+            if(peek() instanceof DslToken.LogicalAnd) {
+                var tok = expect(DslToken.LogicalAnd.class);
+                base = new AndExpression(base, parseEqualityExpression(), tok.span());
+            } else if(peek() instanceof DslToken.LogicalOr) {
+                var tok = expect(DslToken.LogicalOr.class);
+                base = new OrExpression(base, parseEqualityExpression(), tok.span());
             } else {
                 break;
             }
@@ -427,11 +462,11 @@ public class DslParser {
         var baseExpression = parseComparisonExpression();
         while(true) {
             if(peek() instanceof DslToken.DoubleEqualSymbol) {
-                expect(DslToken.DoubleEqualSymbol.class);
-                baseExpression = new EqualToExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.DoubleEqualSymbol.class);
+                baseExpression = new EqualToExpression(baseExpression, parseComparisonExpression(), tok.span());
             } else if(peek() instanceof DslToken.NotEqualSymbol) {
-                expect(DslToken.NotEqualSymbol.class);
-                baseExpression = new NotEqualToExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.NotEqualSymbol.class);
+                baseExpression = new NotEqualToExpression(baseExpression, parseComparisonExpression(), tok.span());
             } else {
                 break;
             }
@@ -443,17 +478,33 @@ public class DslParser {
         var baseExpression = parseCast();
         while(true) {
             if(peek() instanceof DslToken.GreaterThanSymbol) {
-                expect(DslToken.GreaterThanSymbol.class);
-                baseExpression = new GreaterThanExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.GreaterThanSymbol.class);
+                baseExpression = new LateResolvedFunctionCall(
+                        "greater_than",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.LessThanSymbol) {
-                expect(DslToken.LessThanSymbol.class);
-                baseExpression = new LessThanExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.LessThanSymbol.class);
+                baseExpression = new LateResolvedFunctionCall(
+                        "less_than",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.GreaterThanOrEqualSymbol) {
-                expect(DslToken.GreaterThanOrEqualSymbol.class);
-                baseExpression = new GreaterThanOrEqualExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.GreaterThanOrEqualSymbol.class);
+                baseExpression = new LateResolvedFunctionCall(
+                        "greater_than_or_equal_to",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else if(peek() instanceof DslToken.LessThanOrEqualSymbol) {
-                expect(DslToken.LessThanOrEqualSymbol.class);
-                baseExpression = new LessThanOrEqualExpression(baseExpression, parseComparisonExpression());
+                var tok = expect(DslToken.LessThanOrEqualSymbol.class);
+                baseExpression = new LateResolvedFunctionCall(
+                        "less_than_or_equal_to",
+                        List.of(baseExpression, parseComparisonExpression()),
+                        tok.span()
+                );
             } else {
                 break;
             }
@@ -465,8 +516,8 @@ public class DslParser {
         var base = parseTerm();
         while(true) {
             if(peek() instanceof DslToken.AsKeyword asKeyword) {
-                expect(DslToken.AsKeyword.class);
-                base = new CastExpression(base, parseType());
+                var tok = expect(DslToken.AsKeyword.class);
+                base = new CastExpression(base, parseType(), tok.span());
             } else {
                 break;
             }
@@ -578,15 +629,15 @@ public class DslParser {
             negate = true;
         }
         boolean boolNot = false;
-        if(peek() instanceof DslToken.ExclamationMark) {
-            expect(DslToken.ExclamationMark.class);
+        if(peek() instanceof DslToken.LogicalNot) {
+            expect(DslToken.LogicalNot.class);
             boolNot = true;
         }
         var baseExpr = parseBaseExpression();
         if(negate) {
             baseExpr = new LateResolvedFunctionCall(
                     "mul",
-                    List.of(baseExpr, new NumberExpression(-1)),
+                    List.of(baseExpr, new NumberExpression(-1, baseExpr.span())),
                     baseExpr.span()
             );
         }
@@ -599,7 +650,8 @@ public class DslParser {
                     List.of(CodegenUtil.ofClass(RBoolean.class))
                 ), 
                 List.of(baseExpr), 
-                Type.bool()
+                Type.bool(),
+                baseExpr.span()
             );
         }
         return baseExpr;
@@ -629,16 +681,16 @@ public class DslParser {
 
                 yield new InlineStructExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
-            case DslToken.NumberExpr numberExpr -> new SpannedExpression<>(new NumberExpression(numberExpr.value()), numberExpr.span());
-            case DslToken.StringExpr stringExpr -> new SpannedExpression<>(new StringExpression(stringExpr.value()), stringExpr.span());
+            case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value(), numberExpr.span());
+            case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value(), stringExpr.span());
             case DslToken.NamespacedIdentifierExpr identifierExpr ->
-                    new SpannedExpression<>(new IdentifierExpression(identifierExpr.namespace(), identifierExpr.path()), identifierExpr.span());
+                    new IdentifierExpression(identifierExpr.namespace(), identifierExpr.path(), identifierExpr.span());
             case DslToken.Identifier(String id, SpanData span) when id.equals("true") ->
-                    new SpannedExpression<>(new BooleanExpression(true), span);
+                    new BooleanExpression(true, span);
             case DslToken.Identifier(String id, SpanData span) when id.equals("false") ->
-                    new SpannedExpression<>(new BooleanExpression(false), span);
+                    new BooleanExpression(false, span);
             case DslToken.Identifier identifier -> new GetLocalAction(identifier.identifier(), identifier.span());
-            case DslToken.TextExpr text -> new SpannedExpression<>(new ComponentLiteralExpression(text.value()), text.span());
+            case DslToken.TextExpr text -> new ComponentLiteralExpression(text.value(), text.span());
             case DslToken.OpenBracket openBracket -> {
                 var list = new ArrayList<Expression>();
                 while(!(peek() instanceof DslToken.CloseBracket)) {

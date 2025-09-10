@@ -7,10 +7,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import dev.akarah.polaris.script.value.mc.REntity;
+import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RItem;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -22,7 +24,15 @@ public abstract class RuntimeValue {
             runtimeValueCodec -> new Codec<>() {
                 @Override
                 public <T> DataResult<Pair<RuntimeValue, T>> decode(DynamicOps<T> ops, T input) {
-                    var str = ops.getStringValue(input).map(x -> Pair.of((RuntimeValue) RString.of(x), input));
+                    var str = ops.getStringValue(input).map(x -> {
+                        if(x.startsWith("[boolean]")) {
+                            return Pair.of((RuntimeValue) RBoolean.of(Boolean.parseBoolean(x.replace("[boolean]", ""))), input);
+                        }
+                        if(x.startsWith("[identifier]")) {
+                            return Pair.of((RuntimeValue) RIdentifier.of(ResourceLocation.parse(x.replace("[identifier]", ""))), input);
+                        }
+                        return Pair.of((RuntimeValue) RString.of(x), input);
+                    });
                     if(str.isSuccess()) {
                         return str;
                     }
@@ -34,13 +44,37 @@ public abstract class RuntimeValue {
                     if(bool.isSuccess()) {
                         return num;
                     }
-                    var struct = ops.getMap(input).map(x -> {
-                        var name = ops.getStringValue(x.get("polaris:struct/type")).getOrThrow();
+                    var list = ops.getList(input);
+                    if(list.isSuccess()) {
+                        var outList = RList.create();
+                        list.getOrThrow().accept(entry -> {
+                            outList.javaValue().add(runtimeValueCodec.decode(ops, entry).getOrThrow().getFirst());
+                        });
+                        return DataResult.success(Pair.of(outList, input));
+                    }
+                    var dict = ops.getMap(input);
+                    if(dict.isSuccess()) {
+                        var map = dict.getOrThrow();
+                        if(map.get("struct") != null) {
+                            var structType = map.get("struct");
+                            assert structType != null;
+                            var struct = RStruct.create(ops.getStringValue(structType).getOrThrow(), 0);
+                            map.entries().forEach(entry -> struct.javaValue().put(
+                                    ops.getStringValue(entry.getFirst()).getOrThrow(),
+                                    runtimeValueCodec.decode(ops, entry.getSecond()).getOrThrow().getFirst()
+                            ));
+                            return DataResult.success(Pair.of(struct, input));
+                        } else {
+                            var outDict = RDict.create();
+                            map.entries().forEach(entry -> outDict.javaValue().put(
+                                    runtimeValueCodec.decode(ops, entry.getFirst()).getOrThrow().getFirst(),
+                                    runtimeValueCodec.decode(ops, entry.getSecond()).getOrThrow().getFirst()
+                            ));
+                            return DataResult.success(Pair.of(outDict, input));
+                        }
+                    }
 
-                        var rStruct = RStruct.create(name, (int) (x.entries().count() - 1));
-                        return Pair.of(rStruct, input);
-                    });
-                    return DataResult.error(() -> "Expected a string, number, or boolean.");
+                    return DataResult.error(() -> "Expected a string, number, structure, dictionary, or boolean.");
                 }
 
                 @Override

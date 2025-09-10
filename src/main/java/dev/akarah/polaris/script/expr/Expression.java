@@ -19,9 +19,6 @@ public interface Expression {
     void compile(CodegenContext ctx);
 
     default Expression flatten() {
-        if(this instanceof SpannedExpression<?> expression) {
-            return expression.expression();
-        }
         return this;
     }
 
@@ -36,10 +33,12 @@ public interface Expression {
         }
     }
 
-    default SpanData span() {
-        // System.out.println("[Internal Warning, please report this if you see this!] " + this + " has no span data.");
-        return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
-    }
+    SpanData span();
+
+    // default SpanData span() {
+    //    System.out.println("[Internal Warning, please report this if you see this!] " + this + " has no span data.");
+    //    return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
+    // }
 
     default boolean validateReturnOnAllBranches(CodegenContext ctx, Type<?> type) {
         try {
@@ -49,11 +48,10 @@ public interface Expression {
                         action.flatten().validateReturnOnAllBranches(ctx, type);
                     }
 
-                    var last = allOfAction.actions().getLast();
-                    if(last != null) {
-                        yield last.validateReturnOnAllBranches(ctx, type);
+                    if(allOfAction.actions().isEmpty()) {
+                        yield type.typeEquals(Type.void_());
                     }
-                    yield true;
+                    yield allOfAction.actions().getLast().validateReturnOnAllBranches(ctx, type);
                 }
                 case ReturnAction returnAction -> {
                     var foundType = ctx.getTypeOf(returnAction.value());
@@ -66,10 +64,8 @@ public interface Expression {
                         );
                     }
                 }
-                case IfAction ifAction -> {
-                    yield ifAction.then().validateReturnOnAllBranches(ctx, type)
-                            && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
-                }
+                case IfAction ifAction -> ifAction.then().validateReturnOnAllBranches(ctx, type)
+                        && ifAction.orElse().map(x -> x.validateReturnOnAllBranches(ctx, type)).orElse(true);
                 case RepeatTimesAction repeatTimesAction -> repeatTimesAction.perform().validateReturnOnAllBranches(ctx, type);
                 case ForEachAction forEachAction -> forEachAction.block().validateReturnOnAllBranches(ctx, type);
                 default -> false;

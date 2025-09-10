@@ -3,7 +3,12 @@ package dev.akarah.polaris.script.dsl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.exception.MultiException;
+import dev.akarah.polaris.script.exception.SpanData;
+import dev.akarah.polaris.script.exception.SpannedException;
+import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.SchemaExpression;
 import dev.akarah.polaris.script.expr.ast.TypeExpression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
@@ -49,6 +54,9 @@ public class DslActionManager {
 
     public void executeVoid(ResourceLocation name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
+        if(mh == null) {
+            return;
+        }
         try {
             mh.invokeWithArguments((Object[]) arguments);
         } catch (Throwable e) {
@@ -58,13 +66,15 @@ public class DslActionManager {
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return;
             }
-            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionPrinter.writeExceptionToOps(e, name);
         }
     }
 
     public boolean executeBoolean(ResourceLocation name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
+        if(mh == null) {
+            return true;
+        }
         try {
             var result = mh.invokeWithArguments((Object[]) arguments);
             if(result instanceof RBoolean a) {
@@ -73,14 +83,12 @@ public class DslActionManager {
             return true;
         } catch (Throwable e) {
             if(e.getMessage() == null) {
-                System.out.println("Error executing script `" + name + "`: " + e);
                 return true;
             }
             if(e.getMessage().contains("because \"mh\" is null")) {
                 return true;
             }
-            System.out.println("Error executing script `" + name + "`: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionPrinter.writeExceptionToOps(e, name);
             return true;
         }
     }
@@ -133,6 +141,7 @@ public class DslActionManager {
         return CompletableFuture.runAsync(
                 () -> {
                     Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+                    var panicking = Lists.<SpannedException>newArrayList();
                     for(var resourceEntry : resourceManager.listResources("engine/dsl", rl -> rl.getPath().endsWith(".pol")).entrySet()) {
                         try(var inputStream = resourceEntry.getValue().open()) {
                             var bytes = inputStream.readAllBytes();
@@ -142,22 +151,41 @@ public class DslActionManager {
                                     s.replace(".pol", "")
                                             .replace("engine/dsl/", ""));
 
-                            var tokens = DslTokenizer.tokenize(key, string).getOrThrow();
-                            var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
-
-                            for(var expression : expressions) {
-                                if (expression instanceof TypeExpression(ResourceLocation name, StructType alias)) {
-                                    this.dslTypes.put(name, alias);
-                                }
-                                if(expression instanceof SchemaExpression schemaExpression) {
-                                    this.dslExpressions.put(schemaExpression.location(), schemaExpression);
-                                }
+                            var tokens = List.<DslToken>of();
+                            try {
+                                tokens = DslTokenizer.tokenize(key, string).getOrThrow();
+                            } catch (SpannedException e) {
+                                panicking.add(e);
+                            } catch (Exception e) {
+                                System.out.println("Error parsing script `" + key + "`: " + e.getMessage());
                             }
+                            try {
+                                var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
+
+                                for(var expression : expressions) {
+                                    if (expression instanceof TypeExpression(ResourceLocation name, StructType alias, SpanData spanData)) {
+                                        this.dslTypes.put(name, alias);
+                                    }
+                                    if(expression instanceof SchemaExpression schemaExpression) {
+                                        this.dslExpressions.put(schemaExpression.location(), schemaExpression);
+                                    }
+                                }
+                            } catch (SpannedException e) {
+                                panicking.add(e);
+                            }
+
+
                         } catch (IOException e) {
                             this.dslExpressions.clear();
                             this.dslTypes.clear();
                             throw new RuntimeException(e);
                         }
+                    }
+
+                    if(!panicking.isEmpty()) {
+                        this.dslExpressions.clear();
+                        this.dslTypes.clear();
+                        throw new MultiException(panicking);
                     }
 
                     this.codeClass = CodegenContext.initializeCompilation(

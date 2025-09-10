@@ -25,6 +25,10 @@ public interface DslToken {
 
     }
 
+    record Annotation(String annotation, SpanData span) implements DslToken {
+
+    }
+
     record Comma(SpanData span) implements DslToken {
 
     }
@@ -89,8 +93,11 @@ public interface DslToken {
 
     }
 
-
     record IfKeyword(SpanData span) implements DslToken {
+
+    }
+
+    record UnlessKeyword(SpanData span) implements DslToken {
 
     }
 
@@ -114,7 +121,7 @@ public interface DslToken {
 
     }
 
-    record ForeachKeyword(SpanData span) implements DslToken {
+    record ForKeyword(SpanData span) implements DslToken {
 
     }
 
@@ -182,15 +189,15 @@ public interface DslToken {
 
     }
 
-    record DoubleAmpersand(SpanData span) implements DslToken {
+    record LogicalAnd(SpanData span) implements DslToken {
 
     }
 
-    record DoubleLine(SpanData span) implements DslToken {
+    record LogicalOr(SpanData span) implements DslToken {
 
     }
 
-    record ExclamationMark(SpanData span) implements DslToken {
+    record LogicalNot(SpanData span) implements DslToken {
 
     }
 

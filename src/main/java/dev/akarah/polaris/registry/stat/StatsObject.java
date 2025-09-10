@@ -1,29 +1,185 @@
 package dev.akarah.polaris.registry.stat;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.Optionull;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.function.Function;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
-            .unboundedMap(Codec.STRING, Codec.DOUBLE)
-            .xmap(StatsObject::new, x -> x.values);
+            .unboundedMap(ResourceLocation.CODEC, Codec.DOUBLE)
+            .xmap(StatsObject::new, _ -> {
+                throw new RuntimeException("Encoding statsobjects not supported.. sorry :(");
+            });
 
     public static StatsObject EMPTY = new StatsObject();
 
-    Map<String, Double> values = new ConcurrentHashMap<>();
+    public enum SourceOperation {
+        MINIMUM,
+        MAXIMUM,
+        ADD,
+        PERCENTAGE,
+        MULTIPLY
+    }
+
+    public record SourceEntry(
+            @NotNull Component title,
+            @NotNull ResourceLocation stat,
+            @NotNull SourceOperation operation,
+            double value
+    ) {
+
+    }
+
+    public void sortEntries() {
+        var list = Lists.<SourceEntry>newArrayList();
+
+        for(var source : this.sources) {
+            if(source.operation == SourceOperation.ADD) {
+                list.add(source);
+            }
+        }
+        for(var source : this.sources) {
+            if(source.operation == SourceOperation.PERCENTAGE) {
+                list.add(source);
+            }
+        }
+        for(var source : this.sources) {
+            if(source.operation == SourceOperation.MULTIPLY) {
+                list.add(source);
+            }
+        }
+        for(var source : this.sources) {
+            if(source.operation == SourceOperation.MINIMUM) {
+                list.add(source);
+            }
+        }
+        for(var source : this.sources) {
+            if(source.operation == SourceOperation.MAXIMUM) {
+                list.add(source);
+            }
+        }
+
+        this.sources = list;
+    }
+
+    public StatsObject performFinalCalculations() {
+        var result = StatsObject.of();
+
+        var addMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+        var percMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+        var multMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+        var minMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+        var maxMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+
+        for (var source : this.sources) {
+            var stat = source.stat();
+            switch (source.operation()) {
+                case ADD -> addMap.merge(stat, source.value(), Double::sum);
+                case PERCENTAGE -> percMap.merge(stat, source.value(), Double::sum);
+                case MULTIPLY -> multMap.merge(stat, source.value(), Double::sum);
+                case MINIMUM -> minMap.merge(stat, source.value(), Double::sum);
+                case MAXIMUM -> maxMap.merge(stat, source.value(), Double::sum);
+            }
+        }
+
+        addMap.forEach((stat, value) ->
+                result.add(new SourceEntry(Component.empty(), stat, SourceOperation.ADD, value)));
+        percMap.forEach((stat, value) ->
+                result.add(new SourceEntry(Component.empty(), stat, SourceOperation.PERCENTAGE, value)));
+        multMap.forEach((stat, value) ->
+                result.add(new SourceEntry(Component.empty(), stat, SourceOperation.MULTIPLY, value)));
+        minMap.forEach((stat, value) ->
+                result.add(new SourceEntry(Component.empty(), stat, SourceOperation.MINIMUM, value)));
+        maxMap.forEach((stat, value) ->
+                result.add(new SourceEntry(Component.empty(), stat, SourceOperation.MAXIMUM, value)));
+
+        result.sortEntries();
+        return result;
+    }
+
+    public @NotNull Map<@NotNull String, @NotNull Double> reconstructOldMap() {
+        this.sortEntries();
+        var map = Maps.<@NotNull String, @NotNull Double>newConcurrentMap();
+        for(var source : this.performFinalCalculations().sources) {
+            switch (source.operation) {
+                case SourceOperation.ADD -> map.compute(source.stat.toString(), (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.PERCENTAGE -> map.compute(source.stat + "/percent", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MULTIPLY -> map.compute(source.stat + "/multiply", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MINIMUM -> map.compute(source.stat + "/min", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.MAXIMUM -> map.compute(source.stat + "/max", (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+            }
+        }
+        return map;
+    }
+
+    public @NotNull Map<@NotNull ResourceLocation, @NotNull Double> values() {
+        this.sortEntries();
+        var map = Maps.<@NotNull ResourceLocation, @NotNull Double>newConcurrentMap();
+        for(var source : this.performFinalCalculations().sources) {
+            switch (source.operation) {
+                case SourceOperation.ADD -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) + source.value
+                );
+                case SourceOperation.PERCENTAGE -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) * (1 + source.value / 100)
+                );
+                case SourceOperation.MULTIPLY -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) * (1 + source.value)
+                );
+                case SourceOperation.MINIMUM -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) * Math.max((value == null ? 0 : value), source.value)
+                );
+                case SourceOperation.MAXIMUM -> map.compute(source.stat, (_, value) ->
+                        (value == null ? 0 : value) * Math.min((value == null ? 0 : value), source.value)
+                );
+            }
+        }
+        return map;
+    }
+
+
+    public List<SourceEntry> sources = Collections.synchronizedList(Lists.newArrayList());
 
     private StatsObject() {
 
     }
 
-    private StatsObject(Map<String, Double> map) {
-        this.values = map;
+    private StatsObject(List<SourceEntry> map) {
+        this.sources = map;
+    }
+
+    private StatsObject(Map<ResourceLocation, Double> map) {
+        for(var entry : map.entrySet()) {
+            var rawKey = entry.getKey().toString().replace("/percent", "").replace("/multiply", "");
+            this.sources.add(new SourceEntry(
+                    Component.empty(),
+                    ResourceLocation.parse(rawKey),
+                    entry.getKey().toString().endsWith("/percent") ? SourceOperation.PERCENTAGE
+                    : entry.getKey().toString().endsWith("/multiply") ? SourceOperation.MULTIPLY
+                    : entry.getKey().toString().endsWith("/min") ? SourceOperation.MINIMUM
+                    : entry.getKey().toString().endsWith("/max") ? SourceOperation.MAXIMUM
+                    : SourceOperation.ADD,
+                    entry.getValue()
+            ));
+        }
     }
 
     public static StatsObject of() {
@@ -31,38 +187,30 @@ public class StatsObject {
     }
 
     public boolean has(ResourceLocation id) {
-        return this.values.containsKey(id.toString());
-    }
-
-    public void set(ResourceLocation id, double value) {
-        this.values.put(id.toString(), value);
+        return this.values().containsKey(id);
     }
 
     public double get(ResourceLocation id) {
-        return this.values.getOrDefault(id.toString(), 0.0);
+        return this.values().getOrDefault(id, 0.0);
     }
 
-    public boolean has(String id) {
-        return this.values.containsKey(id);
-    }
-
-    public void set(String id, double value) {
-        this.values.put(id, value);
-    }
-
-    public double get(String id) {
-        return this.values.getOrDefault(id, 0.0);
-    }
-
-    public Set<String> keySet() {
-        return this.values.keySet();
+    public void addAllUnderName(StatsObject other, Component name) {
+        for(var source : other.sources) {
+            this.sources.add(new StatsObject.SourceEntry(
+                    name,
+                    source.stat(),
+                    source.operation(),
+                    source.value()
+            ));
+        }
     }
 
     public void add(StatsObject other) {
-        var keys = Sets.union(this.keySet(), other.keySet());
-        for(var key : keys) {
-            this.set(key, this.get(key) + other.get(key));
-        }
+        this.sources.addAll(other.sources);
+    }
+
+    public void add(SourceEntry other) {
+        this.sources.add(other);
     }
 
     public void multiply(double other) {
@@ -73,26 +221,25 @@ public class StatsObject {
 
     public StatsObject copy() {
         var so = StatsObject.of();
-        for(var entry : this.values.entrySet()) {
-            so.set(entry.getKey(), entry.getValue());
+        so.add(this);
+        return so;
+    }
+
+    public StatsObject withRenamedSources(Component newName) {
+        var so = StatsObject.of();
+        for(var source : this.sources) {
+            so.add(new StatsObject.SourceEntry(
+                    newName,
+                    source.stat(),
+                    source.operation(),
+                    source.value()
+            ));
         }
         return so;
     }
 
-    public StatsObject performFinalCalculations() {
-        for(var key : this.keySet()) {
-            var realKey = key.replace("%", "").replace("*", "");
-            if(key.endsWith("%")) {
-                this.set(realKey, ((this.get(key) + 100) / 100) * this.get(realKey));
-            } else if(key.endsWith("*")) {
-                this.set(realKey, (this.get(key) + 1.0) * this.get(realKey));
-            }
-        }
-        return this;
-    }
-
     @Override
     public @NotNull String toString() {
-        return this.values.toString();
+        return this.sources.toString();
     }
 }

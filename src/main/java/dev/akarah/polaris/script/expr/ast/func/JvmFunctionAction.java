@@ -1,5 +1,6 @@
 package dev.akarah.polaris.script.expr.ast.func;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.Type;
@@ -14,7 +15,8 @@ public record JvmFunctionAction(
         String name,
         MethodTypeDesc methodTypeDesc,
         List<Expression> parameters,
-        Type<?> returnType
+        Type<?> returnType,
+        SpanData span
 ) implements Expression {
     @Override
     public void compile(CodegenContext ctx) {

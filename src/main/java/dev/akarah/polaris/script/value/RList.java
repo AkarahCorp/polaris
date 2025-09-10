@@ -3,6 +3,8 @@ package dev.akarah.polaris.script.value;
 import com.google.common.collect.Lists;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class RList extends RuntimeValue {
@@ -15,6 +17,10 @@ public class RList extends RuntimeValue {
     @MethodTypeHint(signature = "<T>() -> list[T]", documentation = "Creates a new empty list.")
     public static RList create() {
         return new RList(Lists.newArrayList());
+    }
+
+    public static RList of(List<RuntimeValue> values) {
+        return new RList(values);
     }
 
     @MethodTypeHint(signature = "<T>(this: list[T], index: number) -> nullable[T]", documentation = "Gets a value from the list.")
@@ -87,6 +93,31 @@ public class RList extends RuntimeValue {
             }
         }
         return list;
+    }
+
+    @MethodTypeHint(signature = "<T>(this: list[T], sort_by: function(T) -> number) -> list[T]", documentation = "Creates a copy of the provided list with no duplicate entries.")
+    public static RList sorted(RList $this, RFunction sortBy) {
+        return RList.of(
+                new ArrayList<>(
+                        $this.javaValue()
+                            .stream()
+                            .sorted((a, b) -> {
+                                try {
+                                    var aa = ((RNumber) sortBy.javaValue().invoke(a));
+                                    var bb = ((RNumber) sortBy.javaValue().invoke(b));
+                                    return aa.compareTo(bb);
+                                } catch (Throwable e) {
+                                    return 0;
+                                }
+                            })
+                            .toList()
+                )
+        );
+    }
+
+    @MethodTypeHint(signature = "<T>(this: list[T], value: T) -> void", documentation = "Removes instances of the provided value from the list.")
+    public static void remove(RList $this, RuntimeValue value) {
+        $this.javaValue().remove(value);
     }
 
     @MethodTypeHint(signature = "<T>(this: list[T]) -> number", documentation = "Returns the length of the list.")

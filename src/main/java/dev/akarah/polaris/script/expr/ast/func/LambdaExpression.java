@@ -11,6 +11,7 @@ import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import dev.akarah.polaris.script.params.ParameterNode;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.RFunction;
+import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.constant.DirectMethodHandleDesc;
@@ -80,7 +81,7 @@ public record LambdaExpression(
     public MethodType methodType(CodegenContext ctx) {
         if(ctx.highestLocal() == -1) {
             return MethodType.methodType(
-                    this.typeSet().returns().typeClass(),
+                    this.typeSet().returns().typeEquals(Type.void_()) ? void.class : RuntimeValue.class,
                     this.typeSet().parameters().stream()
                             .map(ParameterNode::typePattern)
                             .map(Type::typeClass)
@@ -88,14 +89,14 @@ public record LambdaExpression(
             );
         }
         return MethodType.methodType(
-                this.typeSet().returns().typeClass(),
+                this.typeSet().returns().typeEquals(Type.void_()) ? void.class : RuntimeValue.class,
                 Stream.concat(
-                        IntStream.rangeClosed(0, ctx.highestLocal())
-                                .mapToObj(_ -> Object.class),
-                        this.typeSet().parameters().stream()
-                                .map(ParameterNode::typePattern)
-                                .map(Type::typeClass)
-                )
+                                IntStream.rangeClosed(0, ctx.highestLocal())
+                                        .mapToObj(_ -> Object.class),
+                                this.typeSet().parameters().stream()
+                                        .map(ParameterNode::typePattern)
+                                        .map(Type::typeClass)
+                        )
                         .toArray(Class[]::new)
         );
     }
@@ -114,11 +115,17 @@ public record LambdaExpression(
 
     public SchemaExpression asSchema() {
         return new SchemaExpression(
+                List.of(),
                 this.typeSet(),
                 this.body,
                 Optional.empty(),
                 this.keywordSpan,
                 ResourceLocation.fromNamespaceAndPath("minecraft", this.name().replace("$", "/"))
         );
+    }
+
+    @Override
+    public SpanData span() {
+        return this.body.span();
     }
 }

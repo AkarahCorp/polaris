@@ -20,16 +20,13 @@ public class MultiException extends SpannedException {
     @Override
     public String getMessage() {
         var sb = new StringBuilder();
-        sb.append("Multiple errors were encountered during parsing!");
         for(var exception : exceptions) {
             if(Objects.equals(System.getenv("POLARIS_PRINT_STACKTRACE_ON_COMPILE_FAIL"), "1")) {
                 var sw = new StringWriter();
                 var pw = new PrintWriter(sw);
-                pw.append("\n\n");
                 exception.printStackTrace(pw);
                 sb.append(sw);
             } else {
-
                 sb.append("\n\n ").append(exception.getMessage());
             }
         }

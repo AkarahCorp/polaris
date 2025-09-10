@@ -58,7 +58,7 @@ public record Refreshable(
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 }

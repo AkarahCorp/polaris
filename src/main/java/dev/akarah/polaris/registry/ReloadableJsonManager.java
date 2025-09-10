@@ -46,14 +46,19 @@ public class ReloadableJsonManager<T> {
                                     var bytes = inputStream.readAllBytes();
                                     var string = new String(bytes);
                                     var json = JsonParser.parseString(string);
-                                    var value = codec.decode(JsonOps.INSTANCE, json).getOrThrow().getFirst();
-                                    Registry.register(
-                                            this.registry,
-                                            resourceEntry.getKey().withPath(s ->
-                                                    s.replace(".json", "")
-                                                            .replace("engine/" + registryName + "/", "")),
-                                            value
-                                    );
+                                    var value = codec.decode(JsonOps.INSTANCE, json);
+                                    if(value.isSuccess()) {
+                                        Registry.register(
+                                                this.registry,
+                                                resourceEntry.getKey().withPath(s ->
+                                                        s.replace(".json", "")
+                                                                .replace("engine/" + registryName + "/", "")),
+                                                value.getOrThrow().getFirst()
+                                        );
+                                    } else {
+                                        var error = value.error().orElseThrow();
+                                        throw new RuntimeException("Error while compiling entry " + resourceEntry.getKey() + " with data " + error.getPartialOrThrow(), new RuntimeException(error.message()));
+                                    }
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }

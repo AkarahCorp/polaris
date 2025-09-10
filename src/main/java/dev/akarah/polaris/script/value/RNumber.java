@@ -1,11 +1,12 @@
 package dev.akarah.polaris.script.value;
 
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-public class RNumber extends RuntimeValue {
+public class RNumber extends RuntimeValue implements Comparable<RNumber> {
     private final double inner;
 
     private RNumber(double inner) {
@@ -98,6 +99,24 @@ public class RNumber extends RuntimeValue {
         return RNumber.of(lhs.doubleValue() % rhs.doubleValue());
     }
 
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean greater_than(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() > rhs.doubleValue());
+    }
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean greater_than_or_equal_to(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() >= rhs.doubleValue());
+    }
+
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean less_than(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() < rhs.doubleValue());
+    }
+    @MethodTypeHint(signature = "(lhs: number, rhs: number) -> boolean", documentation = "Compares two numbers with the specified operation.")
+    public static RBoolean less_than_or_equal_to(RNumber lhs, RNumber rhs) {
+        return RBoolean.of(lhs.doubleValue() <= rhs.doubleValue());
+    }
+
     @Override
     public String toString() {
         var df = new DecimalFormat("###,###,###,###,###,###,###,###,###,###.###");
@@ -108,5 +127,10 @@ public class RNumber extends RuntimeValue {
             value = value.replace(".0", "");
         }
         return value;
+    }
+
+    @Override
+    public int compareTo(@NotNull RNumber rNumber) {
+        return Double.compare(this.inner, rNumber.inner);
     }
 }

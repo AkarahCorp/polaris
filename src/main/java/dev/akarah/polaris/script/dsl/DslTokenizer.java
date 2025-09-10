@@ -34,17 +34,6 @@ public class DslTokenizer {
     public DataResult<List<DslToken>> tokenizeLoop() {
         var list = new ArrayList<DslToken>();
         while(true) {
-            try {
-                stringReader.skipWhitespace();
-                if(stringReader.peek(0) == '/' && stringReader.peek(1) == '/') {
-                    while(stringReader.peek() != '\n') {
-                        stringReader.read();
-                    }
-                    stringReader.read();
-                }
-            } catch (Exception _) {
-
-            }
             stringReader.skipWhitespace();
             DataResult<DslToken> token = tokenizeOnce();
             if(token.isError()) {
@@ -57,24 +46,79 @@ public class DslTokenizer {
         }
     }
 
+    public String readQuotedString() throws CommandSyntaxException {
+        if (!this.stringReader.canRead()) {
+            return "";
+        }
+        final char next = this.stringReader.peek();
+        if (!StringReader.isQuotedStringStart(next)) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedStartOfQuote().createWithContext(this.stringReader);
+        }
+        this.stringReader.skip();
+        return readStringUntil(next);
+    }
+
+    public String readStringUntil(char terminator) throws CommandSyntaxException {
+        final StringBuilder result = new StringBuilder();
+        boolean escaped = false;
+        while (this.stringReader.canRead()) {
+            final char c = this.stringReader.read();
+            if (escaped) {
+                if (c == terminator || c == '\\') {
+                    result.append(c);
+                    escaped = false;
+                } else if(c == 'n') {
+                    result.append('\n');
+                    escaped = false;
+                } else {
+                    this.stringReader.setCursor(this.stringReader.getCursor() - 1);
+                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidEscape().createWithContext(this.stringReader, String.valueOf(c));
+                }
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == terminator) {
+                return result.toString();
+            } else {
+                result.append(c);
+            }
+        }
+
+        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedEndOfQuote().createWithContext(this.stringReader);
+    }
+
     public DataResult<DslToken> tokenizeOnce() {
         try {
             stringReader.skipWhitespace();
+
+            while(stringReader.peek() == '#') {
+                System.out.println("rding cmt");
+                while(stringReader.peek() != '\n') {
+                    stringReader.skip();
+                }
+                stringReader.skipWhitespace();
+            }
+            stringReader.skipWhitespace();
+
             var start = this.stringReader.getCursor();
             return switch (stringReader.peek()) {
                 case '"' ->
-                        DataResult.success(new DslToken.StringExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+                        DataResult.success(new DslToken.StringExpr(readQuotedString(), this.createSpan(start)));
                 case '$' -> {
                     this.stringReader.expect('$');
 
                     if(stringReader.peek() == '"') {
-                        yield DataResult.success(new DslToken.TextExpr(this.stringReader.readQuotedString(), this.createSpan(start)));
+                        yield DataResult.success(new DslToken.TextExpr(readQuotedString(), this.createSpan(start)));
                     } else {
                         var namespace = this.readIdentifier();
                         this.stringReader.expect(':');
                         var path = this.readPath();
                         yield DataResult.success(new DslToken.NamespacedIdentifierExpr(namespace, path, this.createSpan(start)));
                     }
+                }
+                case '@' -> {
+                    this.stringReader.expect('@');
+                    var annotation = this.readIdentifier();
+                    yield DataResult.success(new DslToken.Annotation(annotation, this.createSpan(start)));
                 }
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
                         DataResult.success(new DslToken.NumberExpr(this.stringReader.readDouble(), this.createSpan(start)));
@@ -86,16 +130,6 @@ public class DslTokenizer {
                     }
                     yield DataResult.success(new DslToken.MinusSymbol(this.createSpan(start)));
                 }
-                case '|' -> {
-                    this.stringReader.expect('|');
-                    this.stringReader.expect('|');
-                    yield DataResult.success(new DslToken.DoubleLine(this.createSpan(start)));
-                }
-                case '&' -> {
-                    this.stringReader.expect('&');
-                    this.stringReader.expect('&');
-                    yield DataResult.success(new DslToken.DoubleAmpersand(this.createSpan(start)));
-                }
                 case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                      'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
@@ -104,11 +138,12 @@ public class DslTokenizer {
                     var string = this.readIdentifier();
                     yield DataResult.success(switch (string) {
                         case "if" -> new DslToken.IfKeyword(this.createSpan(start));
+                        case "unless" -> new DslToken.UnlessKeyword(this.createSpan(start));
                         case "else" -> new DslToken.ElseKeyword(this.createSpan(start));
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
                         case "function" -> new DslToken.FunctionKeyword(this.createSpan(start));
-                        case "foreach" -> new DslToken.ForeachKeyword(this.createSpan(start));
+                        case "for" -> new DslToken.ForKeyword(this.createSpan(start));
                         case "in" -> new DslToken.InKeyword(this.createSpan(start));
                         case "break" -> new DslToken.BreakKeyword(this.createSpan(start));
                         case "continue" -> new DslToken.ContinueKeyword(this.createSpan(start));
@@ -120,6 +155,13 @@ public class DslTokenizer {
                         case "switch" -> new DslToken.SwitchKeyword(this.createSpan(start));
                         case "case" -> new DslToken.CaseKeyword(this.createSpan(start));
                         case "where" -> new DslToken.WhereKeyword(this.createSpan(start));
+                        case "or" -> new DslToken.LogicalOr(this.createSpan(start));
+                        case "and" -> new DslToken.LogicalAnd(this.createSpan(start));
+                        case "not" -> new DslToken.LogicalNot(this.createSpan(start));
+                        case "with", "while", "until", "is" ->
+                                throw new ParsingException("The keyword '" + string + "' is reserved", this.createSpan(start));
+                        case "foreach" ->
+                                throw new ParsingException("The keyword '" + string + "' is deprecated", this.createSpan(start));
                         default -> new DslToken.Identifier(string, this.createSpan(start));
                     });
                 }
@@ -140,7 +182,15 @@ public class DslTokenizer {
                 case '<' -> tokenWithEquals('<', () -> new DslToken.LessThanSymbol(this.createSpan(start)), () -> new DslToken.LessThanOrEqualSymbol(this.createSpan(start)));
                 case '?' -> token('?', () -> new DslToken.QuestionMark(this.createSpan(start)));
                 case '%' -> token('%', () -> new DslToken.Percent(this.createSpan(start)));
-                case '!' -> tokenWithEquals('!', () -> new DslToken.ExclamationMark(this.createSpan(start)), () -> new DslToken.NotEqualSymbol(this.createSpan(start)));
+                case '!' -> {
+                    stringReader.expect('!');
+                    if(stringReader.peek() == '=') {
+                        stringReader.expect('=');
+                        yield DataResult.success(new DslToken.NotEqualSymbol(this.createSpan(start)));
+                    } else {
+                        throw new ParsingException("Exclamation marks must be immediately succeeded with an equals sign", this.createSpan(start));
+                    }
+                }
                 default -> throw new ParsingException("Invalid character type: '" + stringReader.peek() + "'", this.createSpan());
             };
         } catch (CommandSyntaxException exception) {

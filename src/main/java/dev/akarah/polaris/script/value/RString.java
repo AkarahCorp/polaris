@@ -53,6 +53,19 @@ public class RString extends RuntimeValue {
         return RBoolean.of($this.inner.startsWith(content.javaValue()));
     }
 
+    @MethodTypeHint(signature = "(this: string, content: string) -> boolean", documentation = "Checks if a string contains a substring.")
+    public static RBoolean contains(RString $this, RString content) {
+        return RBoolean.of($this.inner.contains(content.javaValue()));
+    }
+
+    @MethodTypeHint(signature = "(this: string, start: number, end: number) -> string", documentation = "Checks if a string contains a substring.")
+    public static RString substring(RString $this, RNumber start, RNumber end) {
+        assert end.doubleValue() >= start.doubleValue();
+        assert start.doubleValue() >= 0;
+        assert end.doubleValue() >= 0;
+        return RString.of($this.inner.substring(start.intValue(), end.intValue()));
+    }
+
     @MethodTypeHint(signature = "(this: string, concat: any) -> string", documentation = "Returns a new string, concatenating 2 strings.")
     public static RString add(RString $this, RuntimeValue convert) {
         return RString.of($this.javaValue() + convert);

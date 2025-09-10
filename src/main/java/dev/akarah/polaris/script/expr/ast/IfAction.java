@@ -1,5 +1,6 @@
 package dev.akarah.polaris.script.expr.ast;
 
+import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
@@ -14,7 +15,8 @@ import java.util.Optional;
 public record IfAction(
         Expression condition,
         Expression then,
-        Optional<Expression> orElse
+        Optional<Expression> orElse,
+        SpanData span
 ) implements Expression {
 
     @Override
@@ -36,7 +38,11 @@ public record IfAction(
                 .ifThenElse(
                         Opcode.IFNE,
                         () -> ctx.pushValue(this.then),
-                        () -> orElse.map(ctx::pushValue).orElse(ctx)
+                        () -> orElse.map(x -> {
+                            return ctx.popFrame()
+                                    .pushFrame(exitLabel, ctx.getFrame().breakLabel())
+                                    .pushValue(x);
+                        }).orElse(ctx)
                 )
                 .popFrame()
                 .bytecodeUnsafe(cb -> cb.labelBinding(exitLabel));

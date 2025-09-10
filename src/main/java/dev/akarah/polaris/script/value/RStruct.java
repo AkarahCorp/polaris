@@ -20,6 +20,9 @@ public class RStruct extends RuntimeValue {
     public static RuntimeValue get(RStruct dict, String key, RuntimeValue fallback) {
         var result = dict.inner.get(key);
         if(result == null) {
+            if(fallback == null) {
+                throw new RuntimeException("Field " + key + " of struct " + dict.name + " is missing.");
+            }
             dict.inner.put(key, fallback);
             return fallback;
         }

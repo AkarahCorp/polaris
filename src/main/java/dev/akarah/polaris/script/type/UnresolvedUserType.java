@@ -45,4 +45,9 @@ public record UnresolvedUserType(
     public String verboseTypeName() {
         return this.resolve().verboseTypeName();
     }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
 }
