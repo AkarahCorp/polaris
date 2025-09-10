@@ -213,6 +213,12 @@ public class StatsObject {
         this.sources.add(other);
     }
 
+    public void multiply(double other) {
+        for(var key : this.keySet()) {
+            this.set(key, this.get(key) * other);
+        }
+    }
+
     public StatsObject copy() {
         var so = StatsObject.of();
         so.add(this);

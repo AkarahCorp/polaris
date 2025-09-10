@@ -29,10 +29,6 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-    @Shadow private int tickCount;
-
-    @Shadow @Nullable private ServerStatus status;
-
     @Inject(at = @At("CTOR_HEAD"), method = "<init>")
     private void getInstanceAndStartWork(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
         Main.SERVER = (MinecraftServer) (Object) this;
@@ -59,6 +55,7 @@ public class MinecraftServerMixin {
             Resources.addedGameProfiles = true;
         }
 
+        Resources.loopPlayers();
         Resources.statManager().loopPlayers();
         Resources.miningManager().tickPlayers();
         if(this.tickCount % 200 == 5) {
