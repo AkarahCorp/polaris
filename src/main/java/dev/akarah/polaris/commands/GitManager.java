@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 
 public class GitManager {
     public static String GITHUB_TOKEN;
+    public static String GITHUB_USER;
     public static File MAIN_DATAPACK_DIR;
 
     public static List<BiConsumer<CommandDispatcher<CommandSourceStack>, LiteralArgumentBuilder<CommandSourceStack>>> gitCommands() {
@@ -38,6 +39,12 @@ public class GitManager {
             Main.LOGGER.warn("No github token found, git commands will not work.");
         }
         try {
+            GITHUB_USER = Files.readString(Paths.get("./.polaris/github.user"));
+        } catch (IOException exception) {
+            ExceptionPrinter.writeExceptionToOps(exception);
+            Main.LOGGER.warn("No github username found, git commands will not work.");
+        }
+        try {
             MAIN_DATAPACK_DIR = new File("world/datapacks/" + Files.readString(Paths.get("./.polaris/datapack.token")) + "/");
         } catch (IOException exception) {
             ExceptionPrinter.writeExceptionToOps(exception);
@@ -49,15 +56,19 @@ public class GitManager {
         executor.sendSystemMessage(Component.literal("Executing `" + Arrays.toString(command) + "`...").withColor(ARGB.color(200, 200, 200)));
         var proc = new ProcessBuilder().command(command).directory(MAIN_DATAPACK_DIR).start();
         proc.getInputStream().transferTo(new PlayerOutputStream(executor));
-        for(int i = 0; i < 2; i++) {
-            try {
-                proc.getOutputStream().write(
-                        (GITHUB_TOKEN + "\n").getBytes()
-                );
-                proc.getOutputStream().flush();
-            } catch (IOException ignored) {
+        proc.getErrorStream().transferTo(new PlayerOutputStream(executor));
+        try {
 
-            }
+            proc.getOutputStream().write(
+                    (GITHUB_USER + "\n").getBytes()
+            );
+            proc.getOutputStream().flush();
+
+            proc.getOutputStream().write(
+                    (GITHUB_TOKEN + "\n").getBytes()
+            );
+            proc.getOutputStream().flush();
+        } catch (IOException ignored) {
         }
         return proc;
     }
@@ -76,13 +87,14 @@ public class GitManager {
                                         try {
                                             var branch = IntegerArgumentType.getInteger(ctx, "branch");
 
+                                            executeCommand(serverPlayer, "git", "fetch");
                                             executeCommand(serverPlayer, "git", "checkout", "main");
                                             executeCommand(serverPlayer, "git", "reset", "--hard", "origin");
                                             executeCommand(serverPlayer, "git", "branch", "-D", "polaris-demo");
                                             executeCommand(serverPlayer, "git", "branch", "polaris-demo");
                                             executeCommand(serverPlayer, "git", "checkout", "polaris-demo");
 
-                                            var pull = executeCommand(serverPlayer, "git", "pull", "origin", "refs/pull/" + branch + "/head");
+                                            executeCommand(serverPlayer, "git", "pull", "origin", "refs/pull/" + branch + "/head");
                                         } catch (IOException e) {
                                             ExceptionPrinter.writeExceptionToOps(e);
                                         }
@@ -134,6 +146,22 @@ public class GitManager {
                                 }
                                 try {
                                     executeCommand(serverPlayer, "git", "branch");
+                                } catch (IOException e) {
+                                    ExceptionPrinter.writeExceptionToOps(e);
+                                }
+                            }
+                            return 0;
+                        })
+                ).then(
+                        Commands.literal("log").executes(ctx -> {
+                            if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                if(!MAIN_DATAPACK_DIR.exists()) {
+                                    serverPlayer.sendSystemMessage(Component.literal("Datapack directory does not exist!").withColor(ARGB.color(255, 0, 0)));
+                                    serverPlayer.sendSystemMessage(Component.literal("The full datapack directory is `" + MAIN_DATAPACK_DIR.getAbsolutePath() + "`.").withColor(ARGB.color(255, 0, 0)));
+                                    return 1;
+                                }
+                                try {
+                                    executeCommand(serverPlayer, "git", "log");
                                 } catch (IOException e) {
                                     ExceptionPrinter.writeExceptionToOps(e);
                                 }
