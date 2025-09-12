@@ -78,7 +78,7 @@ public class GitManager {
 
                                             executeCommand(serverPlayer, "git", "checkout", "main");
                                             executeCommand(serverPlayer, "git", "reset", "--hard", "origin");
-                                            executeCommand(serverPlayer, "git", "branch", "-d", "polaris-demo");
+                                            executeCommand(serverPlayer, "git", "branch", "-D", "polaris-demo");
                                             executeCommand(serverPlayer, "git", "branch", "polaris-demo");
                                             executeCommand(serverPlayer, "git", "checkout", "polaris-demo");
 
@@ -101,7 +101,7 @@ public class GitManager {
                                 try {
                                     executeCommand(serverPlayer, "git", "checkout", "main");
                                     executeCommand(serverPlayer, "git", "reset", "--hard", "origin");
-                                    executeCommand(serverPlayer, "git", "branch", "-d", "polaris-demo");
+                                    executeCommand(serverPlayer, "git", "branch", "-D", "polaris-demo");
                                 } catch (IOException e) {
                                     ExceptionPrinter.writeExceptionToOps(e);
                                 }
