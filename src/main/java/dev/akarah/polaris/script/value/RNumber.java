@@ -94,6 +94,11 @@ public class RNumber extends RuntimeValue implements Comparable<RNumber> {
         return RNumber.of(lhs.doubleValue() / rhs.doubleValue());
     }
 
+    @MethodTypeHint(signature = "(lhs: number) -> number", documentation = "Returns the absolute value of the number.")
+    public static RNumber abs(RNumber $this) {
+        return RNumber.of(Math.abs($this.doubleValue()));
+    }
+
     @MethodTypeHint(signature = "(lhs: number, rhs: number) -> number", documentation = "Returns the remainder of two numbers.")
     public static RNumber rem(RNumber lhs, RNumber rhs) {
         return RNumber.of(lhs.doubleValue() % rhs.doubleValue());

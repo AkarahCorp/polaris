@@ -1,5 +1,7 @@
 package dev.akarah.polaris.script.value;
 
+import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+
 import java.util.UUID;
 
 public class RUuid extends RuntimeValue {
@@ -16,5 +18,16 @@ public class RUuid extends RuntimeValue {
     @Override
     public UUID javaValue() {
         return this.inner;
+    }
+
+
+    @MethodTypeHint(signature = "(this: uuid) -> number", documentation = "Returns the most significant bits of this UUID.")
+    public static RNumber most_significant_bits(RUuid $this) {
+        return RNumber.of((double) $this.inner.getMostSignificantBits());
+    }
+
+    @MethodTypeHint(signature = "(this: uuid) -> number", documentation = "Returns the least significant bits of this UUID.")
+    public static RNumber least_significant_bits(RUuid $this) {
+        return RNumber.of((double) $this.inner.getLeastSignificantBits());
     }
 }
