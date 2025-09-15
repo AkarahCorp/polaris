@@ -479,6 +479,38 @@ public class REntity extends RuntimeValue {
         }
     }
 
+    @MethodTypeHint(signature = "(entity: entity, rotation: vector) -> void", documentation = "Sets the rotation on the provided display entity.")
+    public static void display__set_left_rotation(REntity $this, RVector scale) {
+        if($this.javaValue() instanceof Display display) {
+            var oldTransformation = Display.createTransformation(display.getEntityData());
+            display.setTransformation(
+                    new Transformation(
+                            oldTransformation.getTranslation(),
+                            oldTransformation.getRightRotation(),
+                            oldTransformation.getScale(),
+                            scale.asRotation()
+                    )
+            );
+        }
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, rotation: vector) -> void", documentation = "Sets the rotation on the provided display entity.")
+    public static void display__set_right_rotation(REntity $this, RVector scale) {
+        if($this.javaValue() instanceof Display display) {
+            var oldTransformation = Display.createTransformation(display.getEntityData());
+            display.setTransformation(
+                    new Transformation(
+                            oldTransformation.getTranslation(),
+                            scale.asRotation(),
+                            oldTransformation.getScale(),
+                            oldTransformation.getLeftRotation()
+                    )
+            );
+        }
+    }
+
+
+
     @MethodTypeHint(signature = "(entity: entity, dialog: identifier) -> void", documentation = "Shows a dialog to the player.")
     public static void player__show_dialog(REntity $this, RIdentifier dialogId) {
         if($this.javaValue() instanceof ServerPlayer player) {

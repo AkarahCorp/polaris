@@ -7,6 +7,8 @@ import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class RVector extends RuntimeValue {
     private final Vec3 inner;
@@ -104,5 +106,24 @@ public class RVector extends RuntimeValue {
 
     public BlockPos asBlockPos() {
         return new BlockPos((int) Math.floor(this.inner.x), (int) Math.floor(this.inner.y), (int) Math.floor(this.inner.z));
+    }
+
+    public Quaternionf asRotation() {
+        Vector3f forward = new Vector3f(0, 0, 1);
+        Vector3f target = this.javaValue().normalize().toVector3f();
+
+        if (forward.equals(target, 1e-6f)) {
+            return new Quaternionf(); // identity (no rotation)
+        }
+        if (forward.equals(target.negate(new Vector3f()), 1e-6f)) {
+            return new Quaternionf().rotationAxis((float) Math.PI, 1, 0, 0);
+        }
+
+        Vector3f axis = forward.cross(target, new Vector3f()).normalize();
+
+        float dot = forward.dot(target);
+        float angle = (float) Math.acos(dot);
+
+        return new Quaternionf().rotationAxis(angle, axis);
     }
 }

@@ -228,4 +228,14 @@ public class GlobalNamespace {
     public static RuntimeValue add(RuntimeValue lhs, RuntimeValue rhs) {
         return OperationUtil.add(lhs, rhs);
     }
+
+    @MethodTypeHint(signature = "(message: string) -> void", documentation = "Panics immediately, stopping the current script and throwing an error.")
+    public static void panic(RString message) {
+        throw new RuntimeException(message.javaValue());
+    }
+
+    @MethodTypeHint(signature = "() -> any", documentation = "Returns a null pointer. Note this value is not safe to use anywhere. Only use when using panics.")
+    public static RuntimeValue unsafe__null() {
+        return null;
+    }
 }
