@@ -17,6 +17,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -30,6 +31,16 @@ public class VisualEntity extends LivingEntity {
 
     public DynamicEntity dynamic() {
         return this.dynamic;
+    }
+
+    @Override
+    protected @NotNull AABB getHitbox() {
+        return new AABB(0, 0, 0, 0, 0, 0);
+    }
+
+    @Override
+    protected void pushEntities() {
+
     }
 
     protected VisualEntity(

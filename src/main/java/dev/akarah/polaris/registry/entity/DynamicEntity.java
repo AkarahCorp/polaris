@@ -205,4 +205,11 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         });
         super.die(damageSource);
     }
+
+
+
+    @Override
+    protected void pushEntities() {
+
+    }
 }
