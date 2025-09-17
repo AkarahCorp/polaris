@@ -41,6 +41,9 @@ public record MobSpawnRule(
                 .map(x -> (DynamicEntity) x)
                 .filter(dynamicEntity -> {
                     try {
+                        if(radius == 0) {
+                            return dynamicEntity.base().id().equals(this.entityType) && dynamicEntity.position().distanceTo(center) <= 2;
+                        }
                         return dynamicEntity.base().id().equals(this.entityType) && dynamicEntity.position().distanceTo(center) <= (radius * 2);
                     } catch (Exception e) {
                         dynamicEntity.remove(Entity.RemovalReason.KILLED);

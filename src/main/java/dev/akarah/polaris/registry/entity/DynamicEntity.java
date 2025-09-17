@@ -7,6 +7,7 @@ import dev.akarah.polaris.script.value.RCell;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.mc.REntity;
+import dev.akarah.polaris.script.value.mc.RIdentifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -134,7 +135,13 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         }
 
         if(damageSource.getEntity() instanceof ServerPlayer attacker) {
-            proceed = proceed && Resources.actionManager().performEvents("player.attack_entity", REntity.of(attacker), REntity.of(this), cell);
+            proceed = proceed && Resources.actionManager().performEvents(
+                    "player.attack_entity",
+                    REntity.of(attacker),
+                    REntity.of(this),
+                    cell,
+                    RIdentifier.of(damageSource.typeHolder().unwrapKey().orElseThrow().location())
+            );
 
             if((this.getHealth() - ((Double) RCell.get(cell).javaValue())) <= 0.0) {
                 proceed = proceed && Resources.actionManager().performEvents("player.kill_entity", REntity.of(attacker), REntity.of(this), cell);

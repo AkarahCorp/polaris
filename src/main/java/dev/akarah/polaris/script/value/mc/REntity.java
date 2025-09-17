@@ -25,6 +25,7 @@ import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -172,14 +174,21 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity, health: number) -> void", documentation = "Sets the health of the entity.")
-    public static void damage(REntity $this, RNumber number) {
+    @MethodTypeHint(signature = "(this: entity, health: number, type?: identifier, attacker?: entity) -> void", documentation = "Sets the health of the entity.")
+    public static void damage(REntity $this, RNumber number, RIdentifier type, REntity attacker) {
+        if(type == null) {
+            type = RIdentifier.of(ResourceLocation.withDefaultNamespace("generic"));
+        }
+        if(attacker == null) {
+            attacker = new REntity(null);
+        }
         if($this.inner instanceof LivingEntity le) {
             var ds = new DamageSource(
                     le.level().registryAccess().lookup(Registries.DAMAGE_TYPE)
                             .orElseThrow()
-                            .get(DamageTypes.GENERIC)
-                            .orElseThrow()
+                            .get(type.javaValue())
+                            .orElseThrow(),
+                    attacker.javaValue()
             );
             le.hurtServer((ServerLevel) le.level(), ds, number.javaValue().floatValue());
         }
@@ -289,15 +298,31 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the owner of the entity if it is an item entity. Could still be null if the item entity has no owner.")
-    public static RNullable item__owner(REntity $this) {
+    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the owner of the entity if it is an ownable entity. Could still be null if the ownable entity has no owner.")
+    public static RNullable owner(REntity $this) {
         if($this.javaValue() instanceof ItemEntity item) {
             if(item.target == null) {
                 return RNullable.empty();
             }
             return RNullable.of(RUuid.of(item.target));
         }
+        if($this.javaValue() instanceof Projectile projectile) {
+            if(projectile.getOwner() == null) {
+                return RNullable.empty();
+            }
+            return RNullable.of(RUuid.of(projectile.getOwner().getUUID()));
+        }
         return RNullable.empty();
+    }
+
+    @MethodTypeHint(signature = "(this: entity, owner: uuid) -> void", documentation = "Sets the owner of the entity if it is an ownable entity.")
+    public static void set_owner(REntity $this, RUuid owner) {
+        if($this.javaValue() instanceof ItemEntity item) {
+            item.target = owner.javaValue();
+        }
+        if($this.javaValue() instanceof Projectile projectile) {
+            projectile.setOwner(Main.server().overworld().getEntity(owner.javaValue()));
+        }
     }
 
     @MethodTypeHint(signature = "(this: entity) -> nullable[item]", documentation = "Returns the item of this entity if it is an item entity.")
@@ -522,5 +547,15 @@ public class REntity extends RuntimeValue {
 
             }
         }
+    }
+
+    @MethodTypeHint(signature = "(entity: entity) -> boolean", documentation = "Returns true if the entity still exists in the world.")
+    public static RBoolean exists(REntity $this) {
+        return RBoolean.of(!$this.javaValue().isRemoved());
+    }
+
+    @MethodTypeHint(signature = "(entity: entity) -> boolean", documentation = "Returns true if the player is sneaking.")
+    public static RBoolean player__sneaking(REntity $this) {
+        return RBoolean.of($this.javaValue() instanceof ServerPlayer serverPlayer && serverPlayer.isCrouching());
     }
 }

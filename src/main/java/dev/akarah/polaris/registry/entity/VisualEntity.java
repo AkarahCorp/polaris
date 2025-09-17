@@ -15,6 +15,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class VisualEntity extends LivingEntity {
     DynamicEntity dynamic;
@@ -54,12 +56,22 @@ public class VisualEntity extends LivingEntity {
         DynamicEntity.FAKED_TYPES.put(this.getId(), this.dynamic.base().entityType());
 
         if(this.dynamic.base().entityType().equals(EntityType.PLAYER)) {
-            var gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName().orElseThrow());
+            GameProfile gameProfile = null;
+            try {
+                gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName().orElseThrow());
+            } catch (Exception e) {
+                try {
+                    Resources.GAME_PROFILES.put(
+                            this.dynamic().base().playerSkinName().orElseThrow(),
+                            SkullBlockEntity.fetchGameProfile(this.dynamic().base().playerSkinName().orElseThrow()).get().orElseThrow()
+                    );
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                }
+                gameProfile = Resources.GAME_PROFILES.get(this.dynamic().base().playerSkinName().orElseThrow());
+            }
 
-            var newProfile = new GameProfile(this.uuid, "");
-            gameProfile.getProperties().forEach((k, p) -> newProfile.getProperties().put(k, p));
-
-            var fp = FakePlayer.get((ServerLevel) level, newProfile);
+            var fp = FakePlayer.get((ServerLevel) level, gameProfile);
             this.fakePlayer = fp;
             CustomEntity.FAKE_PLAYERS.add(this.fakePlayer);
 

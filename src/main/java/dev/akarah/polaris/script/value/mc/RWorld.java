@@ -124,6 +124,15 @@ public class RWorld extends RuntimeValue {
         return list;
     }
 
+
+    @MethodTypeHint(
+            signature = "(this: world, uuid: uuid) -> nullable[entity]",
+            documentation = "Returns the entity in the world under the given UUID if present."
+    )
+    public static RNullable get_entity(RWorld world, RUuid uuid) {
+        return RNullable.of(REntity.of(world.javaValue().getEntity(uuid.javaValue())));
+    }
+
     @MethodTypeHint(
             signature = "(this: world, position: vector, text: text) -> entity",
             documentation = "Returns the inventory present in the block at the given position. Returns null if the block is not a container."
