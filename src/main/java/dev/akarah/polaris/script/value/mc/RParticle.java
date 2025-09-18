@@ -23,10 +23,21 @@ public class RParticle extends RuntimeValue {
         var str = colorString.javaValue();
         if (str.startsWith("#")) {str = str.substring(1);}
         var color = Integer.parseInt(str, 16);
-        return new RParticle(ColorParticleOption.create(
+        return new RParticle(
+            ColorParticleOption.create(
                 (ParticleType<ColorParticleOption>) particle.particleOptions().getType(),
-                color)
+                color
+            )
         );
+    }
+
+    @MethodTypeHint(signature = "(particle: particle, color: string, scale: number) -> particle",
+            documentation = "Colors the dust particle with an RGB hexadecimal string, and sizes it to the provided scale.")
+    public static RParticle dust(RParticle particle, RString colorString, RNumber scale) {
+        var str = colorString.javaValue();
+        if (str.startsWith("#")) {str = str.substring(1);}
+        var color = Integer.parseInt(str, 16);
+        return new RParticle(new DustParticleOptions(color, scale.javaValue().floatValue()));
     }
 
     public ParticleOptions particleOptions() {

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -107,6 +108,26 @@ public class DslActionManager {
                     eventInterning.put(eventName, Lists.newArrayList(function.getKey()));
                 }
             });
+        }
+        for(var entry : this.eventInterning.entrySet()) {
+            entry.getValue().sort(
+                    Comparator.comparingInt(
+                            x -> {
+                                var priority = Integer.MAX_VALUE;
+                                var annotations = dslExpressions.get(x).annotations();
+                                if(annotations.stream().anyMatch(a -> a.name().equals("event.priority.high"))) {
+                                    priority = 0;
+                                }
+                                if(annotations.stream().anyMatch(a -> a.name().equals("event.priority.medium"))) {
+                                    priority = 1;
+                                }
+                                if(annotations.stream().anyMatch(a -> a.name().equals("event.priority.low"))) {
+                                    priority = 2;
+                                }
+                                return priority;
+                            }
+                    )
+            );
         }
     }
 

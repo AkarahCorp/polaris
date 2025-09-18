@@ -51,6 +51,10 @@ public class DslParser {
     }
 
     public Expression parseSingleTopLevelExpression() {
+        var annotations = List.<Annotation>of();
+        if(peek() instanceof DslToken.Annotation) {
+            annotations = parseAnnotations();
+        }
         if(peek() instanceof DslToken.StructKeyword) {
             var tok = expect(DslToken.StructKeyword.class);
             var name = expect(DslToken.NamespacedIdentifierExpr.class);
@@ -59,9 +63,9 @@ public class DslParser {
             return new TypeExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), outputType, tok.span());
         }
         if(peek() instanceof DslToken.EventKeyword) {
-            return parseEvent();
+            return parseEvent(annotations);
         }
-        return parseFunction();
+        return parseFunction(annotations);
     }
 
     public static ExpressionTypeSet parseExpressionTypeSet(List<DslToken> tokens, String functionName) {
@@ -89,8 +93,7 @@ public class DslParser {
         return list;
     }
 
-    public SchemaExpression parseFunction() {
-        var annotations = parseAnnotations();
+    public SchemaExpression parseFunction(List<Annotation> annotations) {
         var kw = expect(DslToken.FunctionKeyword.class);
         var name = expect(DslToken.NamespacedIdentifierExpr.class);
         var location = ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path());
@@ -107,8 +110,7 @@ public class DslParser {
     }
 
     // TODO: merge with parseSchema
-    public SchemaExpression parseEvent() {
-        var annotations = parseAnnotations();
+    public SchemaExpression parseEvent(List<Annotation> annotations) {
         var kw = expect(DslToken.EventKeyword.class);
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
