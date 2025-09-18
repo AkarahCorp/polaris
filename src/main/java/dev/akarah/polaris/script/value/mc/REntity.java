@@ -315,6 +315,12 @@ public class REntity extends RuntimeValue {
         return RNullable.empty();
     }
 
+
+    @MethodTypeHint(signature = "(this: entity) -> nullable[uuid]", documentation = "Returns the owner of the entity if it is an ownable entity. Could still be null if the ownable entity has no owner.")
+    public static RNullable item__owner(REntity $this) {
+        return owner($this);
+    }
+
     @MethodTypeHint(signature = "(this: entity, owner: uuid) -> void", documentation = "Sets the owner of the entity if it is an ownable entity.")
     public static void set_owner(REntity $this, RUuid owner) {
         if($this.javaValue() instanceof ItemEntity item) {
