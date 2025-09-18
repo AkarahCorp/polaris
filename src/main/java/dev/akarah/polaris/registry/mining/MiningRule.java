@@ -21,8 +21,19 @@ public record MiningRule(
         ResourceLocation speedStat,
         ResourceLocation spreadStat,
         Optional<LootTable> lootTable,
-        double spreadToughness
+        double spreadToughness,
+        Optional<RegenerationRule> regeneration
 ) {
+    record RegenerationRule(
+            Block replacement,
+            int delay
+    ) {
+        public static Codec<RegenerationRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                BuiltInRegistries.BLOCK.byNameCodec().fieldOf("replacement").forGetter(RegenerationRule::replacement),
+                Codec.INT.fieldOf("delay").forGetter(RegenerationRule::delay)
+        ).apply(instance, RegenerationRule::new));
+    }
+
     public static Codec<MiningRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BuiltInRegistries.BLOCK.byNameCodec().listOf().fieldOf("materials").forGetter(MiningRule::materials),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("block_state", Map.of()).forGetter(MiningRule::stateRequirements),
@@ -33,6 +44,7 @@ public record MiningRule(
             ResourceLocation.CODEC.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
             ResourceLocation.CODEC.optionalFieldOf("spread_stat", ResourceLocation.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
-            Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness)
+            Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness),
+            RegenerationRule.CODEC.optionalFieldOf("regeneration").forGetter(MiningRule::regeneration)
     ).apply(instance, MiningRule::new));
 }

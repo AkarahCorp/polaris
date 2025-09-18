@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.akarah.polaris.Main;
+import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RVector;
@@ -162,9 +163,11 @@ public class MiningManager {
         Resources.scheduler().schedule(
                 depth,
                 () -> {
-
                     var block = player.level().getBlockState(target);
                     if(block.getBlock().equals(Blocks.AIR)) {
+                        return;
+                    }
+                    if(rule.regeneration().isPresent() && block.getBlock().equals(rule.regeneration().get().replacement())) {
                         return;
                     }
 
@@ -193,7 +196,16 @@ public class MiningManager {
                         }
                     }
 
-                    player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
+                    rule.regeneration().ifPresentOrElse(
+                            regenerationRule -> {
+                                player.level().setBlock(target, regenerationRule.replacement().defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
+                                Resources.scheduler().schedule(regenerationRule.delay(), () -> {
+                                    player.level().setBlock(target, block, Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
+                                });
+                            },
+                            () -> {
+                                player.level().setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS | Block.UPDATE_CLIENTS);
+                            });
                     rule.lootTable().ifPresent(x -> x.execute(player.level(), target.getCenter(), player));
                 }
         );
