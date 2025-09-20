@@ -16,6 +16,7 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,28 +70,7 @@ public record LootTable(
             rs = RandomSource.create();
         }
         for(var guaranteed : this.drops) {
-            Resources.customItem().registry().get(guaranteed.item()).ifPresent(customItem -> {
-                var times = 1;
-
-                if(player != null) {
-                    double stat = guaranteed.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
-
-                    times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
-                }
-
-
-                var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
-                generated.setCount(guaranteed.amount().sample(rs) * times);
-
-                var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
-
-                if(player != null) {
-                    ie.setTarget(player.getUUID());
-                }
-
-                level.addFreshEntity(ie);
-                entities.add(ie);
-            });
+            handleRule(level, position, player, entities, rs, guaranteed.item(), guaranteed.fortuneStat(), guaranteed.amount(), entry);
         }
 
         int weightSum = 0;
@@ -109,32 +89,34 @@ public record LootTable(
             for(var entry : this.weightedDrops) {
                 weightRemainder -= entry.weight();
                 if(weightRemainder <= 0) {
-
-
-                    Resources.customItem().registry().get(entry.item()).ifPresent(customItem -> {
-                        var times = 1;
-                        if(player != null) {
-                            double stat = entry.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
-
-                            times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
-                        }
-
-                        var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
-                        generated.setCount(entry.amount().sample(rs) * times);
-
-                        var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
-
-                        if(player != null) {
-                            ie.setTarget(player.getUUID());
-                        }
-
-                        level.addFreshEntity(ie);
-                        entities.add(ie);
-                    });
+                    handleRule(level, position, player, entities, rs, entry.item(), entry.fortuneStat(), entry.amount(), entry);
                     break;
                 }
             }
         }
         return entities;
+    }
+
+    private void handleRule(ServerLevel level, Vec3 position, ServerPlayer player, ArrayList<ItemEntity> entities, RandomSource rs, ResourceLocation item, Optional<ResourceLocation> resourceLocation, IntProvider amount, WeightedEntry entry) {
+        Resources.customItem().registry().get(item).ifPresent(customItem -> {
+            var times = 1;
+            if(player != null) {
+                double stat = resourceLocation.map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
+
+                times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
+            }
+
+            var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
+            generated.setCount(amount.sample(rs) * times);
+
+            var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+
+            if(player != null) {
+                ie.setTarget(player.getUUID());
+            }
+
+            level.addFreshEntity(ie);
+            entities.add(ie);
+        });
     }
 }
