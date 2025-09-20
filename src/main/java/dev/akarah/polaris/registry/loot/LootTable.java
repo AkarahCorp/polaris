@@ -70,7 +70,7 @@ public record LootTable(
             rs = RandomSource.create();
         }
         for(var guaranteed : this.drops) {
-            handleRule(level, position, player, entities, rs, guaranteed.item(), guaranteed.fortuneStat(), guaranteed.amount(), entry);
+            handleRule(level, position, player, entities, rs, guaranteed.item(), guaranteed.fortuneStat(), guaranteed.amount(), new WeightedEntry(1, guaranteed.item(), guaranteed.amount(), guaranteed.fortuneStat()));
         }
 
         int weightSum = 0;
