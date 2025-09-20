@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.mc.REntity;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,26 +75,21 @@ public record LootTable(
                 if(player != null) {
                     double stat = guaranteed.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
 
-                    while(Math.random() <= stat) {
-                        stat -= 1;
-                        times += 1;
-                    }
+                    times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
                 }
 
 
                 var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
-                generated.setCount(guaranteed.amount().sample(rs));
+                generated.setCount(guaranteed.amount().sample(rs) * times);
 
-                for(int i = 0; i<times; i++) {
-                    var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+                var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
 
-                    if(player != null) {
-                        ie.setTarget(player.getUUID());
-                    }
-
-                    level.addFreshEntity(ie);
-                    entities.add(ie);
+                if(player != null) {
+                    ie.setTarget(player.getUUID());
                 }
+
+                level.addFreshEntity(ie);
+                entities.add(ie);
             });
         }
 
@@ -120,25 +116,20 @@ public record LootTable(
                         if(player != null) {
                             double stat = entry.fortuneStat().map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
 
-                            while(Math.random() <= stat) {
-                                stat -= 1;
-                                times += 1;
-                            }
+                            times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
                         }
 
                         var generated = customItem.value().toItemStack(RNullable.of(REntity.of(player)));
-                        generated.setCount(entry.amount().sample(rs));
+                        generated.setCount(entry.amount().sample(rs) * times);
 
-                        for(int i2 = 0; i2 < times; i2++) {
-                            var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
+                        var ie = new ItemEntity(level, position.x, position.y, position.z, generated);
 
-                            if(player != null) {
-                                ie.setTarget(player.getUUID());
-                            }
-
-                            level.addFreshEntity(ie);
-                            entities.add(ie);
+                        if(player != null) {
+                            ie.setTarget(player.getUUID());
                         }
+
+                        level.addFreshEntity(ie);
+                        entities.add(ie);
                     });
                     break;
                 }
