@@ -8,6 +8,7 @@ import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RItem;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.*;
@@ -107,5 +108,14 @@ public class ServerGamePacketListenerMixin {
     @Inject(method = "handleContainerClose", at = @At("TAIL"))
     public void close(ServerboundContainerClosePacket serverboundContainerClosePacket, CallbackInfo ci) {
         Resources.statManager().refreshPlayerInventory(this.player);
+    }
+
+    @Inject(method = "handleChatCommand", at = @At("HEAD"), cancellable = true)
+    public void command(ServerboundChatCommandPacket serverboundChatCommandPacket, CallbackInfo ci) {
+        if(this.player.hasContainerOpen()) {
+            this.player.sendSystemMessage(Component.literal("You can not execute commands while you have a container open!"));
+
+            ci.cancel();
+        }
     }
 }

@@ -9,9 +9,11 @@ import dev.akarah.polaris.registry.loot.LootTable;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,7 +28,8 @@ public record CustomEntity(
         Map<EquipmentSlot, ResourceLocation> equipment,
         boolean invulnerable,
         Optional<UUID> playerSkinName,
-        Optional<LootTable> lootTable
+        Optional<LootTable> lootTable,
+        CustomData customData
 ) {
     public static List<FakePlayer> FAKE_PLAYERS = Lists.newArrayList();
 
@@ -39,7 +42,8 @@ public record CustomEntity(
             Codec.unboundedMap(EquipmentSlot.CODEC, ResourceLocation.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
             Codec.BOOL.optionalFieldOf("invulnerable", false).forGetter(CustomEntity::invulnerable),
             UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomEntity::playerSkinName),
-            LootTable.CODEC.optionalFieldOf("loot_table").forGetter(CustomEntity::lootTable)
+            LootTable.CODEC.optionalFieldOf("loot_table").forGetter(CustomEntity::lootTable),
+            CustomData.CODEC.optionalFieldOf("custom_data", CustomData.EMPTY).forGetter(CustomEntity::customData)
     ).apply(instance, CustomEntity::new)));
 
     public ResourceLocation id() {
@@ -53,6 +57,7 @@ public record CustomEntity(
         entity.setCustomNameVisible(false);
         entity.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity);
+        entity.setComponent(DataComponents.CUSTOM_DATA, this.customData);
 
         entity.visual.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity.visual);
