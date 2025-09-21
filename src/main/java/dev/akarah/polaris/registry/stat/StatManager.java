@@ -1,14 +1,12 @@
 package dev.akarah.polaris.registry.stat;
 
-import com.google.common.collect.Lists;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.item.CustomItem;
-import dev.akarah.polaris.registry.item.value.CustomComponents;
+import dev.akarah.polaris.registry.item.value.CustomItemComponents;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RStatsObject;
-import dev.akarah.polaris.script.value.RText;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -65,7 +63,7 @@ public class StatManager {
             });
             for(var slot : LOOPED_SLOTS) {
                 var item = player.getItemBySlot(slot);
-                CustomItem.itemOf(item).ifPresent(customItem -> customItem.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
+                CustomItem.itemOf(item).ifPresent(customItem -> customItem.components().flatMap(CustomItemComponents::equippable).ifPresent(equippableData -> {
                     if(slot.equals(equippableData.slot())) {
                         var addedStats = customItem.modifiedStats(RNullable.of(REntity.of(player)), item.copy());
                         sources.add(addedStats);

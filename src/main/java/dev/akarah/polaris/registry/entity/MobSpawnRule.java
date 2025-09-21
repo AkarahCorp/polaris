@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

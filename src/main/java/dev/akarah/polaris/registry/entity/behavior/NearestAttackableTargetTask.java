@@ -2,7 +2,7 @@ package dev.akarah.polaris.registry.entity.behavior;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.akarah.polaris.registry.entity.DynamicEntity;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;

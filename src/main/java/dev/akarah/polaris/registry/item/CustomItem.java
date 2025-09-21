@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
-import dev.akarah.polaris.registry.item.value.CustomComponents;
+import dev.akarah.polaris.registry.item.value.CustomItemComponents;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RStatsObject;
@@ -33,7 +33,7 @@ public record CustomItem(
         ResourceLocation model,
         Optional<String> name,
         Optional<StatsObject> stats,
-        Optional<CustomComponents> components,
+        Optional<CustomItemComponents> components,
         Optional<ResourceLocation> itemTemplate,
         Optional<Map<String, RuntimeValue>> customData
 ) {
@@ -41,7 +41,7 @@ public record CustomItem(
             ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
             Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
-            CustomComponents.CODEC.optionalFieldOf("components").forGetter(CustomItem::components),
+            CustomItemComponents.CODEC.optionalFieldOf("components").forGetter(CustomItem::components),
             ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
@@ -67,7 +67,7 @@ public record CustomItem(
     public ItemStack toMinimalItemStack(CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
-        var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
 
         if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
             item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
@@ -82,14 +82,14 @@ public record CustomItem(
             cdata.merge(customData.getUnsafe());
         }
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
-        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
+        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomItemComponents::maxStackSize).orElse(1));
         return is;
     }
 
     public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
-        var placesAs = this.components.map(CustomComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
 
         if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
             item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
@@ -114,20 +114,20 @@ public record CustomItem(
         var display = TooltipDisplay.DEFAULT
                 .withHidden(DataComponents.TRIM, true)
                 .withHidden(DataComponents.DYED_COLOR, true);
-        if(this.components().map(CustomComponents::hideTooltip).orElse(false)) {
+        if(this.components().map(CustomItemComponents::hideTooltip).orElse(false)) {
             display = new TooltipDisplay(true, display.hiddenComponents());
         }
         is.set(
                 DataComponents.TOOLTIP_DISPLAY,
                 display
         );
-        this.components().flatMap(CustomComponents::equippable).ifPresent(equippableData -> {
+        this.components().flatMap(CustomItemComponents::equippable).ifPresent(equippableData -> {
             is.set(DataComponents.EQUIPPABLE, equippableData.component());
         });
-        this.components().flatMap(CustomComponents::color).ifPresent(dyedItemColor -> {
+        this.components().flatMap(CustomItemComponents::color).ifPresent(dyedItemColor -> {
             is.set(DataComponents.DYED_COLOR, dyedItemColor);
         });
-        this.components().flatMap(CustomComponents::trim).ifPresent(trim -> {
+        this.components().flatMap(CustomItemComponents::trim).ifPresent(trim -> {
             try {
                 is.set(DataComponents.TRIM, new ArmorTrim(
                         Main.server().registryAccess().lookup(Registries.TRIM_MATERIAL).orElseThrow()
@@ -139,21 +139,21 @@ public record CustomItem(
                 throw new RuntimeException(e);
             }
         });
-        this.components().flatMap(CustomComponents::playerSkin).ifPresent(playerSkinUuid -> {
+        this.components().flatMap(CustomItemComponents::playerSkin).ifPresent(playerSkinUuid -> {
             var gp = Resources.GAME_PROFILES.get(playerSkinUuid);
             if(gp != null) {
                 is.set(DataComponents.PROFILE, new ResolvableProfile(gp));
             }
         });
-        this.components().flatMap(CustomComponents::blocksAttacks).ifPresent(blocksAttacks -> {
+        this.components().flatMap(CustomItemComponents::blocksAttacks).ifPresent(blocksAttacks -> {
             is.set(DataComponents.BLOCKS_ATTACKS, blocksAttacks);
             is.set(DataComponents.WEAPON, new Weapon(0, 0));
         });
-        this.components().flatMap(CustomComponents::customModelData).ifPresent(customModelData -> {
+        this.components().flatMap(CustomItemComponents::customModelData).ifPresent(customModelData -> {
             is.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
         });
-        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomComponents::maxStackSize).orElse(1));
-        is.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, this.components.map(CustomComponents::overrideEnchantmentGlint).orElse(false));
+        is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomItemComponents::maxStackSize).orElse(1));
+        is.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, this.components.map(CustomItemComponents::overrideEnchantmentGlint).orElse(false));
         if(itemTemplate != null) {
             try {
                 Resources.actionManager().executeVoid(

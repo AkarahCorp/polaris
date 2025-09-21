@@ -1,16 +1,13 @@
 package dev.akarah.polaris.mixin;
 
 import dev.akarah.polaris.registry.Resources;
-import dev.akarah.polaris.registry.entity.DynamicEntity;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.entity.EntityUtil;
-import dev.akarah.polaris.registry.entity.VisualEntity;
+import dev.akarah.polaris.registry.entity.instance.VisualEntity;
 import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.mc.REntity;
-import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RItem;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;

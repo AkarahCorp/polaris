@@ -5,11 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.behavior.PrioritizedTask;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.loot.LootTable;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -57,7 +57,6 @@ public record CustomEntity(
         entity.setCustomNameVisible(false);
         entity.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity);
-        entity.setComponent(DataComponents.CUSTOM_DATA, this.customData);
 
         entity.visual.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity.visual);

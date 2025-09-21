@@ -3,7 +3,7 @@ package dev.akarah.polaris.registry.entity.behavior;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.akarah.polaris.registry.ExtBuiltInRegistries;
-import dev.akarah.polaris.registry.entity.DynamicEntity;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.goal.Goal;

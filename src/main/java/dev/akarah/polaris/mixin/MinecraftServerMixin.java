@@ -4,9 +4,8 @@ import com.mojang.datafixers.DataFixer;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.db.persistence.DbPersistence;
 import dev.akarah.polaris.registry.Resources;
-import dev.akarah.polaris.registry.item.value.CustomComponents;
+import dev.akarah.polaris.registry.item.value.CustomItemComponents;
 import dev.akarah.polaris.script.value.mc.REntity;
-import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
@@ -14,7 +13,6 @@ import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -49,7 +47,7 @@ public class MinecraftServerMixin {
 
             }
             for(var item : Resources.customItem().registry().entrySet()) {
-                item.getValue().components().flatMap(CustomComponents::playerSkin).ifPresent(uuid -> {
+                item.getValue().components().flatMap(CustomItemComponents::playerSkin).ifPresent(uuid -> {
                     SkullBlockEntity.fetchGameProfile(uuid).thenApply(Optional::orElseThrow).thenAccept(gp -> {
                         Resources.GAME_PROFILES.put(uuid, gp);
                     }).join();

@@ -1,9 +1,10 @@
-package dev.akarah.polaris.registry.entity;
+package dev.akarah.polaris.registry.entity.instance;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.math.Transformation;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.registry.entity.CustomEntity;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -27,9 +28,9 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class VisualEntity extends LivingEntity {
-    DynamicEntity dynamic;
-    FakePlayer fakePlayer;
-    Display.TextDisplay fakeName;
+    public DynamicEntity dynamic;
+    public FakePlayer fakePlayer;
+    public Display.TextDisplay fakeName;
 
     public DynamicEntity dynamic() {
         return this.dynamic;

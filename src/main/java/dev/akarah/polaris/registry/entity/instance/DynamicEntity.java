@@ -1,13 +1,15 @@
-package dev.akarah.polaris.registry.entity;
+package dev.akarah.polaris.registry.entity.instance;
 
 import com.google.common.collect.Maps;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.script.value.RCell;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RIdentifier;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -70,6 +72,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     ) {
         super(entityType, level);
         this.base = base;
+
         Objects.requireNonNull(this.getAttribute(Attributes.SCALE)).setBaseValue(1);
         this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         this.visual = new VisualEntity(entityType, level, this);
@@ -83,6 +86,9 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
                 this.equipment.set(equipment.getKey(), customItem.toItemStack(RNullable.of(REntity.of(this))));
             });
         }
+
+
+        this.setComponent(DataComponents.CUSTOM_DATA, base.customData());
 
         Resources.actionManager().performEvents("entity.spawn", REntity.of(this));
     }

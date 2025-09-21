@@ -1,7 +1,7 @@
 package dev.akarah.polaris.script.value.mc;
 
 import dev.akarah.polaris.registry.Resources;
-import dev.akarah.polaris.registry.entity.VisualEntity;
+import dev.akarah.polaris.registry.entity.instance.VisualEntity;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
 import net.minecraft.core.registries.BuiltInRegistries;
