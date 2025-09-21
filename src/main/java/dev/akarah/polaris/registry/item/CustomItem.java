@@ -79,7 +79,7 @@ public record CustomItem(
         cdata.put("id", StringTag.valueOf(this.id().toString()));
 
         if(customData != null) {
-            cdata.merge(customData.getUnsafe());
+            cdata.merge(customData.copyTag());
         }
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomItemComponents::maxStackSize).orElse(1));
@@ -105,7 +105,7 @@ public record CustomItem(
         cdata.put("id", StringTag.valueOf(this.id().toString()));
 
         if(customData != null) {
-            cdata.merge(customData.getUnsafe());
+            cdata.merge(customData.copyTag());
         }
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
 
@@ -139,11 +139,8 @@ public record CustomItem(
                 throw new RuntimeException(e);
             }
         });
-        this.components().flatMap(CustomItemComponents::playerSkin).ifPresent(playerSkinUuid -> {
-            var gp = Resources.GAME_PROFILES.get(playerSkinUuid);
-            if(gp != null) {
-                is.set(DataComponents.PROFILE, new ResolvableProfile(gp));
-            }
+        this.components().flatMap(CustomItemComponents::profile).ifPresent(profile -> {
+            is.set(DataComponents.PROFILE, profile);
         });
         this.components().flatMap(CustomItemComponents::blocksAttacks).ifPresent(blocksAttacks -> {
             is.set(DataComponents.BLOCKS_ATTACKS, blocksAttacks);

@@ -7,7 +7,6 @@ import dev.akarah.polaris.Main;
 import dev.akarah.polaris.db.Database;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
-import dev.akarah.polaris.registry.entity.instance.VisualEntity;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
@@ -136,9 +135,6 @@ public class REntity extends RuntimeValue {
     public static RString name(REntity $this) {
         if($this.inner instanceof DynamicEntity dynamicEntity) {
             return RString.of(dynamicEntity.base().name());
-        }
-        if($this.inner instanceof VisualEntity visual) {
-            return RString.of(visual.dynamic().base().name());
         }
         if($this.inner instanceof ServerPlayer serverPlayer) {
             return RString.of(serverPlayer.getName().getString());
@@ -272,7 +268,7 @@ public class REntity extends RuntimeValue {
             BuiltInRegistries.ATTRIBUTE.get(key.javaValue()).ifPresent(attributeReference -> {
                 var attr = le.getAttribute(attributeReference);
                 if(le instanceof DynamicEntity dynamicEntity && key.toString().equals("minecraft:scale")) {
-                    attr = dynamicEntity.visual.getAttribute(attributeReference);
+                    attr = dynamicEntity.wrappedEntity.getAttribute(attributeReference);
                 }
                 if(attr != null) {
                     attr.setBaseValue(value.doubleValue());
@@ -464,7 +460,7 @@ public class REntity extends RuntimeValue {
         return RNullable.of(
                 Optional.<RuntimeValue>empty()
                         .or(() -> Optional.ofNullable($this.javaValue().get(DataComponents.CUSTOM_DATA))
-                                .flatMap(x -> Optional.ofNullable(x.getUnsafe().get(keyTag.javaValue())))
+                                .flatMap(x -> Optional.ofNullable(x.copyTag().get(keyTag.javaValue())))
                                 .flatMap(x -> RuntimeValue.CODEC.decode(NbtOps.INSTANCE, x).result().map(Pair::getFirst)))
                         .orElse(null)
         );

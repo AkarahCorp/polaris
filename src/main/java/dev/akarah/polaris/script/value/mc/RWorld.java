@@ -1,9 +1,10 @@
 package dev.akarah.polaris.script.value.mc;
 
 import dev.akarah.polaris.registry.Resources;
-import dev.akarah.polaris.registry.entity.instance.VisualEntity;
+import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -116,10 +117,10 @@ public class RWorld extends RuntimeValue {
         var list = RList.create();
 
         for(var entity : world.javaValue().getEntities(EntityTypeTest.forClass(Entity.class), _ -> true)) {
-            if(!(entity instanceof VisualEntity visual)) {
-                RList.add(list, REntity.of(entity));
-            }
+            RList.add(list, REntity.of(DynamicEntity.castDynOwner(entity)));
         }
+
+        RList.dedup(list);
         
         return list;
     }

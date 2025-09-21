@@ -9,7 +9,7 @@ import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
-import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
+import net.minecraft.server.level.progress.LevelLoadListener;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -31,31 +31,12 @@ public class MinecraftServerMixin {
     private int tickCount;
 
     @Inject(at = @At("CTOR_HEAD"), method = "<init>")
-    private void getInstanceAndStartWork(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
+    private void getInstanceAndStartWork(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, LevelLoadListener levelLoadListener, CallbackInfo ci) {
         Main.SERVER = (MinecraftServer) (Object) this;
     }
 
     @Inject(at = @At("HEAD"), method = "tickChildren")
     public void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
-        if(!Resources.addedGameProfiles) {
-            for(var entity : Resources.customEntity().registry().entrySet()) {
-                entity.getValue().playerSkinName().ifPresent(uuid -> {
-                    SkullBlockEntity.fetchGameProfile(uuid).thenApply(Optional::orElseThrow).thenAccept(gp -> {
-                        Resources.GAME_PROFILES.put(uuid, gp);
-                    }).join();
-                });
-
-            }
-            for(var item : Resources.customItem().registry().entrySet()) {
-                item.getValue().components().flatMap(CustomItemComponents::playerSkin).ifPresent(uuid -> {
-                    SkullBlockEntity.fetchGameProfile(uuid).thenApply(Optional::orElseThrow).thenAccept(gp -> {
-                        Resources.GAME_PROFILES.put(uuid, gp);
-                    }).join();
-                });
-            }
-            Resources.addedGameProfiles = true;
-        }
-
         Resources.loopPlayers();
         Resources.miningManager().tickPlayers();
         if(this.tickCount % 200 == 5) {

@@ -1,3 +1,4 @@
+
 {
   "required": true,
   "minVersion": "0.8",
@@ -7,15 +8,16 @@
     "BlockItemMixin",
     "BuiltInRegistriesMixin",
     "CommandContextMixin",
+    "EntityMixin",
     "FishingHookMixin",
     "FishingRodItemMixin",
+    "LivingEntityMixin",
     "MinecraftServerMixin",
     "MixinFarmlandBlock",
     "PlayerListMixin",
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
     "ServerCommonPacketListenerImplMixin",
-    "ServerEntityMixin",
     "ServerGamePacketListenerMixin",
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin"

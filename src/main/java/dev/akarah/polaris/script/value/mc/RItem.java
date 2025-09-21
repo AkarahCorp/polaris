@@ -57,7 +57,7 @@ public class RItem extends RuntimeValue {
         return RNullable.of(
                 Optional.<RuntimeValue>empty()
                         .or(() -> Optional.ofNullable($this.javaValue().get(DataComponents.CUSTOM_DATA))
-                                .flatMap(x -> Optional.ofNullable(x.getUnsafe().get(keyTag.javaValue())))
+                                .flatMap(x -> Optional.ofNullable(x.copyTag().get(keyTag.javaValue())))
                                 .flatMap(x -> RuntimeValue.CODEC.decode(NbtOps.INSTANCE, x).result().map(Pair::getFirst)))
                         .or(() -> CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::customData)
                                 .flatMap(x -> Optional.ofNullable(x.get(keyTag.javaValue()))))

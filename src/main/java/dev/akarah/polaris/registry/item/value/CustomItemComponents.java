@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +18,7 @@ public record CustomItemComponents(
         int maxStackSize,
         Optional<DyedItemColor> color,
         Optional<TrimComponent> trim,
-        Optional<UUID> playerSkin,
+        Optional<ResolvableProfile> profile,
         Optional<BlocksAttacks> blocksAttacks,
         Optional<CustomModelData> customModelData,
         boolean overrideEnchantmentGlint,
@@ -31,7 +32,7 @@ public record CustomItemComponents(
             Codec.intRange(1, 99).optionalFieldOf("max_stack_size", 1).forGetter(CustomItemComponents::maxStackSize),
             DyedItemColor.CODEC.optionalFieldOf("color").forGetter(CustomItemComponents::color),
             TrimComponent.CODEC.optionalFieldOf("armor_trim").forGetter(CustomItemComponents::trim),
-            UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomItemComponents::playerSkin),
+            ResolvableProfile.CODEC.optionalFieldOf("profile").forGetter(CustomItemComponents::profile),
             BlocksAttacks.CODEC.optionalFieldOf("blocks_attacks").forGetter(CustomItemComponents::blocksAttacks),
             CustomModelData.CODEC.optionalFieldOf("custom_model_data").forGetter(CustomItemComponents::customModelData),
             Codec.BOOL.optionalFieldOf("enchantment_glint_override", false).forGetter(CustomItemComponents::overrideEnchantmentGlint),

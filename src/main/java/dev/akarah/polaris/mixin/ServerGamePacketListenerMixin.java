@@ -3,7 +3,6 @@ package dev.akarah.polaris.mixin;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.entity.EntityUtil;
-import dev.akarah.polaris.registry.entity.instance.VisualEntity;
 import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RItem;
@@ -18,6 +17,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Objects;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerMixin {
@@ -46,18 +47,14 @@ public class ServerGamePacketListenerMixin {
         serverboundInteractPacket.dispatch(new ServerboundInteractPacket.Handler() {
             @Override
             public void onInteraction(InteractionHand interactionHand) {
+                if(target == null) {
+                    return;
+                }
                 if(interactionHand.equals(InteractionHand.MAIN_HAND)) {
-                    if(target instanceof VisualEntity visual) {
-                        Resources.actionManager().performEvents(
-                                "entity.interact",
-                                REntity.of(player), REntity.of(visual.dynamic())
-                        );
-                    } else if(target instanceof DynamicEntity dynamicEntity) {
-                        Resources.actionManager().performEvents(
-                                "entity.interact",
-                                REntity.of(player), REntity.of(dynamicEntity)
-                        );
-                    }
+                    Resources.actionManager().performEvents(
+                            "entity.interact",
+                            REntity.of(player), REntity.of(DynamicEntity.castDynOwner(target))
+                    );
                 }
             }
 

@@ -22,6 +22,7 @@ import dev.akarah.polaris.registry.stat.StatType;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.dsl.DslActionManager;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,8 +47,6 @@ public class Resources {
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
     static ReloadableJsonManager<CommandBuilderNode> COMMAND_NODES;
     static ReloadableJsonManager<StatType> STAT_TYPE;
-    public static Map<UUID, GameProfile> GAME_PROFILES = Maps.newHashMap();
-    public static boolean addedGameProfiles = false;
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -128,8 +127,6 @@ public class Resources {
     }
 
     public static void reset() {
-        Resources.addedGameProfiles = false;
-        Resources.GAME_PROFILES.clear();
         var engineConfigPath = Paths.get("./engine.json");
         if(Files.exists(engineConfigPath)) {
             var json = JsonParser.parseString(Util.sneakyThrows(() -> Files.readString(engineConfigPath)));

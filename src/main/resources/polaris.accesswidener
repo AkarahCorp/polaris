@@ -11,3 +11,6 @@ accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UU
 accessible field net/minecraft/world/entity/projectile/FishingHook nibble I
 accessible field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D
 mutable field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D
+accessible field net/minecraft/world/entity/decoration/Mannequin DATA_PROFILE Lnet/minecraft/network/syncher/EntityDataAccessor;
+accessible field net/minecraft/world/entity/decoration/Mannequin DATA_DESCRIPTION Lnet/minecraft/network/syncher/EntityDataAccessor;
+accessible method net/minecraft/world/entity/Entity defineSynchedData (Lnet/minecraft/network/syncher/SynchedEntityData$Builder;)V

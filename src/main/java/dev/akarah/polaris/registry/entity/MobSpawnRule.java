@@ -47,7 +47,7 @@ public record MobSpawnRule(
                         }
                         return dynamicEntity.base().id().equals(this.entityType) && dynamicEntity.position().distanceTo(center) <= (radius * 2);
                     } catch (Exception e) {
-                        dynamicEntity.remove(Entity.RemovalReason.KILLED);
+                        dynamicEntity.remove(Entity.RemovalReason.DISCARDED);
                         return false;
                     }
                 })

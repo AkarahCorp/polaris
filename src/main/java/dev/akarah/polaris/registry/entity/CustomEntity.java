@@ -9,11 +9,11 @@ import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.loot.LootTable;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import net.fabricmc.fabric.api.entity.FakePlayer;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,7 +27,7 @@ public record CustomEntity(
         Optional<List<PrioritizedTask>> targetGoals,
         Map<EquipmentSlot, ResourceLocation> equipment,
         boolean invulnerable,
-        Optional<UUID> playerSkinName,
+        Optional<ResolvableProfile> profile,
         Optional<LootTable> lootTable,
         CustomData customData
 ) {
@@ -41,7 +41,7 @@ public record CustomEntity(
             PrioritizedTask.CODEC.listOf().optionalFieldOf("target_goals").forGetter(CustomEntity::targetGoals),
             Codec.unboundedMap(EquipmentSlot.CODEC, ResourceLocation.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
             Codec.BOOL.optionalFieldOf("invulnerable", false).forGetter(CustomEntity::invulnerable),
-            UUIDUtil.CODEC.optionalFieldOf("player_skin").forGetter(CustomEntity::playerSkinName),
+            ResolvableProfile.CODEC.optionalFieldOf("profile").forGetter(CustomEntity::profile),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(CustomEntity::lootTable),
             CustomData.CODEC.optionalFieldOf("custom_data", CustomData.EMPTY).forGetter(CustomEntity::customData)
     ).apply(instance, CustomEntity::new)));
@@ -58,9 +58,9 @@ public record CustomEntity(
         entity.teleportTo(position.x, position.y, position.z);
         level.addFreshEntity(entity);
 
-        entity.visual.teleportTo(position.x, position.y, position.z);
-        level.addFreshEntity(entity.visual);
-        level.addFreshEntity(entity.visual.fakeName);
+        entity.wrappedEntity.teleportTo(position.x, position.y, position.z);
+        level.addFreshEntity(entity.wrappedEntity);
+        level.addFreshEntity(entity.fakeName);
         return entity;
     }
 }
