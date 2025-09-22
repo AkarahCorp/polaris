@@ -59,7 +59,7 @@ public class ExpressionTypeSet {
             this.typeVariables.put(variableName, hint);
         } else if(this.typeVariables.containsKey(variableName) && !this.typeVariables.get(variableName).typeEquals(hint)) {
             throw new ParsingException(
-                    "Expected value of type `"
+                    "Expected value of type while resolving `"
                             + this.typeVariables.get(variableName).verboseTypeName()
                             + "`, got value of type `"
                             + hint.verboseTypeName()

@@ -2,6 +2,7 @@ package dev.akarah.polaris.script.type;
 
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.constant.ClassDesc;
 import java.util.List;
@@ -27,7 +28,7 @@ public record FunctionType(
     }
 
     @Override
-    public List<Type<?>> subtypes() {
+    public List<@NotNull Type<?>> subtypes() {
         return Stream.concat(Stream.of(returnType), parameterTypes.stream())
                 .toList();
     }

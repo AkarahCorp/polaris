@@ -24,11 +24,11 @@ public record OptionalParameter(
             return null;
         }
 
-        var exprType = ctx.getTypeOf(expression);
-        var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet, expression.span());
+        var exprType = ctx.getTypeOf(expression).flatten();
+        var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet, expression.span()).flatten();
         if(!exprType.typeEquals(newRequiredType)) {
             throw new ParsingException(
-                    "Expected value of type `" + newRequiredType.verboseTypeName()
+                    "Expected value of type while reaching `" + newRequiredType.verboseTypeName()
                             + "` for parameter `" + this.name()
                             + "`, got value of type `" + exprType.verboseTypeName() + "`",
                     expression.span()

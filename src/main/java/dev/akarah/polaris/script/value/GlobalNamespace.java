@@ -42,6 +42,11 @@ public class GlobalNamespace {
         return RVector.of(new Vec3(x.doubleValue(), y.doubleValue(), z.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(pitch: number, yaw: number) -> vector", documentation = "Generates a direction from a pitch and yaw.")
+    public static RVector vector__direction_from_rotation(RNumber pitch, RNumber yaw) {
+        return RVector.of(Vec3.directionFromRotation(pitch.javaValue().floatValue(), yaw.javaValue().floatValue()));
+    }
+
     @MethodTypeHint(signature = "(v: any) -> string", documentation = "Creates a new string from the given value converted to a string.")
     public static RString string__create(RuntimeValue runtimeValue) {
         return RString.of(runtimeValue.toString());

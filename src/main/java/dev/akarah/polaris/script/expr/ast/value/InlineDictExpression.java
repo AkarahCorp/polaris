@@ -30,7 +30,9 @@ public record InlineDictExpression(
             ctx
                     .dup()
                     .pushValue(expr.getFirst())
+                    .typecheck(RuntimeValue.class)
                     .pushValue(expr.getSecond())
+                    .typecheck(RuntimeValue.class)
                     .invokeStatic(
                             CodegenUtil.ofClass(RDict.class),
                             "put",

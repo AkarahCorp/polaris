@@ -30,6 +30,7 @@ public record InlineListExpression(
             ctx
                     .dup()
                     .pushValue(expr)
+                    .typecheck(RuntimeValue.class)
                     .invokeStatic(
                             CodegenUtil.ofClass(RList.class),
                             "add",

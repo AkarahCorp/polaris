@@ -46,6 +46,11 @@ public class RVector extends RuntimeValue {
         return RVector.of(lhs.javaValue().multiply(rhs.javaValue(), rhs.javaValue(), rhs.javaValue()));
     }
 
+    @MethodTypeHint(signature = "(lhs: vector, rhs: number) -> vector", documentation = "Divides all elements of vectors by a value, returning a new vector.")
+    public static RVector div(RVector lhs, RNumber rhs) {
+        return RVector.of(lhs.javaValue().multiply(1 / rhs.javaValue(), 1 / rhs.javaValue(), 1 / rhs.javaValue()));
+    }
+
     @MethodTypeHint(signature = "(v: vector) -> number", documentation = "Gets the X component of this vector.")
     public static RNumber x(RVector vector) {
         return RNumber.of(vector.javaValue().x);

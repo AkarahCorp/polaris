@@ -143,6 +143,7 @@ public class DslTokenizer {
                         case "local" -> new DslToken.LocalKeyword(this.createSpan(start));
                         case "repeat" -> new DslToken.RepeatKeyword(this.createSpan(start));
                         case "function" -> new DslToken.FunctionKeyword(this.createSpan(start));
+                        case "ref" -> new DslToken.RefKeyword(this.createSpan(start));
                         case "for" -> new DslToken.ForKeyword(this.createSpan(start));
                         case "in" -> new DslToken.InKeyword(this.createSpan(start));
                         case "break" -> new DslToken.BreakKeyword(this.createSpan(start));

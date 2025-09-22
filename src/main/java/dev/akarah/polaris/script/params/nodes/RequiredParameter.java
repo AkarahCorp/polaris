@@ -27,7 +27,7 @@ public record RequiredParameter(
         var newRequiredType = exprType.resolveTypeVariables(this.typePattern, typeSet, expression.span());
         if(!exprType.typeEquals(newRequiredType)) {
             throw new ParsingException(
-                    "Expected value of type `" + newRequiredType.verboseTypeName()
+                    "Expected value of type while reaching `" + newRequiredType.verboseTypeName()
                             + "` for parameter `" + this.name()
                             + "`, got value of type `" + exprType.verboseTypeName() + "`",
                     expression.span()

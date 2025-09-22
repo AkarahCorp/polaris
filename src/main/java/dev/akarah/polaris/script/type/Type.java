@@ -8,11 +8,14 @@ import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public interface Type<T> {
     String typeName();
@@ -62,7 +65,7 @@ public interface Type<T> {
         return TypeKind.REFERENCE;
     }
 
-    default List<? extends Type<?>> subtypes() { return List.of(); }
+    default List<? extends @NotNull Type<?>> subtypes() { return List.of(); }
 
     default String verboseTypeName() {
         var sb = new StringBuilder();
@@ -124,6 +127,19 @@ public interface Type<T> {
                     subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, expressionSpan);
                 }
             }
+            case FunctionType matchFunctionType -> {
+                if(this2 instanceof FunctionType functionType) {
+                    functionType.returnType().resolveTypeVariables(matchFunctionType.returnType(), typeSet, expressionSpan);
+                    for(var i = 0; i < functionType.parameterTypes().size(); i++) {
+                        var lhs = functionType.parameterTypes().get(i);
+                        var rhs = matchFunctionType.parameterTypes().get(i);
+                        if(lhs != null && rhs != null) {
+                            lhs.resolveTypeVariables(rhs, typeSet, expressionSpan);
+                        }
+                    }
+
+                }
+            }
             default -> {}
         }
         return incomingMatch.fixTypeVariables(typeSet);
@@ -145,9 +161,14 @@ public interface Type<T> {
                     dictionaryType.keyType().fixTypeVariables(typeSet),
                     dictionaryType.valueType().fixTypeVariables(typeSet)
             );
-
             case NullableType nullableType -> Type.nullable(
                     nullableType.subtype().fixTypeVariables(typeSet)
+            );
+            case FunctionType functionType -> Type.function(
+                    functionType.returnType().fixTypeVariables(typeSet),
+                    functionType.parameterTypes().stream()
+                            .map(x -> x == null ? null : x.fixTypeVariables(typeSet))
+                            .toList()
             );
             default -> this;
         };
@@ -255,7 +276,7 @@ public interface Type<T> {
         var basicTypeCondition = this.typeName().equals(other.typeName()) || this.verboseTypeName().equals(other.verboseTypeName());
 
         var subtypeConditions = this.subtypes().size() == other.subtypes().size()
-                && Streams.zip(this.subtypes().stream(), other.subtypes().stream(), Pair::of)
+                && Streams.zip(this.subtypes().stream().map(Type::flatten), other.subtypes().stream().map(Type::flatten), Pair::of)
                         .filter(x -> x.getFirst().typeEquals(x.getSecond()))
                         .count() == this.subtypes().size();
 

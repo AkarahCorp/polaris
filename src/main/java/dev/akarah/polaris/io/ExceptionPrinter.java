@@ -20,6 +20,7 @@ public class ExceptionPrinter {
     }
 
     public static void writeExceptionToOps(Throwable t, ResourceLocation file) {
+        t.printStackTrace();
         for(var player : Main.server().getPlayerList().getPlayers()) {
             if(player.hasPermissions(2)) {
                 writeException(player, t, file);
@@ -27,6 +28,7 @@ public class ExceptionPrinter {
         }
     }
     public static void writeException(ServerPlayer player, Throwable t) {
+        t.printStackTrace();
         writeException(player, t, null);
     }
 

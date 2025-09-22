@@ -119,12 +119,6 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         this.setCustomNameVisible(true);
         this.setBoundingBox(this.getDefaultDimensions(Pose.STANDING).makeBoundingBox(0.0, 0.0, 0.0));
 
-        for(var equipment : this.base().equipment().entrySet()) {
-            CustomItem.byId(equipment.getValue()).ifPresent(customItem -> {
-                this.equipment.set(equipment.getKey(), customItem.toItemStack(RNullable.of(REntity.of(this))));
-            });
-        }
-
         this.setComponent(DataComponents.CUSTOM_DATA, base.customData());
 
         var ownerTag = new CompoundTag();

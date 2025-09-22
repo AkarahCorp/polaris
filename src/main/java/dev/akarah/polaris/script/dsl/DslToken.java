@@ -117,6 +117,10 @@ public interface DslToken {
 
     }
 
+    record RefKeyword(SpanData span) implements DslToken {
+
+    }
+
     record StructKeyword(SpanData span) implements DslToken {
 
     }

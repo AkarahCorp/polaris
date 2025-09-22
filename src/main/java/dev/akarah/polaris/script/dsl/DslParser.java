@@ -10,6 +10,7 @@ import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.*;
+import dev.akarah.polaris.script.expr.ast.func.FunctionRefExpression;
 import dev.akarah.polaris.script.expr.ast.func.LambdaExpression;
 import dev.akarah.polaris.script.expr.ast.func.LateResolvedFunctionCall;
 import dev.akarah.polaris.script.expr.ast.value.*;
@@ -662,6 +663,10 @@ public class DslParser {
     public Expression parseBaseExpression() {
         var tok = read();
         return switch (tok) {
+            case DslToken.RefKeyword _ -> {
+                var id = expect(DslToken.NamespacedIdentifierExpr.class);
+                yield new FunctionRefExpression(ResourceLocation.fromNamespaceAndPath(id.namespace(), id.path()), id.span());
+            }
             case DslToken.FunctionKeyword _ -> {
                 this.index -= 1;
                 yield this.parseLambda();
