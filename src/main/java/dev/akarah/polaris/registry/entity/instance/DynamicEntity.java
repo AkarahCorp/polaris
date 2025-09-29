@@ -31,6 +31,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -129,6 +130,9 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         assert this.wrappedEntity != null;
         this.wrappedEntity.setCustomNameVisible(false);
         this.wrappedEntity.setComponent(DataComponents.CUSTOM_DATA, CustomData.of(ownerTag));
+        if(this.wrappedEntity instanceof Mob mob) {
+            mob.setNoAi(true);
+        }
 
 
         // create fake name display

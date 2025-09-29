@@ -22,9 +22,10 @@ public record MiningRule(
         ResourceLocation spreadStat,
         Optional<LootTable> lootTable,
         double spreadToughness,
-        Optional<RegenerationRule> regeneration
+        Optional<RegenerationRule> regeneration,
+        Optional<BreakingPowerRule> breakingPower
 ) {
-    record RegenerationRule(
+    public record RegenerationRule(
             Block replacement,
             int delay
     ) {
@@ -32,6 +33,16 @@ public record MiningRule(
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("replacement").forGetter(RegenerationRule::replacement),
                 Codec.INT.fieldOf("delay").forGetter(RegenerationRule::delay)
         ).apply(instance, RegenerationRule::new));
+    }
+
+    public record BreakingPowerRule(
+            ResourceLocation stat,
+            double minimumAmount
+    ) {
+        public static Codec<BreakingPowerRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ResourceLocation.CODEC.fieldOf("stat").forGetter(BreakingPowerRule::stat),
+                Codec.DOUBLE.fieldOf("requirement").forGetter(BreakingPowerRule::minimumAmount)
+        ).apply(instance, BreakingPowerRule::new));
     }
 
     public static Codec<MiningRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -45,6 +56,7 @@ public record MiningRule(
             ResourceLocation.CODEC.optionalFieldOf("spread_stat", ResourceLocation.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
             Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness),
-            RegenerationRule.CODEC.optionalFieldOf("regeneration").forGetter(MiningRule::regeneration)
+            RegenerationRule.CODEC.optionalFieldOf("regeneration").forGetter(MiningRule::regeneration),
+            BreakingPowerRule.CODEC.optionalFieldOf("breaking_power").forGetter(MiningRule::breakingPower)
     ).apply(instance, MiningRule::new));
 }

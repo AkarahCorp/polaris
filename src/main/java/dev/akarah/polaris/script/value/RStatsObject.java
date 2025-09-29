@@ -41,7 +41,7 @@ public class RStatsObject extends RuntimeValue {
         ));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: string, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
     public static void add_multiplier(RStatsObject object, RText name, RIdentifier key, RNumber value) {
         object.javaValue().add(new StatsObject.SourceEntry(
                 name.javaValue(),
@@ -51,7 +51,7 @@ public class RStatsObject extends RuntimeValue {
         ));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: string, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
     public static void add_percentage(RStatsObject object, RText name, RIdentifier key, RNumber value) {
         object.javaValue().add(new StatsObject.SourceEntry(
                 name.javaValue(),

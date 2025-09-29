@@ -35,6 +35,7 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -556,5 +557,21 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(entity: entity) -> boolean", documentation = "Returns true if the player is sneaking.")
     public static RBoolean player__sneaking(REntity $this) {
         return RBoolean.of($this.javaValue() instanceof ServerPlayer serverPlayer && serverPlayer.isCrouching());
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, position: vector) -> boolean", documentation = "Returns true if the position is in the entity's hitbox.")
+    public static RBoolean position_in_hitbox(REntity $this, RVector position) {
+        return RBoolean.of(
+                $this.javaValue()
+                        .getBoundingBox()
+                        .contains(position.javaValue())
+        );
+    }
+
+    @MethodTypeHint(signature = "(entity: entity, fuse: number) -> void", documentation = "Returns true if the position is in the entity's hitbox.")
+    public static void tnt__set_fuse(REntity $this, RNumber fuse) {
+        if($this.javaValue() instanceof PrimedTnt tnt) {
+            tnt.setFuse(fuse.intValue());
+        }
     }
 }

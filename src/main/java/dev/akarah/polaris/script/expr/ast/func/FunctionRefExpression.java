@@ -1,6 +1,7 @@
 package dev.akarah.polaris.script.expr.ast.func;
 
 import com.google.common.collect.Lists;
+import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.expr.ast.AllOfAction;
@@ -14,6 +15,7 @@ import dev.akarah.polaris.script.value.RFunction;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.xml.validation.Schema;
 import java.lang.constant.DirectMethodHandleDesc;
 import java.lang.constant.MethodHandleDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -29,18 +31,39 @@ public record FunctionRefExpression(
         ResourceLocation identifier,
         SpanData span
 ) implements Expression {
-    public LambdaExpression lambdaConversion(CodegenContext ctx) {
-        return ctx.actions.get(CodegenContext.resourceLocationToMethodName(this.identifier)).asLambdaExpression();
+    public SchemaExpression lambdaConversion(CodegenContext ctx) {
+        for(var pair : ctx.schemas) {
+            if(pair.getFirst().equals(this.identifier)) {
+                return pair.getSecond();
+            }
+        }
+        throw new ParsingException("Can not find schema `" + this.identifier + "`", this.span());
     }
 
     @Override
     public void compile(CodegenContext ctx) {
-        lambdaConversion(ctx).compile(ctx);
+        ctx.constant(MethodHandleDesc.of(
+                DirectMethodHandleDesc.Kind.STATIC,
+                CodegenContext.ACTION_CLASS_DESC,
+                CodegenContext.resourceLocationToMethodName(this.identifier),
+                this.lambdaConversion(ctx).methodType().descriptorString()
+        ));
+        ctx.invokeStatic(
+                CodegenUtil.ofClass(RFunction.class),
+                "of",
+                MethodTypeDesc.of(
+                        CodegenUtil.ofClass(RFunction.class),
+                        List.of(CodegenUtil.ofClass(MethodHandle.class))
+                )
+        );
     }
 
     @Override
     public Type<?> type(CodegenContext ctx) {
-        return lambdaConversion(ctx).type(ctx);
+        return Type.function(
+                this.lambdaConversion(ctx).typeSet().returns(),
+                this.lambdaConversion(ctx).typeSet().parameters().stream().map(ParameterNode::typePattern).toList()
+        );
     }
 
     @Override

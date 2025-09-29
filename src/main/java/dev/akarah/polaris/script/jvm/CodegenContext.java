@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.script.dsl.DslActionManager;
 import dev.akarah.polaris.script.exception.MultiException;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
@@ -17,6 +18,7 @@ import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.xml.validation.Schema;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.classfile.*;
@@ -47,6 +49,7 @@ public class CodegenContext {
     public Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
     public Map<String, SchemaExpression> actions = Maps.newHashMap();
+    public List<Pair<ResourceLocation, SchemaExpression>> schemas = Lists.newArrayList();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
@@ -124,6 +127,7 @@ public class CodegenContext {
                 ACTION_CLASS_DESC,
                 classBuilder -> {
                     var cc = new CodegenContext();
+                    cc.schemas = refs;
 
                     CodegenContext.INSTANCE = cc;
                     cc.classBuilder = classBuilder;

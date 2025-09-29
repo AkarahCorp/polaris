@@ -9,6 +9,7 @@ import dev.akarah.polaris.script.value.mc.RItem;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,14 +43,25 @@ public class ServerPlayerGameModeMixin {
                     this.level.getBlockState(blockPos),
                     blockPos
             );
-            rule.ifPresent(miningRule -> Resources.miningManager().setStatus(
-                    this.player,
-                    new MiningManager.MiningStatus(
-                            blockPos,
-                            miningRule,
-                            new AtomicDouble(0.0)
-                    )
-            ));
+            rule.ifPresent(miningRule -> {
+                if(miningRule.breakingPower().isPresent()) {
+                    var bp = miningRule.breakingPower().orElseThrow();
+                    var playerStatAmount = Resources.statManager().lookup(this.player).get(bp.stat());
+                    if(playerStatAmount < bp.minimumAmount()) {
+                        player.sendSystemMessage(Component.literal("You aren't strong enough to break this yet!").withColor(0xff0000));
+                        return;
+                    }
+
+                }
+                Resources.miningManager().setStatus(
+                        this.player,
+                        new MiningManager.MiningStatus(
+                                blockPos,
+                                miningRule,
+                                new AtomicDouble(0.0)
+                        )
+                );
+            });
         }
         if(action.equals(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK)) {
             Resources.miningManager().clearStatus(this.player);
