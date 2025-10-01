@@ -18,7 +18,7 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": "1.21.9-beta.2"
+    "minecraft": "1.21.9"
   },
   "accessWidener": "polaris.accesswidener"
 }

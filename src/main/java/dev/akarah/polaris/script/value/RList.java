@@ -32,6 +32,11 @@ public class RList extends RuntimeValue {
         }
     }
 
+    @MethodTypeHint(signature = "<T>(this: list[T], index: number, value: T) -> void", documentation = "Sets a value in the list.")
+    public static void set(RList $this, RNumber index, RuntimeValue value) {
+        $this.inner.set(index.javaValue().intValue(), value);
+    }
+
     @MethodTypeHint(signature = "<T>(this: list[T], value: T) -> void", documentation = "Adds a new value to the list.")
     public static void add(RList $this, RuntimeValue object) {
         $this.inner.add(object);
