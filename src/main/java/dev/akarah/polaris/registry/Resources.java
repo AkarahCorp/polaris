@@ -134,7 +134,7 @@ public class Resources {
         } else {
             Util.sneakyThrows(() -> {
                 Files.createFile(engineConfigPath);
-                Resources.CONFIG = new EngineConfig(StatsObject.of(), Optional.empty());
+                Resources.CONFIG = new EngineConfig(StatsObject.of(), Optional.empty(), "undefined");
                 var json = EngineConfig.CODEC.encodeStart(JsonOps.INSTANCE, Resources.CONFIG).getOrThrow();
                 Files.writeString(engineConfigPath, json.toString());
                 return null;

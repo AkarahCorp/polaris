@@ -243,4 +243,9 @@ public class GlobalNamespace {
     public static RuntimeValue unsafe__null() {
         return null;
     }
+
+    @MethodTypeHint(signature = "() -> string", documentation = "Returns the type of the server defined in engine.json.")
+    public static RString server__type() {
+        return RString.of(Resources.config().serverType());
+    }
 }
