@@ -116,9 +116,13 @@ public class DslParser {
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(CodegenContext.randomName(
+        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(
                 eventName.identifier().replace("-", "_").replace(".", "_")
-        )));
+                        + "__"
+                        + kw.span().fileName().toString().replace(":", "_").replace(".", "_").replace("/", "_")
+                        + "__"
+                        + kw.span().cursorStart() + "_" + kw.span().cursorEnd()
+        ));
     }
 
     public Type<?> parseType() {

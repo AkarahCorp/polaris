@@ -10,12 +10,14 @@ import com.mojang.datafixers.util.Pair;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.dsl.DslToken;
 import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RItem;
+import dev.akarah.polaris.script.value.mc.rt.DslProfiler;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -44,7 +46,8 @@ public class CommandEventHandler {
                 CommandEventHandler::setTagCommand,
                 CommandEventHandler::myStatsCommand,
                 CommandEventHandler::summonCommand,
-                CommandEventHandler::runCommand
+                CommandEventHandler::runCommand,
+                CommandEventHandler::profilerCommand
         );
     }
 
@@ -163,6 +166,33 @@ public class CommandEventHandler {
             }
             return 0;
         }));
+    }
+
+    public static void profilerCommand(CommandDispatcher<CommandSourceStack> dispatcher, LiteralArgumentBuilder<CommandSourceStack> root) {
+        root.then(
+                Commands.literal("profiler").then(
+                        Commands.literal("set").then(
+                                Commands.argument("name_filter", StringArgumentType.string()).then(
+                                        Commands.argument("duration_in_microseconds", DoubleArgumentType.doubleArg()).executes(ctx -> {
+                                            if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                                var filter = new DslProfiler.DslProfileFilter(
+                                                        ctx.getArgument("name_filter", String.class),
+                                                        ctx.getArgument("duration_in_microseconds", Double.class)
+                                                );
+                                                DslProfiler.profileSourceFilters.put(serverPlayer.getUUID(), filter);
+                                            }
+                                            return 0;
+                                        })
+                                )
+                        ).then(
+                                Commands.literal("reset")).executes(ctx -> {
+                                    if(ctx.getSource().getEntity() instanceof ServerPlayer serverPlayer) {
+                                        DslProfiler.profileSourceFilters.remove(serverPlayer.getUUID());
+                                    }
+                                    return 0;
+                                })
+                        )
+                );
     }
 
     public static void setTagCommand(CommandDispatcher<CommandSourceStack> dispatcher, LiteralArgumentBuilder<CommandSourceStack> root) {

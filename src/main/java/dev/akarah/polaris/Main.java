@@ -19,6 +19,7 @@ import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import dev.akarah.polaris.script.value.mc.RItem;
+import dev.akarah.polaris.script.value.mc.rt.DslProfiler;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EquipmentSlot;

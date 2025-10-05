@@ -15,6 +15,7 @@ import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.StructType;
 import dev.akarah.polaris.script.value.RBoolean;
 import dev.akarah.polaris.script.value.RuntimeValue;
+import dev.akarah.polaris.script.value.mc.rt.DslProfiler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.animal.Cod;
@@ -29,13 +30,17 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DslActionManager {
+    public static AtomicReference<DslProfiler> PROFILER = new AtomicReference<>();
+
     Map<ResourceLocation, SchemaExpression> dslExpressions = Maps.newHashMap();
     Map<ResourceLocation, StructType> dslTypes = Maps.newHashMap();
     Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
     Class<?> codeClass;
+
 
     public Map<ResourceLocation, SchemaExpression> expressions() {
         return this.dslExpressions;
@@ -59,7 +64,10 @@ public class DslActionManager {
             return;
         }
         try {
+            PROFILER.set(DslProfiler.create(name.toString()));
+            PROFILER.get().enter(name.toString());
             mh.invokeWithArguments((Object[]) arguments);
+            PROFILER.get().exit();
         } catch (Throwable e) {
             if(e.getMessage() == null) {
                 return;
@@ -77,7 +85,10 @@ public class DslActionManager {
             return true;
         }
         try {
+            PROFILER.set(DslProfiler.create(name.toString()));
+            PROFILER.get().enter(name.toString());
             var result = mh.invokeWithArguments((Object[]) arguments);
+            PROFILER.get().exit();
             if(result instanceof RBoolean a) {
                 return a.javaValue();
             }
@@ -131,7 +142,7 @@ public class DslActionManager {
         }
     }
 
-    public List<ResourceLocation> functionsByEventType(String typeName) {
+    private List<ResourceLocation> functionsByEventType(String typeName) {
         if(eventInterning.isEmpty()) {
             internEventTypes();
         }
