@@ -14,6 +14,7 @@ import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -76,7 +77,7 @@ public class GlobalNamespace {
     public static RItem item__create(RIdentifier id, REntity entity, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(RNullable.of(entity)))
-                .orElse(ItemStack.EMPTY));
+                .orElse(Items.AIR.getDefaultInstance()));
         if(function != null) {
             try {
                 function.javaValue().invoke(item, entity);
