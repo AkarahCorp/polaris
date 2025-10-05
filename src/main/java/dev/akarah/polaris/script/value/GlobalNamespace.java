@@ -11,6 +11,8 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.expr.ast.operation.OperationUtil;
 import dev.akarah.polaris.script.value.mc.*;
 import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -77,7 +79,14 @@ public class GlobalNamespace {
     public static RItem item__create(RIdentifier id, REntity entity, RFunction function) {
         var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(RNullable.of(entity)))
-                .orElse(Items.AIR.getDefaultInstance()));
+                .orElseGet(() -> {
+                    if(BuiltInRegistries.ITEM.containsKey(id.javaValue())) {
+                        return BuiltInRegistries.ITEM.get(id.javaValue()).orElseThrow().value().getDefaultInstance();
+                    }
+                    var is = Items.STONE.getDefaultInstance();
+                    is.set(DataComponents.ITEM_NAME, Component.literal("Unknown item ID " + id));
+                    return is;
+                }));
         if(function != null) {
             try {
                 function.javaValue().invoke(item, entity);
