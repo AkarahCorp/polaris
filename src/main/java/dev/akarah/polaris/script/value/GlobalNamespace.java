@@ -87,6 +87,17 @@ public class GlobalNamespace {
         return item;
     }
 
+
+
+    @MethodTypeHint(
+            signature = "(item_id: identifier) -> string",
+            documentation = "Returns the name of an item based on an ID."
+    )
+    public static RString item__named(RIdentifier id) {
+        var item = CustomItem.byId(id.javaValue()).flatMap(CustomItem::name).orElse(id.javaValue().toString());
+        return RString.of(item);
+    }
+
     @MethodTypeHint(
             signature = "(item_id: identifier, template: identifier, entity?: entity, application?: function(item) -> void) -> item",
             documentation = "Creates a new custom item, based on the identifier provided, using the given item template. "
