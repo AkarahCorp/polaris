@@ -64,10 +64,7 @@ public class DslActionManager {
             return;
         }
         try {
-            PROFILER.set(DslProfiler.create(name.toString()));
-            PROFILER.get().enter(name.toString());
             mh.invokeWithArguments((Object[]) arguments);
-            PROFILER.get().exit();
         } catch (Throwable e) {
             if(e.getMessage() == null) {
                 return;
@@ -85,10 +82,7 @@ public class DslActionManager {
             return true;
         }
         try {
-            PROFILER.set(DslProfiler.create(name.toString()));
-            PROFILER.get().enter(name.toString());
             var result = mh.invokeWithArguments((Object[]) arguments);
-            PROFILER.get().exit();
             if(result instanceof RBoolean a) {
                 return a.javaValue();
             }
