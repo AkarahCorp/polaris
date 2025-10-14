@@ -83,7 +83,15 @@ public abstract class RuntimeValue {
                         case RString string -> DataResult.success(ops.createString(string.javaValue()));
                         case RNumber number -> DataResult.success(ops.createNumeric(number.javaValue()));
                         case RBoolean bool -> DataResult.success(ops.createBoolean(bool.javaValue()));
-                        default -> DataResult.error(() -> "Expected a string, number, or boolean.");
+                        case RDict dict -> DataResult.success(
+                                ops.createMap(
+                                        dict.javaValue().entrySet()
+                                                .stream()
+                                                .map(x -> Pair.of(
+                                                        this.encode(x.getKey(), ops, prefix).getOrThrow(), this.encode(x.getValue(), ops, prefix).getOrThrow()))
+                                )
+                        );
+                        default -> DataResult.error(() -> "Expected a string, number, dict, or boolean, got: " + input.toString());
                     };
                 }
             }

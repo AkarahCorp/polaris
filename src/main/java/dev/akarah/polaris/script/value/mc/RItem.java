@@ -86,7 +86,7 @@ public class RItem extends RuntimeValue {
                 DataComponents.CUSTOM_DATA,
                 Objects.requireNonNull($this.javaValue().get(DataComponents.CUSTOM_DATA)).update(tag -> tag.put(
                         keyTag.javaValue(),
-                        RuntimeValue.CODEC.encodeStart(NbtOps.INSTANCE, keyValue).result().orElse(DoubleTag.valueOf(0.0))
+                        RuntimeValue.CODEC.encodeStart(NbtOps.INSTANCE, keyValue).getOrThrow()
                 ))
         );
     }
