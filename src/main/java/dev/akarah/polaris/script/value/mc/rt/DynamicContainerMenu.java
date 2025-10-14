@@ -1,6 +1,7 @@
 package dev.akarah.polaris.script.value.mc.rt;
 
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.RText;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RItem;
@@ -24,6 +25,7 @@ public class DynamicContainerMenu extends ChestMenu {
     @Override
     public void clicked(int slot, int j, ClickType clickType, Player player) {
         if(this.getContainer() instanceof DynamicContainer dynamicContainer) {
+
             ItemStack item = null;
             if(this.isValidSlotIndex(slot)) {
                 item = this.getContainer().getItem(slot);
@@ -38,12 +40,19 @@ public class DynamicContainerMenu extends ChestMenu {
 
             var p = (ServerPlayer) player;
 
+
             var result = Resources.actionManager().performEvents(
                     "item.menu_click",
                     REntity.of(p),
                     RItem.of(item)
             );
-            if(dynamicContainer.cancelClicks() || !result) {
+            var alt_result = Resources.actionManager().performEvents(
+                    "item.menu_click_typed",
+                    REntity.of(p),
+                    RItem.of(item),
+                    RString.of(clickType.name())
+            );
+            if(dynamicContainer.cancelClicks() || !result || !alt_result) {
                 this.sendAllDataToRemote();
                 return;
             }
