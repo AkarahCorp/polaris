@@ -70,6 +70,15 @@ public abstract class RuntimeValue {
                                 i.remove("struct");
                                 return StatsObject.CODEC.decode(JsonOps.INSTANCE, i)
                                         .map((data) -> Pair.of(RStatsObject.of(data.getFirst()), (T) data.getSecond()));
+                            } else if(structTypeName.equals("vector")) {
+                                return DataResult.success(Pair.of(
+                                        RVector.of(new Vec3(
+                                                ops.getNumberValue(map.get("x"), 0.0).doubleValue(),
+                                                ops.getNumberValue(map.get("y"), 0.0).doubleValue(),
+                                                ops.getNumberValue(map.get("z"), 0.0).doubleValue()
+                                        )),
+                                        input
+                                ));
                             } else {
                                 var struct = RStruct.create(structTypeName, 0);
                                 map.entries().forEach(entry -> struct.javaValue().put(
