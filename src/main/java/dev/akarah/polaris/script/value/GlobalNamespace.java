@@ -221,6 +221,15 @@ public class GlobalNamespace {
         return RCell.create(value);
     }
 
+    @MethodTypeHint(signature = "(id: identifier) -> nullable[registry[any]]", documentation = "Wraps a value in a cell.")
+    public static RNullable registry__dynamic(RIdentifier value) {
+        var reg = Resources.dynamicRegistryEntries().get(value.javaValue());
+        if(reg == null) {
+            return RNullable.empty();
+        }
+        return RNullable.of(RRegistry.of(reg));
+    }
+
     @MethodTypeHint(signature = "(value: dict[identifier, number]) -> stat_obj", documentation = "Creates a new stats object from the provided dictionary.")
     public static RStatsObject stat_obj__create(RDict dict) {
         var so = StatsObject.of();

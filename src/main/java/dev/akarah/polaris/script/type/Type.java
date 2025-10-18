@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
+import java.rmi.registry.Registry;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -124,6 +125,11 @@ public interface Type<T> {
             }
             case NullableType matchNullableType -> {
                 if(this2 instanceof NullableType(Type<?> subtype)) {
+                    subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, expressionSpan);
+                }
+            }
+            case RegistryType matchNullableType -> {
+                if(this2 instanceof RegistryType(Type<?> subtype)) {
                     subtype.resolveTypeVariables(matchNullableType.subtype(), typeSet, expressionSpan);
                 }
             }

@@ -14,6 +14,7 @@ import dev.akarah.polaris.registry.effect.EffectManager;
 import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.entity.MobSpawnRule;
 import dev.akarah.polaris.registry.item.CustomItem;
+import dev.akarah.polaris.registry.meta.DynamicRegistryType;
 import dev.akarah.polaris.registry.mining.MiningManager;
 import dev.akarah.polaris.registry.mining.MiningRule;
 import dev.akarah.polaris.registry.refreshable.Refreshable;
@@ -21,6 +22,9 @@ import dev.akarah.polaris.registry.stat.StatManager;
 import dev.akarah.polaris.registry.stat.StatType;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.dsl.DslActionManager;
+import dev.akarah.polaris.script.value.RuntimeValue;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.component.ResolvableProfile;
 
@@ -47,6 +51,8 @@ public class Resources {
     static ReloadableJsonManager<Refreshable> REFRESHABLES;
     static ReloadableJsonManager<CommandBuilderNode> COMMAND_NODES;
     static ReloadableJsonManager<StatType> STAT_TYPE;
+    static ReloadableJsonManager<DynamicRegistryType> REGISTRY_TYPE;
+    static Map<ResourceLocation, Registry<RuntimeValue>> DYNAMIC_REGISTRY_ENTRIES = Maps.newConcurrentMap();
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -104,6 +110,12 @@ public class Resources {
         return COMMAND_NODES;
     }
 
+    public static ReloadableJsonManager<DynamicRegistryType> registryTypes() { return REGISTRY_TYPE; }
+
+    public static Map<ResourceLocation, Registry<RuntimeValue>> dynamicRegistryEntries() {
+        return DYNAMIC_REGISTRY_ENTRIES;
+    }
+
     public static void reloadEverything(ResourceManager resourceManager) {
 
         try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -117,8 +129,11 @@ public class Resources {
                     Resources.miningRule().reloadWithManager(resourceManager, executor),
                     Resources.refreshable().reloadWithManager(resourceManager, executor),
                     Resources.command().reloadWithManager(resourceManager, executor),
-                    Resources.statType().reloadWithManager(resourceManager, executor)
+                    Resources.statType().reloadWithManager(resourceManager, executor),
+                    Resources.registryTypes().reloadWithManager(resourceManager, executor)
             ).get();
+
+            DynamicRegistryType.loadEntries(resourceManager, executor);
 
             Resources.statManager().refreshPlayerInventories();
         } catch (Exception e) {
@@ -145,14 +160,15 @@ public class Resources {
         Resources.EFFECT_MANAGER = new EffectManager();
         Resources.ACTION_MANAGER = new DslActionManager();
         Resources.MINING_MANAGER = new MiningManager();
-        Resources.CUSTOM_ITEM = ReloadableJsonManager.of("item", CustomItem.CODEC);
-        Resources.CUSTOM_ENTITY = ReloadableJsonManager.of("entity", CustomEntity.CODEC);
-        Resources.CUSTOM_EFFECT = ReloadableJsonManager.of("effect", CustomEffect.CODEC);
-        Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("rule/mob_spawn", MobSpawnRule.CODEC);
-        Resources.MINING_RULE = ReloadableJsonManager.of("rule/mining", MiningRule.CODEC);
-        Resources.REFRESHABLES = ReloadableJsonManager.of("rule/placement", Refreshable.CODEC);
-        Resources.COMMAND_NODES = ReloadableJsonManager.of("command", CommandBuilderNode.CODEC);
-        Resources.STAT_TYPE = ReloadableJsonManager.of("stat", StatType.CODEC);
+        Resources.CUSTOM_ITEM = ReloadableJsonManager.of("engine/item", CustomItem.CODEC);
+        Resources.CUSTOM_ENTITY = ReloadableJsonManager.of("engine/entity", CustomEntity.CODEC);
+        Resources.CUSTOM_EFFECT = ReloadableJsonManager.of("engine/effect", CustomEffect.CODEC);
+        Resources.MOB_SPAWN_RULE = ReloadableJsonManager.of("engine/rule/mob_spawn", MobSpawnRule.CODEC);
+        Resources.MINING_RULE = ReloadableJsonManager.of("engine/rule/mining", MiningRule.CODEC);
+        Resources.REFRESHABLES = ReloadableJsonManager.of("engine/rule/placement", Refreshable.CODEC);
+        Resources.COMMAND_NODES = ReloadableJsonManager.of("engine/command", CommandBuilderNode.CODEC);
+        Resources.STAT_TYPE = ReloadableJsonManager.of("engine/stat", StatType.CODEC);
+        Resources.REGISTRY_TYPE = ReloadableJsonManager.of("engine/registry", DynamicRegistryType.CODEC);
     }
 
     public static void loopPlayers() {

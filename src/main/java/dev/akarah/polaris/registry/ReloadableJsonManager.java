@@ -41,7 +41,7 @@ public class ReloadableJsonManager<T> {
                 .runAsync(
                         () -> {
                             this.registry = new MappedRegistry<>(ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("polaris", this.registryName)), Lifecycle.stable());
-                            for(var resourceEntry : resourceManager.listResources("engine/" + registryName, rl -> rl.getPath().endsWith(".json")).entrySet()) {
+                            for(var resourceEntry : resourceManager.listResources(registryName, rl -> rl.getPath().endsWith(".json")).entrySet()) {
                                 try(var inputStream = resourceEntry.getValue().open()) {
                                     var bytes = inputStream.readAllBytes();
                                     var string = new String(bytes);
@@ -52,7 +52,7 @@ public class ReloadableJsonManager<T> {
                                                 this.registry,
                                                 resourceEntry.getKey().withPath(s ->
                                                         s.replace(".json", "")
-                                                                .replace("engine/" + registryName + "/", "")),
+                                                                .replace(registryName + "/", "")),
                                                 value.getOrThrow().getFirst()
                                         );
                                     } else {

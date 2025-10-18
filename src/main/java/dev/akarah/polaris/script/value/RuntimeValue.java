@@ -1,11 +1,15 @@
 package dev.akarah.polaris.script.value;
 
+import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
+import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RItem;
@@ -58,12 +62,22 @@ public abstract class RuntimeValue {
                         if(map.get("struct") != null) {
                             var structType = map.get("struct");
                             assert structType != null;
-                            var struct = RStruct.create(ops.getStringValue(structType).getOrThrow(), 0);
-                            map.entries().forEach(entry -> struct.javaValue().put(
-                                    ops.getStringValue(entry.getFirst()).getOrThrow(),
-                                    runtimeValueCodec.decode(ops, entry.getSecond()).getOrThrow().getFirst()
-                            ));
-                            return DataResult.success(Pair.of(struct, input));
+                            var structTypeName = ops.getStringValue(structType).getOrThrow();
+                            if(structTypeName.equals("stat_obj")) {
+                                // this is so hacky
+                                // this is going to bite me back one day i think
+                                var i = (JsonObject) input;
+                                i.remove("struct");
+                                return StatsObject.CODEC.decode(JsonOps.INSTANCE, i)
+                                        .map((data) -> Pair.of(RStatsObject.of(data.getFirst()), (T) data.getSecond()));
+                            } else {
+                                var struct = RStruct.create(structTypeName, 0);
+                                map.entries().forEach(entry -> struct.javaValue().put(
+                                        ops.getStringValue(entry.getFirst()).getOrThrow(),
+                                        runtimeValueCodec.decode(ops, entry.getSecond()).getOrThrow().getFirst()
+                                ));
+                                return DataResult.success(Pair.of(struct, input));
+                            }
                         } else {
                             var outDict = RDict.create();
                             map.entries().forEach(entry -> outDict.javaValue().put(

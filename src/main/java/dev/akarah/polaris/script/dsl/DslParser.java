@@ -227,6 +227,12 @@ public class DslParser {
                         expect(DslToken.CloseBracket.class);
                         yield e -> new SpannedType<>(Type.nullable(subtype.apply(e)), identifier.span());
                     }
+                    case "registry" -> {
+                        expect(DslToken.OpenBracket.class);
+                        var subtype = parseType(typeVariables);
+                        expect(DslToken.CloseBracket.class);
+                        yield e -> new SpannedType<>(new RegistryType(subtype.apply(e)), identifier.span());
+                    }
                     case "list" -> {
                         expect(DslToken.OpenBracket.class);
                         var subtype = parseType(typeVariables);
