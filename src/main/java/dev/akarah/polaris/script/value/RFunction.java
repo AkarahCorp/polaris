@@ -20,6 +20,11 @@ public class RFunction extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RFunction.of(this.inner);
+    }
+
     @MethodTypeHint(signature = "(f: function() -> void) -> void")
     public static void run0(RFunction $this) {
         try {

@@ -26,6 +26,11 @@ public class RVector extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RVector.of(this.inner);
+    }
+
     @MethodTypeHint(signature = "(lhs: vector, rhs: vector) -> vector", documentation = "Adds two vectors together, returning a new one with the sum.")
     public static RVector add(RVector lhs, RVector rhs) {
         return RVector.of(lhs.javaValue().add(rhs.javaValue()));

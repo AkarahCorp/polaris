@@ -38,4 +38,9 @@ public class RTimestamp extends RuntimeValue implements Comparable<RTimestamp> {
     public Instant javaValue() {
         return this.inner;
     }
+
+    @Override
+    public RuntimeValue copy() {
+        return RTimestamp.of(this.inner);
+    }
 }

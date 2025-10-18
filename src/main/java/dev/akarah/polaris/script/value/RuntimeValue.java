@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class RuntimeValue {
     public abstract Object javaValue();
+    public abstract RuntimeValue copy();
 
     public static Codec<RuntimeValue> CODEC = Codec.lazyInitialized(() -> Codec.recursive(
             "RuntimeValue",
@@ -77,6 +78,25 @@ public abstract class RuntimeValue {
                                                 ops.getNumberValue(map.get("y"), 0.0).doubleValue(),
                                                 ops.getNumberValue(map.get("z"), 0.0).doubleValue()
                                         )),
+                                        input
+                                ));
+                            } else if(structTypeName.equals("item")) {
+                                var id = RIdentifier.of(ResourceLocation.parse(ops.getStringValue(map.get("id")).result().orElse("minecraft:dirt")));
+                                var count = ops.getNumberValue(map.get("count"), 1).intValue();
+                                var item = GlobalNamespace.item__create(id, null, null);
+                                item.javaValue().setCount(count);
+
+                                var tagMap = map.get("tags");
+                                if(tagMap != null) {
+                                    var data = ops.getMap(map.get("tags")).getOrThrow();
+                                    data.entries().forEach(entry -> {
+                                        var tagKey = ops.getStringValue(entry.getFirst());
+                                        var tagValue = RuntimeValue.CODEC.decode(ops, entry.getSecond()).getOrThrow().getFirst();
+                                        RItem.set_tag(item, RString.of(tagKey.getOrThrow()), tagValue);
+                                    });
+                                }
+                                return DataResult.success(Pair.of(
+                                        item,
                                         input
                                 ));
                             } else {

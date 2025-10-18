@@ -37,7 +37,7 @@ public record ForEachAction(
                 .typecheck(RList.class)
                 .invokeStatic(
                         CodegenUtil.ofClass(RList.class),
-                        "copy",
+                        "copyInternal",
                         MethodTypeDesc.of(
                                 CodegenUtil.ofClass(RList.class),
                                 List.of(CodegenUtil.ofClass(RList.class))

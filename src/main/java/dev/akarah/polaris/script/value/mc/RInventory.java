@@ -27,6 +27,11 @@ public class RInventory extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RInventory.of(this.inner, this.name);
+    }
+
     @MethodTypeHint(signature = "(this: inventory, slot: number) -> item", documentation = "Returns the item provided in the given slot of this inventory.")
     public static RItem get_slot(RInventory $this, RNumber slot) {
         try {

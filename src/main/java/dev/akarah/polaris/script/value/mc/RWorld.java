@@ -35,6 +35,11 @@ public class RWorld extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RWorld.of(this.inner);
+    }
+
     @MethodTypeHint(
             signature = "(this: world, position: vector, block_type: identifier, block_state?: dict[string, any], update?: boolean) -> void",
             documentation = "Sets a block in this world of the given type. "

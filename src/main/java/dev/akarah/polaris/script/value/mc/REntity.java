@@ -69,6 +69,11 @@ public class REntity extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return REntity.of(this.inner);
+    }
+
     @MethodTypeHint(signature = "(this: entity) -> store", documentation = "Gets the temporary data store associated with this entity.")
     public static RStore temp_data(REntity $this) {
         return RStore.of(Database.temp().get("entity/" + $this.javaValue().getStringUUID()));

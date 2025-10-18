@@ -30,4 +30,9 @@ public class RIdentifier extends RuntimeValue {
     public ResourceLocation javaValue() {
         return this.inner;
     }
+
+    @Override
+    public RuntimeValue copy() {
+        return RIdentifier.of(this.inner);
+    }
 }

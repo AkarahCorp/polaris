@@ -21,6 +21,11 @@ public class RStatsObject extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RStatsObject.of(this.inner.copy());
+    }
+
     @MethodTypeHint(signature = "(object: stat_obj, key: identifier) -> number", documentation = "Get the final value of a stat in this stat object.")
     public static RNumber get(RStatsObject object, RIdentifier key) {
         return RNumber.of(object.javaValue().get(key.javaValue()));
@@ -85,10 +90,5 @@ public class RStatsObject extends RuntimeValue {
     @MethodTypeHint(signature = "(object: stat_obj, other: stat_obj) -> void", documentation = "Adds all values in the other stat object to this tat object.")
     public static void add_all_direct(RStatsObject object, RStatsObject other) {
         object.javaValue().add(other.javaValue());
-    }
-
-    @MethodTypeHint(signature = "(object: stat_obj) -> stat_obj", documentation = "Creates a copy of this stat object.")
-    public static RStatsObject copy(RStatsObject object) {
-        return RStatsObject.of(object.javaValue().copy());
     }
 }

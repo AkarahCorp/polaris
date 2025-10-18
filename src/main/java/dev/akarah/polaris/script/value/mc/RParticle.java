@@ -53,6 +53,11 @@ public class RParticle extends RuntimeValue {
         return this;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RParticle.of(this.particleOptions);
+    }
+
     public static Map<ResourceLocation, ParticleOptions> OPTIONS = new HashMap<>();
 
     static {

@@ -55,4 +55,9 @@ public class RRegistry extends RuntimeValue {
     public Registry<RuntimeValue> javaValue() {
         return this.inner;
     }
+
+    @Override
+    public RuntimeValue copy() {
+        return RRegistry.of(this.inner);
+    }
 }

@@ -19,6 +19,11 @@ public class RStore extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RStore.of(this.inner);
+    }
+
     @MethodTypeHint(signature = "(this: store, key: string, value: any) -> void", documentation = "Sets the value associated with the key inside of this data store.")
     public static void set(RStore store, RString key, RuntimeValue value) {
         store.javaValue().put(key.javaValue(), value);

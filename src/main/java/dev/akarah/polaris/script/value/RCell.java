@@ -32,4 +32,9 @@ public class RCell extends RuntimeValue {
     public Object javaValue() {
         return this.inner.javaValue();
     }
+
+    @Override
+    public RuntimeValue copy() {
+        return RCell.create(this.inner.copy());
+    }
 }

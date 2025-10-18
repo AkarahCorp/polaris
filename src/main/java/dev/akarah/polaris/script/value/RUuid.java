@@ -20,6 +20,11 @@ public class RUuid extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return new RUuid(this.inner);
+    }
+
 
     @MethodTypeHint(signature = "(this: uuid) -> number", documentation = "Returns the most significant bits of this UUID.")
     public static RNumber most_significant_bits(RUuid $this) {

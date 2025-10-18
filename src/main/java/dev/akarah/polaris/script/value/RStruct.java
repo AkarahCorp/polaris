@@ -38,6 +38,15 @@ public class RStruct extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        var copy = Maps.<String, RuntimeValue>newHashMap();
+        for(var entry : this.inner.entrySet()) {
+            copy.put(entry.getKey(), entry.getValue().copy());
+        }
+        return new RStruct(this.name, copy);
+    }
+
     public String name() {
         return this.name;
     }

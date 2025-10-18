@@ -16,6 +16,11 @@ public class  RBoolean extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return new RBoolean(this.inner);
+    }
+
     public static RBoolean not(RBoolean $this) {
         return RBoolean.of(!$this.inner);
     }

@@ -13,10 +13,12 @@ import dev.akarah.polaris.script.value.mc.*;
 import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -85,6 +87,10 @@ public class GlobalNamespace {
                     }
                     var is = Items.STONE.getDefaultInstance();
                     is.set(DataComponents.ITEM_NAME, Component.literal("Unknown item ID " + id));
+
+                    var data = new CompoundTag();
+                    data.putString("id", id.toString());
+                    is.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
                     return is;
                 }));
         if(function != null) {
@@ -277,5 +283,10 @@ public class GlobalNamespace {
     @MethodTypeHint(signature = "() -> string", documentation = "Returns the type of the server defined in engine.json.")
     public static RString server__type() {
         return RString.of(Resources.config().serverType());
+    }
+
+    @MethodTypeHint(signature = "<T>(value: T) -> T", documentation = "Returns a clone of the provided value.")
+    public static RuntimeValue clone(RuntimeValue v) {
+        return v.copy();
     }
 }

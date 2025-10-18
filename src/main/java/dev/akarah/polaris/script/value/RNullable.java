@@ -83,4 +83,9 @@ public class RNullable extends RuntimeValue {
     public Optional<RuntimeValue> javaValue() {
         return Optional.ofNullable(this.inner);
     }
+
+    @Override
+    public RuntimeValue copy() {
+        return RNullable.of(this.inner);
+    }
 }

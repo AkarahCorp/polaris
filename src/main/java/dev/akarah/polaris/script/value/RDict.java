@@ -55,4 +55,13 @@ public class RDict extends RuntimeValue {
     public Map<RuntimeValue, RuntimeValue> javaValue() {
         return this.inner;
     }
+
+    @Override
+    public RuntimeValue copy() {
+        var dict = RDict.create();
+        for(var entry : this.inner.entrySet()) {
+            dict.inner.put(entry.getKey().copy(), entry.getValue().copy());
+        }
+        return dict;
+    }
 }

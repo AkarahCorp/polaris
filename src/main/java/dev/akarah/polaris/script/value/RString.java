@@ -20,6 +20,11 @@ public class RString extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return new RString(this.inner);
+    }
+
     @MethodTypeHint(signature = "(this: string, target: string, sequence: string) -> string", documentation = "Replaces a substring with another.")
     public static RString replace(RString $this, RString target, RString sequence) {
         return RString.of($this.javaValue().replace(target.javaValue(), sequence.javaValue()));

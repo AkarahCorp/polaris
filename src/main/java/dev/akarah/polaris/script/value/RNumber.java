@@ -22,6 +22,11 @@ public class RNumber extends RuntimeValue implements Comparable<RNumber> {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return new RNumber(this.inner);
+    }
+
     public double doubleValue() {
         return this.inner;
     }

@@ -32,6 +32,11 @@ public class RItem extends RuntimeValue {
         return this.inner;
     }
 
+    @Override
+    public RuntimeValue copy() {
+        return RItem.of(this.inner.copy());
+    }
+
     @MethodTypeHint(signature = "(item: item) -> identifier", documentation = "Gets the ID of the item stack.")
     public static RIdentifier id(RItem item) {
         return RIdentifier.of(
@@ -166,10 +171,5 @@ public class RItem extends RuntimeValue {
 
             $this.inner = newItem;
         });
-    }
-
-    @MethodTypeHint(signature = "(item: item) -> item", documentation = "Creates a copy of this item.")
-    public static RItem copy(RItem $this) {
-        return RItem.of($this.javaValue().copy());
     }
 }
