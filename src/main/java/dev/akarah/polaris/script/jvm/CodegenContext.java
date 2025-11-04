@@ -264,7 +264,6 @@ public class CodegenContext {
                 MethodTypeDesc.of(CodegenUtil.ofClass(returnType), parameters),
                 AccessFlag.STATIC.mask() + AccessFlag.PUBLIC.mask(),
                 methodBuilder -> {
-                    System.out.println("Compiling function `" + name + "`");
 
                     this.stackFrames = frames;
 
@@ -307,7 +306,6 @@ public class CodegenContext {
                         this.codeBuilder.return_();
                     });
 
-                    System.out.println("Done!");
                 }
         );
     }

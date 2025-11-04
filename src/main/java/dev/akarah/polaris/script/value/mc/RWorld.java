@@ -211,4 +211,9 @@ public class RWorld extends RuntimeValue {
             );
         }
     }
+
+    @MethodTypeHint(signature = "(world: world, pos: vector) -> identifier", documentation = "Gets the ID of the biome at the given position.")
+    public static RIdentifier biome_at(RWorld world, RVector vector) {
+        return RIdentifier.of(world.javaValue().getBiome(vector.asBlockPos()).unwrapKey().orElseThrow().location());
+    }
 }
