@@ -1,11 +1,10 @@
-package dev.akarah.polaris.script.value.mc.rt;
+package dev.akarah.polaris.script.value.polaris;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.akarah.polaris.Main;
 import net.minecraft.network.chat.Component;
 
-import java.awt.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;

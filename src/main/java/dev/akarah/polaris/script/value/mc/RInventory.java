@@ -2,7 +2,7 @@ package dev.akarah.polaris.script.value.mc;
 
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
-import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
+import dev.akarah.polaris.script.value.polaris.DynamicContainer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;

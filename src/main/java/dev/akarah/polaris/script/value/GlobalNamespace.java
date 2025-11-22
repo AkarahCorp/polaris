@@ -10,7 +10,7 @@ import dev.akarah.polaris.script.expr.ast.func.ClassDocumentation;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.expr.ast.operation.OperationUtil;
 import dev.akarah.polaris.script.value.mc.*;
-import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
+import dev.akarah.polaris.script.value.polaris.DynamicContainer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

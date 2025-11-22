@@ -3,7 +3,6 @@ package dev.akarah.polaris.script.value.mc;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.RString;
 import dev.akarah.polaris.script.value.RuntimeValue;
-import dev.akarah.polaris.script.value.mc.rt.DynamicContainer;
 import net.minecraft.resources.ResourceLocation;
 
 public class RIdentifier extends RuntimeValue {

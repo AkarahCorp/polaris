@@ -1,4 +1,4 @@
-package dev.akarah.polaris.script.value.mc.rt;
+package dev.akarah.polaris.script.value.polaris;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.SimpleContainer;

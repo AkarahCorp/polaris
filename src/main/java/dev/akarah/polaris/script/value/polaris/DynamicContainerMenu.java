@@ -1,4 +1,4 @@
-package dev.akarah.polaris.script.value.mc.rt;
+package dev.akarah.polaris.script.value.polaris;
 
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.RString;
