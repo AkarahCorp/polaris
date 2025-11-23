@@ -34,4 +34,9 @@ public abstract class ReloadableResourceManagerMixin implements ResourceManager 
             }
         }
     }
+
+    @Inject(method = "close", at = @At("TAIL"))
+    public void close(CallbackInfo ci) {
+        // Resources.tempDeleteAdvancements();
+    }
 }

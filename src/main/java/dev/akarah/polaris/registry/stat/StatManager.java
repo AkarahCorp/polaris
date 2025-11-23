@@ -2,6 +2,7 @@ package dev.akarah.polaris.registry.stat;
 
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.registry.achievement.AchievementLogic;
 import dev.akarah.polaris.registry.entity.CustomEntity;
 import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.registry.item.value.CustomItemComponents;
@@ -77,6 +78,7 @@ public class StatManager {
 
             this.set(player, sources.performFinalCalculations());
             Resources.actionManager().performEvents("player.tick", REntity.of(player));
+            AchievementLogic.activate(player, ResourceLocation.fromNamespaceAndPath("polaris", "player.tick"));
 
 
             var packet = new ClientboundPlayerInfoUpdatePacket(

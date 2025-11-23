@@ -5,6 +5,7 @@ import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.phys.Vec2;

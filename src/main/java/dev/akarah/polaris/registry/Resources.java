@@ -2,12 +2,14 @@ package dev.akarah.polaris.registry;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import dev.akarah.polaris.config.EngineConfig;
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.Util;
+import dev.akarah.polaris.registry.achievement.AchievementCriteriaType;
+import dev.akarah.polaris.registry.achievement.AchievementKind;
+import dev.akarah.polaris.registry.achievement.AchievementTrigger;
 import dev.akarah.polaris.registry.command.CommandBuilderNode;
 import dev.akarah.polaris.registry.effect.CustomEffect;
 import dev.akarah.polaris.registry.effect.EffectManager;
@@ -24,15 +26,15 @@ import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.dsl.DslActionManager;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.item.component.ResolvableProfile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
@@ -52,6 +54,10 @@ public class Resources {
     static ReloadableJsonManager<CommandBuilderNode> COMMAND_NODES;
     static ReloadableJsonManager<StatType> STAT_TYPE;
     static ReloadableJsonManager<DynamicRegistryType> REGISTRY_TYPE;
+    public static ReloadableJsonManager<AchievementKind> ACHIEVEMENT_KIND;
+    public static ReloadableJsonManager<AchievementTrigger> ACHIEVEMENT_TRIGGER;
+    public static ReloadableJsonManager<AchievementCriteriaType> ACHIEVEMENT_CRITERIA;
+
     static Map<ResourceLocation, Registry<RuntimeValue>> DYNAMIC_REGISTRY_ENTRIES = Maps.newConcurrentMap();
 
     public static StatManager statManager() {
@@ -117,7 +123,7 @@ public class Resources {
     }
 
     public static void reloadEverything(ResourceManager resourceManager) {
-
+        System.out.println(resourceManager.getClass());
         try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             Resources.reset();
             CompletableFuture.allOf(
@@ -130,8 +136,13 @@ public class Resources {
                     Resources.refreshable().reloadWithManager(resourceManager, executor),
                     Resources.command().reloadWithManager(resourceManager, executor),
                     Resources.statType().reloadWithManager(resourceManager, executor),
-                    Resources.registryTypes().reloadWithManager(resourceManager, executor)
+                    Resources.registryTypes().reloadWithManager(resourceManager, executor),
+                    Resources.ACHIEVEMENT_CRITERIA.reloadWithManager(resourceManager, executor),
+                    Resources.ACHIEVEMENT_TRIGGER.reloadWithManager(resourceManager, executor),
+                    Resources.ACHIEVEMENT_KIND.reloadWithManager(resourceManager, executor)
             ).get();
+
+            tempCreateAdvancements();
 
             DynamicRegistryType.loadEntries(resourceManager, executor);
 
@@ -169,6 +180,9 @@ public class Resources {
         Resources.COMMAND_NODES = ReloadableJsonManager.of("engine/command", CommandBuilderNode.CODEC);
         Resources.STAT_TYPE = ReloadableJsonManager.of("engine/stat", StatType.CODEC);
         Resources.REGISTRY_TYPE = ReloadableJsonManager.of("engine/registry", DynamicRegistryType.CODEC);
+        Resources.ACHIEVEMENT_CRITERIA = ReloadableJsonManager.of("engine/achievement/criteria", AchievementCriteriaType.CODEC);
+        Resources.ACHIEVEMENT_TRIGGER = ReloadableJsonManager.of("engine/achievement/trigger", AchievementTrigger.CODEC);
+        Resources.ACHIEVEMENT_KIND = ReloadableJsonManager.of("engine/achievement/kind", AchievementKind.CODEC);
     }
 
     public static void loopPlayers() {
@@ -187,5 +201,70 @@ public class Resources {
         }
 
         Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
+    }
+
+    public static void tempCreateAdvancements() {
+        var p = Paths.get("./world/datapacks/polaris-tmp/");
+
+        try {
+
+            try {
+                var meta = Files.createFile(p.resolve("./pack.mcmeta"));
+                Files.writeString(meta, """
+                        {
+                          "pack": {
+                            "description": "polaris auto-generated datapack",
+                            "pack_format": 80
+                          }
+                        }
+                        """);
+            } catch (IOException e) {
+
+            }
+
+            Files.createDirectories(p);
+            for(var adv : Resources.ACHIEVEMENT_KIND.registry().entrySet()) {
+                var f = p.resolve("./data/" + adv.getKey().location().getNamespace() + "/advancement/" + adv.getKey().location().getPath() + ".json");
+                try {
+                    Files.createDirectories(f.getParent());
+                    Files.createFile(f);
+                } catch (Exception e) {
+                }
+                Files.writeString(
+                        f,
+                        """
+                                {
+                                    "criteria": {
+                                        "impossible": {
+                                            "trigger": "impossible"
+                                        }
+                                    },
+                                    "display": {
+                                        "icon": {
+                                            "id": "stone"
+                                        },
+                                        "description": "{description}",
+                                        "title": "{name}",
+                                        "hidden": false
+                                    },
+                                    "parent": "akarahnet:root"
+                                }
+                                """
+                                .replace("{description}", adv.getValue().description())
+                                .replace("{name}", adv.getValue().name())
+                );
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void tempDeleteAdvancements() {
+        var p = Paths.get("./world/datapacks/polaris-tmp/");
+        try {
+            Files.deleteIfExists(p);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
