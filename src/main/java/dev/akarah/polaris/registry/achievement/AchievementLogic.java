@@ -10,7 +10,11 @@ public class AchievementLogic {
     public static void activate(ServerPlayer player, ResourceLocation location) {
         for(var ach : Resources.ACHIEVEMENT_KIND.registry().entrySet()) {
             if(ach.getValue().triggers().contains(location) && ach.getValue().criteria().evaluate(player)) {
-                Resources.actionManager().performEvents("player.complete_achievement", REntity.of(player), RIdentifier.of(ach.getKey().location()));
+                try {
+                    Resources.actionManager().performEvents("player.complete_achievement", REntity.of(player), RIdentifier.of(ach.getKey().location()));
+                } catch (Throwable e) {
+
+                }
             }
         }
     }

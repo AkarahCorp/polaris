@@ -585,12 +585,14 @@ public class REntity extends RuntimeValue {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
             for(var adv : Main.server().getAdvancements().getAllAdvancements()) {
                 var prog = serverPlayer.getAdvancements().getOrStartProgress(adv);
-                for(var completed : prog.getCompletedCriteria()) {
-                    serverPlayer.getAdvancements().revoke(adv, completed);
-                }
+
                 if(list.javaValue().contains(RIdentifier.of(adv.id()))) {
                     for(var criteria : prog.getRemainingCriteria()) {
                         serverPlayer.getAdvancements().award(adv, criteria);
+                    }
+                } else {
+                    for(var completed : prog.getCompletedCriteria()) {
+                        serverPlayer.getAdvancements().revoke(adv, completed);
                     }
                 }
             }

@@ -57,19 +57,6 @@ public class GitManager {
         var proc = new ProcessBuilder().command(command).directory(MAIN_DATAPACK_DIR).start();
         proc.getInputStream().transferTo(new PlayerOutputStream(executor));
         proc.getErrorStream().transferTo(new PlayerOutputStream(executor));
-        try {
-
-            proc.getOutputStream().write(
-                    (GITHUB_USER + "\n").getBytes()
-            );
-            proc.getOutputStream().flush();
-
-            proc.getOutputStream().write(
-                    (GITHUB_TOKEN + "\n").getBytes()
-            );
-            proc.getOutputStream().flush();
-        } catch (IOException ignored) {
-        }
         return proc;
     }
 

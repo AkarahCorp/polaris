@@ -126,6 +126,10 @@ public class RNumber extends RuntimeValue implements Comparable<RNumber> {
     public static RBoolean less_than_or_equal_to(RNumber lhs, RNumber rhs) {
         return RBoolean.of(lhs.doubleValue() <= rhs.doubleValue());
     }
+    @MethodTypeHint(signature = "(val: number) -> boolean", documentation = "Computes the base-10 logarithm of the number.")
+    public static RNumber log10(RNumber val) {
+        return RNumber.of(Math.log10(val.doubleValue()));
+    }
 
     @Override
     public String toString() {

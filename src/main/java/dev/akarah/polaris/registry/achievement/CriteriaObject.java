@@ -108,8 +108,6 @@ public sealed interface CriteriaObject {
                 var invocation = (RBoolean) Resources.actionManager().methodHandleByLocation(criteriaType.function()).invoke(REntity.of(player), new RDict(this.fields));
                 return invocation.javaValue();
             } catch (Throwable e) {
-                assert e instanceof Exception;
-                Main.handleError((Exception) e);
                 return false;
             }
         }
