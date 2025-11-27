@@ -164,15 +164,16 @@ public class LateResolvedFunctionCall implements Expression {
 
         ExpressionTypeSet typeSet = null;
 
-        if(TYPE_SET_CACHE.containsKey(methodTypeHint.signature())) {
-            typeSet = TYPE_SET_CACHE.get(methodTypeHint.signature());
+        var signature = methodTypeHint.signature().replace(") ->", "):");
+        if(TYPE_SET_CACHE.containsKey(signature)) {
+            typeSet = TYPE_SET_CACHE.get(signature);
         } else {
             typeSet = DslParser.parseExpressionTypeSet(
-                    DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), methodTypeHint.signature())
+                    DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), signature)
                             .getOrThrow(),
                     method.getName()
             );
-            TYPE_SET_CACHE.put(methodTypeHint.signature(), typeSet);
+            TYPE_SET_CACHE.put(signature, typeSet);
         }
 
         var newParameters = typeSet.typecheck(ctx, ExpressionStream.of(this.parameters, this.spanData));

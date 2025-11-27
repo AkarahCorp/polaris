@@ -45,6 +45,14 @@ public class RDict extends RuntimeValue {
         }
         return list;
     }
+    @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V]) -> list[V]", documentation = "Lists all values from the dictionary.")
+    public static RList values(RDict dict) {
+        var list = RList.create();
+        for(var key : dict.javaValue().values()) {
+            RList.add(list, key);
+        }
+        return list;
+    }
 
     @MethodTypeHint(signature = "<K, V>(dictionary: dict[K, V]) -> number", documentation = "Returns the amount of entries in the dictionary.")
     public static RNumber size(RDict dict) {

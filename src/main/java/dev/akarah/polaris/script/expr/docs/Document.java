@@ -31,7 +31,7 @@ public record Document(
 
             for(var annotation : method.getAnnotations()) {
                 if(annotation instanceof MethodTypeHint methodTypeHint) {
-                    signature = methodTypeHint.signature();
+                    signature = methodTypeHint.signature().replace(") ->", "):");
                     documentation = methodTypeHint.documentation();
                     order = methodTypeHint.order();
                 }

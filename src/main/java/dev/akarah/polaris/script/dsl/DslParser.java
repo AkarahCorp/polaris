@@ -143,7 +143,7 @@ public class DslParser {
                 }
                 expect(DslToken.CloseParen.class);
 
-                expect(DslToken.ArrowSymbol.class);
+                expect(DslToken.Colon.class);
                 var returnType = parseType(typeVariables);
                 yield e -> Type.function(
                         returnType.apply(e),
@@ -303,7 +303,7 @@ public class DslParser {
         }
         expect(DslToken.CloseParen.class);
 
-        expect(DslToken.ArrowSymbol.class);
+        expect(DslToken.Colon.class);
         ts.returns(parseType(typeParameters));
 
         return ts.build();

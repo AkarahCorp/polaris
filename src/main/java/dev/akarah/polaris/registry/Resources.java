@@ -241,17 +241,19 @@ public class Resources {
                                     },
                                     "display": {
                                         "icon": {
-                                            "id": "stone"
+                                            "id": "{icon}"
                                         },
                                         "description": "{description}",
                                         "title": "{name}",
                                         "hidden": false
                                     },
-                                    "parent": "akarahnet:root"
+                                    "parent": "{parent}"
                                 }
                                 """
                                 .replace("{description}", adv.getValue().description())
                                 .replace("{name}", adv.getValue().name())
+                                .replace("{parent}", adv.getValue().parent().toString())
+                                .replace("{icon}", adv.getValue().icon().toString())
                 );
             }
         } catch (IOException e) {

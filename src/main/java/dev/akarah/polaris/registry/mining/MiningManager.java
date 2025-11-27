@@ -7,6 +7,7 @@ import dev.akarah.polaris.Main;
 import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.mc.REntity;
+import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -180,6 +181,20 @@ public class MiningManager {
                     if(!result) {
                         return;
                     }
+
+
+
+                    var result2 = Resources.actionManager().performEvents(
+                            "player.mining_rule_activation",
+                            REntity.of(player),
+                            RVector.of(target.getCenter()),
+                            RIdentifier.of(Resources.miningRule().registry().getKey(rule))
+                    );
+
+                    if(!result2) {
+                        return;
+                    }
+
                     player.level().playSound(
                             null,
                             target,
