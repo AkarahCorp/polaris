@@ -9,6 +9,11 @@ import java.time.Instant;
 public class RTimestamp extends RuntimeValue implements Comparable<RTimestamp> {
     private final Instant inner;
 
+
+    public static String typeName() {
+        return "timestamp";
+    }
+
     public RTimestamp(Instant inner) {
         this.inner = inner;
     }

@@ -8,6 +8,11 @@ public class RStruct extends RuntimeValue {
     private final String name;
     private final Map<String, RuntimeValue> inner;
 
+
+    public static String typeName() {
+        return "struct";
+    }
+
     private RStruct(String name, Map<String, RuntimeValue> inner) {
         this.name = name;
         this.inner = inner;

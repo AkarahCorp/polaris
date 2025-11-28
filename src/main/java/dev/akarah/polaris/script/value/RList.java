@@ -10,6 +10,12 @@ import java.util.List;
 public class RList extends RuntimeValue {
     private final List<RuntimeValue> inner;
 
+
+
+    public static String typeName() {
+        return "list";
+    }
+
     public RList(List<RuntimeValue> inner) {
         this.inner = inner;
     }

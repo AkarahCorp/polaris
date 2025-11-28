@@ -8,6 +8,11 @@ import net.minecraft.network.chat.HoverEvent;
 public class RText extends RuntimeValue {
     private final Component inner;
 
+
+    public static String typeName() {
+        return "text";
+    }
+
     private RText(Component inner) {
         this.inner = inner;
     }

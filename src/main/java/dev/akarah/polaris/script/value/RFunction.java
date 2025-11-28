@@ -7,6 +7,12 @@ import java.lang.invoke.MethodHandle;
 public class RFunction extends RuntimeValue {
     private final MethodHandle inner;
 
+
+
+    public static String typeName() {
+        return "function";
+    }
+
     private RFunction(MethodHandle inner) {
         this.inner = inner;
     }

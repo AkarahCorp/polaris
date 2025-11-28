@@ -7,6 +7,11 @@ import java.util.Objects;
 public class RString extends RuntimeValue {
     private final String inner;
 
+
+    public static String typeName() {
+        return "string";
+    }
+
     private RString(String inner) {
         this.inner = inner;
     }

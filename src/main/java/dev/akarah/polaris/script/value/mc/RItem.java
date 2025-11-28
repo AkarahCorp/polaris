@@ -27,6 +27,11 @@ public class RItem extends RuntimeValue {
         return new RItem(value);
     }
 
+
+    public static String typeName() {
+        return "item";
+    }
+
     @Override
     public ItemStack javaValue() {
         return this.inner;
@@ -45,13 +50,13 @@ public class RItem extends RuntimeValue {
         );
     }
 
-    @MethodTypeHint(signature = "(item: item, name: text) -> void", documentation = "Sets the name of the item stack.")
+    @MethodTypeHint(signature = "(item: item, label: text) -> void", documentation = "Sets the label of the item stack.")
     public static void set_name(RItem item, RText name) {
         item.javaValue().set(DataComponents.ITEM_NAME, name.javaValue());
         item.javaValue().set(DataComponents.CUSTOM_NAME, name.javaValue());;
     }
 
-    @MethodTypeHint(signature = "(item: item) -> string", documentation = "Gets the name of the base item.")
+    @MethodTypeHint(signature = "(item: item) -> string", documentation = "Gets the label of the base item.")
     public static RString name(RItem $this) {
         return RString.of(CustomItem.itemOf($this.javaValue()).flatMap(CustomItem::name)
                 .orElse($this.javaValue().getItemName().getString()));

@@ -6,6 +6,12 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 public class RStore extends RuntimeValue {
     private final DataStore inner;
 
+
+
+    public static String typeName() {
+        return "store";
+    }
+
     private RStore(DataStore inner) {
         this.inner = inner;
     }

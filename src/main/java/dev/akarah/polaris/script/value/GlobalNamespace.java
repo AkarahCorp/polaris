@@ -107,7 +107,7 @@ public class GlobalNamespace {
 
     @MethodTypeHint(
             signature = "(item_id: identifier) -> string",
-            documentation = "Returns the name of an item based on an ID."
+            documentation = "Returns the label of an item based on an ID."
     )
     public static RString item__named(RIdentifier id) {
         var item = CustomItem.byId(id.javaValue()).flatMap(CustomItem::name).orElse(id.javaValue().toString());
@@ -133,7 +133,7 @@ public class GlobalNamespace {
         return item;
     }
 
-    @MethodTypeHint(signature = "(slots: number, items?: list[item], name?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and name provided.")
+    @MethodTypeHint(signature = "(slots: number, items?: list[item], label?: text) -> inventory", documentation = "Creates a new inventory with 27 slots, with the items and label provided.")
     public static RInventory inventory__create(RNumber slots, RList itemList, RText name) {
         var inv = RInventory.of(new DynamicContainer(slots.intValue()), RText.of(Component.literal("Menu")));
         if(itemList != null) {
@@ -149,12 +149,12 @@ public class GlobalNamespace {
         return inv;
     }
 
-    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the temporary data store with the associated name.")
+    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the temporary data store with the associated label.")
     public static RStore store__temp(RString key) {
         return RStore.of(Database.temp().get(key.javaValue()));
     }
 
-    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the persistent data store with the associated name.")
+    @MethodTypeHint(signature = "(key: string) -> store", documentation = "Returns the persistent data store with the associated label.")
     public static RStore store__save(RString key) {
         return RStore.of(Database.save().get(key.javaValue()));
     }
@@ -193,7 +193,7 @@ public class GlobalNamespace {
         return RUuid.of(UUID.randomUUID());
     }
 
-    @MethodTypeHint(signature = "(value: any) -> string", documentation = "Gets the basic name of this type.")
+    @MethodTypeHint(signature = "(value: any) -> string", documentation = "Gets the basic label of this type.")
     public static RString type(RuntimeValue $this) {
         if($this instanceof RStatsObject statsObject) {
             return RString.of("stat_obj");

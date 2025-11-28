@@ -30,6 +30,12 @@ public class RWorld extends RuntimeValue {
         return new RWorld(value);
     }
 
+
+
+    public static String typeName() {
+        return "world";
+    }
+
     @Override
     public ServerLevel javaValue() {
         return this.inner;

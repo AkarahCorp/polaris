@@ -16,6 +16,11 @@ public class RParticle extends RuntimeValue {
         this.particleOptions = particleOptions;
     }
 
+
+    public static String typeName() {
+        return "particle";
+    }
+
     @SuppressWarnings("unchecked")
     @MethodTypeHint(signature = "(particle: particle, color: string) -> particle",
                     documentation = "Colors the particle with an [A]RGB hexadecimal string.")

@@ -38,6 +38,37 @@ public class DslActionManager {
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
     Class<?> codeClass;
 
+    public static List<String> events() {
+        return List.of(
+                "server.tick(): void",
+                "player.complete_achievement(player: entity, id: identifier): void",
+                "player.join(player: entity): void",
+                "player.quit(player: entity): void",
+                "player.custom_click_action(player: entity, id: identifier, data: dict[string, any]): void",
+                "player.right_click_block(entity: entity, position: vector): boolean",
+                "player.close_inventory(player: entity): void",
+                "player.break_block(player: entity, position: vector): boolean",
+                "player.mining_rule_activation(player: entity, position: vector, rule: identifier): boolean",
+                "player.send_chat_message(player: entity, message: string): boolean",
+                "player.fish(player: entity): void",
+                "player.hurt(entity: entity, damage: cell[number], damage_type: identifier): boolean",
+                "player.swap_hands(entity: entity): void",
+                "player.place_block(player: entity, position: vector): boolean",
+                "item.menu_click(player: entity, item: item): boolean",
+                "item.menu_click_typed(player: entity, item: item, type: string): boolean",
+                "item.get_stats(item: item, entity: nullable[entity], stats: stat_obj): void",
+                "entity.interact(player: entity, victim: entity): void",
+                "entity.take_damage.after(victim: entity, damage: cell[number]): void",
+                "entity.take_damage(victim: entity, damage: cell[number]): void",
+                "projectile.attack_entity(projectile: entity, victim: entity, damage: cell[number]): boolean",
+                "player.tick(player: entity): void",
+                "player.stat_tick(player: entity, stats: stat_obj): void",
+                "player.attack_entity(player: entity, victim: entity, damage: cell[number], type: identifier): boolean",
+                "item.left_click(player: entity, item: item): void",
+                "item.right_click(player: entity, item: item): void"
+        );
+    }
+
 
     public Map<ResourceLocation, SchemaExpression> expressions() {
         return this.dslExpressions;

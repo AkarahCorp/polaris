@@ -18,6 +18,10 @@ public class RInventory extends RuntimeValue {
         this.name = name;
     }
 
+    public static String typeName() {
+        return "inventory";
+    }
+
     public static RInventory of(Container value, RText name) {
         return new RInventory(value, name);
     }
@@ -172,12 +176,12 @@ public class RInventory extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: inventory, name: text) -> void", documentation = "Sets the name of a custom inventory.")
+    @MethodTypeHint(signature = "(this: inventory, label: text) -> void", documentation = "Sets the label of a custom inventory.")
     public static void set_name(RInventory $this, RText name) {
         $this.name = name;
     }
 
-    @MethodTypeHint(signature = "(this: inventory) -> text", documentation = "Gets the name of a custom inventory.")
+    @MethodTypeHint(signature = "(this: inventory) -> text", documentation = "Gets the label of a custom inventory.")
     public static RText name(RInventory $this) {
         return $this.name;
     }

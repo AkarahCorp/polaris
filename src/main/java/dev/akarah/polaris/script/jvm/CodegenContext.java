@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import dev.akarah.polaris.devext.DevExtensionStatics;
 import dev.akarah.polaris.script.dsl.DslActionManager;
 import dev.akarah.polaris.script.exception.MultiException;
 import dev.akarah.polaris.script.exception.ParsingException;
@@ -102,9 +103,9 @@ public class CodegenContext {
     }
 
     /**
-     * Converts a resource location to a valid method name.
+     * Converts a resource location to a valid method label.
      * @param name The resource location to convert.
-     * @return The converted method name.
+     * @return The converted method label.
      */
     public static String resourceLocationToMethodName(ResourceLocation name) {
         return name.toString().replace("minecraft:", "").replace(":", "_").replace("/", "_");
@@ -208,6 +209,9 @@ public class CodegenContext {
                                 });
                             }
                     );
+
+
+                    DevExtensionStatics.prepareDataBundle(cc);
                 }
         );
     }
@@ -243,7 +247,7 @@ public class CodegenContext {
 
     /**
      * Compiles an individual entry in the action registry into the class.
-     * @param name The name of the entry.
+     * @param name The label of the entry.
      * @param action The action code of the entry.
      * @return This.
      */
@@ -288,7 +292,7 @@ public class CodegenContext {
 
 //                            codeBuilder.localVariable(
 //                                    idx,
-//                                    parameter.name(),
+//                                    parameter.label(),
 //                                    parameter.typePattern().classDescType(),
 //                                    startLabel,
 //                                    endLabel
@@ -389,7 +393,7 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Generates a random name for a static variable.
+     * Generates a random label for a static variable.
      * @return This.
      */
     public static String randomName(String baseName) {
@@ -409,7 +413,7 @@ public class CodegenContext {
 
     /**
      * Used by {@link Expression#compile(CodegenContext)}.
-     * Loads a static of a name and type onto the stack.
+     * Loads a static of a label and type onto the stack.
      * @return This.
      */
     public CodegenContext loadStatic(String name, Class<?> type) {

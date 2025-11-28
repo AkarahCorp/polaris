@@ -120,7 +120,7 @@ public record LambdaExpression(
                 this.body,
                 Optional.empty(),
                 this.keywordSpan,
-                ResourceLocation.fromNamespaceAndPath("minecraft", this.name().replace("$", "/"))
+                ResourceLocation.fromNamespaceAndPath("lambda", this.name().replace("$", "/"))
         );
     }
 

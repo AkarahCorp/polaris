@@ -16,6 +16,7 @@ repositories {
         url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         mavenContent { snapshotsOnly() }
     }
+    mavenCentral()
 }
 
 loom {
@@ -32,6 +33,8 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
     modImplementation("com.github.luben:zstd-jni:1.5.7-4")
+    modImplementation("org.java-websocket:Java-WebSocket:1.6.0")
+    include("org.java-websocket:Java-WebSocket:1.6.0")
     include("com.github.luben:zstd-jni:1.5.7-4")
 }
 

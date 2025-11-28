@@ -3,6 +3,12 @@ package dev.akarah.polaris.script.value;
 public class  RBoolean extends RuntimeValue {
     private final boolean inner;
 
+
+
+    public static String typeName() {
+        return "boolean";
+    }
+
     private RBoolean(boolean inner) {
         this.inner = inner;
     }

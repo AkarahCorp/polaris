@@ -8,6 +8,12 @@ import dev.akarah.polaris.script.value.mc.RIdentifier;
 public class RStatsObject extends RuntimeValue {
     private final StatsObject inner;
 
+
+
+    public static String typeName() {
+        return "stat_obj";
+    }
+
     private RStatsObject(StatsObject inner) {
         this.inner = inner;
     }
@@ -36,7 +42,7 @@ public class RStatsObject extends RuntimeValue {
         return RNumber.of(object.javaValue().reconstructOldMap().getOrDefault(key.javaValue().toString(), 0.0));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, label: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
     public static void add(RStatsObject object, RText name, RIdentifier key, RNumber value) {
         object.javaValue().add(new StatsObject.SourceEntry(
                 name.javaValue(),
@@ -46,7 +52,7 @@ public class RStatsObject extends RuntimeValue {
         ));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, label: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
     public static void add_multiplier(RStatsObject object, RText name, RIdentifier key, RNumber value) {
         object.javaValue().add(new StatsObject.SourceEntry(
                 name.javaValue(),
@@ -56,7 +62,7 @@ public class RStatsObject extends RuntimeValue {
         ));
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, name: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, label: text, key: identifier, value: number) -> void", documentation = "Add a value to the stat in this stat object.")
     public static void add_percentage(RStatsObject object, RText name, RIdentifier key, RNumber value) {
         object.javaValue().add(new StatsObject.SourceEntry(
                 name.javaValue(),
@@ -82,7 +88,7 @@ public class RStatsObject extends RuntimeValue {
         object.inner.sources = sources;
     }
 
-    @MethodTypeHint(signature = "(object: stat_obj, other: stat_obj, name: text) -> void", documentation = "Adds all values in the other stat object to this tat object.")
+    @MethodTypeHint(signature = "(object: stat_obj, other: stat_obj, label: text) -> void", documentation = "Adds all values in the other stat object to this tat object.")
     public static void add_all_with_name(RStatsObject object, RStatsObject other, RText name) {
         object.javaValue().addAllUnderName(other.javaValue(), name.javaValue());
     }

@@ -70,6 +70,25 @@ public class ExpressionTypeSet {
         }
     }
 
+    public String toString() {
+        var sb = new StringBuilder();
+        sb.append(this.typeVariables.values().stream().map(Type::verboseTypeName).toList());
+        sb.append("(");
+        var idx = 0;
+        for(var parameter : this.parameters) {
+            sb.append(parameter.name());
+            sb.append(": ");
+            sb.append(parameter.typePattern().verboseTypeName());
+            idx += 1;
+            if(idx != this.parameters.size()) {
+                sb.append(", ");
+            }
+        }
+        sb.append("): ");
+        sb.append(this.returnType.verboseTypeName());
+        return sb.toString();
+    }
+
     public static class Builder {
         List<Function<ExpressionTypeSet, ParameterNode>> parameters = Lists.newArrayList();
         Function<ExpressionTypeSet, Type<?>> returnType = _ -> Type.void_();

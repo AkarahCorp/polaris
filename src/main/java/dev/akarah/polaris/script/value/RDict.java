@@ -12,6 +12,11 @@ public class RDict extends RuntimeValue {
         this.inner = inner;
     }
 
+
+    public static String typeName() {
+        return "dict";
+    }
+
     @MethodTypeHint(signature = "<K, V>() -> dict[K, V]", documentation = "Creates a new empty dictionary.")
     public static RDict create() {
         return new RDict(Maps.newHashMap());

@@ -7,6 +7,12 @@ import java.util.Optional;
 public class RNullable extends RuntimeValue {
     private RuntimeValue inner;
 
+
+
+    public static String typeName() {
+        return "nullable";
+    }
+
     private RNullable(RuntimeValue inner) {
         this.inner = inner;
     }

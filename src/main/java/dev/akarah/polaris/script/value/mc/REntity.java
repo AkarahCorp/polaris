@@ -64,6 +64,10 @@ public class REntity extends RuntimeValue {
         return new REntity(value);
     }
 
+    public static String typeName() {
+        return "entity";
+    }
+
     @Override
     public Entity javaValue() {
         return this.inner;
@@ -137,7 +141,7 @@ public class REntity extends RuntimeValue {
         }
     }
 
-    @MethodTypeHint(signature = "(this: entity) -> string", documentation = "Gets the name of the provided entity.")
+    @MethodTypeHint(signature = "(this: entity) -> string", documentation = "Gets the label of the provided entity.")
     public static RString name(REntity $this) {
         if($this.inner instanceof DynamicEntity dynamicEntity) {
             return RString.of(dynamicEntity.base().name());
@@ -148,7 +152,7 @@ public class REntity extends RuntimeValue {
         return RString.of("Unnamed");
     }
 
-    @MethodTypeHint(signature = "(this: entity, name: text) -> void", documentation = "Sets the name of the given entity.")
+    @MethodTypeHint(signature = "(this: entity, label: text) -> void", documentation = "Sets the label of the given entity.")
     public static void set_name(REntity $this, RText message) {
         $this.inner.setCustomName(message.javaValue());
     }

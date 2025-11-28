@@ -8,6 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 public class RIdentifier extends RuntimeValue {
     private final ResourceLocation inner;
 
+
+    public static String typeName() {
+        return "identifier";
+    }
+
     private RIdentifier(ResourceLocation inner) {
         this.inner = inner;
     }

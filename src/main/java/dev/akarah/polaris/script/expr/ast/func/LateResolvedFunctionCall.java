@@ -264,6 +264,6 @@ public class LateResolvedFunctionCall implements Expression {
 
     @Override
     public String toString() {
-        return "LRFC[name=" + this.functionName + ",parameters=" + this.parameters + "]";
+        return "LRFC[label=" + this.functionName + ",parameters=" + this.parameters + "]";
     }
 }

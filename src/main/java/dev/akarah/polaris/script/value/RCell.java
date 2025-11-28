@@ -5,6 +5,11 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 public class RCell extends RuntimeValue {
     private RuntimeValue inner;
 
+
+    public static String typeName() {
+        return "cell";
+    }
+
     public RCell(RuntimeValue inner) {
         this.inner = inner;
     }

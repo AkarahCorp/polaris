@@ -1,6 +1,7 @@
 package dev.akarah.polaris;
 
 import dev.akarah.polaris.commands.CommandEventHandler;
+import dev.akarah.polaris.devext.DevExtensionServer;
 import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.commands.CommandSource;
@@ -18,12 +19,27 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 
+import java.net.InetSocketAddress;
+
 public class Main implements ModInitializer {
     public static MinecraftServer SERVER;
     public static Logger LOGGER = LoggerFactory.getLogger("polaris");
 
     @Override
     public void onInitialize() {
+        Thread.ofVirtual().start(() -> {
+            var socket = new DevExtensionServer(new InetSocketAddress("localhost", 47474));
+            socket.start();
+
+            ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+                try {
+                    socket.stop();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        });
+
         RuntimeValue.dict();
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {

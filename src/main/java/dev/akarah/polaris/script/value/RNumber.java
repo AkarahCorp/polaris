@@ -9,6 +9,12 @@ import java.text.DecimalFormat;
 public class RNumber extends RuntimeValue implements Comparable<RNumber> {
     private final double inner;
 
+
+
+    public static String typeName() {
+        return "number";
+    }
+
     private RNumber(double inner) {
         this.inner = inner;
     }

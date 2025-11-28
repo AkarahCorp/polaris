@@ -22,6 +22,10 @@ public class RRegistry extends RuntimeValue {
         return new RRegistry(values);
     }
 
+    public static String typeName() {
+        return "registry";
+    }
+
     @MethodTypeHint(signature = "<T>(this: registry[T], entry: identifier) -> nullable[T]", documentation = "Gets a value from the list.")
     public static RNullable get(RRegistry $this, RIdentifier identifier) {
         try {

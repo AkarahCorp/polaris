@@ -7,6 +7,12 @@ import java.util.UUID;
 public class RUuid extends RuntimeValue {
     private final UUID inner;
 
+
+
+    public static String typeName() {
+        return "uuid";
+    }
+
     private RUuid(UUID inner) {
         this.inner = inner;
     }

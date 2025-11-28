@@ -244,14 +244,14 @@ public class Resources {
                                             "id": "{icon}"
                                         },
                                         "description": "{description}",
-                                        "title": "{name}",
+                                        "title": "{label}",
                                         "hidden": false
                                     },
                                     "parent": "{parent}"
                                 }
                                 """
                                 .replace("{description}", adv.getValue().description())
-                                .replace("{name}", adv.getValue().name())
+                                .replace("{label}", adv.getValue().name())
                                 .replace("{parent}", adv.getValue().parent().toString())
                                 .replace("{icon}", adv.getValue().icon().toString())
                 );

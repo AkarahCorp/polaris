@@ -10,7 +10,7 @@ public class MethodSorter implements Comparator<Document.MethodEntry> {
         if (orderCompare != 0) {
             return orderCompare;
         }
-        // If same order, compare by method name
+        // If same order, compare by method label
         return first.name().compareTo(second.name());
     }
 }

@@ -7,6 +7,8 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
+import dev.akarah.polaris.script.value.*;
+import dev.akarah.polaris.script.value.mc.*;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +33,8 @@ public interface Type<T> {
                 Type.list(Type.var(null, "T")),
                 Type.dict(Type.var(null, "K"), Type.var(null, "V")),
                 Type.nullable(Type.var(null, "T")),
+                new CellType(Type.var(null, "T")),
+                new RegistryType(Type.var(null, "T")),
                 Type.vector(),
                 Type.world(),
                 Type.entity(),
@@ -40,7 +44,66 @@ public interface Type<T> {
                 Type.itemStack(),
                 Type.text(),
                 Type.uuid(),
-                new CellType(Type.any())
+                Type.timestamp(),
+                Type.void_(),
+                new ParticleType(),
+                new StatsObjectType()
+        );
+    }
+
+    static List<Class<?>> allTypeClasses() {
+        return List.of(
+                AnyType.class,
+                BooleanType.class,
+                CellType.class,
+                DictionaryType.class,
+                EntityType.class,
+                FunctionType.class,
+                IdentifierType.class,
+                InventoryType.class,
+                ItemType.class,
+                ListType.class,
+                NullableType.class,
+                NumberType.class,
+                ParticleType.class,
+                RegistryType.class,
+                StatsObjectType.class,
+                StoreType.class,
+                StringType.class,
+                TextType.class,
+                TimestampType.class,
+                UuidType.class,
+                VoidType.class,
+                VectorType.class,
+                WorldType.class
+        );
+    }
+
+    static List<Class<?>> allRVClasses() {
+        return List.of(
+                RuntimeValue.class,
+                RBoolean.class,
+                RCell.class,
+                RDict.class,
+                RFunction.class,
+                RList.class,
+                RNullable.class,
+                RNumber.class,
+                RStatsObject.class,
+                RStore.class,
+                RString.class,
+                RText.class,
+                RTimestamp.class,
+                RUuid.class,
+                REntity.class,
+                RIdentifier.class,
+                RInventory.class,
+                RItem.class,
+                RParticle.class,
+                RRegistry.class,
+                RVector.class,
+                RWorld.class,
+                GlobalNamespace.class
         );
     }
 

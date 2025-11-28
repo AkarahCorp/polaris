@@ -21,6 +21,11 @@ public class RVector extends RuntimeValue {
         return new RVector(value);
     }
 
+
+    public static String typeName() {
+        return "vector";
+    }
+
     @Override
     public Vec3 javaValue() {
         return this.inner;
