@@ -69,6 +69,11 @@ public class RNumber extends RuntimeValue implements Comparable<RNumber> {
         return RNumber.of(Math.sqrt(number.doubleValue()));
     }
 
+    @MethodTypeHint(signature = "(rhs: number, lhs: number) -> number", documentation = "Returns the exponents of the two number.")
+    public static RNumber pow(RNumber lhs, RNumber rhs) {
+        return RNumber.of(Math.pow(lhs.doubleValue(), rhs.doubleValue()));
+    }
+
     @MethodTypeHint(signature = "(n: number) -> number", documentation = "Returns the cube root of this number.")
     public static RNumber cbrt(RNumber number) {
         return RNumber.of(Math.cbrt(number.doubleValue()));

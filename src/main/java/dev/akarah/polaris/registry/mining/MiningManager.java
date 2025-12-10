@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.akarah.polaris.Main;
-import dev.akarah.polaris.Scheduler;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RIdentifier;
 import dev.akarah.polaris.script.value.mc.RVector;
@@ -108,9 +108,18 @@ public class MiningManager {
 
                 if(currentTicks > targetTicks) {
                     var spread = Resources.statManager().lookup(player).get(status.appliedRule().spreadStat());
+                    var toughness = status.appliedRule().spreadToughness();
 
                     if(status.appliedRule().spreadToughness() > 0.0) {
-                        spread = Math.sqrt(spread) / (status.appliedRule().spreadToughness() / 100);
+                        double finalSpread = spread;
+                        spread = status.appliedRule().spreadToughnessFunction().map(
+                            function -> {
+                                try {
+                                    return ((RNumber) Resources.actionManager().methodHandleByLocation(function).invoke(RNumber.of(toughness), RNumber.of(finalSpread))).doubleValue();
+                                } catch (Throwable e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }).orElse( Math.sqrt(spread) / (status.appliedRule().spreadToughness() / 100));
                     }
 
                     recursiveBreaking(player, status.appliedRule(), spread, status.target(), (int) targetTicks);

@@ -18,6 +18,7 @@ public record MiningRule(
         Map<String, String> stateRequirements,
         Pair<BlockPos, BlockPos> area,
         double toughness,
+        Optional<ResourceLocation> spreadToughnessFunction,
         ResourceLocation speedStat,
         ResourceLocation spreadStat,
         Optional<LootTable> lootTable,
@@ -52,6 +53,7 @@ public record MiningRule(
                     .optionalFieldOf("area", Pair.of(new BlockPos(-30000000, -30000000, -30000000), new BlockPos(30000000, 30000000, 30000000)))
                     .forGetter(MiningRule::area),
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),
+            ResourceLocation.CODEC.optionalFieldOf("spread_toughness_function").forGetter(MiningRule::spreadToughnessFunction),
             ResourceLocation.CODEC.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
             ResourceLocation.CODEC.optionalFieldOf("spread_stat", ResourceLocation.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
