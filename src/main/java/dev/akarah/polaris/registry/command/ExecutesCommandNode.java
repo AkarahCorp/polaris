@@ -8,11 +8,11 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.*;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record ExecutesCommandNode(ResourceLocation action) implements CommandBuilderNode {
+public record ExecutesCommandNode(Identifier action) implements CommandBuilderNode {
     public static MapCodec<ExecutesCommandNode> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("action").forGetter(ExecutesCommandNode::action)
+            Identifier.CODEC.fieldOf("action").forGetter(ExecutesCommandNode::action)
     ).apply(instance, ExecutesCommandNode::new));
 
     @Override

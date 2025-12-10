@@ -9,7 +9,7 @@ import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.loot.LootTable;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import net.fabricmc.fabric.api.entity.FakePlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.component.CustomData;
@@ -25,7 +25,7 @@ public record CustomEntity(
         Optional<StatsObject> stats,
         Optional<List<PrioritizedTask>> behaviorGoals,
         Optional<List<PrioritizedTask>> targetGoals,
-        Map<EquipmentSlot, ResourceLocation> equipment,
+        Map<EquipmentSlot, Identifier> equipment,
         boolean invulnerable,
         Optional<ResolvableProfile> profile,
         Optional<LootTable> lootTable,
@@ -39,14 +39,14 @@ public record CustomEntity(
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomEntity::stats),
             PrioritizedTask.CODEC.listOf().optionalFieldOf("behavior_goals").forGetter(CustomEntity::behaviorGoals),
             PrioritizedTask.CODEC.listOf().optionalFieldOf("target_goals").forGetter(CustomEntity::targetGoals),
-            Codec.unboundedMap(EquipmentSlot.CODEC, ResourceLocation.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
+            Codec.unboundedMap(EquipmentSlot.CODEC, Identifier.CODEC).optionalFieldOf("equipment", Map.of()).forGetter(CustomEntity::equipment),
             Codec.BOOL.optionalFieldOf("invulnerable", false).forGetter(CustomEntity::invulnerable),
             ResolvableProfile.CODEC.optionalFieldOf("profile").forGetter(CustomEntity::profile),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(CustomEntity::lootTable),
             CustomData.CODEC.optionalFieldOf("custom_data", CustomData.EMPTY).forGetter(CustomEntity::customData)
     ).apply(instance, CustomEntity::new)));
 
-    public ResourceLocation id() {
+    public Identifier id() {
         return Resources.customEntity()
                 .registry()
                 .getKey(this);

@@ -7,7 +7,7 @@ import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class ReloadableJsonManager<T> {
         return CompletableFuture
                 .runAsync(
                         () -> {
-                            this.registry = new MappedRegistry<>(ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("polaris", this.registryName)), Lifecycle.stable());
+                            this.registry = new MappedRegistry<>(ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("polaris", this.registryName)), Lifecycle.stable());
                             for(var resourceEntry : resourceManager.listResources(registryName, rl -> rl.getPath().endsWith(".json")).entrySet()) {
                                 try(var inputStream = resourceEntry.getValue().open()) {
                                     var bytes = inputStream.readAllBytes();

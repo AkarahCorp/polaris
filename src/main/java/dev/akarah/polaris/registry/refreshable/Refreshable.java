@@ -7,7 +7,7 @@ import dev.akarah.polaris.Main;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -15,14 +15,14 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.util.List;
 
 public record Refreshable(
-        ResourceLocation world,
-        List<ResourceLocation> structures,
+        Identifier world,
+        List<Identifier> structures,
         List<BlockPos> positions,
         int frequency
 ) {
     public static Codec<Refreshable> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("world").forGetter(Refreshable::world),
-            ResourceLocation.CODEC.listOf().fieldOf("structures").forGetter(Refreshable::structures),
+            Identifier.CODEC.fieldOf("world").forGetter(Refreshable::world),
+            Identifier.CODEC.listOf().fieldOf("structures").forGetter(Refreshable::structures),
             BlockPos.CODEC.listOf().fieldOf("positions").forGetter(Refreshable::positions),
             Codec.INT.fieldOf("frequency").forGetter(Refreshable::frequency)
     ).apply(instance, Refreshable::new)));

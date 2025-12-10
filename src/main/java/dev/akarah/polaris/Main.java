@@ -7,6 +7,7 @@ import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.ReloadableServerRegistries;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.phys.Vec2;
@@ -54,7 +55,7 @@ public class Main implements ModInitializer {
                             Vec3.ZERO,
                             Vec2.ZERO,
                             server.overworld(),
-                            4,
+                            PermissionSet.ALL_PERMISSIONS,
                             "console",
                             Component.literal("console"),
                             server,

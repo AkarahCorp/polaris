@@ -82,7 +82,7 @@ public class RWorld extends RuntimeValue {
     public static RIdentifier block_at(RWorld world, RVector vector) {
         return RIdentifier.of(
                 world.javaValue().getBlockState(vector.asBlockPos())
-                        .getBlock().builtInRegistryHolder().key().location()
+                        .getBlock().builtInRegistryHolder().key().identifier()
         );
     }
 
@@ -220,6 +220,6 @@ public class RWorld extends RuntimeValue {
 
     @MethodTypeHint(signature = "(world: world, pos: vector) -> identifier", documentation = "Gets the ID of the biome at the given position.")
     public static RIdentifier biome_at(RWorld world, RVector vector) {
-        return RIdentifier.of(world.javaValue().getBiome(vector.asBlockPos()).unwrapKey().orElseThrow().location());
+        return RIdentifier.of(world.javaValue().getBiome(vector.asBlockPos()).unwrapKey().orElseThrow().identifier());
     }
 }

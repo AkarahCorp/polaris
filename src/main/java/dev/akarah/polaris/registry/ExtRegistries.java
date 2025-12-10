@@ -8,15 +8,15 @@ import dev.akarah.polaris.registry.command.CommandBuilderNode;
 import dev.akarah.polaris.registry.entity.behavior.TaskType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ExtRegistries {
     public static ResourceKey<Registry<MapCodec<? extends TaskType>>> BEHAVIOR_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "behavior/type"));
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("engine", "behavior/type"));
     public static ResourceKey<Registry<MapCodec<? extends CommandBuilderNode>>> COMMAND_NODE_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "command/node_type"));
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("engine", "command/node_type"));
     public static ResourceKey<Registry<ArgumentType<?>>> ARGUMENT_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "command/argument_type"));
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("engine", "command/argument_type"));
     public static ResourceKey<Registry<Codec<CriteriaObject>>> CRITERIA_TYPE =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("engine", "achievement/criteria/type"));
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("engine", "achievement/criteria/type"));
 }

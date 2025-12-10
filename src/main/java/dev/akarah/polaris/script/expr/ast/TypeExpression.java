@@ -5,10 +5,10 @@ import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.StructType;
 import dev.akarah.polaris.script.type.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record TypeExpression(
-        ResourceLocation name,
+        Identifier name,
         StructType alias,
         SpanData span
 ) implements Expression {

@@ -4,14 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class StatsObject {
     public static Codec<StatsObject> CODEC = Codec
-            .unboundedMap(ResourceLocation.CODEC, Codec.DOUBLE)
+            .unboundedMap(Identifier.CODEC, Codec.DOUBLE)
             .xmap(StatsObject::new, _ -> {
                 throw new RuntimeException("Encoding statsobjects not supported.. sorry :(");
             });
@@ -28,7 +28,7 @@ public class StatsObject {
 
     public record SourceEntry(
             @NotNull Component title,
-            @NotNull ResourceLocation stat,
+            @NotNull Identifier stat,
             @NotNull SourceOperation operation,
             double value
     ) {
@@ -70,11 +70,11 @@ public class StatsObject {
     public StatsObject performFinalCalculations() {
         var result = StatsObject.of();
 
-        var addMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
-        var percMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
-        var multMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
-        var minMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
-        var maxMap = Maps.<@NotNull ResourceLocation, @NotNull Double>newHashMap();
+        var addMap = Maps.<@NotNull Identifier, @NotNull Double>newHashMap();
+        var percMap = Maps.<@NotNull Identifier, @NotNull Double>newHashMap();
+        var multMap = Maps.<@NotNull Identifier, @NotNull Double>newHashMap();
+        var minMap = Maps.<@NotNull Identifier, @NotNull Double>newHashMap();
+        var maxMap = Maps.<@NotNull Identifier, @NotNull Double>newHashMap();
 
         for (var source : this.sources) {
             var stat = source.stat();
@@ -127,9 +127,9 @@ public class StatsObject {
         return map;
     }
 
-    public @NotNull Map<@NotNull ResourceLocation, @NotNull Double> values() {
+    public @NotNull Map<@NotNull Identifier, @NotNull Double> values() {
         this.sortEntries();
-        var map = Maps.<@NotNull ResourceLocation, @NotNull Double>newConcurrentMap();
+        var map = Maps.<@NotNull Identifier, @NotNull Double>newConcurrentMap();
         for(var source : this.performFinalCalculations().sources) {
             switch (source.operation) {
                 case SourceOperation.ADD -> map.compute(source.stat, (_, value) ->
@@ -163,12 +163,12 @@ public class StatsObject {
         this.sources = map;
     }
 
-    private StatsObject(Map<ResourceLocation, Double> map) {
+    private StatsObject(Map<Identifier, Double> map) {
         for(var entry : map.entrySet()) {
             var rawKey = entry.getKey().toString().replace("/percent", "").replace("/multiply", "");
             this.sources.add(new SourceEntry(
                     Component.empty(),
-                    ResourceLocation.parse(rawKey),
+                    Identifier.parse(rawKey),
                     entry.getKey().toString().endsWith("/percent") ? SourceOperation.PERCENTAGE
                     : entry.getKey().toString().endsWith("/multiply") ? SourceOperation.MULTIPLY
                     : entry.getKey().toString().endsWith("/min") ? SourceOperation.MINIMUM
@@ -183,11 +183,11 @@ public class StatsObject {
         return new StatsObject();
     }
 
-    public boolean has(ResourceLocation id) {
+    public boolean has(Identifier id) {
         return this.values().containsKey(id);
     }
 
-    public double get(ResourceLocation id) {
+    public double get(Identifier id) {
         return this.values().getOrDefault(id, 0.0);
     }
 

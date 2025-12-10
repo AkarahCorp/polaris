@@ -13,7 +13,7 @@ import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
@@ -23,15 +23,15 @@ import java.util.Map;
 
 
 public sealed interface CriteriaObject {
-    ResourceLocation name();
+    Identifier name();
     boolean evaluate(ServerPlayer player);
 
     record AllOf(List<CriteriaObject> criteria) implements CriteriaObject {
         public static Codec<AllOf> CODEC = CriteriaObject.CODEC.listOf().xmap(AllOf::new, AllOf::criteria);
 
         @Override
-        public ResourceLocation name() {
-            return ResourceLocation.fromNamespaceAndPath("polaris", "all_of");
+        public Identifier name() {
+            return Identifier.fromNamespaceAndPath("polaris", "all_of");
         }
 
         @Override
@@ -49,8 +49,8 @@ public sealed interface CriteriaObject {
         public static Codec<AnyOf> CODEC = CriteriaObject.CODEC.listOf().xmap(AnyOf::new, AnyOf::criteria);
 
         @Override
-        public ResourceLocation name() {
-            return ResourceLocation.fromNamespaceAndPath("polaris", "any_of");
+        public Identifier name() {
+            return Identifier.fromNamespaceAndPath("polaris", "any_of");
         }
 
         @Override
@@ -64,21 +64,21 @@ public sealed interface CriteriaObject {
         }
     }
 
-    record HasItem(ResourceLocation id, int min) implements CriteriaObject {
+    record HasItem(Identifier id, int min) implements CriteriaObject {
         public static Codec<HasItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("id").forGetter(HasItem::id),
+                Identifier.CODEC.fieldOf("id").forGetter(HasItem::id),
                 Codec.INT.optionalFieldOf("min", 1).forGetter(HasItem::min)
         ).apply(instance, HasItem::new));
 
         @Override
-        public ResourceLocation name() {
-            return ResourceLocation.fromNamespaceAndPath("polaris", "has_item");
+        public Identifier name() {
+            return Identifier.fromNamespaceAndPath("polaris", "has_item");
         }
 
         @Override
         public boolean evaluate(ServerPlayer player) {
             for(var item : player.getInventory()) {
-                if(CustomItem.itemIdOf(item).orElse(item.getItemHolder().unwrapKey().orElseThrow().location()).equals(this.id)) {
+                if(CustomItem.itemIdOf(item).orElse(item.getItemHolder().unwrapKey().orElseThrow().identifier()).equals(this.id)) {
                     return true;
                 }
             }
@@ -86,14 +86,14 @@ public sealed interface CriteriaObject {
         }
     }
 
-    record Dynamic(ResourceLocation name, Map<RuntimeValue, RuntimeValue> fields) implements CriteriaObject {
+    record Dynamic(Identifier name, Map<RuntimeValue, RuntimeValue> fields) implements CriteriaObject {
         public static Codec<? extends CriteriaObject> UNNAMED_CODEC =
             Codec
                     .unboundedMap(RuntimeValue.CODEC, RuntimeValue.CODEC)
-                    .xmap(map -> new Dynamic(ResourceLocation.fromNamespaceAndPath("", ""), map), Dynamic::fields);
+                    .xmap(map -> new Dynamic(Identifier.fromNamespaceAndPath("", ""), map), Dynamic::fields);
 
         @Override
-        public ResourceLocation name() {
+        public Identifier name() {
             return this.name;
         }
 
@@ -116,7 +116,7 @@ public sealed interface CriteriaObject {
     @SuppressWarnings("unchecked")
     public static Codec<CriteriaObject> CODEC =
             Codec.dispatchedMap(
-                ResourceLocation.CODEC,
+                Identifier.CODEC,
                 id -> ExtBuiltInRegistries.CRITERIA_TYPE.get(id).map(Holder.Reference::value).orElse((Codec<CriteriaObject>) Dynamic.UNNAMED_CODEC)
             )
                     .xmap(
@@ -132,7 +132,7 @@ public sealed interface CriteriaObject {
                                 return list;
                             },
                             list -> {
-                                var map = new HashMap<ResourceLocation, CriteriaObject>();
+                                var map = new HashMap<Identifier, CriteriaObject>();
                                 for(var entry : list) {
                                     map.put(entry.name(), entry);
                                 }
@@ -146,22 +146,22 @@ public sealed interface CriteriaObject {
     static Object bootStrapCriteriaTypes(Registry<Codec<CriteriaObject>> registry) {
         Registry.register(
                 registry,
-                ResourceLocation.fromNamespaceAndPath("polaris", "all_of"),
+                Identifier.fromNamespaceAndPath("polaris", "all_of"),
                 (Codec) AllOf.CODEC
         );
         Registry.register(
                 registry,
-                ResourceLocation.fromNamespaceAndPath("polaris", "any_of"),
+                Identifier.fromNamespaceAndPath("polaris", "any_of"),
                 (Codec) AnyOf.CODEC
         );
         Registry.register(
                 registry,
-                ResourceLocation.fromNamespaceAndPath("polaris", "has_item"),
+                Identifier.fromNamespaceAndPath("polaris", "has_item"),
                 (Codec) HasItem.CODEC
         );
         Registry.register(
                 registry,
-                ResourceLocation.fromNamespaceAndPath("polaris", "dynamic"),
+                Identifier.fromNamespaceAndPath("polaris", "dynamic"),
                 (Codec) Dynamic.UNNAMED_CODEC
         );
         return Dynamic.UNNAMED_CODEC;

@@ -3,13 +3,13 @@ package dev.akarah.polaris.script.type;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RStruct;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.constant.ClassDesc;
 import java.util.List;
 
-public record StructType(ResourceLocation name, List<Field> fields) implements Type<RStruct> {
+public record StructType(Identifier name, List<Field> fields) implements Type<RStruct> {
     public record Field(
             String name,
             Type<?> type,

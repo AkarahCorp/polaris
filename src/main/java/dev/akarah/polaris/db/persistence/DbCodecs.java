@@ -72,14 +72,14 @@ public class DbCodecs {
                                     buf.writeVarInt(13);
                                     ByteBufCodecs.COMPOUND_TAG.encode(buf, cd.copyTag());
                                 }
-                                buf.writeResourceLocation(customItem.id());
+                                buf.writeIdentifier(customItem.id());
                                 buf.writeVarInt(item.javaValue().getCount());
                             },
                             () -> buf.writeVarInt(9)
                     );
                     case RIdentifier identifier -> {
                         buf.writeVarInt(10);
-                        buf.writeResourceLocation(identifier.javaValue());
+                        buf.writeIdentifier(identifier.javaValue());
                     }
                     case RBoolean rBoolean -> {
                         if(rBoolean.javaValue()) {
@@ -138,7 +138,7 @@ public class DbCodecs {
                         return RUuid.of(UUIDUtil.STREAM_CODEC.decode(buf));
                     }
                     case 8 -> {
-                        var itemId = buf.readResourceLocation();
+                        var itemId = buf.readIdentifier();
                         var itemSize = buf.readVarInt();
                         return RItem.of(Resources.customItem().registry().get(itemId)
                                 .map(x -> x.value().toMinimalItemStack(CustomData.EMPTY, itemSize))
@@ -148,7 +148,7 @@ public class DbCodecs {
                         return RItem.of(ItemStack.EMPTY);
                     }
                     case 10 -> {
-                        return RIdentifier.of(buf.readResourceLocation());
+                        return RIdentifier.of(buf.readIdentifier());
                     }
                     case 11 -> {
                         return RBoolean.of(true);
@@ -158,7 +158,7 @@ public class DbCodecs {
                     }
                     case 13 -> {
                         var customData = ByteBufCodecs.COMPOUND_TAG.decode(buf);
-                        var itemId = buf.readResourceLocation();
+                        var itemId = buf.readIdentifier();
                         var itemSize = buf.readVarInt();
                         return RItem.of(Resources.customItem().registry().get(itemId)
                                 .map(x -> x.value().toMinimalItemStack(CustomData.of(customData), 1).copyWithCount(itemSize))

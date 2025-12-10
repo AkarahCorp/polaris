@@ -17,7 +17,7 @@ import dev.akarah.polaris.script.type.StructType;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.type.VoidType;
 import dev.akarah.polaris.script.value.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.lang.constant.MethodTypeDesc;
 import java.lang.reflect.Method;
@@ -82,7 +82,7 @@ public class LateResolvedFunctionCall implements Expression {
         if(this.parameters.isEmpty()) {
             return Optional.empty();
         }
-        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(ResourceLocation name, List<StructType.Field> fields))) {
+        if(!(ctx.getTypeOf(this.parameters.getFirst()).flatten() instanceof StructType(Identifier name, List<StructType.Field> fields))) {
             return Optional.empty();
         }
         for(var field : fields) {
@@ -169,7 +169,7 @@ public class LateResolvedFunctionCall implements Expression {
             typeSet = TYPE_SET_CACHE.get(signature);
         } else {
             typeSet = DslParser.parseExpressionTypeSet(
-                    DslTokenizer.tokenize(ResourceLocation.fromNamespaceAndPath("minecraft", "method_type_hint"), signature)
+                    DslTokenizer.tokenize(Identifier.fromNamespaceAndPath("minecraft", "method_type_hint"), signature)
                             .getOrThrow(),
                     method.getName()
             );
@@ -210,10 +210,10 @@ public class LateResolvedFunctionCall implements Expression {
 
     public Optional<Expression> resolveFromUserCode(CodegenContext ctx) {
         var functionName = filterNameToMethodName(this.functionName);
-        var functionSchema = Resources.actionManager().expressions().get(ResourceLocation.parse(functionName));
+        var functionSchema = Resources.actionManager().expressions().get(Identifier.parse(functionName));
         if(functionSchema == null) {
             functionName = filterNameToMethodName(this.alternateWithNormalTypeName(ctx));
-            functionSchema = Resources.actionManager().expressions().get(ResourceLocation.parse(functionName));
+            functionSchema = Resources.actionManager().expressions().get(Identifier.parse(functionName));
         }
 
         if(functionSchema != null) {
@@ -229,7 +229,7 @@ public class LateResolvedFunctionCall implements Expression {
             }
 
             return Optional.of(new UserFunctionAction(
-                    ResourceLocation.parse(functionName),
+                    Identifier.parse(functionName),
                     MethodTypeDesc.of(
                             CodegenUtil.ofClass(rt.flatten() instanceof VoidType ? void.class : RuntimeValue.class),
                             typeSet.parameters().stream()

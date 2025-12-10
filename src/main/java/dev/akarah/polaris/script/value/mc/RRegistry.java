@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;

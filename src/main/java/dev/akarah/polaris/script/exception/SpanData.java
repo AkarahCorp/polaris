@@ -1,10 +1,10 @@
 package dev.akarah.polaris.script.exception;
 
 import com.mojang.brigadier.StringReader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
-public record SpanData(int cursorStart, int cursorEnd, String originalString, ResourceLocation fileName) {
+public record SpanData(int cursorStart, int cursorEnd, String originalString, Identifier fileName) {
     @Override
     public String toString() {
         return this.fileName + " at " + cursorStart + ".." + cursorEnd;

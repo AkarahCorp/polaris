@@ -1,6 +1,6 @@
 package dev.akarah.polaris.script.exception;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,7 +11,7 @@ public class MultiException extends SpannedException {
     List<SpannedException> exceptions;
 
     public MultiException(List<SpannedException> exceptions) {
-        super("", new SpanData(0, 0, "?", ResourceLocation.withDefaultNamespace("error")));
+        super("", new SpanData(0, 0, "?", Identifier.withDefaultNamespace("error")));
         this.exceptions = exceptions;
         this.span = SpanData.merge(this.exceptions.getFirst().span, this.exceptions.getLast().span);
         this.exceptions = exceptions;

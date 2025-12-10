@@ -17,7 +17,7 @@ import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.type.VoidType;
 import dev.akarah.polaris.script.value.RNumber;
 import dev.akarah.polaris.script.value.RuntimeValue;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.xml.validation.Schema;
 import java.io.IOException;
@@ -47,10 +47,10 @@ public class CodegenContext {
     MethodBuilder methodBuilder;
     CodeBuilder codeBuilder;
     Map<String, Class<?>> staticClasses = Maps.newHashMap();
-    public Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
+    public Map<Identifier, StructType> userTypes = Maps.newHashMap();
     public Map<String, Object> staticValues = Maps.newHashMap();
     public Map<String, SchemaExpression> actions = Maps.newHashMap();
-    public List<Pair<ResourceLocation, SchemaExpression>> schemas = Lists.newArrayList();
+    public List<Pair<Identifier, SchemaExpression>> schemas = Lists.newArrayList();
 
     List<StackFrame> stackFrames = Lists.newArrayList();
 
@@ -81,7 +81,7 @@ public class CodegenContext {
      * @param refs The list of expressions to compile.
      * @return The created class.
      */
-    public static Class<?> initializeCompilation(List<Pair<ResourceLocation, SchemaExpression>> refs, Map<ResourceLocation, StructType> userTypes) {
+    public static Class<?> initializeCompilation(List<Pair<Identifier, SchemaExpression>> refs, Map<Identifier, StructType> userTypes) {
         var bytes = CodegenContext.compileClassBytecode(refs, userTypes);
         try {
             Files.createDirectories(Path.of("./build/"));
@@ -107,7 +107,7 @@ public class CodegenContext {
      * @param name The resource location to convert.
      * @return The converted method label.
      */
-    public static String resourceLocationToMethodName(ResourceLocation name) {
+    public static String IdentifierToMethodName(Identifier name) {
         return name.toString().replace("minecraft:", "").replace(":", "_").replace("/", "_");
     }
 
@@ -116,7 +116,7 @@ public class CodegenContext {
      * @param refs The references to include in the transformation.
      * @return The raw bytes of the new class created.
      */
-    private static byte[] compileClassBytecode(List<Pair<ResourceLocation, SchemaExpression>> refs, Map<ResourceLocation, StructType> userTypes) {
+    private static byte[] compileClassBytecode(List<Pair<Identifier, SchemaExpression>> refs, Map<Identifier, StructType> userTypes) {
         var classFile = ClassFile.of();
 
         classFile = classFile.withOptions(
@@ -138,7 +138,7 @@ public class CodegenContext {
 
                     refs.forEach(entry -> {
                         try {
-                            cc.compileAction(CodegenContext.resourceLocationToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
+                            cc.compileAction(CodegenContext.IdentifierToMethodName(entry.getFirst()), entry.getSecond(), -1, Lists.newArrayList());
                         } catch (SpannedException e) {
                             panicking.add(e);
                         }

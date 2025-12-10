@@ -7,7 +7,7 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -26,28 +26,28 @@ public record LootTable(
         IntProvider weightRolls
 ) {
     record GuaranteedEntry(
-            ResourceLocation item,
+            Identifier item,
             IntProvider amount,
-            Optional<ResourceLocation> fortuneStat
+            Optional<Identifier> fortuneStat
     ) {
         public static Codec<GuaranteedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("item").forGetter(GuaranteedEntry::item),
+                Identifier.CODEC.fieldOf("item").forGetter(GuaranteedEntry::item),
                 IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(GuaranteedEntry::amount),
-                ResourceLocation.CODEC.optionalFieldOf("fortune_stat").forGetter(GuaranteedEntry::fortuneStat)
+                Identifier.CODEC.optionalFieldOf("fortune_stat").forGetter(GuaranteedEntry::fortuneStat)
         ).apply(instance, GuaranteedEntry::new));
     }
 
     public record WeightedEntry(
             int weight,
-            ResourceLocation item,
+            Identifier item,
             IntProvider amount,
-            Optional<ResourceLocation> fortuneStat
+            Optional<Identifier> fortuneStat
     ) {
         public static Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("weight").forGetter(WeightedEntry::weight),
-                ResourceLocation.CODEC.fieldOf("item").forGetter(WeightedEntry::item),
+                Identifier.CODEC.fieldOf("item").forGetter(WeightedEntry::item),
                 IntProvider.POSITIVE_CODEC.fieldOf("amount").forGetter(WeightedEntry::amount),
-                ResourceLocation.CODEC.optionalFieldOf("fortune_stat").forGetter(WeightedEntry::fortuneStat)
+                Identifier.CODEC.optionalFieldOf("fortune_stat").forGetter(WeightedEntry::fortuneStat)
         ).apply(instance, WeightedEntry::new));
     }
 
@@ -97,11 +97,11 @@ public record LootTable(
         return entities;
     }
 
-    private void handleRule(ServerLevel level, Vec3 position, ServerPlayer player, ArrayList<ItemEntity> entities, RandomSource rs, ResourceLocation item, Optional<ResourceLocation> resourceLocation, IntProvider amount, WeightedEntry entry) {
+    private void handleRule(ServerLevel level, Vec3 position, ServerPlayer player, ArrayList<ItemEntity> entities, RandomSource rs, Identifier item, Optional<Identifier> Identifier, IntProvider amount, WeightedEntry entry) {
         Resources.customItem().registry().get(item).ifPresent(customItem -> {
             var times = 1;
             if(player != null) {
-                double stat = resourceLocation.map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
+                double stat = Identifier.map(x -> Resources.statManager().lookup(player).get(x)).orElse(0.0);
 
                 times += (int) (Math.floor(stat) + ((Math.random() <= (stat - Math.floor(stat)) ? 1 : 0)));
             }

@@ -9,7 +9,7 @@ import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import dev.akarah.polaris.script.type.Type;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -37,7 +37,7 @@ public interface Expression {
 
     // default SpanData span() {
     //    System.out.println("[Internal Warning, please report this if you see this!] " + this + " has no span data.");
-    //    return new SpanData(0, 0, "unknown", ResourceLocation.withDefaultNamespace("error/unspanned"));
+    //    return new SpanData(0, 0, "unknown", Identifier.withDefaultNamespace("error/unspanned"));
     // }
 
     default boolean validateReturnOnAllBranches(CodegenContext ctx, Type<?> type) {
@@ -82,7 +82,7 @@ public interface Expression {
                 var lookup = MethodHandles.privateLookupIn(classReference.value(), MethodHandles.lookup());
                 lookup.findStatic(classReference.value(), "parameters", MethodType.methodType(ExpressionTypeSet.class));
             } catch (NoSuchMethodException | IllegalAccessException e) {
-                failures.add(classReference.key().location());
+                failures.add(classReference.key().identifier());
             }
         });
         if(!failures.isEmpty()) {

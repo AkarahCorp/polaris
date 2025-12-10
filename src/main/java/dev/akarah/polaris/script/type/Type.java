@@ -9,7 +9,7 @@ import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.params.ExpressionTypeSet;
 import dev.akarah.polaris.script.value.*;
 import dev.akarah.polaris.script.value.mc.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.classfile.TypeKind;
@@ -111,7 +111,7 @@ public interface Type<T> {
         if(this instanceof SpannedType<?> spannedType) {
             return spannedType.type().flatten();
         }
-        if(this instanceof UnresolvedUserType(Map<ResourceLocation, StructType> userTypes, ResourceLocation name, SpanData spanData)) {
+        if(this instanceof UnresolvedUserType(Map<Identifier, StructType> userTypes, Identifier name, SpanData spanData)) {
             try {
                 return userTypes.get(name).flatten();
             } catch (Exception e) {
@@ -319,7 +319,7 @@ public interface Type<T> {
         return new FunctionType(returnType, parameters);
     }
 
-    static StructType struct(ResourceLocation name, List<StructType.Field> fields) {
+    static StructType struct(Identifier name, List<StructType.Field> fields) {
         return new StructType(name, fields);
     }
 

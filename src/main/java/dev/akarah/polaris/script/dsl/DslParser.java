@@ -28,15 +28,15 @@ import java.util.function.Function;
 import dev.akarah.polaris.script.expr.ast.func.JvmFunctionAction;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RBoolean;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.enchantment.effects.AllOf;
 
 public class DslParser {
     List<DslToken> tokens;
-    Map<ResourceLocation, StructType> userTypes = Maps.newHashMap();
+    Map<Identifier, StructType> userTypes = Maps.newHashMap();
     int index;
 
-    public static List<Expression> parseTopLevelExpression(List<DslToken> tokens, Map<ResourceLocation, StructType> userTypes) {
+    public static List<Expression> parseTopLevelExpression(List<DslToken> tokens, Map<Identifier, StructType> userTypes) {
         var parser = new DslParser();
         parser.tokens = tokens;
         parser.userTypes = userTypes;
@@ -61,7 +61,7 @@ public class DslParser {
             var name = expect(DslToken.NamespacedIdentifierExpr.class);
             index -= 2;
             var outputType = (StructType) parseType().flatten();
-            return new TypeExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), outputType, tok.span());
+            return new TypeExpression(Identifier.fromNamespaceAndPath(name.namespace(), name.path()), outputType, tok.span());
         }
         if(peek() instanceof DslToken.EventKeyword) {
             return parseEvent(annotations);
@@ -97,7 +97,7 @@ public class DslParser {
     public SchemaExpression parseFunction(List<Annotation> annotations) {
         var kw = expect(DslToken.FunctionKeyword.class);
         var name = expect(DslToken.NamespacedIdentifierExpr.class);
-        var location = ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path());
+        var location = Identifier.fromNamespaceAndPath(name.namespace(), name.path());
         var typeSet = parseTypeSet("user_func");
         var body = parseBlock();
         return new SchemaExpression(annotations, typeSet, body, Optional.empty(), kw.span(), location);
@@ -116,7 +116,7 @@ public class DslParser {
         var eventName = expect(DslToken.Identifier.class);
         var typeSet = parseTypeSet(eventName.identifier());
         var body = parseBlock();
-        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), ResourceLocation.withDefaultNamespace(
+        return new SchemaExpression(annotations, typeSet, body, Optional.of(eventName.identifier()), kw.span(), Identifier.withDefaultNamespace(
                 eventName.identifier().replace("-", "_").replace(".", "_")
                         + "__"
                         + kw.span().fileName().toString().replace(":", "_").replace(".", "_").replace("/", "_")
@@ -178,7 +178,7 @@ public class DslParser {
                 expect(DslToken.CloseBrace.class);
                 return new SpannedType<>(
                         Type.struct(
-                                ResourceLocation.fromNamespaceAndPath(
+                                Identifier.fromNamespaceAndPath(
                                         name2.namespace(),
                                         name2.path()
                                 ),
@@ -192,7 +192,7 @@ public class DslParser {
                 yield _ -> new SpannedType<>(
                         new UnresolvedUserType(
                                 this.userTypes,
-                                ResourceLocation.fromNamespaceAndPath(
+                                Identifier.fromNamespaceAndPath(
                                         namespacedIdentifierExpr.namespace(),
                                         namespacedIdentifierExpr.path()
                                 ),
@@ -675,7 +675,7 @@ public class DslParser {
         return switch (tok) {
             case DslToken.RefKeyword _ -> {
                 var id = expect(DslToken.NamespacedIdentifierExpr.class);
-                yield new FunctionRefExpression(ResourceLocation.fromNamespaceAndPath(id.namespace(), id.path()), id.span());
+                yield new FunctionRefExpression(Identifier.fromNamespaceAndPath(id.namespace(), id.path()), id.span());
             }
             case DslToken.FunctionKeyword _ -> {
                 this.index -= 1;
@@ -696,7 +696,7 @@ public class DslParser {
                 }
                 var closeBrace = expect(DslToken.CloseBrace.class);
 
-                yield new InlineStructExpression(ResourceLocation.fromNamespaceAndPath(name.namespace(), name.path()), map, SpanData.merge(openBrace.span(), closeBrace.span()));
+                yield new InlineStructExpression(Identifier.fromNamespaceAndPath(name.namespace(), name.path()), map, SpanData.merge(openBrace.span(), closeBrace.span()));
             }
             case DslToken.NumberExpr numberExpr -> new NumberExpression(numberExpr.value(), numberExpr.span());
             case DslToken.StringExpr stringExpr -> new StringExpression(stringExpr.value(), stringExpr.span());

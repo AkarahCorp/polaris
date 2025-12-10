@@ -5,14 +5,14 @@ import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import dev.akarah.polaris.script.type.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 public record UserFunctionAction(
-        ResourceLocation name,
+        Identifier name,
         MethodTypeDesc methodTypeDesc,
         List<Expression> parameters,
         SpanData span
@@ -31,7 +31,7 @@ public record UserFunctionAction(
         }
         ctx.invokeStatic(
                 CodegenContext.ACTION_CLASS_DESC,
-                CodegenContext.resourceLocationToMethodName(name),
+                CodegenContext.IdentifierToMethodName(name),
                 methodTypeDesc
         );
     }

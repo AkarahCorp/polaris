@@ -1,28 +1,28 @@
 package dev.akarah.polaris.io;
 
 import dev.akarah.polaris.Main;
-import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.jvm.CodegenContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.animal.Cod;
 
 public class ExceptionPrinter {
     public static void writeExceptionToOps(Throwable t) {
         for(var player : Main.server().getPlayerList().getPlayers()) {
-            if(player.hasPermissions(2)) {
+            if(player.permissions().hasPermission(Permissions.COMMANDS_ADMIN)) {
                 writeException(player, t, null);
             }
         }
     }
 
-    public static void writeExceptionToOps(Throwable t, ResourceLocation file) {
+    public static void writeExceptionToOps(Throwable t, Identifier file) {
         t.printStackTrace();
         for(var player : Main.server().getPlayerList().getPlayers()) {
-            if(player.hasPermissions(2)) {
+            if(player.permissions().hasPermission(Permissions.COMMANDS_ADMIN)) {
                 writeException(player, t, file);
             }
         }
@@ -32,7 +32,7 @@ public class ExceptionPrinter {
         writeException(player, t, null);
     }
 
-    public static void writeException(ServerPlayer player, Throwable t, ResourceLocation file) {
+    public static void writeException(ServerPlayer player, Throwable t, Identifier file) {
         player.sendSystemMessage(
                 Component.literal("AN ERROR HAS OCCURRED!")
                         .setStyle(Style.EMPTY.withBold(true))

@@ -46,7 +46,7 @@ public class RItem extends RuntimeValue {
     public static RIdentifier id(RItem item) {
         return RIdentifier.of(
                 CustomItem.itemIdOf(item.javaValue())
-                        .orElse(item.javaValue().getItem().builtInRegistryHolder().key().location())
+                        .orElse(item.javaValue().getItem().builtInRegistryHolder().key().identifier())
         );
     }
 

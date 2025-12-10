@@ -2,7 +2,7 @@ package dev.akarah.polaris.registry.effect;
 
 import dev.akarah.polaris.Main;
 import dev.akarah.polaris.registry.stat.StatsObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EffectManager {
-    private final Map<UUID, Map<ResourceLocation, EffectObject>> playerEffects = new HashMap<>();
+    private final Map<UUID, Map<Identifier, EffectObject>> playerEffects = new HashMap<>();
 
-    public boolean tryAddEffect(UUID uuid, ResourceLocation identifier, EffectObject effect) {
+    public boolean tryAddEffect(UUID uuid, Identifier identifier, EffectObject effect) {
         playerEffects.putIfAbsent(uuid, new HashMap<>());
         var playerEffect = playerEffects.get(uuid);
         if (!playerEffect.containsKey(identifier)){
@@ -27,21 +27,21 @@ public class EffectManager {
         return false;
     }
 
-    public boolean tryAddEffect(Player player, ResourceLocation identifier, EffectObject effect) {
+    public boolean tryAddEffect(Player player, Identifier identifier, EffectObject effect) {
         return tryAddEffect(player.getUUID(), identifier, effect);
     }
 
-    public Map<ResourceLocation, EffectObject> getPlayerEffects(UUID uuid) {
+    public Map<Identifier, EffectObject> getPlayerEffects(UUID uuid) {
         return playerEffects.getOrDefault(uuid, new HashMap<>());
     }
 
-    public Map<ResourceLocation, EffectObject> getPlayerEffects(Player player) {
+    public Map<Identifier, EffectObject> getPlayerEffects(Player player) {
         return getPlayerEffects(player.getUUID());
     }
 
     public StatsObject getPlayerStats(UUID uuid) {
         var stats = StatsObject.EMPTY;
-        for (Map.Entry<ResourceLocation, EffectObject> entry : getPlayerEffects(uuid).entrySet()) {
+        for (Map.Entry<Identifier, EffectObject> entry : getPlayerEffects(uuid).entrySet()) {
             stats.add(entry.getValue().getStats());
         }
         return stats;

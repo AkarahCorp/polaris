@@ -24,7 +24,7 @@ import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -180,7 +180,7 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(this: entity, health: number, type?: identifier, attacker?: entity) -> void", documentation = "Sets the health of the entity.")
     public static void damage(REntity $this, RNumber number, RIdentifier type, REntity attacker) {
         if(type == null) {
-            type = RIdentifier.of(ResourceLocation.withDefaultNamespace("generic"));
+            type = RIdentifier.of(Identifier.withDefaultNamespace("generic"));
         }
         if(attacker == null) {
             attacker = new REntity(null);
@@ -202,7 +202,7 @@ public class REntity extends RuntimeValue {
         if($this.inner instanceof DynamicEntity le) {
             return RIdentifier.of(le.base().id());
         }
-        return RIdentifier.of($this.inner.getType().builtInRegistryHolder().key().location());
+        return RIdentifier.of($this.inner.getType().builtInRegistryHolder().key().identifier());
     }
 
     @MethodTypeHint(signature = "(this: entity) -> inventory", documentation = "Gets the inventory of the entity, returning a 0-slot inventory if it is not a player.")

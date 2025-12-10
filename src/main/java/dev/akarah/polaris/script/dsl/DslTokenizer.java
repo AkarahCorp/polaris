@@ -5,17 +5,17 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import dev.akarah.polaris.script.exception.ParsingException;
 import dev.akarah.polaris.script.exception.SpanData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class DslTokenizer {
-    ResourceLocation fileName;
+    Identifier fileName;
     StringReader stringReader;
 
-    public static DataResult<List<DslToken>> tokenize(ResourceLocation fileName, String input) {
+    public static DataResult<List<DslToken>> tokenize(Identifier fileName, String input) {
         var tk = new DslTokenizer();
         tk.fileName = fileName;
         tk.stringReader = new StringReader(input);

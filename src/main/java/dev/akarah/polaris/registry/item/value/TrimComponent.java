@@ -2,14 +2,14 @@ package dev.akarah.polaris.registry.item.value;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record TrimComponent(
-        ResourceLocation material,
-        ResourceLocation pattern
+        Identifier material,
+        Identifier pattern
 ) {
     public static Codec<TrimComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("material").forGetter(TrimComponent::material),
-            ResourceLocation.CODEC.fieldOf("pattern").forGetter(TrimComponent::pattern)
+            Identifier.CODEC.fieldOf("material").forGetter(TrimComponent::material),
+            Identifier.CODEC.fieldOf("pattern").forGetter(TrimComponent::pattern)
     ).apply(instance, TrimComponent::new));
 }

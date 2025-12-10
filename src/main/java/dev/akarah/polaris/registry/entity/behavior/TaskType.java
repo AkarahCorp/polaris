@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import dev.akarah.polaris.registry.ExtBuiltInRegistries;
 import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 public interface TaskType {
@@ -17,9 +17,9 @@ public interface TaskType {
             .dispatch(TaskType::generatorCodec, x -> x));
 
     static MapCodec<? extends TaskType> bootStrap(Registry<MapCodec<? extends TaskType>> registry) {
-        Registry.register(registry, ResourceLocation.withDefaultNamespace("random_stroll"), RandomStrollTask.GENERATOR_CODEC);
-        Registry.register(registry, ResourceLocation.withDefaultNamespace("melee_attack"), MeleeAttackTask.GENERATOR_CODEC);
-        Registry.register(registry, ResourceLocation.withDefaultNamespace("nearest_attackable_target"), NearestAttackableTargetTask.GENERATOR_CODEC);
+        Registry.register(registry, Identifier.withDefaultNamespace("random_stroll"), RandomStrollTask.GENERATOR_CODEC);
+        Registry.register(registry, Identifier.withDefaultNamespace("melee_attack"), MeleeAttackTask.GENERATOR_CODEC);
+        Registry.register(registry, Identifier.withDefaultNamespace("nearest_attackable_target"), NearestAttackableTargetTask.GENERATOR_CODEC);
         return RandomStrollTask.GENERATOR_CODEC;
     }
 }

@@ -13,7 +13,7 @@ import dev.akarah.polaris.script.params.ParameterNode;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.RFunction;
 import dev.akarah.polaris.script.value.RuntimeValue;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.xml.validation.Schema;
 import java.lang.constant.DirectMethodHandleDesc;
@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public record FunctionRefExpression(
-        ResourceLocation identifier,
+        Identifier identifier,
         SpanData span
 ) implements Expression {
     public SchemaExpression lambdaConversion(CodegenContext ctx) {
@@ -45,7 +45,7 @@ public record FunctionRefExpression(
         ctx.constant(MethodHandleDesc.of(
                 DirectMethodHandleDesc.Kind.STATIC,
                 CodegenContext.ACTION_CLASS_DESC,
-                CodegenContext.resourceLocationToMethodName(this.identifier),
+                CodegenContext.IdentifierToMethodName(this.identifier),
                 this.lambdaConversion(ctx).methodType().descriptorString()
         ));
         ctx.invokeStatic(

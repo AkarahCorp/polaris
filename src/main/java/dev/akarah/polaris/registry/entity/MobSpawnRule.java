@@ -8,20 +8,20 @@ import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public record MobSpawnRule(
-        ResourceLocation entityType,
+        Identifier entityType,
         ResourceKey<Level> level,
         Vec3 center,
         double radius,
         int limit
 ) {
     public static Codec<MobSpawnRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("entity_type").forGetter(MobSpawnRule::entityType),
+            Identifier.CODEC.fieldOf("entity_type").forGetter(MobSpawnRule::entityType),
             Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(MobSpawnRule::level),
             Vec3.CODEC.fieldOf("center").forGetter(MobSpawnRule::center),
             Codec.DOUBLE.optionalFieldOf("radius", 10.0).forGetter(MobSpawnRule::radius),

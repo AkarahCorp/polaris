@@ -15,7 +15,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -70,7 +70,7 @@ public class GlobalNamespace {
             documentation = "Returns a new identifier from the namespace and path provided. " +
                             "You may want to use the language builtin $identifier:path instead if the identifier is static.")
     public static RIdentifier identifier__create(RString namespace, RString path) {
-        return RIdentifier.of(ResourceLocation.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
+        return RIdentifier.of(Identifier.fromNamespaceAndPath(namespace.javaValue(), path.javaValue()));
     }
 
     @MethodTypeHint(
@@ -171,7 +171,7 @@ public class GlobalNamespace {
 
     @MethodTypeHint(signature = "(str: string) -> identifier", documentation = "Parses a string into an identifier.")
     public static RIdentifier identifier__parse(RString string) {
-        return RIdentifier.of(ResourceLocation.parse(string.javaValue()));
+        return RIdentifier.of(Identifier.parse(string.javaValue()));
     }
 
     @MethodTypeHint(signature = "() -> number", documentation = "Returns the number of ticks the server has been up.")
@@ -242,7 +242,7 @@ public class GlobalNamespace {
         for(var entry : dict.javaValue().entrySet()) {
             so.add(new StatsObject.SourceEntry(
                     Component.empty(),
-                    (ResourceLocation) entry.getKey().javaValue(),
+                    (Identifier) entry.getKey().javaValue(),
                     StatsObject.SourceOperation.ADD,
                     (Double) entry.getValue().javaValue()
             ));

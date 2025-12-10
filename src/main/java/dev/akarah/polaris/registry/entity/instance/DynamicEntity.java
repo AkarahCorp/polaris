@@ -31,7 +31,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.entity.monster.RangedAttackMob;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -208,7 +207,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
                     REntity.of(attacker),
                     REntity.of(this),
                     cell,
-                    RIdentifier.of(damageSource.typeHolder().unwrapKey().orElseThrow().location())
+                    RIdentifier.of(damageSource.typeHolder().unwrapKey().orElseThrow().identifier())
             );
 
             if((this.getHealth() - ((Double) RCell.get(cell).javaValue())) <= 0.0) {

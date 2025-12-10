@@ -27,7 +27,7 @@ import dev.akarah.polaris.script.dsl.DslActionManager;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class Resources {
     public static ReloadableJsonManager<AchievementTrigger> ACHIEVEMENT_TRIGGER;
     public static ReloadableJsonManager<AchievementCriteriaType> ACHIEVEMENT_CRITERIA;
 
-    static Map<ResourceLocation, Registry<RuntimeValue>> DYNAMIC_REGISTRY_ENTRIES = Maps.newConcurrentMap();
+    static Map<Identifier, Registry<RuntimeValue>> DYNAMIC_REGISTRY_ENTRIES = Maps.newConcurrentMap();
 
     public static StatManager statManager() {
         return STAT_MANAGER;
@@ -118,7 +118,7 @@ public class Resources {
 
     public static ReloadableJsonManager<DynamicRegistryType> registryTypes() { return REGISTRY_TYPE; }
 
-    public static Map<ResourceLocation, Registry<RuntimeValue>> dynamicRegistryEntries() {
+    public static Map<Identifier, Registry<RuntimeValue>> dynamicRegistryEntries() {
         return DYNAMIC_REGISTRY_ENTRIES;
     }
 
@@ -224,7 +224,7 @@ public class Resources {
 
             Files.createDirectories(p);
             for(var adv : Resources.ACHIEVEMENT_KIND.registry().entrySet()) {
-                var f = p.resolve("./data/" + adv.getKey().location().getNamespace() + "/advancement/" + adv.getKey().location().getPath() + ".json");
+                var f = p.resolve("./data/" + adv.getKey().identifier().getNamespace() + "/advancement/" + adv.getKey().identifier().getPath() + ".json");
                 try {
                     Files.createDirectories(f.getParent());
                     Files.createFile(f);

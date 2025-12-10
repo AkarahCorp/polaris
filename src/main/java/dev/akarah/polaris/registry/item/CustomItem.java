@@ -17,7 +17,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -30,26 +30,26 @@ import java.util.Map;
 import java.util.Optional;
 
 public record CustomItem(
-        ResourceLocation model,
+        Identifier model,
         Optional<String> name,
         Optional<StatsObject> stats,
         Optional<CustomItemComponents> components,
-        Optional<ResourceLocation> itemTemplate,
+        Optional<Identifier> itemTemplate,
         Optional<Map<String, RuntimeValue>> customData
 ) {
     public static Codec<CustomItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("model").forGetter(CustomItem::model),
+            Identifier.CODEC.fieldOf("model").forGetter(CustomItem::model),
             Codec.STRING.optionalFieldOf("name").forGetter(CustomItem::name),
             StatsObject.CODEC.optionalFieldOf("stats").forGetter(CustomItem::stats),
             CustomItemComponents.CODEC.optionalFieldOf("components").forGetter(CustomItem::components),
-            ResourceLocation.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
+            Identifier.CODEC.optionalFieldOf("item_template").forGetter(CustomItem::itemTemplate),
             Codec.unboundedMap(Codec.STRING, RuntimeValue.CODEC).optionalFieldOf("custom_data").forGetter(CustomItem::customData)
     ).apply(instance, CustomItem::new));
 
     public static Codec<CustomItem> CODEC_BY_ID =
             Codec.lazyInitialized(() -> Resources.customItem().registry().byNameCodec());
 
-    public ResourceLocation id() {
+    public Identifier id() {
         return Resources
                 .customItem()
                 .registry()
@@ -67,7 +67,7 @@ public record CustomItem(
     public ItemStack toMinimalItemStack(CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
-        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(Identifier.withDefaultNamespace(""));
 
         if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
             item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
@@ -86,10 +86,10 @@ public record CustomItem(
         return is;
     }
 
-    public ItemStack toItemStack(ResourceLocation itemTemplate, RNullable entity, CustomData customData, int amount) {
+    public ItemStack toItemStack(Identifier itemTemplate, RNullable entity, CustomData customData, int amount) {
         var item = Items.MUSIC_DISC_CAT;
 
-        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(ResourceLocation.withDefaultNamespace(""));
+        var placesAs = this.components.map(CustomItemComponents::placesBlock).orElse(Identifier.withDefaultNamespace(""));
 
         if(BuiltInRegistries.ITEM.containsKey(placesAs)) {
             item = BuiltInRegistries.ITEM.get(placesAs).orElseThrow().value();
@@ -166,7 +166,7 @@ public record CustomItem(
         return is;
     }
 
-    public static Optional<ResourceLocation> itemIdOf(ItemStack itemStack) {
+    public static Optional<Identifier> itemIdOf(ItemStack itemStack) {
         if(itemStack == null) {
             return Optional.empty();
         }
@@ -174,7 +174,7 @@ public record CustomItem(
                 .map(CustomData::copyTag)
                 .map(x -> x.get("id"))
                 .flatMap(Tag::asString)
-                .map(ResourceLocation::parse);
+                .map(Identifier::parse);
     }
 
     public static Optional<CustomItem> itemOf(ItemStack itemStack) {
@@ -183,7 +183,7 @@ public record CustomItem(
                 .map(Holder.Reference::value);
     }
 
-    public static Optional<CustomItem> byId(ResourceLocation id) {
+    public static Optional<CustomItem> byId(Identifier id) {
         return Resources.customItem().registry().get(id).map(Holder.Reference::value);
     }
 

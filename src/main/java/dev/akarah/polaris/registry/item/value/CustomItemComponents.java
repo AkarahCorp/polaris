@@ -3,7 +3,7 @@ package dev.akarah.polaris.registry.item.value;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public record CustomItemComponents(
         Optional<EquippableData> equippable,
-        ResourceLocation placesBlock,
+        Identifier placesBlock,
         int maxStackSize,
         Optional<DyedItemColor> color,
         Optional<TrimComponent> trim,
@@ -26,8 +26,8 @@ public record CustomItemComponents(
 ) {
     public static Codec<CustomItemComponents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItemComponents::equippable),
-            ResourceLocation.CODEC
-                    .optionalFieldOf("places_block", ResourceLocation.fromNamespaceAndPath("", ""))
+            Identifier.CODEC
+                    .optionalFieldOf("places_block", Identifier.fromNamespaceAndPath("", ""))
                     .forGetter(CustomItemComponents::placesBlock),
             Codec.intRange(1, 99).optionalFieldOf("max_stack_size", 1).forGetter(CustomItemComponents::maxStackSize),
             DyedItemColor.CODEC.optionalFieldOf("color").forGetter(CustomItemComponents::color),

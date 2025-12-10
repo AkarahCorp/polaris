@@ -22,6 +22,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
@@ -52,7 +53,7 @@ public class CommandEventHandler {
 
     public static void registerCustomCommands(CommandDispatcher<CommandSourceStack> dispatcher, LiteralArgumentBuilder<CommandSourceStack> root) {
         Resources.command().registry().listElements().forEach(element -> {
-            var baseId = element.key().location().getPath();
+            var baseId = element.key().identifier().getPath();
 
             var root2 = Commands.literal(baseId);
             element.value().dispatch(root2);
@@ -65,7 +66,7 @@ public class CommandEventHandler {
         root.then(Commands.literal("give"));
 
         Resources.customItem().registry().listElements().forEach(element -> {
-            root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).executes(ctx -> {
+            root.then(Commands.literal("give").then(Commands.literal(element.key().identifier().toString()).executes(ctx -> {
                 try {
                     if(ctx.getSource().getEntity() instanceof Player p) {
                         p.addItem(element.value().toItemStack(RNullable.of(REntity.of(p))));
@@ -75,7 +76,7 @@ public class CommandEventHandler {
                 }
                 return 0;
             })));
-            root.then(Commands.literal("give").then(Commands.literal(element.key().location().toString()).then(
+            root.then(Commands.literal("give").then(Commands.literal(element.key().identifier().toString()).then(
                     Commands.argument("count", IntegerArgumentType.integer()).executes(ctx -> {
                         try {
                             if(ctx.getSource().getEntity() instanceof Player p) {
@@ -94,7 +95,7 @@ public class CommandEventHandler {
 
     public static void summonCommand(CommandDispatcher<CommandSourceStack> dispatcher, LiteralArgumentBuilder<CommandSourceStack> root) {
         Resources.customEntity().registry().listElements().forEach(element -> {
-            root.then(Commands.literal("summon").then(Commands.literal(element.key().location().toString())
+            root.then(Commands.literal("summon").then(Commands.literal(element.key().identifier().toString())
                     .executes(ctx -> {
                         try {
                             if(ctx.getSource().getEntity() instanceof Player p) {
@@ -235,7 +236,7 @@ public class CommandEventHandler {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
-            var root = Commands.literal("engine").requires(x -> x.hasPermission(4));
+            var root = Commands.literal("engine").requires(x -> x.permissions().hasPermission(Permissions.COMMANDS_ADMIN));
 
             for(var source : CommandEventHandler.commandSources()) {
                 source.accept(dispatcher, root);

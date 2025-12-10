@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.registry.loot.LootTable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -18,9 +18,9 @@ public record MiningRule(
         Map<String, String> stateRequirements,
         Pair<BlockPos, BlockPos> area,
         double toughness,
-        Optional<ResourceLocation> spreadToughnessFunction,
-        ResourceLocation speedStat,
-        ResourceLocation spreadStat,
+        Optional<Identifier> spreadToughnessFunction,
+        Identifier speedStat,
+        Identifier spreadStat,
         Optional<LootTable> lootTable,
         double spreadToughness,
         Optional<RegenerationRule> regeneration,
@@ -37,11 +37,11 @@ public record MiningRule(
     }
 
     public record BreakingPowerRule(
-            ResourceLocation stat,
+            Identifier stat,
             double minimumAmount
     ) {
         public static Codec<BreakingPowerRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("stat").forGetter(BreakingPowerRule::stat),
+                Identifier.CODEC.fieldOf("stat").forGetter(BreakingPowerRule::stat),
                 Codec.DOUBLE.fieldOf("requirement").forGetter(BreakingPowerRule::minimumAmount)
         ).apply(instance, BreakingPowerRule::new));
     }
@@ -53,9 +53,9 @@ public record MiningRule(
                     .optionalFieldOf("area", Pair.of(new BlockPos(-30000000, -30000000, -30000000), new BlockPos(30000000, 30000000, 30000000)))
                     .forGetter(MiningRule::area),
             Codec.DOUBLE.fieldOf("toughness").forGetter(MiningRule::toughness),
-            ResourceLocation.CODEC.optionalFieldOf("spread_toughness_function").forGetter(MiningRule::spreadToughnessFunction),
-            ResourceLocation.CODEC.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
-            ResourceLocation.CODEC.optionalFieldOf("spread_stat", ResourceLocation.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
+            Identifier.CODEC.optionalFieldOf("spread_toughness_function").forGetter(MiningRule::spreadToughnessFunction),
+            Identifier.CODEC.fieldOf("speed_stat").forGetter(MiningRule::speedStat),
+            Identifier.CODEC.optionalFieldOf("spread_stat", Identifier.withDefaultNamespace("unknown")).forGetter(MiningRule::spreadStat),
             LootTable.CODEC.optionalFieldOf("loot_table").forGetter(MiningRule::lootTable),
             Codec.DOUBLE.optionalFieldOf("spread_toughness", 0.0).forGetter(MiningRule::spreadToughness),
             RegenerationRule.CODEC.optionalFieldOf("regeneration").forGetter(MiningRule::regeneration),

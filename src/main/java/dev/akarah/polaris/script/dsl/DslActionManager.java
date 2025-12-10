@@ -14,7 +14,7 @@ import dev.akarah.polaris.script.type.StructType;
 import dev.akarah.polaris.script.value.RBoolean;
 import dev.akarah.polaris.script.value.RuntimeValue;
 import dev.akarah.polaris.script.value.polaris.DslProfiler;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
@@ -32,9 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DslActionManager {
     public static AtomicReference<DslProfiler> PROFILER = new AtomicReference<>();
 
-    Map<ResourceLocation, SchemaExpression> dslExpressions = Maps.newHashMap();
-    Map<ResourceLocation, StructType> dslTypes = Maps.newHashMap();
-    Map<ResourceLocation, MethodHandle> methodHandles = Maps.newHashMap();
+    Map<Identifier, SchemaExpression> dslExpressions = Maps.newHashMap();
+    Map<Identifier, StructType> dslTypes = Maps.newHashMap();
+    Map<Identifier, MethodHandle> methodHandles = Maps.newHashMap();
     Map<String, MethodHandle> namedMethodHandles = Maps.newHashMap();
     Class<?> codeClass;
 
@@ -70,7 +70,7 @@ public class DslActionManager {
     }
 
 
-    public Map<ResourceLocation, SchemaExpression> expressions() {
+    public Map<Identifier, SchemaExpression> expressions() {
         return this.dslExpressions;
     }
 
@@ -82,11 +82,11 @@ public class DslActionManager {
         return this.namedMethodHandles.get(string);
     }
 
-    public MethodHandle methodHandleByLocation(ResourceLocation resourceLocation) {
-        return this.methodHandles.get(resourceLocation);
+    public MethodHandle methodHandleByLocation(Identifier Identifier) {
+        return this.methodHandles.get(Identifier);
     }
 
-    public void executeVoid(ResourceLocation name, RuntimeValue... arguments) {
+    public void executeVoid(Identifier name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
         if(mh == null) {
             return;
@@ -104,7 +104,7 @@ public class DslActionManager {
         }
     }
 
-    public boolean executeBoolean(ResourceLocation name, RuntimeValue... arguments) {
+    public boolean executeBoolean(Identifier name, RuntimeValue... arguments) {
         var mh = methodHandleByLocation(name);
         if(mh == null) {
             return true;
@@ -127,7 +127,7 @@ public class DslActionManager {
         }
     }
 
-    ConcurrentMap<String, List<ResourceLocation>> eventInterning = Maps.newConcurrentMap();
+    ConcurrentMap<String, List<Identifier>> eventInterning = Maps.newConcurrentMap();
 
     public void internEventTypes() {
         if(!eventInterning.isEmpty()) {
@@ -164,7 +164,7 @@ public class DslActionManager {
         }
     }
 
-    private List<ResourceLocation> functionsByEventType(String typeName) {
+    private List<Identifier> functionsByEventType(String typeName) {
         if(eventInterning.isEmpty()) {
             internEventTypes();
         }
@@ -185,7 +185,7 @@ public class DslActionManager {
         return true;
     }
 
-    public void callFunctions(List<ResourceLocation> functions, RuntimeValue... parameters) {
+    public void callFunctions(List<Identifier> functions, RuntimeValue... parameters) {
         for(var f : functions) {
             this.executeVoid(f, parameters);
         }
@@ -217,7 +217,7 @@ public class DslActionManager {
                                 var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
 
                                 for(var expression : expressions) {
-                                    if (expression instanceof TypeExpression(ResourceLocation name, StructType alias, SpanData spanData)) {
+                                    if (expression instanceof TypeExpression(Identifier name, StructType alias, SpanData spanData)) {
                                         this.dslTypes.put(name, alias);
                                     }
                                     if(expression instanceof SchemaExpression schemaExpression) {
@@ -260,7 +260,7 @@ public class DslActionManager {
                                     expr.getKey(),
                                     lookup.findStatic(
                                             codeClass,
-                                            CodegenContext.resourceLocationToMethodName(expr.getKey()),
+                                            CodegenContext.IdentifierToMethodName(expr.getKey()),
                                             expr.getValue().methodType()
                                     )
                             );

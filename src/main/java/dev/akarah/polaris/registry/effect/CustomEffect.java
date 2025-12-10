@@ -6,7 +6,7 @@ import dev.akarah.polaris.registry.stat.StatsObject;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ public record CustomEffect(
         Component name,
         int maxLevel,
         Optional<EffectStats> stats,
-        Optional<ResourceLocation> tickingFunction
+        Optional<Identifier> tickingFunction
 ) {
 
     public record EffectStats(
@@ -35,7 +35,7 @@ public record CustomEffect(
             ComponentSerialization.CODEC.fieldOf("name").forGetter(CustomEffect::name),
             Codec.INT.fieldOf("maxLevel").forGetter(CustomEffect::maxLevel),
             EffectStats.CODEC.optionalFieldOf("stats").forGetter(CustomEffect::stats),
-            ResourceLocation.CODEC.optionalFieldOf("ticking_function").forGetter(CustomEffect::tickingFunction)
+            Identifier.CODEC.optionalFieldOf("ticking_function").forGetter(CustomEffect::tickingFunction)
             ).apply(instance, CustomEffect::new)
     );
 }

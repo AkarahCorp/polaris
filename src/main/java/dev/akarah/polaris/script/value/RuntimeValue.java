@@ -16,7 +16,7 @@ import dev.akarah.polaris.script.value.mc.RItem;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,7 +34,7 @@ public abstract class RuntimeValue {
                             return Pair.of((RuntimeValue) RBoolean.of(Boolean.parseBoolean(x.replace("[boolean]", ""))), input);
                         }
                         if(x.startsWith("[identifier]")) {
-                            return Pair.of((RuntimeValue) RIdentifier.of(ResourceLocation.parse(x.replace("[identifier]", ""))), input);
+                            return Pair.of((RuntimeValue) RIdentifier.of(Identifier.parse(x.replace("[identifier]", ""))), input);
                         }
                         return Pair.of((RuntimeValue) RString.of(x), input);
                     });
@@ -81,7 +81,7 @@ public abstract class RuntimeValue {
                                         input
                                 ));
                             } else if(structTypeName.equals("item")) {
-                                var id = RIdentifier.of(ResourceLocation.parse(ops.getStringValue(map.get("id")).result().orElse("minecraft:dirt")));
+                                var id = RIdentifier.of(Identifier.parse(ops.getStringValue(map.get("id")).result().orElse("minecraft:dirt")));
                                 var count = ops.getNumberValue(map.get("count"), 1).intValue();
                                 var item = GlobalNamespace.item__create(id, null, null);
                                 item.javaValue().setCount(count);

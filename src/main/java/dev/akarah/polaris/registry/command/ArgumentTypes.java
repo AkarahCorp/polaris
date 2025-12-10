@@ -6,53 +6,53 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ArgumentTypes {
     public static Object bootStrap(Registry<ArgumentType<?>> registry) {
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("bool"),
+                Identifier.withDefaultNamespace("bool"),
                 BoolArgumentType.bool()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("string"),
+                Identifier.withDefaultNamespace("string"),
                 StringArgumentType.string()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("double"),
+                Identifier.withDefaultNamespace("double"),
                 DoubleArgumentType.doubleArg()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("greedy_string"),
+                Identifier.withDefaultNamespace("greedy_string"),
                 StringArgumentType.greedyString()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("word"),
+                Identifier.withDefaultNamespace("word"),
                 StringArgumentType.word()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("entity"),
+                Identifier.withDefaultNamespace("entity"),
                 EntityArgument.entity()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("entities"),
+                Identifier.withDefaultNamespace("entities"),
                 EntityArgument.entities()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("player"),
+                Identifier.withDefaultNamespace("player"),
                 EntityArgument.player()
         );
         Registry.register(
                 registry,
-                ResourceLocation.withDefaultNamespace("players"),
+                Identifier.withDefaultNamespace("players"),
                 EntityArgument.players()
         );
         return DoubleArgumentType.doubleArg();

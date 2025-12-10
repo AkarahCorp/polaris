@@ -4,7 +4,7 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
 import net.minecraft.core.particles.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 
@@ -63,12 +63,12 @@ public class RParticle extends RuntimeValue {
         return RParticle.of(this.particleOptions);
     }
 
-    public static Map<ResourceLocation, ParticleOptions> OPTIONS = new HashMap<>();
+    public static Map<Identifier, ParticleOptions> OPTIONS = new HashMap<>();
 
     static {
         for(var entry : BuiltInRegistries.PARTICLE_TYPE.entrySet()) {
             if(entry.getValue() instanceof SimpleParticleType simpleParticleType) {
-                OPTIONS.put(entry.getKey().location(), simpleParticleType);
+                OPTIONS.put(entry.getKey().identifier(), simpleParticleType);
             }
         }
     }

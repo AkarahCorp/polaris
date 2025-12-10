@@ -12,7 +12,7 @@ import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -57,7 +57,7 @@ public class StatManager {
             Resources.statType().registry().entrySet().forEach(entry -> {
                 sources.add(new StatsObject.SourceEntry(
                         Component.literal("Base Stat"),
-                        entry.getKey().location(),
+                        entry.getKey().identifier(),
                         StatsObject.SourceOperation.ADD,
                         entry.getValue().baseValue()
                 ));
@@ -78,7 +78,7 @@ public class StatManager {
 
             this.set(player, sources.performFinalCalculations());
             Resources.actionManager().performEvents("player.tick", REntity.of(player));
-            AchievementLogic.activate(player, ResourceLocation.fromNamespaceAndPath("polaris", "player.tick"));
+            AchievementLogic.activate(player, Identifier.fromNamespaceAndPath("polaris", "player.tick"));
 
 
             var packet = new ClientboundPlayerInfoUpdatePacket(
@@ -91,7 +91,7 @@ public class StatManager {
             if(container != null) {
                 container.addOrReplacePermanentModifier(
                         new AttributeModifier(
-                                ResourceLocation.fromNamespaceAndPath("polaris", "overwrite_mining"),
+                                Identifier.fromNamespaceAndPath("polaris", "overwrite_mining"),
                                 -1000,
                                 AttributeModifier.Operation.ADD_VALUE
                         )

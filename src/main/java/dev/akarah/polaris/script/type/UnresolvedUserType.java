@@ -6,7 +6,7 @@ import dev.akarah.polaris.script.exception.SpanData;
 import dev.akarah.polaris.script.expr.Expression;
 import dev.akarah.polaris.script.jvm.CodegenUtil;
 import dev.akarah.polaris.script.value.RStruct;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.constant.ClassDesc;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public record UnresolvedUserType(
-        Map<ResourceLocation, StructType> userTypes,
-        ResourceLocation name,
+        Map<Identifier, StructType> userTypes,
+        Identifier name,
         SpanData spanData
 ) implements Type<RStruct> {
 

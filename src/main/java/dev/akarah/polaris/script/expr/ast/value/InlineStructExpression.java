@@ -10,13 +10,13 @@ import dev.akarah.polaris.script.type.SpannedType;
 import dev.akarah.polaris.script.type.Type;
 import dev.akarah.polaris.script.value.RStruct;
 import dev.akarah.polaris.script.value.RuntimeValue;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.lang.constant.MethodTypeDesc;
 import java.util.List;
 
 public record InlineStructExpression(
-        ResourceLocation name,
+        Identifier name,
         List<Pair<String, Expression>> expressions,
         SpanData span
 ) implements Expression {
