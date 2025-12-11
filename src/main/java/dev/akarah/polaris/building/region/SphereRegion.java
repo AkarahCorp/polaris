@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.building.wand.WandOperations;
+import dev.akarah.polaris.building.wand.WandTasks;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -27,10 +28,15 @@ public record SphereRegion(int radius) implements Region {
         for(int x = -radius; x <= radius; x++) {
             for(int y = -radius; y <= radius; y++) {
                 for(int z =-radius; z <= radius; z++) {
-                    var offset = target.offset(x, y, z);
-                    if(target.distSqr(offset) <= radiusSquared) {
-                        loop.apply(level, offset);
-                    }
+                    int finalX = x;
+                    int finalY = y;
+                    int finalZ = z;
+                    WandTasks.pushTask(() -> {
+                        var offset = target.offset(finalX, finalY, finalZ);
+                        if(target.distSqr(offset) <= radiusSquared) {
+                            loop.apply(level, offset);
+                        }
+                    });
                 }
             }
         }

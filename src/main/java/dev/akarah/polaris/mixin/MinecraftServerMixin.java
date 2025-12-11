@@ -2,6 +2,7 @@ package dev.akarah.polaris.mixin;
 
 import com.mojang.datafixers.DataFixer;
 import dev.akarah.polaris.Main;
+import dev.akarah.polaris.building.wand.WandTasks;
 import dev.akarah.polaris.db.persistence.DbPersistence;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.item.value.CustomItemComponents;
@@ -50,6 +51,8 @@ public class MinecraftServerMixin {
         }
 
         Resources.mobSpawnRule().registry().listElements().forEach(rule -> rule.value().tick());
+
+        WandTasks.executeTasks();
     }
 
     @Inject(at = @At("TAIL"), method = "tickChildren")

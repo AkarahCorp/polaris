@@ -56,7 +56,9 @@ public class WandOperations {
             if(player.getItemBySlot(EquipmentSlot.MAINHAND).getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().contains("wand/is")) {
                 var palette = getPalette(player.getItemBySlot(EquipmentSlot.MAINHAND));
                 var region = getRegion(player.getItemBySlot(EquipmentSlot.MAINHAND));
-                region.forEach(player.level(), pos, palette::apply);
+                Thread.ofVirtual().start(() -> {
+                    region.forEach(player.level(), pos, palette::apply);
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();

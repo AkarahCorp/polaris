@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.akarah.polaris.building.wand.WandOperations;
+import dev.akarah.polaris.building.wand.WandTasks;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,13 +24,18 @@ public record CubeRegion(int radius) implements Region {
 
     @Override
     public void forEach(ServerLevel level, BlockPos target, RegionLoop loop) {
-        for(int x = -radius; x <= radius; x++) {
-            for(int y = -radius; y <= radius; y++) {
-                for(int z =-radius; z <= radius; z++) {
-                    loop.apply(level, target.offset(x, y, z));
+            for(int x = -radius; x <= radius; x++) {
+                for(int y = -radius; y <= radius; y++) {
+                    for(int z =-radius; z <= radius; z++) {
+                        int finalX = x;
+                        int finalY = y;
+                        int finalZ = z;
+                        WandTasks.pushTask(() -> {
+                            loop.apply(level, target.offset(finalX, finalY, finalZ));
+                        });
+                    }
                 }
             }
-        }
     }
 
     @Override
