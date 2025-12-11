@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.datafixers.util.Pair;
 import dev.akarah.polaris.Main;
+import dev.akarah.polaris.building.PSCommands;
 import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.exception.SpannedException;
@@ -235,7 +236,7 @@ public class CommandEventHandler {
     }
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, _) -> {
             var root = Commands.literal("engine").requires(x -> x.permissions().hasPermission(Permissions.COMMANDS_ADMIN));
 
             for(var source : CommandEventHandler.commandSources()) {
@@ -243,6 +244,8 @@ public class CommandEventHandler {
             }
 
             dispatcher.register(root);
+
+            PSCommands.register(dispatcher, context);
         });
     }
 }

@@ -1,5 +1,6 @@
 package dev.akarah.polaris.mixin;
 
+import dev.akarah.polaris.building.wand.WandOperations;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.registry.entity.instance.DynamicEntity;
 import dev.akarah.polaris.registry.entity.EntityUtil;
@@ -80,6 +81,7 @@ public class ServerGamePacketListenerMixin {
                     RItem.of(item)
             );
         }
+        WandOperations.useWandLeftClick(this.player);
     }
 
     @Inject(method = "handleChat", at = @At("HEAD"), cancellable = true)
