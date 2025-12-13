@@ -34,12 +34,14 @@ import net.minecraft.world.item.enchantment.effects.AllOf;
 public class DslParser {
     List<DslToken> tokens;
     Map<Identifier, StructType> userTypes = Maps.newHashMap();
+    SpanData fallbackSpan;
     int index;
 
-    public static List<Expression> parseTopLevelExpression(List<DslToken> tokens, Map<Identifier, StructType> userTypes) {
+    public static List<Expression> parseTopLevelExpression(List<DslToken> tokens, Map<Identifier, StructType> userTypes, SpanData fallbackSpan) {
         var parser = new DslParser();
         parser.tokens = tokens;
         parser.userTypes = userTypes;
+        parser.fallbackSpan = fallbackSpan;
 
         var entries = Lists.<Expression>newArrayList();
         while(true) {
@@ -743,11 +745,19 @@ public class DslParser {
     }
 
     public DslToken peek() {
-        return this.tokens.get(this.index);
+        try {
+            return this.tokens.get(this.index);
+        } catch (Exception e) {
+            throw new ParsingException("Unexpected EOF", fallbackSpan);
+        }
     }
 
     public DslToken read() {
-        return this.tokens.get(this.index++);
+        try {
+            return this.tokens.get(this.index++);
+        } catch (Exception e) {
+            throw new ParsingException("Unexpected EOF", fallbackSpan);
+        }
     }
 
     public <T extends DslToken> T expect(Class<T> clazz) {

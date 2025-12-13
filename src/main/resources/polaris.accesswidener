@@ -14,4 +14,5 @@ mutable field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue 
 accessible field net/minecraft/world/entity/decoration/Mannequin DATA_PROFILE Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible field net/minecraft/world/entity/decoration/Mannequin DATA_DESCRIPTION Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible method net/minecraft/world/entity/Entity defineSynchedData (Lnet/minecraft/network/syncher/SynchedEntityData$Builder;)V
+accessible method net/minecraft/world/entity/Display createTransformation (Lnet/minecraft/network/syncher/SynchedEntityData;)Lcom/mojang/math/Transformation;
 accessible method net/minecraft/core/registries/BuiltInRegistries registerDefaulted (Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;Lnet/minecraft/core/registries/BuiltInRegistries$RegistryBootstrap;)Lnet/minecraft/core/DefaultedRegistry;

@@ -213,8 +213,9 @@ public class DslActionManager {
                             } catch (Exception e) {
                                 System.out.println("Error parsing script `" + key + "`: " + e.getMessage());
                             }
+
                             try {
-                                var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes);
+                                var expressions = DslParser.parseTopLevelExpression(tokens, this.dslTypes, new SpanData(string.length() - 1, string.length() - 1, string, key));
 
                                 for(var expression : expressions) {
                                     if (expression instanceof TypeExpression(Identifier name, StructType alias, SpanData spanData)) {
