@@ -239,6 +239,26 @@ public class REntity extends RuntimeValue {
                 default -> throw new RuntimeException();
             };
 
+            // fallback logic to stop mouse from being reset on new menu
+            if(serverPlayer.hasContainerOpen()) {
+                var playerCurrentContainer = serverPlayer.containerMenu;
+                // if the menus are the same type, we should reuse the menu
+                if(playerCurrentContainer instanceof DynamicContainerMenu dynamicContainerMenu) {
+                    if(dynamicContainerMenu.menuType.equals(mt)) {
+                        // menu reuse logic
+                        dynamicContainerMenu.name = inventory.name;
+                        for(int slot = 0; slot < inventory.inner.getContainerSize(); slot++) {
+                            var item = inventory.inner.getItem(slot);
+                            playerCurrentContainer.setItem(slot, playerCurrentContainer.incrementStateId(), item);
+                            playerCurrentContainer.sendAllDataToRemote();
+                            playerCurrentContainer.broadcastChanges();
+                            playerCurrentContainer.broadcastFullState();
+                        }
+                        return;
+                    }
+                }
+            }
+
             serverPlayer.openMenu(
                     new SimpleMenuProvider((id, playerInventory, _) -> new DynamicContainerMenu(
                             mt, id,

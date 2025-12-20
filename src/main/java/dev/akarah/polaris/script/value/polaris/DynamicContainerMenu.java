@@ -16,10 +16,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class DynamicContainerMenu extends ChestMenu {
     public RText name;
+    public MenuType<?> menuType;
 
     public DynamicContainerMenu(MenuType<?> menuType, int i, Inventory inventory, Container container, int j, RText name) {
         super(menuType, i, inventory, container, j);
         this.name = name;
+        this.menuType = menuType;
     }
 
     @Override
