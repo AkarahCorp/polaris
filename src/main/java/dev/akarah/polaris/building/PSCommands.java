@@ -10,13 +10,14 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 
 public class PSCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
-        var root = Commands.literal("ps");
+        var root = Commands.literal("ps").requires(x -> x.permissions().hasPermission(Permissions.COMMANDS_ADMIN));
         root.then(Commands.literal("wand").executes(ctx -> {
             try {
                 if(ctx.getSource().getEntity() instanceof ServerPlayer player) {

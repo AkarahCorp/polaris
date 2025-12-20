@@ -20,6 +20,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.stream.Stream;
+
 public abstract class RuntimeValue {
     public abstract Object javaValue();
     public abstract RuntimeValue copy();
@@ -134,6 +136,18 @@ public abstract class RuntimeValue {
                                                         this.encode(x.getKey(), ops, prefix).getOrThrow(), this.encode(x.getValue(), ops, prefix).getOrThrow()))
                                 )
                         );
+                        case RStruct struct -> DataResult.success(
+                                ops.createMap(
+                                        Stream.concat(
+                                                struct.javaValue().entrySet()
+                                                        .stream()
+                                                        .map(x -> Pair.of(
+                                                                ops.createString(x.getKey()), this.encode(x.getValue(), ops, prefix).getOrThrow())),
+                                                Stream.of(Pair.of(ops.createString("struct"), ops.createString(struct.name())))
+                                        )
+                                )
+                        );
+                        case RIdentifier identifier -> DataResult.success(ops.createString("[identifier]" + identifier.javaValue().toString()));
                         default -> DataResult.error(() -> "Expected a string, number, dict, or boolean, got: " + input.toString());
                     };
                 }
