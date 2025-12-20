@@ -43,13 +43,20 @@ public abstract class RuntimeValue {
                     if(str.isSuccess()) {
                         return str;
                     }
-                    var num = ops.getNumberValue(input).map(x -> Pair.of((RuntimeValue) RNumber.of(x.doubleValue()), input));
+                    var num = ops.getNumberValue(input);
                     if(num.isSuccess()) {
-                        return num;
-                    }
-                    var bool = ops.getBooleanValue(input).map(x -> Pair.of((RuntimeValue) RBoolean.of(x), input));
-                    if(bool.isSuccess()) {
-                        return num;
+                        return num.map(x -> {
+                            if(x instanceof Double)    {
+                                return Pair.of(
+                                        (RuntimeValue) RNumber.of(x.doubleValue()),
+                                        input
+                                );
+                            }
+                            return Pair.of(
+                                    RBoolean.of(x.byteValue() == 1),
+                                    input
+                            );
+                        });
                     }
                     var list = ops.getList(input);
                     if(list.isSuccess()) {
