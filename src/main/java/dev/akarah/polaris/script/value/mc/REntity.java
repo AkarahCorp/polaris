@@ -254,6 +254,10 @@ public class REntity extends RuntimeValue {
                             playerCurrentContainer.broadcastChanges();
                             playerCurrentContainer.broadcastFullState();
                         }
+                        serverPlayer.containerMenu = new DynamicContainerMenu(
+                                mt, serverPlayer.containerMenu.containerId, serverPlayer.getInventory(),
+                                inventory.javaValue(), inventory.javaValue().getContainerSize() / 9, inventory.name
+                        );
                         return;
                     }
                 }
