@@ -239,29 +239,26 @@ public class REntity extends RuntimeValue {
                 default -> throw new RuntimeException();
             };
 
-            // fallback logic to stop mouse from being reset on new menu
+            /*// fallback logic to stop mouse from being reset on new menu
             if(serverPlayer.hasContainerOpen()) {
-                var playerCurrentContainer = serverPlayer.containerMenu;
+                var playerOldContainer = serverPlayer.containerMenu;
                 // if the menus are the same type, we should reuse the menu
-                if(playerCurrentContainer instanceof DynamicContainerMenu dynamicContainerMenu) {
-                    if(dynamicContainerMenu.menuType.equals(mt)) {
-                        // menu reuse logic
-                        dynamicContainerMenu.name = inventory.name;
-                        for(int slot = 0; slot < inventory.inner.getContainerSize(); slot++) {
-                            var item = inventory.inner.getItem(slot);
-                            playerCurrentContainer.setItem(slot, playerCurrentContainer.incrementStateId(), item);
-                            playerCurrentContainer.sendAllDataToRemote();
-                            playerCurrentContainer.broadcastChanges();
-                            playerCurrentContainer.broadcastFullState();
-                        }
+                if(playerOldContainer instanceof DynamicContainerMenu oldDynamicContainerMenu) {
+                    if(oldDynamicContainerMenu.menuType.equals(mt)) {
                         serverPlayer.containerMenu = new DynamicContainerMenu(
-                                mt, serverPlayer.containerMenu.containerId, serverPlayer.getInventory(),
-                                inventory.javaValue(), inventory.javaValue().getContainerSize() / 9, inventory.name
+                                mt,
+                                serverPlayer.containerMenu.containerId,
+                                serverPlayer.getInventory(),
+                                inventory.javaValue(),
+                                inventory.javaValue().getContainerSize() / 9,
+                                inventory.name
                         );
+                        serverPlayer.containerMenu.broadcastFullState();
+                        serverPlayer.containerMenu.sendAllDataToRemote();
                         return;
                     }
                 }
-            }
+            }*/
 
             serverPlayer.openMenu(
                     new SimpleMenuProvider((id, playerInventory, _) -> new DynamicContainerMenu(
