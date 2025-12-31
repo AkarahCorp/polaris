@@ -20,10 +20,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.item.component.TooltipDisplay;
-import net.minecraft.world.item.component.Weapon;
+import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 import java.util.Map;
@@ -149,6 +146,7 @@ public record CustomItem(
         this.components().flatMap(CustomItemComponents::customModelData).ifPresent(customModelData -> {
             is.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
         });
+        is.set(DataComponents.SWING_ANIMATION, this.components().map(CustomItemComponents::swingAnimation).orElse(SwingAnimation.DEFAULT));
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomItemComponents::maxStackSize).orElse(1));
         is.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, this.components.map(CustomItemComponents::overrideEnchantmentGlint).orElse(false));
         if(itemTemplate != null) {

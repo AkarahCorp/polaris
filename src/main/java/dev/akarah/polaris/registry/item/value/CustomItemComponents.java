@@ -4,10 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.component.BlocksAttacks;
-import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.SwingAnimationType;
+import net.minecraft.world.item.component.*;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +20,8 @@ public record CustomItemComponents(
         Optional<BlocksAttacks> blocksAttacks,
         Optional<CustomModelData> customModelData,
         boolean overrideEnchantmentGlint,
-        boolean hideTooltip
+        boolean hideTooltip,
+        SwingAnimation swingAnimation
 ) {
     public static Codec<CustomItemComponents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EquippableData.CODEC.optionalFieldOf("equippable").forGetter(CustomItemComponents::equippable),
@@ -36,6 +35,7 @@ public record CustomItemComponents(
             BlocksAttacks.CODEC.optionalFieldOf("blocks_attacks").forGetter(CustomItemComponents::blocksAttacks),
             CustomModelData.CODEC.optionalFieldOf("custom_model_data").forGetter(CustomItemComponents::customModelData),
             Codec.BOOL.optionalFieldOf("enchantment_glint_override", false).forGetter(CustomItemComponents::overrideEnchantmentGlint),
-            Codec.BOOL.optionalFieldOf("hide_tooltip", false).forGetter(CustomItemComponents::hideTooltip)
+            Codec.BOOL.optionalFieldOf("hide_tooltip", false).forGetter(CustomItemComponents::hideTooltip),
+            SwingAnimation.CODEC.optionalFieldOf("swing_animation", SwingAnimation.DEFAULT).forGetter(CustomItemComponents::swingAnimation)
     ).apply(instance, CustomItemComponents::new));
 }
