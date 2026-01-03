@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import dev.akarah.polaris.registry.item.CustomItem;
 import dev.akarah.polaris.registry.stat.StatsObject;
 import dev.akarah.polaris.script.value.mc.REntity;
 import dev.akarah.polaris.script.value.mc.RIdentifier;
@@ -16,8 +17,14 @@ import dev.akarah.polaris.script.value.mc.RItem;
 import dev.akarah.polaris.script.value.mc.RVector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.stream.Stream;
@@ -85,7 +92,22 @@ public abstract class RuntimeValue {
                             } else if(structTypeName.equals("item")) {
                                 var id = RIdentifier.of(Identifier.parse(ops.getStringValue(map.get("id")).result().orElse("minecraft:dirt")));
                                 var count = ops.getNumberValue(map.get("count"), 1).intValue();
-                                var item = GlobalNamespace.item__create(id, null, null);
+                                var item = RItem.of(
+                                        CustomItem.byId(id.javaValue())
+                                            .map(x -> x.toMinimalItemStack(CustomData.EMPTY, count))
+                                            .orElseGet(() -> {
+                                                if(BuiltInRegistries.ITEM.containsKey(id.javaValue())) {
+                                                    return BuiltInRegistries.ITEM.get(id.javaValue()).orElseThrow().value().getDefaultInstance();
+                                                }
+                                                var is = Items.STONE.getDefaultInstance();
+                                                is.set(DataComponents.ITEM_NAME, Component.literal("Unknown item ID " + id));
+
+                                                var data = new CompoundTag();
+                                                data.putString("id", id.toString());
+                                                is.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+                                                return is;
+                                            })
+                                );
                                 item.javaValue().setCount(count);
 
                                 var tagMap = map.get("tags");
