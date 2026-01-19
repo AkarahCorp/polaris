@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
@@ -171,6 +172,12 @@ public class RItem extends RuntimeValue {
 
             var newItem = customItem.toItemStack(contextEntity, customData, amount);
             newItem.setCount(amount);
+
+            if(customData != null) {
+                customData.update(tag -> {
+                    tag.put("id", StringTag.valueOf(customItem.id().toString()));
+                });
+            }
 
             newItem.set(DataComponents.CUSTOM_DATA, customData);
 

@@ -73,11 +73,11 @@ public record CustomItem(
         is.setCount(amount);
 
         var cdata = new CompoundTag();
-        cdata.put("id", StringTag.valueOf(this.id().toString()));
 
         if(customData != null) {
             cdata.merge(customData.copyTag());
         }
+        cdata.put("id", StringTag.valueOf(this.id().toString()));
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
         is.set(DataComponents.MAX_STACK_SIZE, this.components.map(CustomItemComponents::maxStackSize).orElse(1));
         return is;
@@ -99,11 +99,11 @@ public record CustomItem(
         is.remove(DataComponents.MAX_STACK_SIZE);
 
         var cdata = new CompoundTag();
-        cdata.put("id", StringTag.valueOf(this.id().toString()));
 
         if(customData != null) {
             cdata.merge(customData.copyTag());
         }
+        cdata.put("id", StringTag.valueOf(this.id().toString()));
         is.set(DataComponents.CUSTOM_DATA, CustomData.of(cdata));
 
         is.set(DataComponents.ITEM_MODEL, this.model());
