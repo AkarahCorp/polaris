@@ -4,12 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.value.*;
+import net.minecraft.Optionull;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RRegistry extends RuntimeValue {
     private final Registry<RuntimeValue> inner;
@@ -33,6 +35,14 @@ public class RRegistry extends RuntimeValue {
         } catch (Exception e) {
             return RNullable.empty();
         }
+    }
+
+    @MethodTypeHint(signature = "<T>(this: registry[T], entry: identifier) -> identifier", documentation = "Remaps the identifier through the registry, if possible.")
+    public static RIdentifier remap(RRegistry $this, RIdentifier identifier) {
+        if($this.inner.containsKey(identifier.javaValue())) {
+            return RIdentifier.of($this.inner.getKey(Objects.requireNonNull($this.inner.getValue(identifier.javaValue()))));
+        }
+        return (RIdentifier) identifier.copy();
     }
 
     @MethodTypeHint(signature = "<T>(this: list[T], value: T) -> boolean", documentation = "Returns true if the registry contains the provided key.")
