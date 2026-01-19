@@ -257,6 +257,7 @@ public class DslParser {
                     }
                     case "entity" -> _ -> new SpannedType<>(Type.entity(), identifier.span());
                     case "item" -> _ -> new SpannedType<>(Type.itemStack(), identifier.span());
+                    case "item_meta" -> _ -> new SpannedType<>(new ItemMetaType(), identifier.span());
                     case "identifier" -> _ -> new SpannedType<>(Type.identifier(), identifier.span());
                     default -> _ -> { throw new ParsingException("Not a valid built-in type", identifier.span()); };
                 };

@@ -11,6 +11,8 @@ import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
 import dev.akarah.polaris.script.expr.ast.operation.OperationUtil;
 import dev.akarah.polaris.script.value.mc.*;
 import dev.akarah.polaris.script.value.polaris.DynamicContainer;
+import dev.akarah.polaris.script.value.polaris.ItemMetaRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @ClassDocumentation(prettifiedName = "Global Namespace",
@@ -234,6 +237,11 @@ public class GlobalNamespace {
             return RNullable.empty();
         }
         return RNullable.of(RRegistry.of(reg));
+    }
+
+    @MethodTypeHint(signature = "() -> registry[item_meta]", documentation = "Wraps a value in a cell.")
+    public static RRegistry registry__items() {
+        return RRegistry.of((Registry<RuntimeValue>) (Object) new ItemMetaRegistry());
     }
 
     @MethodTypeHint(signature = "(value: dict[identifier, number]) -> stat_obj", documentation = "Creates a new stats object from the provided dictionary.")

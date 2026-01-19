@@ -57,7 +57,7 @@ public class RRegistry extends RuntimeValue {
 
     @MethodTypeHint(signature = "<T>(this: registry[T]) -> list[T]", documentation = "Returns a list of all values in the registry.")
     public static RList values(RRegistry $this) {
-        return RList.of($this.inner.keySet().stream().map(x -> $this.inner.get(x).orElseThrow().value()).toList());
+        return RList.of($this.inner.keySet().stream().map($this.inner::getValue).toList());
     }
 
     @MethodTypeHint(signature = "<T>(this: registry[T]) -> number", documentation = "Returns the number of entries.")
