@@ -45,10 +45,10 @@ public class RItem extends RuntimeValue {
 
     @MethodTypeHint(signature = "(item: item) -> identifier", documentation = "Gets the ID of the item stack.")
     public static RIdentifier id(RItem item) {
-        return RIdentifier.of(
+        return RRegistry.remap(GlobalNamespace.registry__items(), RIdentifier.of(
                 CustomItem.itemIdOf(item.javaValue())
                         .orElse(item.javaValue().getItem().builtInRegistryHolder().key().identifier())
-        );
+        ));
     }
 
     @MethodTypeHint(signature = "(item: item, label: text) -> void", documentation = "Sets the label of the item stack.")
