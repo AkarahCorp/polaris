@@ -39,10 +39,11 @@ public class RRegistry extends RuntimeValue {
 
     @MethodTypeHint(signature = "<T>(this: registry[T], entry: identifier) -> identifier", documentation = "Remaps the identifier through the registry, if possible.")
     public static RIdentifier remap(RRegistry $this, RIdentifier identifier) {
-        if($this.inner.containsKey(identifier.javaValue())) {
+        try {
             return RIdentifier.of($this.inner.getKey(Objects.requireNonNull($this.inner.getValue(identifier.javaValue()))));
+        } catch (Exception e) {
+            return (RIdentifier) identifier.copy();
         }
-        return (RIdentifier) identifier.copy();
     }
 
     @MethodTypeHint(signature = "<T>(this: list[T], value: T) -> boolean", documentation = "Returns true if the registry contains the provided key.")

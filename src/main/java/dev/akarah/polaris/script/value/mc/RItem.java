@@ -175,7 +175,7 @@ public class RItem extends RuntimeValue {
 
             if(customData != null) {
                 customData.update(tag -> {
-                    tag.put("id", StringTag.valueOf(customItem.id().toString()));
+                    tag.put("id", StringTag.valueOf(RItem.id($this).javaValue().toString()));
                 });
             }
 
