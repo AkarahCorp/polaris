@@ -82,8 +82,7 @@ public class GlobalNamespace {
                     "If present, the application function will be invoked on the item after creation before returning the value."
     )
     public static RItem item__create(RIdentifier id, REntity entity, RFunction function) {
-        var remappedId = RRegistry.remap(GlobalNamespace.registry__items(), id);
-        var item = RItem.of(CustomItem.byId(remappedId.javaValue())
+        var item = RItem.of(CustomItem.byId(id.javaValue())
                 .map(x -> x.toItemStack(RNullable.of(entity)))
                 .orElseGet(() -> {
                     if(BuiltInRegistries.ITEM.containsKey(id.javaValue())) {
@@ -101,7 +100,7 @@ public class GlobalNamespace {
             try {
                 function.javaValue().invoke(item, entity);
             } catch (Throwable _) {
-                
+
             }
         }
         return item;
