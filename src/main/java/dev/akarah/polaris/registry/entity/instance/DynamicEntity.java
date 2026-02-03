@@ -276,7 +276,12 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
     @Override
     public void die(DamageSource damageSource) {
         this.base().lootTable().ifPresent(lootTable -> {
-            lootTable.execute((ServerLevel) this.level(), this.position());
+            if(damageSource.getEntity() instanceof ServerPlayer attacker) {
+                lootTable.execute((ServerLevel) this.level(), this.position(), attacker);
+            } else {
+
+                lootTable.execute((ServerLevel) this.level(), this.position());
+            }
         });
         super.die(damageSource);
 
