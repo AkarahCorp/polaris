@@ -137,7 +137,7 @@ public class DynamicEntity extends PathfinderMob implements RangedAttackMob {
         // create fake label display
         this.fakeName = new Display.TextDisplay(EntityType.TEXT_DISPLAY, this.level());
         this.fakeName.setText(Component.literal(this.base().name()));
-        this.fakeName.startRiding(this);
+        this.fakeName.startRiding(this.wrappedEntity);
         this.fakeName.setBillboardConstraints(Display.BillboardConstraints.CENTER);
         this.fakeName.setTransformation(new Transformation(
                 new Vector3f(0.0f, 0.15f, 0.0f),
