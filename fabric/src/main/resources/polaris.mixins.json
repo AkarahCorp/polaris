@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.akarah.polaris.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockItemMixin",
+    "BuiltInRegistriesMixin",
+    "EntityMixin",
+    "FishingHookMixin",
+    "FishingRodItemMixin",
+    "LivingEntityMixin",
+    "MinecraftServerMixin",
+    "MixinFarmlandBlock",
+    "PlayerListMixin",
+    "RegistryDataLoaderMixin",
+    "ReloadableResourceManagerMixin",
+    "ServerCommonPacketListenerImplMixin",
+    "ServerGamePacketListenerMixin",
+    "ServerPlayerGameModeMixin",
+    "ServerPlayerMixin",
+    "NoteBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

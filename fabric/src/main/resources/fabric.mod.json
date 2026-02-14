@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "polaris",
+  "version": "${version}",
+  "name": "Polaris",
+  "description": "The datapack-driven game engine for Minecraft",
+  "authors": [],
+  "contact": {},
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "dev.akarah.polaris.FabricMod"
+    ]
+  },
+  "mixins": [
+    "polaris.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "1.21.11"
+  },
+  "accessWidener": "polaris.accesswidener"
+}

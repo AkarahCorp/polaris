@@ -1,0 +1,78 @@
+package dev.akarah.polaris.script.value.mc;
+
+import dev.akarah.polaris.script.expr.ast.func.MethodTypeHint;
+import dev.akarah.polaris.script.value.RNumber;
+import dev.akarah.polaris.script.value.RString;
+import dev.akarah.polaris.script.value.RuntimeValue;
+import net.minecraft.core.particles.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class RParticle extends RuntimeValue {
+    public final ParticleOptions particleOptions;
+    public RNumber count = RNumber.of(1.0);
+
+    private RParticle(ParticleOptions particleOptions) {
+        this.particleOptions = particleOptions;
+    }
+
+
+    public static String typeName() {
+        return "particle";
+    }
+
+    @SuppressWarnings("unchecked")
+    @MethodTypeHint(signature = "(particle: particle, color: string) -> particle",
+                    documentation = "Colors the particle with an [A]RGB hexadecimal string.")
+    public static RParticle colored(RParticle particle, RString colorString) {
+        var str = colorString.javaValue();
+        if (str.startsWith("#")) {str = str.substring(1);}
+        var color = Integer.parseInt(str, 16);
+        return new RParticle(
+            ColorParticleOption.create(
+                (ParticleType<ColorParticleOption>) particle.particleOptions().getType(),
+                color
+            )
+        );
+    }
+
+    @MethodTypeHint(signature = "(particle: particle, color: string, scale: number) -> particle",
+            documentation = "Colors the dust particle with an RGB hexadecimal string, and sizes it to the provided scale.")
+    public static RParticle dust(RParticle particle, RString colorString, RNumber scale) {
+        var str = colorString.javaValue();
+        if (str.startsWith("#")) {str = str.substring(1);}
+        var color = Integer.parseInt(str, 16);
+        return new RParticle(new DustParticleOptions(color, scale.javaValue().floatValue()));
+    }
+
+    public ParticleOptions particleOptions() {
+        return this.particleOptions;
+    }
+
+    public static RParticle of(ParticleOptions particleOptions) {
+        return new RParticle(particleOptions);
+    }
+
+    @Override
+    public RParticle javaValue() {
+        return this;
+    }
+
+    @Override
+    public RuntimeValue copy() {
+        return RParticle.of(this.particleOptions);
+    }
+
+    public static Map<Identifier, ParticleOptions> OPTIONS = new HashMap<>();
+
+    static {
+        for(var entry : BuiltInRegistries.PARTICLE_TYPE.entrySet()) {
+            if(entry.getValue() instanceof SimpleParticleType simpleParticleType) {
+                OPTIONS.put(entry.getKey().identifier(), simpleParticleType);
+            }
+        }
+    }
+}
