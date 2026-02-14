@@ -20,7 +20,8 @@
     "ServerCommonPacketListenerImplMixin",
     "ServerGamePacketListenerMixin",
     "ServerPlayerGameModeMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "NoteBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1
