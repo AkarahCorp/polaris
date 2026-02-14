@@ -71,9 +71,7 @@ public class DevExtensionStatics {
             for(var method : clazz.getDeclaredMethods()) {
                 try {
                     var typeName = (String) clazz.getMethod("typeName").invoke(null);
-                    System.out.println(method.getName());
                     var annot = (MethodTypeHint) method.getAnnotations()[0];
-                    System.out.println(annot);
                     functions.add(new PrimitiveFunction(
                             typeName + "." + method.getName().replace("__", "."),
                             method.getName().replace("__", "."),

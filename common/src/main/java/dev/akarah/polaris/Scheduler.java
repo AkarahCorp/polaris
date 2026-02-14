@@ -10,13 +10,21 @@ public class Scheduler {
     Map<Integer, List<Runnable>> tasks = Maps.newHashMap();
 
     public void schedule(int delay, Runnable task) {
-        var occursAt = Main.server().getTickCount() + delay;
-        if(!tasks.containsKey(occursAt)) {
-            tasks.put(occursAt, Lists.newArrayList());
-        }
+        try {
+            var occursAt = Main.server().getTickCount() + delay;
+            if(!tasks.containsKey(occursAt)) {
+                tasks.put(occursAt, Lists.newArrayList());
+            }
 
-        var list = tasks.get(occursAt);
-        list.add(task);
+            var list = tasks.get(occursAt);
+            list.add(task);
+        } catch (Exception e) {
+            if(!tasks.containsKey(delay)) {
+                tasks.put(delay, Lists.newArrayList());
+            }
+            var list = tasks.get(delay);
+            list.add(task);
+        }
     }
 
     public void tick() {

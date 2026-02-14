@@ -74,8 +74,6 @@ public class FabricMod implements ModInitializer {
             );
         });
 
-        CommandEventHandler.register();
-
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, _, success) -> {
             if(success) {
                 for(var player : server.getPlayerList().getPlayers()) {

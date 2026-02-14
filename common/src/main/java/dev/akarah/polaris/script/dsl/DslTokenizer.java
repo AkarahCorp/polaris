@@ -91,7 +91,6 @@ public class DslTokenizer {
             stringReader.skipWhitespace();
 
             while(stringReader.peek() == '#') {
-                System.out.println("rding cmt");
                 while(stringReader.peek() != '\n') {
                     stringReader.skip();
                 }

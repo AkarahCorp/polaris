@@ -11,6 +11,7 @@ import dev.akarah.polaris.Main;
 import dev.akarah.polaris.building.PSCommands;
 import dev.akarah.polaris.io.ExceptionPrinter;
 import dev.akarah.polaris.registry.Resources;
+import dev.akarah.polaris.registry.command.ArgumentCommandNode;
 import dev.akarah.polaris.script.exception.SpannedException;
 import dev.akarah.polaris.script.value.RNullable;
 import dev.akarah.polaris.script.value.RNumber;
@@ -232,9 +233,5 @@ public class CommandEventHandler {
                         )
                 )
         );
-    }
-
-    public static void register() {
-
     }
 }
