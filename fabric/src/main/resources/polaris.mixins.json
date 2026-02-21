@@ -12,14 +12,15 @@
     "LivingEntityMixin",
     "MinecraftServerMixin",
     "MixinFarmlandBlock",
+    "NoteBlockMixin",
     "PlayerListMixin",
     "RegistryDataLoaderMixin",
     "ReloadableResourceManagerMixin",
+    "ResourcePackIdMixin",
     "ServerCommonPacketListenerImplMixin",
     "ServerGamePacketListenerMixin",
     "ServerPlayerGameModeMixin",
-    "ServerPlayerMixin",
-    "NoteBlockMixin"
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
