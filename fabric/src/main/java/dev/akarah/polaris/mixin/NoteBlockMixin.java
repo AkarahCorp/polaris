@@ -30,6 +30,7 @@ public class NoteBlockMixin {
             RandomSource randomSource,
             CallbackInfoReturnable<BlockState> cir
     ) {
+        cir.setReturnValue(blockState);
         cir.cancel();
     }
 }
