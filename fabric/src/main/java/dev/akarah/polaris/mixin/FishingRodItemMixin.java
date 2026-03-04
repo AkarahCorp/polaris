@@ -1,5 +1,6 @@
 package dev.akarah.polaris.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.akarah.polaris.registry.Resources;
 import dev.akarah.polaris.script.value.mc.REntity;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FishingRodItem.class)
 public class FishingRodItemMixin {
+
     @Inject(at = @At("HEAD"), method = "use", cancellable = true)
     public void cast(Level level, Player player, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
         Resources.config().fishingConfig().ifPresent(fishingConfig -> {
