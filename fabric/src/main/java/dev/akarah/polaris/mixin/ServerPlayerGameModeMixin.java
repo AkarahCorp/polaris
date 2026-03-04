@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -90,12 +91,10 @@ public class ServerPlayerGameModeMixin {
             cir.setReturnValue(InteractionResult.SUCCESS);
             cir.cancel();
         }
-        for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
-            Resources.actionManager().performEvents(
-                    "item.right_click",
-                    REntity.of(serverPlayer),
-                    RItem.of(item)
-            );
-        }
+        Resources.actionManager().performEvents(
+                "item.right_click",
+                REntity.of(serverPlayer),
+                RItem.of(serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND))
+        );
     }
 }
