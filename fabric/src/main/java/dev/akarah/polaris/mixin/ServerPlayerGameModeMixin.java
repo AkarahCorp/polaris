@@ -71,17 +71,27 @@ public class ServerPlayerGameModeMixin {
 
     @Inject(method = "useItem", at = @At("HEAD"))
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        for(var item : EntityUtil.equipmentItemsOf(serverPlayer)) {
-            Resources.actionManager().performEvents(
-                    "item.right_click",
-                    REntity.of(serverPlayer),
-                    RItem.of(item)
-            );
-        }
+        System.out.println(serverPlayer.getName() + " used item");
+        Resources.actionManager().performEvents(
+                "item.right_click",
+                REntity.of(serverPlayer),
+                RItem.of(serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND))
+        );
+        Resources.actionManager().performEvents(
+                "player.right_click_air",
+                REntity.of(serverPlayer),
+                RItem.of(serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND))
+        );
     }
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     public void useItemOn(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        System.out.println(serverPlayer.getName() + " used item on block  v");
+        Resources.actionManager().performEvents(
+                "item.right_click",
+                REntity.of(serverPlayer),
+                RItem.of(serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND))
+        );
         var result = Resources.actionManager().performEvents(
                 "player.right_click_block",
                 REntity.of(serverPlayer),
@@ -91,10 +101,5 @@ public class ServerPlayerGameModeMixin {
             cir.setReturnValue(InteractionResult.SUCCESS);
             cir.cancel();
         }
-        Resources.actionManager().performEvents(
-                "item.right_click",
-                REntity.of(serverPlayer),
-                RItem.of(serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND))
-        );
     }
 }
