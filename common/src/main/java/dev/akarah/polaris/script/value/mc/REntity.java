@@ -637,7 +637,7 @@ public class REntity extends RuntimeValue {
     @MethodTypeHint(signature = "(entity: entity, xp: number) -> void", documentation = "Sets the percentage of XP on the player's XP bar. 0 for none, 1 for full.")
     public static void player__set_xp_progress(REntity $this, RNumber xp) {
         if($this.javaValue() instanceof ServerPlayer serverPlayer) {
-            serverPlayer.experienceProgress = (float) level.doubleValue();
+            serverPlayer.experienceProgress = (float) xp.doubleValue();
         }
     }
 }
