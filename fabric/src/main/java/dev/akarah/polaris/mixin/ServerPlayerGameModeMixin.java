@@ -71,7 +71,6 @@ public class ServerPlayerGameModeMixin {
 
     @Inject(method = "useItem", at = @At("HEAD"))
     public void useItem(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        System.out.println(serverPlayer.getName() + " used item");
         Resources.actionManager().performEvents(
                 "item.right_click",
                 REntity.of(serverPlayer),
@@ -86,7 +85,6 @@ public class ServerPlayerGameModeMixin {
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     public void useItemOn(ServerPlayer serverPlayer, Level level, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
-        System.out.println(serverPlayer.getName() + " used item on block  v");
         Resources.actionManager().performEvents(
                 "item.right_click",
                 REntity.of(serverPlayer),
