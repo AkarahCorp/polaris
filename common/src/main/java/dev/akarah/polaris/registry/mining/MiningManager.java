@@ -43,9 +43,11 @@ public class MiningManager {
                         try {
                             var property = definition.getProperty(stateEntry.getKey());
                             assert property != null;
-                            var value = property.getValue(stateEntry.getValue()).orElseThrow();
-                            if(!state.getValue(property).equals(value)) {
-                                return false;
+                            for(var valueStr : stateEntry.getValue()) {
+                                var value = property.getValue(valueStr).orElseThrow();
+                                if(!state.getValue(property).equals(value)) {
+                                    return false;
+                                }
                             }
                         } catch (Exception e) {
                             return false;
