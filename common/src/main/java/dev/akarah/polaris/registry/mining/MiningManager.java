@@ -45,13 +45,14 @@ public class MiningManager {
                             boolean pass = false;
                             assert property != null;
                             for(var valueStr : stateEntry.getValue()) {
-                                var value = property.getValue(valueStr).orElseThrow();
+                                var value = property.getValue(valueStr).orElseThrow(() -> new RuntimeException(valueStr));
                                 if(state.getValue(property).equals(value)) {
                                     pass = true;
                                 }
                             }
                             return pass;
                         } catch (Exception e) {
+                            System.out.println("WARNING: Invalid property value: " + e.getMessage());
                             return false;
                         }
                     }
