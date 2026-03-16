@@ -40,13 +40,13 @@ public abstract class FishingHookMixin {
         if(this.nibble <= 0 && this.timeUntilLured <= 0) {
             Resources.config().fishingConfig().ifPresent(fishingConfig -> {
                 var lureStat = Resources.statManager().lookup((ServerPlayer) this.getPlayerOwner()).get(fishingConfig.lureSpeedStat());
-                this.timeUntilLured = Math.max(fishingConfig.baseLureTime() - (int) lureStat, 5);
+                this.timeUntilLured = (int) (((Math.random() * 6) - 3) + Math.max(fishingConfig.baseLureTime() - (int) lureStat, 5));
             });
         }
         if(this.timeUntilHooked <= 0 && this.timeUntilLured == 1) {
             Resources.config().fishingConfig().ifPresent(fishingConfig -> {
                 var hookStat = Resources.statManager().lookup((ServerPlayer) this.getPlayerOwner()).get(fishingConfig.hookSpeedStat());
-                this.timeUntilHooked = Math.max(fishingConfig.baseHookTime() - (int) hookStat, 5);
+                this.timeUntilHooked = (int) (((Math.random() * 6) - 3) + Math.max(fishingConfig.baseHookTime() - (int) hookStat, 5));
             });
         }
     }
